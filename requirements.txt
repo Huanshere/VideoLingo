@@ -1,0 +1,16 @@
+icecream
+requests
+pandas
+jupyter
+openai
+openpyxl
+spacy
+whisper_timestamped
+yt-dlp
+pyyaml
+pydub
+librosa
+json-repair
+resampy
+streamlit
+# ��Ҫ�ֶ�����uvr5ģ�ͷ���model cache��
