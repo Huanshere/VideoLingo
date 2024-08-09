@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
 
 ## 🛣️ Roadmap
 
-- [] Optimize TTS tone
+- [ ] Optimize TTS tone
 
 ## Star History
 

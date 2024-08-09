@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
 
 ## 🛣️ 路线图
 
-- [] 优化 tts 语气
+- [ ] 优化 tts 语气
 
 ## Star 历史
 
