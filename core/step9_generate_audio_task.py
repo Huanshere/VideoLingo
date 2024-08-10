@@ -58,6 +58,8 @@ def process_srt(file_path):
             # 删除括号内的内容（包括英文和中文括号）
             text = re.sub(r'\([^)]*\)', '', text).strip()
             text = re.sub(r'（[^）]*）', '', text).strip()
+            # 删掉 - 字符，可继续补充会导致错误的非法字符
+            text = text.replace('-', '')
 
         except ValueError:
             print(f"警告：无法解析字幕块 '{block}'，跳过此字幕块。")

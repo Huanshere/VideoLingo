@@ -42,7 +42,7 @@ def start_backend_service():
     for _ in range(5):  # 每隔5s ping一次，一共ping 5次
         if ping_tts_service():
             print("服务已启动")
-            return process  # 返回进程对象
+            return
         time.sleep(5)
 
     raise Exception("服务在30秒内未启动")
@@ -130,9 +130,8 @@ def generate_audio(character, text, target_duration, save_as, number):
     print(f"✅ {number} 选中的音频: {save_as}, 时长: {selected[1]:.2f}秒，要求的时长: {target_duration:.2f}秒")
 
 def process_sovits_tasks():
-    process = None
     if not ping_tts_service():
-        process = start_backend_service()
+        start_backend_service()
 
     tasks_df = pd.read_excel("output/audio/sovits_tasks.xlsx")
     error_tasks = []
@@ -150,15 +149,23 @@ def process_sovits_tasks():
             generate_audio(DUBBNING_CHARACTER, text, duration, output_file, number)
         except Exception as e:
             try:
-                print(f"任务 {number} 处理出错: {str(e)}，尝试精简字幕...")
+                print(f"任务 {number} 处理出错: {str(e)}，尝试第1次精简字幕...")
                 prompt = get_subtitle_trim_prompt(text, duration, fierce_mode = True)
                 response = ask_gpt(prompt, model=step9_trim_model, response_json=True, log_title='sovits_trim')
                 text = response['trans_text_processed']
-                print(f"精简前的字幕：{row['text']}\n精简后的字幕: {text}")
+                print(f"第1次精简前的字幕：{row['text']}\n第1次精简后的字幕: {text}")
                 generate_audio(DUBBNING_CHARACTER, text, duration, output_file, number)
             except Exception as e:
-                error_tasks.append(number)
-                print(f"任务 {number} 处理出错: {str(e)}")
+                try:
+                    print(f"任务 {number} 处理出错: {str(e)}，尝试第2次精简字幕...")
+                    prompt = get_subtitle_trim_prompt(text, duration, fierce_mode = True) + '\n'
+                    response = ask_gpt(prompt, model=step9_trim_model, response_json=True, log_title='sovits_trim')
+                    text = response['trans_text_processed']
+                    print(f"第2次精简前的字幕：{row['text']}\n第2次精简后的字幕: {text}")
+                    generate_audio(DUBBNING_CHARACTER, text, duration, output_file, number)
+                except Exception as e:
+                    error_tasks.append(number)
+                    print(f"任务 {number} 处理出错: {str(e)}")
 
     if error_tasks:
         error_msg = f"以下任务处理出错: {', '.join(map(str, error_tasks))}，请检查 output/audio/sovits_tasks.xlsx 中的对应内容并修改。"

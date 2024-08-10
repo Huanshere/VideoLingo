@@ -19,13 +19,13 @@
 
 - 🎤 个性化配音的语音克隆（测试版功能）。
 
-> 看看我们的演示吧！🚀💪
+> 看看演示吧！🚀💪
 
-https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
+https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 
 ## 💡 特点
 
-- 📚 NLP 和 LLM 驱动的字幕分割
+- 📚 使用 NLP 和 LLM 进行字幕分割
 
 - 🧠 智能术语知识库，实现上下文感知翻译
 
@@ -35,24 +35,26 @@ https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
 
 - 🎤 GPT-SoVits 高质量的个性化配音
 
-- 👨‍💻 开发者友好：逐步结构化文件，便于自定义
-
-- 📘 全面的文档：[英文指南](./docs/README_guide_en.md) | [中文指南](./docs/README_guide_zh.md)
+- 👨‍💻 开发者友好：逐步结构化文件，便于自定义 : [英文文档](./docs/README_guide_en.md) | [中文文档](./docs/README_guide_zh.md)
 
 ## 🎯 如何使用
 
-1. 下载 release 中的一键启动包（推荐）
+1. 下载一键启动包（推荐）
 
 2. 配置 `config.py` 中的 api_key
 
-3. 点击 `一键启动.bat` 启动 Streamlit
+3. 点击 `一键启动.bat` 启动 Streamlit！
 
-4. 开始使用 VideoLingo！
+<div style="display: flex; justify-content: space-around;">
+  <img src="docs/demo1.png" alt="Demo 1" width="45%" />
+  <img src="docs/demo2.png" alt="Demo 2" width="45%" />
+</div>
+
 
 ## 🚀 从头安装
 
 > **注意**：此安装指南适用于 Mac 和 Windows 系统。
-> 但此版本只有字幕翻译部分，需要配音功能请下载一键启动包。
+> 此版本只有字幕翻译和对齐部分，后续配音功能请下载一键启动包。
 
 1. 克隆仓库：
    ```bash
@@ -66,19 +68,37 @@ https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
    conda activate videolingo
    ```
 
-3. 配置`config.py`
+3. 配置 `config.py`
 
 4. 执行安装脚本：
    ```bash
    python install.py
    ```
 
-🎉 恭喜！您的 VideoLingo 环境现在已准备就绪。
+5. 🎉启动streamlt!
+   ```bash
+   streamlit run st.py
+   ```
 
 ## 🛣️ 路线图
 
 - [ ] 优化 tts 语气
 
+- [ ] 整块翻译再分块对齐提高翻译质量
+
+## 🙏 致谢
+
+感谢以下开源项目的贡献:
+
+- [whisper](https://github.com/openai/whisper): OpenAI的开源自动语音识别系统
+
+- [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): 为Whisper添加时间戳功能的扩展
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp): 用于下载YouTube视频和其他网站内容的命令行工具
+- [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS): 基于GPT和SoVITS的语音合成系统
+- [FFmpeg](https://github.com/FFmpeg/FFmpeg): 用于处理多媒体内容的完整跨平台解决方案
+- [Ultimate Vocal Remover GUI v5 (UVR5)](https://github.com/Anjok07/ultimatevocalremovergui): 用于分离音乐中的人声和伴奏的工具
+
 ## Star 历史
 
 [![Star 历史图表](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo)
+

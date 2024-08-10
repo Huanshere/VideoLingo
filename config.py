@@ -28,7 +28,7 @@ llm_config: list = [
         'name': 'ohmygpt',
         'api_key': OHMYGPT_API_KEY,
         'base_url': 'https://api.ohmygpt.com',
-        'model': ['deepseek-coder','gpt-4o', 'claude-3-5-sonnet-20240620', 'TA/Qwen/Qwen1.5-72B-Chat'],
+        'model': ['deepseek-coder','gpt-4o', 'claude-3-5-sonnet-20240620', "TA/Qwen/Qwen1.5-72B-Chat"],
     },
     {
         'name': 'openrouter',

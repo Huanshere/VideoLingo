@@ -3,7 +3,7 @@ import os, glob
 from core import step1_ytdlp, step2_whisper_stamped, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
-from core import step10_generate_audio, step11_merge_audio, step12_merge_audio_to_vid
+from core import step10_generate_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
 
 def set_page_config():
@@ -17,11 +17,11 @@ def set_page_config():
 def sidebar_info():
     st.sidebar.title("🌟 关于 VideoLingo")
     st.sidebar.info(
-        "VideoLingo 是一个高级视频处理应用，"
+        "VideoLingo 是一个全自动烤肉机，"
         "可以下载视频、转录音频、翻译内容、"
         "生成专业级字幕，并进行个性化配音。"
     )
-    st.sidebar.markdown("🚀 [访问我们的 GitHub 仓库](https://github.com/Huanshere/VideoLingo) 🌟")
+    st.sidebar.markdown("🚀 [看看 GitHub 仓库](https://github.com/Huanshere/VideoLingo) 🌟")
     st.sidebar.success("开始你的视频本地化之旅吧！")
     st.sidebar.markdown("### 📂 处理日志位于 `output` 文件夹")
     
@@ -124,7 +124,7 @@ def process_text(progress_bar, step_status, total_steps):
     st.balloons()
 
 def audio_processing_section(progress_bar, step_status, total_steps):
-    st.header("8-12. 音频处理 🎵")
+    st.header("8-11. 音频处理 🎵")
     with st.expander("展开详情", expanded=True):
         st.info("""
         这个阶段包括以下步骤：
@@ -132,8 +132,7 @@ def audio_processing_section(progress_bar, step_status, total_steps):
         8. 提取参考音频
         9. 生成音频任务
         10. 使用SoVITS生成音频 (如果出错了请检查命令行输出手动精简 `output/audio/sovits_tasks.xlsx` 中对应行的字幕) (完成后可手动关闭cmd)
-        11. 合并所有音频
-        12. 将音频合并到视频中
+        11. 将音频合并到视频中
         """)
         if not os.path.exists("output/output_video_with_audio.mp4"):
             if st.button("开始音频处理", key="audio_processing_button"):
@@ -141,7 +140,7 @@ def audio_processing_section(progress_bar, step_status, total_steps):
                 st.video("output/output_video_with_audio.mp4") # 展示处理后的视频
                 return True
         else:
-            update_progress(progress_bar, step_status, 12, total_steps, "音频合并到视频完成")
+            update_progress(progress_bar, step_status, total_steps, total_steps, "音频合并到视频完成")
             st.success("音频处理已完成! 🎉")
             st.video("output/output_video_with_audio.mp4")
     return False
@@ -153,8 +152,7 @@ def process_audio(progress_bar, step_status, total_steps):
         ("提取音频...", lambda: step8_extract_refer_audio.step8_main(input_video), 8),
         ("生成音频任务...", step9_generate_audio_task.step9_main, 9),
         ("使用SoVITS生成音频...\n⚠️ 这一步很有可能会因为字幕长度过长而出错，请在运行后根据cmd提示修改对应字幕后重新运行", step10_generate_audio.process_sovits_tasks, 10),
-        ("合并音频...", step11_merge_audio.merge_all_audio, 11),
-        ("合并音频到视频...", step12_merge_audio_to_vid.merge_video_audio, 12)
+        ("合并音频到视频...", step11_merge_audio_to_vid.merge_all_audio, 11),
     ]
     
     for description, func, step in steps:
@@ -170,7 +168,7 @@ def main():
     st.title("🌉 VideoLingo: 连接世界的每一帧")
     sidebar_info()
 
-    total_steps = 12
+    total_steps = 11
     progress_bar, step_status = create_step_progress(total_steps)
 
     if download_video_section():
