@@ -19,11 +19,11 @@ def sidebar_info():
     st.sidebar.info(
         "VideoLingo 是一个全自动烤肉机，"
         "可以下载视频、转录音频、翻译内容、"
-        "生成专业级字幕，并进行个性化配音。"
+        "生成专业级字幕，甚至还可以进行个性化配音。"
     )
     st.sidebar.markdown("🚀 [看看 GitHub 仓库](https://github.com/Huanshere/VideoLingo) 🌟")
     st.sidebar.success("开始你的视频本地化之旅吧！")
-    st.sidebar.markdown("### 📂 处理日志位于 `output` 文件夹")
+    st.sidebar.info("📂 处理日志位于 `output` 文件夹")
     
 
     if st.sidebar.button("📦 一键归档历史记录", key="cleanup_button"):
