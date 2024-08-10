@@ -46,15 +46,15 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 3. 点击 `一键启动.bat` 启动 Streamlit！
 
 <div style="display: flex; justify-content: space-around;">
-  <img src="docs/demo1.png" alt="Demo 1" width="45%" />
-  <img src="docs/demo2.png" alt="Demo 2" width="45%" />
+  <img src="https://github.com/user-attachments/assets/4c41b498-574d-457b-80de-fefbede731e1" alt="Demo 1" width="45%" />
+  <img src="https://github.com/user-attachments/assets/210ba9e6-1f8a-41d7-a8d5-d0d6fd96deea" alt="Demo 2" width="45%" />
 </div>
 
 
 ## 🚀 从头安装
 
 > **注意**：此安装指南适用于 Mac 和 Windows 系统。
-> 如需配音功能还需要下载 GPT-SoVITS-Inference 放在当前目录下。
+> 如需配音功能还需要下载 GPT-SoVITS-Inference 放在当前目录下。（Mac的配音功能还在施工中）
 
 1. 克隆仓库：
    ```bash
@@ -85,6 +85,8 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 - [ ] 优化 tts 语气
 
 - [ ] 整块翻译再分块对齐提高翻译质量
+
+- [ ] 配音功能支持 Mac
 
 ## 🙏 致谢
 

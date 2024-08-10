@@ -13,4 +13,3 @@ librosa
 json-repair
 resampy
 streamlit
-# ��Ҫ�ֶ�����uvr5ģ�ͷ���model cache��
