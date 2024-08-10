@@ -2,7 +2,6 @@
 
 ![Python](https://img.shields.io/badge/python-v3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-<a href="https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/Colab_VideoLingo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="在 Colab 中打开"/></a>
 ![GitHub stars](https://img.shields.io/github/stars/Huanshere/VideoLingo.svg)
 
 [中文](README.md) | [English](README.en.md)
