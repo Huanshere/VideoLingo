@@ -6,17 +6,15 @@
 
 [中文](README.md) | [English](README.en.md)
 
-🎥✨ 厌倦了杂乱的 YouTube 翻译？发现无缝视频本地化的魔力吧！
+🍖 全自动视频搬运工：从英语视频链接无缝生成本土化翻译和配音视频！
 
-## 🌟 我们提供什么
+## 🌟 能做什么
 
-- 🎬 Netflix 品质的字幕：告别业余翻译！
-  
-- 💰 极低成本：仅需 1 元即可创作 5 分钟的跨语言字幕
-  
-- 🤖 利用 NLP 和 LLM 进行专业级翻译和字幕分割对齐
+- 🎬 生成 Netflix 品质的字幕：告别业余翻译！
 
-- 🎤 个性化配音的语音克隆（测试版）
+- 🎤 克隆自己的声音进行配音（测试版）
+
+- ✨ 在 streamlit 中点击-完成！
 
 > 看看演示吧！🚀💪
 
@@ -32,13 +30,15 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 
 - 🎯 精确的单词级字幕对齐
 
+- 💰 极低成本：仅需 1 元即可创作 5 分钟的跨语言字幕
+
 - 🎤 GPT-SoVits 高质量的个性化配音
 
 - 👨‍💻 开发者友好：逐步结构化文件，便于自定义 : [英文文档](./docs/README_guide_en.md) | [中文文档](./docs/README_guide_zh.md)
 
 ## 🎯 如何使用
 
-1. 下载一键启动包（仅限 windows，Mac 用户请从头安装）
+1. 下载一键启动包：[点击这里](https://pan.baidu.com/s/1qeI1hG5ZLAQ8sWFooucJ0w?pwd=1001)（仅限 Windows，Mac 用户请从源码安装）
 
 2. 配置 `config.py` 中的 api_key
 
