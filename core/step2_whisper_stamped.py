@@ -36,7 +36,7 @@ def convert_video_to_audio_and_transcribe(input_file: str):
             return None
         
         # Transcribe audio
-        device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+        device = 'cuda:0' if torch.cuda.is_available() else 'cpu' # sadly whisper does not support mps on mac
         print(f"🚀 Starting Whisper...\n🖥️  ASR Device: {device}")
         
         audio = whisper.load_audio(audio_file)

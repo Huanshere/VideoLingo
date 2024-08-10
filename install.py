@@ -54,8 +54,12 @@ def install_torch(gpu_available):
             print("No GPU detected. Installing PyTorch without CUDA support...")
             install_package("torch", "torchvision", "torchaudio")
     elif platform.system() == "Darwin":  # macOS
-        print("Installing PyTorch for macOS...")
-        install_package("torch", "torchvision", "torchaudio")
+        if "arm" in platform.processor().lower():
+            print("Apple Silicon detected. Installing PyTorch with MLX (Metal) support...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--pre", "torch", "torchvision", "torchaudio", "--extra-index-url", "https://download.pytorch.org/whl/nightly/cpu"])
+        else:
+            print("Installing PyTorch for macOS without MLX support...")
+            install_package("torch", "torchvision", "torchaudio")
     elif platform.system() == "Linux":
         if gpu_available:
             print("GPU detected. Installing PyTorch with CUDA support...")

@@ -5,6 +5,15 @@ from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, st
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
 from core import step10_generate_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
+from core.ask_gpt import ask_gpt
+from config import step3_2_split_model
+
+def check_api():
+    try:
+        ask_gpt('this is a test. response {"status": 200} in json format.', model = step3_2_split_model, response_json=True, log_title='test')
+        return True
+    except:
+        return False
 
 def set_page_config():
     st.set_page_config(
@@ -15,21 +24,43 @@ def set_page_config():
     )
 
 def sidebar_info():
+    api_status = check_api()
     st.sidebar.title("🌟 关于 VideoLingo")
-    st.sidebar.info(
-        "VideoLingo 是一个全自动烤肉机，"
-        "可以下载视频、转录音频、翻译内容、"
-        "生成专业级字幕，甚至还可以进行个性化配音。"
-    )
-    st.sidebar.markdown("🚀 [看看 GitHub 仓库](https://github.com/Huanshere/VideoLingo) 🌟")
-    st.sidebar.success("开始你的视频本地化之旅吧！")
-    st.sidebar.info("📂 处理日志位于 `output` 文件夹")
+    st.sidebar.info("VideoLingo 是一个全自动烤肉机，可以下载视频、转录音频、翻译内容、生成专业级字幕，甚至还可以进行个性化配音。")
     
+    if not api_status:
+        st.sidebar.warning("⚠️ 请检查 `config.py` 的 api_key 是否正确填写")
+    else:
+        st.sidebar.success("✅ api_key 已加载，开始视频本地化之旅吧！")
 
-    if st.sidebar.button("📦 一键归档历史记录", key="cleanup_button"):
-        cleanup()
+    with st.sidebar.expander("常见问题", expanded= False):
+        faq_data = [
+            {
+                "question": "为什么处理得这么慢？",
+                "answer": "视频翻译难的不在翻译，而在字幕分割和对齐，此外本项目还进行了专有名词提取、多步翻译。若追求速度推荐 **沉浸式翻译** Chrome插件"
+            },
+            {
+                "question": "支持什么语言？",
+                "answer": "理论上输入输出支持所有语言，注意修改 `config.py` 中的设定。"
+            },
+            {
+                "question": "我可以自行编辑处理好的 srt 文件吗？",
+                "answer": "是的，所有的输出文件都在`output`目录下，输出的视频仅为低分辨率的 demo，更推荐自行校对和压制"
+            },
+            {
+                "question": "消耗 api 金额大吗？",
+                "answer": "在推荐配置下，5min 视频只需要 1 元。如果降低质量要求，可以在`config.py`中调整为全使用`deepseek-coder`，近乎免费"
+            }
+        ]
 
-def create_step_progress(total_steps):
+        for faq in faq_data:
+            st.markdown(f"**Q: {faq['question']}**")
+            st.markdown(f"A: {faq['answer']}")
+            st.markdown("")
+
+    st.sidebar.markdown("🚀 [看看 GitHub 仓库](https://github.com/Huanshere/VideoLingo) 🌟")
+
+def create_step_progress():
     progress_bar = st.progress(0)
     step_status = st.empty()
     return progress_bar, step_status
@@ -57,9 +88,7 @@ def download_video_section():
                     st.video(video_file)
                     return True
             
-            st.write("或者")
-            
-            uploaded_file = st.file_uploader("上传视频文件", type=["mp4", "webm"])
+            uploaded_file = st.file_uploader("或者上传视频文件", type=["mp4", "webm"])
             if uploaded_file:
                 with open(os.path.join("./", uploaded_file.name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
@@ -78,7 +107,7 @@ def download_video_section():
     return False
 
 def text_processing_section(progress_bar, step_status, total_steps):
-    st.header("2-7. 文本处理 📝")
+    st.header("2-7. 字幕翻译生成 📝")
     with st.expander("展开详情", expanded=True):
         st.info("""
         这个阶段包括以下步骤：
@@ -124,7 +153,7 @@ def process_text(progress_bar, step_status, total_steps):
     st.balloons()
 
 def audio_processing_section(progress_bar, step_status, total_steps):
-    st.header("8-11. 音频处理 🎵")
+    st.header("8-11. SoVits 配音 🎵")
     with st.expander("展开详情", expanded=True):
         st.info("""
         这个阶段包括以下步骤：
@@ -164,12 +193,13 @@ def process_audio(progress_bar, step_status, total_steps):
     st.balloons()
 
 def main():
+    check_api()
     set_page_config()
     st.title("🌉 VideoLingo: 连接世界的每一帧")
     sidebar_info()
 
     total_steps = 11
-    progress_bar, step_status = create_step_progress(total_steps)
+    progress_bar, step_status = create_step_progress()
 
     if download_video_section():
         update_progress(progress_bar, step_status, 1, total_steps, "视频下载完成")
@@ -178,7 +208,9 @@ def main():
             if not os.path.exists("GPT-SoVITS-Inference"):
                 st.warning("如需进行配音处理，请将 GPT-SoVITS-Inference 和 uvr5 文件夹放在当前目录下")
             else:
-                audio_processing_section(progress_bar, step_status, total_steps)
+                if audio_processing_section(progress_bar, step_status, total_steps):
+                    if st.button("📦 一键归档历史记录", key="cleanup_button"):
+                        cleanup()
 
 if __name__ == "__main__":
     main()
