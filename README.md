@@ -39,7 +39,7 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 
 ## 🎯 如何使用
 
-1. 下载一键启动包（推荐）
+1. 下载一键启动包windows（推荐）
 
 2. 配置 `config.py` 中的 api_key
 
@@ -54,7 +54,7 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 ## 🚀 从头安装
 
 > **注意**：此安装指南适用于 Mac 和 Windows 系统。
-> 此版本只有字幕翻译和对齐部分，后续配音功能请下载一键启动包。
+> 如需配音功能还需要下载 GPT-SoVITS-Inference 放在当前目录下。
 
 1. 克隆仓库：
    ```bash

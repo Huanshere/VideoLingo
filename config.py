@@ -42,7 +42,7 @@ llm_config: list = [
 llm_support_json = ['deepseek-coder', 'gpt-4o']
 
 # Whisper 和 NLP 配置
-WHISPER_MODEL = "large-v2"    # medium :12 GB < GPU > 12GB : 强烈推荐 large-v2
+WHISPER_MODEL = "medium"    # medium :12 GB < GPU > 12GB : large-v2
 SPACY_NLP_MODEL = "en_core_web_md"   # _md 足够
 
 # 音频配置

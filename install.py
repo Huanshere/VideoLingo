@@ -76,8 +76,27 @@ def install_requirements():
 
 def download_spacy_model():
     """Download the specified spaCy model."""
-    print(f"Downloading spaCy model: {SPACY_NLP_MODEL}")
-    subprocess.check_call([sys.executable, "-m", "spacy", "download", SPACY_NLP_MODEL])
+    import spacy
+    from spacy.cli import download
+    try:
+        spacy.load(SPACY_NLP_MODEL)
+    except:
+        print(f"Downloading {SPACY_NLP_MODEL} model...")
+        download(SPACY_NLP_MODEL)
+
+def dowanload_uvr_model():
+    """Download the specified uvr model."""
+    if not os.path.exists("_model_cache/uvr5_weights/HP2_all_vocals.pth"):
+        os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
+        import requests
+        print("Downloading UVR model...")
+        url = "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth"
+        response = requests.get(url)
+        with open("_model_cache/uvr5_weights/HP2_all_vocals.pth", "wb") as file:
+            file.write(response.content)
+        print("UVR model downloaded successfully.")
+    else:
+        print("HP2_all_vocals.pth already exists. Skipping download.")
 
 def download_and_extract_ffmpeg():
     """Download FFmpeg based on the platform, extract it, and clean up."""
@@ -154,6 +173,9 @@ def main():
     install_package("spacy")
     download_spacy_model()
     
+    # Download UVR model
+    dowanload_uvr_model()
+
     # Download Whisper model .pt
     import torch
     import whisper_timestamped as whisper

@@ -163,7 +163,4 @@ _model_cache/
 *.mp3
 .DS_Store
 config_hide.py
-.conda/
 GPT-SoVITS-Inference/
-_backup/
-uvr5/
