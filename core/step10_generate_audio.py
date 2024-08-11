@@ -25,7 +25,7 @@ def generate_audio(text, character, target_duration, save_as, number):
     """
     生成音频并选择最接近目标时长的版本
     """
-    speeds = [0.9, 1.0, 1.15, 1.3]
+    speeds = [1.0, 1.15, 1.3]
     results = []
     os.makedirs('output/audio/tmp', exist_ok=True)
 
