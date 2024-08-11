@@ -1,9 +1,10 @@
 import sys,os,math
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import concurrent.futures
-from ask_gpt import ask_gpt, step3_2_split_model
-from prompts_storage import get_split_prompt
+from core.ask_gpt import ask_gpt, step3_2_split_model
+from core.prompts_storage import get_split_prompt
 from difflib import SequenceMatcher
+from config import MAX_SPLIT_LENGTH
 
 def find_split_positions(original, modified):
     split_positions = []
@@ -89,7 +90,7 @@ def split_sentences_by_meaning():
     with open('output/log/sentence_splitbymark.txt', 'r', encoding='utf-8') as f:
         sentences = [line.strip() for line in f.readlines()]
 
-    max_length = 18 # ! important
+    max_length = MAX_SPLIT_LENGTH # 18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 
     # 🔄 Process sentences multiple times to ensure all are split
     for retry_attempt in range(5):

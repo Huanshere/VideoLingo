@@ -7,8 +7,8 @@ OHMYGPT_API_KEY = ''
 TARGET_LANGUAGE = '简体中文'  # 用自然语言描述
 
 # 字幕设置
-MAX_ENGLISH_LENGTH = 80          # 每行英文字幕的最大长度
-MAX_TARGET_LANGUAGE_LENGTH = 30  # 根据目标语言调整（如中文为30）
+MAX_ENGLISH_LENGTH = 80          # 每行英文字幕的最大长度字母数量
+MAX_TARGET_LANGUAGE_LENGTH = 30  # 每行翻译字幕的最大长度 根据目标语言调整（如中文为30）
 
 # SoVITS角色配置
 DUBBNING_CHARACTER = 'Huanyu' 
@@ -23,18 +23,17 @@ step4_2_translate_free_model =  "TA/Qwen/Qwen1.5-72B-Chat"       # 🤔
 step5_align_model = "claude-3-5-sonnet-20240620"                 # 🔥 建议Sonnet
 step9_trim_model = "TA/Qwen/Qwen1.5-72B-Chat"                    # 🍰
 
-# LLM 配置，你可以添加更多 API 如 openai, BASE_URL, MODEL
-OPEN_ROUTER_API_KEY = ''  
+# LLM 配置，你可以参考格式添加更多 API 
 llm_config: list = [
     {
         'name': 'ohmygpt',
         'api_key': OHMYGPT_API_KEY,
-        'base_url': 'https://api.ohmygpt.com',
+        'base_url': 'https://api.ohmygpt.com', # 官方有其他的国内中转站点
         'model': ['deepseek-coder','gpt-4o', 'claude-3-5-sonnet-20240620', "TA/Qwen/Qwen1.5-72B-Chat"],
     },
     {
         'name': 'openrouter',
-        'api_key': OPEN_ROUTER_API_KEY,
+        'api_key': '',
         'base_url': 'https://openrouter.ai/api/v1',
         'model': ['deepseek/deepseek-coder', 'anthropic/claude-3.5-sonnet'],
     },
@@ -49,4 +48,7 @@ SPACY_NLP_MODEL = "en_core_web_md"   # _md 足够
 
 # 音频配置
 MIN_SUBTITLE_DURATION = 5
+
+# 第一次粗切单词数，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
+MAX_SPLIT_LENGTH = 18
 
