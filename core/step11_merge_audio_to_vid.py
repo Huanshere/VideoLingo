@@ -15,11 +15,11 @@ def create_silence(duration, output_file):
 
 def merge_all_audio():
     # 定义输入和输出路径
-    input_excel = r'output\audio\sovits_tasks.xlsx'
-    output_audio = r'output\trans_vocal_total.wav'
+    input_excel = 'output/audio/sovits_tasks.xlsx'
+    output_audio = 'output/trans_vocal_total.wav'
         
     df = pd.read_excel(input_excel)
-    temp_file = r'output\audio\tmp\temp_file_list.txt' 
+    temp_file = r'output/audio/tmp/temp_file_list.txt' 
 
     with open(temp_file, 'w') as f:
         prev_target_start_time = None
@@ -28,7 +28,7 @@ def merge_all_audio():
         for index, row in df.iterrows():
             number = row['number']
             start_time = row['start_time']
-            input_audio = f'output\\audio\\{number}.wav'
+            input_audio = f'output/audio/{number}.wav'
             
             if not os.path.exists(input_audio):
                 print(f"警告: 文件 {input_audio} 不存在,跳过此文件。")
@@ -41,7 +41,7 @@ def merge_all_audio():
             silence_duration = (target_start_time - datetime(1900, 1, 1)).total_seconds() if prev_target_start_time is None else (target_start_time - prev_target_start_time).total_seconds() - prev_actual_duration
             
             if silence_duration > 0:
-                silence_file = f'output\\audio\\tmp\\silence_{index}.wav'
+                silence_file = f'output/audio/tmp/silence_{index}.wav'
                 create_silence(silence_duration, silence_file) 
                 f.write(f"file '{os.path.abspath(silence_file)}'\n")
             
@@ -66,9 +66,9 @@ def merge_all_audio():
         print(f"错误: FFmpeg命令执行失败。\n{e.stderr.decode()}")
 
     os.remove(temp_file)
-    for file in os.listdir(r'output\audio\tmp'):
+    for file in os.listdir('output/audio/tmp'):
         if file.startswith('silence_'):
-            os.remove(os.path.join(r'output\audio\tmp', file))  
+            os.remove(os.path.join('output/audio/tmp', file))  
     print("临时文件已删除。")
 
 def merge_video_audio():
