@@ -18,7 +18,7 @@
 
 > 看看演示吧！🚀💪
 
-https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
+https://github.com/user-attachments/assets/1a08efc7-bb8b-49ed-ade1-a585b8033028
 
 ## 💡 特点
 
@@ -78,13 +78,6 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
    streamlit run st.py
    ```
 
-## 🛣️ 路线图
-
-- [ ] 优化 tts 语气
-
-- [ ] 整块翻译再分块对齐提高翻译质量
-
-- [ ] 配音功能支持 Mac
 
 ## 🙏 致谢
 
