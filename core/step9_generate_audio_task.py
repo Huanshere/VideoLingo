@@ -106,12 +106,12 @@ def process_srt(file_path):
 
 def step9_main():
     # skip if the file
-    if os.path.exists(r'output\audio\sovits_tasks.xlsx'):
-        print(r"output\audio\sovits_tasks.xlsx already exists, skip.")
+    if os.path.exists('output/audio/sovits_tasks.xlsx'):
+        print("output/audio/sovits_tasks.xlsx already exists, skip.")
     else:
-        df = process_srt(r'output\audio\translated_subtitles_for_audio.srt')
+        df = process_srt('output/audio/translated_subtitles_for_audio.srt')
         print(df)
-        df.to_excel(r'output\audio\sovits_tasks.xlsx', index=False)
+        df.to_excel('output/audio/sovits_tasks.xlsx', index=False)
 
 if __name__ == '__main__':
     step9_main()

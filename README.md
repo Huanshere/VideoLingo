@@ -95,10 +95,10 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 
 - [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): 为Whisper添加时间戳功能的扩展
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp): 用于下载YouTube视频和其他网站内容的命令行工具
-- [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS): 基于GPT和SoVITS的语音合成系统
+- [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS) & [GPT-SoVITS-Inference](https://github.com/X-T-E-R/GPT-SoVITS-Inference): 基于GPT和SoVITS的语音合成系统及推理库
 - [FFmpeg](https://github.com/FFmpeg/FFmpeg): 用于处理多媒体内容的完整跨平台解决方案
 - [Ultimate Vocal Remover GUI v5 (UVR5)](https://github.com/Anjok07/ultimatevocalremovergui): 用于分离音乐中的人声和伴奏的工具
-
+- [json_repair](https://github.com/mangiucugna/json_repair): 超无敌的 修复解析 gpt 的 json 输出的库，无缝替代 json.loads
 ## Star 历史
 
 [![Star 历史图表](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo)

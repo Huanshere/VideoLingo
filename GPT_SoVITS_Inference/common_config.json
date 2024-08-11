@@ -1,0 +1,77 @@
+{
+  "app_config": {
+    "locale": {
+      "default": "auto",
+      "description": "Locale settings for the application",
+      "label": "语言",
+      "type": "string",
+      "choices": ["auto", "en_US", "zh_CN", "zh_TW"]
+    },
+    "server_port": {
+      "default": 5000,
+      "description": "Port number for the application, -1 for auto select",
+      "label": "服务端口",
+      "type": "integer"
+    },
+    "server_name": {
+      "default": "0.0.0.0",
+      "description": "Host address for the application",
+      "label": "服务主机",
+      "type": "string",
+      "choices": ["127.0.0.1", "0.0.0.0"]
+    },
+    "inbrowser": {
+      "default": true,
+      "description": "Flag to indicate if the application is running in browser",
+      "label": "是否在浏览器中打开",
+      "type": "boolean"
+    },
+    "synthesizer": {
+      "default": "gsv_fast",
+      "description": "Synthesizer used by app.py, 'remote' for using TTS service running on a remote host",
+      "label": "Web UI 所采用的语音合成器",
+      "type": "string",
+      "choices": ["gsv_fast", "remote"]
+    },
+    "also_enable_api": {
+      "default": true,
+      "description": "Flag to indicate if API is enabled",
+      "label": "是否启用API",
+      "type": "boolean"
+    },
+    "max_text_length": {
+      "default": -1,
+      "description": "Maximum length of text to synthesize in Web UI",
+      "label": "Max Text Length",
+      "type": "integer"
+    },
+    "is_share": {
+      "default": false,
+      "description": "Flag to indicate if sharing is enabled",
+      "label": "是否分享",
+      "type": "boolean"
+    }
+  },
+  "pure_api_config": {
+    "tts_port": {
+      "default": 5000,
+      "description": "Port number for TTS service",
+      "label": "tts服务端口",
+      "type": "integer"
+    },
+    "tts_host": {
+      "default": "0.0.0.0",
+      "description": "Host address for TTS service",
+      "label": "tts主机端口",
+      "type": "string",
+      "choices": ["127.0.0.1", "0.0.0.0"]
+    },
+    "synthesizer": {
+      "default": "gsv_fast",
+      "description": "Synthesizer used by api.py",
+      "label": "api.py 所采用的语音合成器",
+      "type": "string",
+      "choices": ["gsv_fast"]
+    }
+  }
+}

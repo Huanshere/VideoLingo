@@ -1,0 +1,6 @@
+{
+    "url": "http://localhost:5000",
+    "tts_endpoint": "/tts",
+    "character_endpoint": "/character_list",
+    "based_synthesizer": "gsv_fast"
+}

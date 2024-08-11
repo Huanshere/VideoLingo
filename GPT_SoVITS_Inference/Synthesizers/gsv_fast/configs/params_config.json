@@ -1,0 +1,201 @@
+{
+    "task_type":{
+        "type": "str",
+        "description": "Task type for the API.",
+        "alias": ["task_type", "task", "type", "textType"],
+        "default": "tts"
+    },
+    "text": {
+        "type": "str",
+        "label": "文本",
+        "description": "The text to be synthesized.",
+        "alias": ["text", "txt", "tex", "t"],
+        "default": ""
+    },
+    "ssml": {
+        "type": "str",
+        "label": "SSML文本",
+        "description": "The SSML text to be synthesized.",
+        "alias": ["ssml", "text", "txt", "tex", "t"],
+        "default": null
+    },
+    "text_language": {
+        "type": "str",
+        "label": "文本语言",
+        "description": "Language of the text.",
+        "alias": ["text_language", "lang", "language", "lan", "text_lang", "xml:lang"],
+        "choices": ["auto", "zh", "en", "ja", "all_zh", "all_ja"],
+        "default": "auto"
+    },
+    "character": {
+        "type": "str",
+        "label": "角色模型",
+        "description": "Character name for the model.",
+        "alias": ["cha_name", "character", "model_name", "cha", "spk" , "speaker", "name", "role"],
+        "default": ""
+    },
+    "emotion": {
+        "type": "str",
+        "label": "情感风格",
+        "description": "Emotion of the character.",
+        "alias": ["character_emotion", "emotion", "style"],
+        "default": "default"
+    },
+    "ref_audio_path":{
+        "type": "str",
+        "component_type":"audio",
+        "label": "参考音频路径, 启用后将忽视emotion参数",
+        "description": "Reference audio path for the model.",
+        "alias": ["ref_audio_path", "ref_audio", "ref_path"],
+        "default": null
+    },
+    "prompt_text": {
+        "type": "str",
+        "label": "参考音频文本",
+        "description": "Reference audio text for the model.",
+        "alias": ["prompt_text", "ref_text"],
+        "default": null
+    },
+    "prompt_language": {
+        "type": "str",
+        "label": "参考音频语言",
+        "description": "Reference audio language for the model.",
+        "alias": ["prompt_language", "ref_lang"],
+        "choices": ["auto", "zh", "en", "ja", "all_zh", "all_ja"],
+        "default": "auto"
+    },
+    "speaker_id": {
+        "type": "int",
+        "label": "角色ID",
+        "description": "Speaker ID for the model.",
+        "alias": ["speaker_id",  "id"],
+        "default": null
+    },
+    "batch_size": {
+        "type": "int",
+        "label": "批处理大小",
+        "description": "Batch size for processing.",
+        "alias": ["batch_size", "batch"],
+        "default": 10,
+        "min_value": 1,
+        "max_value": 100,
+        "step": 1
+    },
+    "speed": {
+        "type": "float",
+        "label": "语速",
+        "description": "Speed factor for synthesis.",
+        "alias": ["speed", "speed_factor", "spd", "rate"],
+        "default": 1.0,
+        "min_value": 0.5,
+        "max_value": 2.0,
+        "step": 0.05
+    },
+    "top_k": {
+        "type": "int",
+        "label": "采样Top K",
+        "description": "Top K parameter for sampling.",
+        "alias": ["top_k", "topk"],
+        "default": 5,
+        "min_value": 1,
+        "max_value": 40,
+        "step": 1
+    },
+    "top_p": {
+        "type": "float",
+        "label": "采样Top P",
+        "description": "Top P parameter for sampling.",
+        "alias": ["top_p", "topp"],
+        "default": 0.8,
+        "min_value": 0.1,
+        "max_value": 2.0,
+        "step": 0.01
+    },
+    "temperature": {
+        "type": "float",
+        "label": "采样温度",
+        "description": "Temperature for sampling.",
+        "alias": ["temperature"],
+        "default": 0.8,
+        "min_value": 0.1,
+        "max_value": 2.0,
+        "step": 0.01
+    },
+    "seed": {
+        "type": "int",
+        "label": "随机种子",
+        "description": "Seed for randomness.",
+        "alias": ["seed"],
+        "default": -1
+    },
+    "stream": {
+        "type": "bool",
+        "label": "流式输出",
+        "description": "Stream the audio or not.",
+        "alias": ["stream", "streaming"],
+        "default": false
+    },
+    "save_temp": {
+        "type": "bool",
+        "label": "保存临时输出",
+        "description": "Save the output temporarily.",
+        "alias": ["save_temp", "save"],
+        "default": false
+    },
+    "cut_method": {
+        "type": "str",
+        "label": "文本切割方法",
+        "description": "Method for text cutting.",
+        "alias": ["cut_method", "cut"],
+        "choices": ["auto_cut", "cut0", "cut1", "cut2", "cut3", "cut4", "cut5"],
+        "default": "auto_cut"
+    },
+    "max_cut_length": {
+        "type": "int",
+        "label": "文本切割最大长度",
+        "description": "Maximum length of the text cut.",
+        "alias": ["max_cut_length", "max_cut"],
+        "default": 50,
+        "min_value": 5,
+        "max_value": 1000,
+        "step": 1
+    },
+    "parallel_infer": {
+        "type": "bool",
+        "label": "并行推理",
+        "description": "Parallel inference or not.",
+        "alias": ["parallel_infer", "parallel"],
+        "default": true
+    },
+    "repetition_penalty": {
+        "type": "float",
+        "label": "重复惩罚",
+        "description": "Repetition penalty for sampling.",
+        "alias": ["repetition_penalty", "rep_penalty"],
+        "default": 1.35,
+        "min_value": 0,
+        "max_value": 5,
+        "step": 0.01
+    },
+    "format": {
+        "type": "str",
+        "label": "输出格式",
+        "description": "Format of the output audio.",
+        "alias": ["format"],
+        "default": "wav"
+    },
+    "loudness": {
+        "type": "float",
+        "label": "音量",
+        "description": "Loudness of the audio. Now is unsupported.",
+        "alias": ["loudness", "volume", "vol"],
+        "default": null
+    },
+    "pitch": {
+        "type": "float",
+        "label": "音调",
+        "description": "Pitch of the audio. Now is unsupported.",
+        "alias": ["pitch"],
+        "default": null
+    }
+}

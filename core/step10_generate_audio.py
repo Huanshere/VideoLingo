@@ -1,79 +1,13 @@
 import os
 import pandas as pd
 from tqdm import tqdm
-import urllib.parse
-import requests
-import librosa
 import soundfile as sf
 import os, sys
-import time
-import subprocess
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import MIN_SUBTITLE_DURATION, step9_trim_model, DUBBNING_CHARACTER
-import psutil
 from core.prompts_storage import get_subtitle_trim_prompt
 from core.ask_gpt import ask_gpt
-
-def ping_tts_service():
-    url = 'http://127.0.0.1:5000/tts'
-    try:
-        response = requests.get(url)
-        return response.status_code == 200
-    except requests.RequestException:
-        return False
-
-def start_backend_service():
-    # 设置工作目录
-    work_dir = os.path.join(os.getcwd(), 'GPT-SoVITS-Inference')
-    
-    # 构建命令
-    cmd = f'start cmd /K "chcp 65001 && cd /d {work_dir} && runtime\\python.exe pure_api.py"'
-    
-    # 启动进程
-    process = subprocess.Popen(
-        cmd,
-        shell=True,
-        creationflags=subprocess.CREATE_NEW_CONSOLE
-    )
-    
-    print("启动SoVits服务中，请稍等...") 
-    time.sleep(10)  # 等10s
-    
-    for _ in range(5):  # 每隔5s ping一次，一共ping 5次
-        if ping_tts_service():
-            print("服务已启动")
-            return
-        time.sleep(5)
-
-    raise Exception("服务在30秒内未启动")
-
-def send_tts_request(character=DUBBNING_CHARACTER, text='', speed=1, batch_size=1, save_as='output.wav', cut_last=0):
-    url = 'http://127.0.0.1:5000/tts'
-    encoded_text = urllib.parse.quote(text)
-    payload = {'character': character, 'text': encoded_text, 'speed': speed, 'batch_size': batch_size}
-    
-    try:
-        response = requests.post(url, json=payload)
-        response.raise_for_status()
-        
-        if 'audio/wav' in response.headers.get('Content-Type', ''):
-            temp_file = 'temp_output.wav'
-            with open(temp_file, 'wb') as f:
-                f.write(response.content)
-            
-            y, sr = librosa.load(temp_file, sr=None)
-            target_length = len(y) - int(cut_last * sr)  # 计算要保留的音频长度
-            y_trimmed = y[:target_length]  # 切片音频
-            sf.write(save_as, y_trimmed, sr)  # 保存处理后的音频
-            os.remove(temp_file)  # 删除临时文件
-            
-            return f"处理后的音频已保存为 {save_as}"
-        else:
-            return response.text
-    except requests.RequestException as e:
-        return f"发送请求时出错: {str(e)}"
-    except Exception as e:
-        return f"处理音频时出错: {str(e)}"
+from GPT_SoVITS_Inference.SoVITS_for_videolingo import init_model, tts_function, unload_model
 
 def check_wav_duration(file_path):
     try:
@@ -87,7 +21,7 @@ def parse_srt_time(time_str):
     seconds, milliseconds = seconds.split(',')
     return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
 
-def generate_audio(character, text, target_duration, save_as, number):
+def generate_audio(text, character, target_duration, save_as, number):
     """
     生成音频并选择最接近目标时长的版本
     """
@@ -98,7 +32,7 @@ def generate_audio(character, text, target_duration, save_as, number):
     for speed in speeds:
         for i in range(3):
             temp_filename = f"output/audio/tmp/{number}_temp_{speed}_{i+1}.wav"
-            send_tts_request(character, text, speed, 1, temp_filename)
+            send_tts_request(text, character, speed, temp_filename)
             duration = check_wav_duration(temp_filename)
             
             if not target_duration <= MIN_SUBTITLE_DURATION:
@@ -129,9 +63,23 @@ def generate_audio(character, text, target_duration, save_as, number):
 
     print(f"✅ {number} 选中的音频: {save_as}, 时长: {selected[1]:.2f}秒，要求的时长: {target_duration:.2f}秒")
 
+def init_sovits_model():
+    now_path = os.getcwd()
+    # 切换目录到 GPT_SoVITS_Inference再回来
+    os.chdir("GPT_SoVITS_Inference")
+    init_model()
+    os.chdir(now_path)
+
+def send_tts_request(text, character, speed=1.0, save_path='output/audio/temp.wav'):
+    now_path = os.getcwd()
+    save_path = os.path.join(now_path, save_path)
+    os.chdir("GPT_SoVITS_Inference")
+    audio_file = tts_function(text, character=character, speed=speed, save_path=save_path)
+    os.chdir(now_path)
+    return audio_file
+
 def process_sovits_tasks():
-    if not ping_tts_service():
-        start_backend_service()
+    init_sovits_model()
 
     tasks_df = pd.read_excel("output/audio/sovits_tasks.xlsx")
     error_tasks = []
@@ -145,33 +93,28 @@ def process_sovits_tasks():
             print(f"文件 {output_file} 已存在,跳过处理")
             continue
         
-        try:
-            generate_audio(DUBBNING_CHARACTER, text, duration, output_file, number)
-        except Exception as e:
+        for attempt in range(3): # 尝试三次
             try:
-                print(f"任务 {number} 处理出错: {str(e)}，尝试第1次精简字幕...")
-                prompt = get_subtitle_trim_prompt(text, duration, fierce_mode = True)
-                response = ask_gpt(prompt, model=step9_trim_model, response_json=True, log_title='sovits_trim')
-                text = response['trans_text_processed']
-                print(f"第1次精简前的字幕：{row['text']}\n第1次精简后的字幕: {text}")
-                generate_audio(DUBBNING_CHARACTER, text, duration, output_file, number)
+                generate_audio(text, DUBBNING_CHARACTER, duration, output_file, number)
+                break  # 如果生成音频成功，跳出循环
             except Exception as e:
-                try:
-                    print(f"任务 {number} 处理出错: {str(e)}，尝试第2次精简字幕...")
-                    prompt = get_subtitle_trim_prompt(text, duration, fierce_mode = True) + '\n'
+                if attempt < 2:  # 第一次和第二次尝试
+                    print(f"任务 {number} 处理出错: {str(e)}，尝试第{attempt + 1}次精简字幕...")
+                    prompt = get_subtitle_trim_prompt(text, duration, fierce_mode=True)
                     response = ask_gpt(prompt, model=step9_trim_model, response_json=True, log_title='sovits_trim')
                     text = response['trans_text_processed']
-                    print(f"第2次精简前的字幕：{row['text']}\n第2次精简后的字幕: {text}")
-                    generate_audio(DUBBNING_CHARACTER, text, duration, output_file, number)
-                except Exception as e:
+                    print(f"第{attempt + 1}次精简前的字幕：{row['text']}\n第{attempt + 1}次精简后的字幕: {text}")
+                else:  # 第三次尝试失败
                     error_tasks.append(number)
                     print(f"任务 {number} 处理出错: {str(e)}")
+                    break  # 跳出循环，处理下一个任务
 
     if error_tasks:
         error_msg = f"以下任务处理出错: {', '.join(map(str, error_tasks))}，请检查 output/audio/sovits_tasks.xlsx 中的对应内容并修改。"
         print(error_msg)
         raise Exception(error_msg)
     
+    unload_model()
     print("任务处理完成，服务已关闭")
 
 if __name__ == "__main__":

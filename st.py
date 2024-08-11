@@ -180,7 +180,7 @@ def process_audio(progress_bar, step_status, total_steps):
     steps = [
         ("提取音频...", lambda: step8_extract_refer_audio.step8_main(input_video), 8),
         ("生成音频任务...", step9_generate_audio_task.step9_main, 9),
-        ("使用SoVITS生成音频...\n⚠️ 这一步很有可能会因为字幕长度过长而出错，请在运行后根据cmd提示修改对应字幕后重新运行", step10_generate_audio.process_sovits_tasks, 10),
+        ("使用SoVITS生成音频...\n⚠️ 如果这一步因字幕出错，请根据cmd提示修改对应字幕后重新运行", step10_generate_audio.process_sovits_tasks, 10),
         ("合并音频到视频...", step11_merge_audio_to_vid.merge_all_audio, 11),
     ]
     
@@ -205,12 +205,9 @@ def main():
         update_progress(progress_bar, step_status, 1, total_steps, "视频下载完成")
         
         if text_processing_section(progress_bar, step_status, total_steps):
-            if not os.path.exists("GPT-SoVITS-Inference"):
-                st.warning("如需进行配音处理，请将 GPT-SoVITS-Inference 和 uvr5 文件夹放在当前目录下")
-            else:
-                if audio_processing_section(progress_bar, step_status, total_steps):
-                    if st.button("📦 一键归档历史记录", key="cleanup_button"):
-                        cleanup()
+            if audio_processing_section(progress_bar, step_status, total_steps):
+                if st.button("📦 一键归档历史记录", key="cleanup_button"):
+                    cleanup()
 
 if __name__ == "__main__":
     main()

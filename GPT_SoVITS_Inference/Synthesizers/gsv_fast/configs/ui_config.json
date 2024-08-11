@@ -1,0 +1,13 @@
+{
+  "ref_settings": [["ref_audio_path", "prompt_text", "prompt_language"]],
+  "basic_settings": [
+    "speed",
+    
+    ["text_language", "cut_method", "max_cut_length", "batch_size"]
+  ],
+  "advanced_settings": [
+    "seed",
+    "parallel_infer",
+    ["top_k", "top_p", "temperature", "repetition_penalty"]
+  ]
+}
