@@ -1,5 +1,6 @@
 # 🌉 VideoLingo: 连接世界的每一帧
 
+
 ![Python](https://img.shields.io/badge/python-v3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![GitHub stars](https://img.shields.io/github/stars/Huanshere/VideoLingo.svg)
@@ -7,6 +8,8 @@
 [中文](README.md) | [English](README.en.md)
 
 🍖 全自动视频搬运工：从英语视频链接无缝生成本土化翻译和配音视频！
+
+QQ群：875297969
 
 ## 🌟 能做什么
 
@@ -42,7 +45,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## 🎯 如何使用
 
-1. 下载一键启动包：[点击这里](https://pan.baidu.com/s/1qeI1hG5ZLAQ8sWFooucJ0w?pwd=1001)（仅限 Windows，Mac 用户请从源码安装）
+1. 下载一键启动包：[点击这里](https://pan.baidu.com/s/1bL2zorbs4OpzKC1Ctlh3JQ?pwd=6969)（仅限 Windows，Mac 用户请从源码安装）
 
 2. 配置 `config.py` 中的 api_key
 
