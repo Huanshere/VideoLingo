@@ -181,7 +181,7 @@ def process_audio(progress_bar, step_status, total_steps):
         ("提取音频...", lambda: step8_extract_refer_audio.step8_main(input_video), 8),
         ("生成音频任务...", step9_generate_audio_task.step9_main, 9),
         ("使用SoVITS生成音频...\n⚠️ 如果这一步因字幕出错，请根据cmd提示修改对应字幕后重新运行", step10_generate_audio.process_sovits_tasks, 10),
-        ("合并音频到视频...", step11_merge_audio_to_vid.merge_all_audio, 11),
+        ("合并音频到视频...", step11_merge_audio_to_vid.merge_main, 11),
     ]
     
     for description, func, step in steps:
