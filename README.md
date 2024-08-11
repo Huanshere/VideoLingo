@@ -12,7 +12,7 @@
 
 - 🎬 生成 Netflix 品质的字幕：告别业余翻译！
 
-- 🎤 克隆自己的声音进行配音（测试版）
+- 🎤 克隆自己的声音进行配音!
 
 - ✨ 在 streamlit 中点击-完成！
 
@@ -52,8 +52,7 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 
 ## 🚀 从头安装
 
-> **注意**：此安装指南适用于 Mac 和 Windows 系统。
-> 如需配音功能还需要下载 GPT-SoVITS-Inference 放在当前目录下。（Mac的配音功能还在施工中）
+> **注意**：此安装指南适用于 Mac 和 Windows 系统
 
 1. 克隆仓库：
    ```bash
@@ -92,7 +91,6 @@ https://github.com/user-attachments/assets/d3fa8750-0ec3-42c7-87f2-efd50a089f27
 感谢以下开源项目的贡献:
 
 - [whisper](https://github.com/openai/whisper): OpenAI的开源自动语音识别系统
-
 - [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): 为Whisper添加时间戳功能的扩展
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp): 用于下载YouTube视频和其他网站内容的命令行工具
 - [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS) & [GPT-SoVITS-Inference](https://github.com/X-T-E-R/GPT-SoVITS-Inference): 基于GPT和SoVITS的语音合成系统及推理库

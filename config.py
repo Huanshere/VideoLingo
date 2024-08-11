@@ -14,14 +14,14 @@ MAX_TARGET_LANGUAGE_LENGTH = 30  # 根据目标语言调整（如中文为30）
 DUBBNING_CHARACTER = 'Huanyu' 
 
 ## ======================== 高级选项======================== ##
-# 每一步的 LLM 模型选择，此配置适用于ohmygpt
+# 每一步的 LLM 模型选择，此配置适用于ohmygpt，sonnet 较贵，成本敏感可以全部更换为 Qwen
 # 任务难度：简单🍰 中等🤔 困难🔥
 step3_2_split_model =  "claude-3-5-sonnet-20240620"              # 🔥 建议Sonnet
-step4_1_summarize_model = "TA/Qwen/Qwen1.5-72B-Chat"             # 🍰
+step4_1_summarize_model = "TA/Qwen/Qwen1.5-72B-Chat"             # 🤔
 step4_2_translate_direct_model ="TA/Qwen/Qwen1.5-72B-Chat"       # 🍰
 step4_2_translate_free_model =  "TA/Qwen/Qwen1.5-72B-Chat"       # 🤔
-step5_align_model = "claude-3-5-sonnet-20240620"                 # 🤔 建议Sonnet
-step9_trim_model = "deepseek-coder"                              # 🍰
+step5_align_model = "claude-3-5-sonnet-20240620"                 # 🔥 建议Sonnet
+step9_trim_model = "TA/Qwen/Qwen1.5-72B-Chat"                    # 🍰
 
 # LLM 配置，你可以添加更多 API 如 openai, BASE_URL, MODEL
 OPEN_ROUTER_API_KEY = ''  

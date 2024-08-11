@@ -102,6 +102,67 @@ def dowanload_uvr_model():
     else:
         print("HP2_all_vocals.pth already exists. Skipping download.")
 
+
+def download_sovits_model():
+    """Download the specified GPT-SoVITS model files."""
+    base_url = "https://huggingface.co/lj1995/GPT-SoVITS/resolve/main/"
+    models = {
+        "chinese-roberta-wwm-ext-large": ["config.json", "pytorch_model.bin", "tokenizer.json"],
+        "chinese-hubert-base": ["config.json", "preprocessor_config.json", "pytorch_model.bin"]
+    }
+
+    for model, files in models.items():
+        model_dir = os.path.join("_model_cache", "GPT_SoVITS", "pretrained_models", model)
+        os.makedirs(model_dir, exist_ok=True)
+
+        for file in files:
+            save_path = os.path.join(model_dir, file)
+            if os.path.exists(save_path):
+                print(f"{file} already exists. Skipping download.")
+                continue
+            import requests
+            url = f"{base_url}{model}/{file}"
+            print(f"Downloading {file}...")
+            response = requests.get(url)
+            if response.status_code == 200:
+                with open(save_path, "wb") as f:
+                    f.write(response.content)
+                print(f"{file} downloaded successfully.")
+            else:
+                print(f"Failed to download {file}, status code: {response.status_code}")
+
+def download_huanyu_model():
+    """Download the specified Huanyu model files for GPT-SoVITS."""
+    base_url = "https://huggingface.co/Huan69/GPT-SoVITS-Huanyu/resolve/main/"
+    model_dir = os.path.join("_model_cache", "GPT_SoVITS", "trained", "Huanyu")
+    os.makedirs(model_dir, exist_ok=True)
+
+    files = [
+        "huanyushort222-e10.ckpt",
+        "huanyushort222_e15_s135.pth",
+        "infer_config.json",
+        "and to be able to get really good results doing that for a variety of classes.wav"
+    ]
+
+    for file in files:
+        save_path = os.path.join(model_dir, file)
+        if os.path.exists(save_path):
+            print(f"{file} already exists. Skipping download.")
+            continue
+
+        url = base_url + file
+        if file == "and to be able to get really good results doing that for a variety of classes.wav":
+            url = base_url + "and%20to%20be%20able%20to%20get%20really%20good%20results%20doing%20that%20for%20a%20variety%20of%20classes.wav"
+        import requests
+        print(f"Downloading {file}...")
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(save_path, "wb") as f:
+                f.write(response.content)
+            print(f"{file} downloaded successfully.")
+        else:
+            print(f"Failed to download {file}, status code: {response.status_code}")
+
 def download_and_extract_ffmpeg():
     """Download FFmpeg based on the platform, extract it, and clean up."""
     system = platform.system()
@@ -180,6 +241,10 @@ def main():
     # Download UVR model
     dowanload_uvr_model()
 
+    # Download GPT-SoVITS model
+    download_sovits_model()
+    download_huanyu_model() # custom model
+    
     # Download Whisper model .pt
     import torch
     import whisper_timestamped as whisper
