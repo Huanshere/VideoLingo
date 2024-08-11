@@ -5,8 +5,6 @@ import sys
 import zipfile
 import shutil
 from config import SPACY_NLP_MODEL, WHISPER_MODEL
-# Define the spaCy model to be downloaded
-SPACY_NLP_MODEL = SPACY_NLP_MODEL
 
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
@@ -233,6 +231,10 @@ def main():
     
     # Install other requirements
     install_requirements()
+
+    # Download nltk for sovits
+    import nltk
+    nltk.download('averaged_perceptron_tagger_eng')
     
     # Install spaCy model
     install_package("spacy")

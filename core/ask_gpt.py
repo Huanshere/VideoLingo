@@ -4,6 +4,9 @@ from config import *
 from threading import Lock
 import json_repair
 import json 
+from openai import OpenAI
+from httpx import HTTPStatusError
+import time
 LOG_FOLDER = 'output/gpt_log'
 LOCK = Lock()
 
@@ -56,15 +59,29 @@ def ask_gpt(prompt, model = 'deepseek-coder', response_json = True, log_title = 
     messages = [
         {"role": "user", "content": prompt},
     ]
-    from openai import OpenAI
+    
+    
     client = OpenAI(api_key=llm['api_key'], base_url=llm['base_url']+ '/v1')
-
     response_format = {"type": "json_object"} if response_json and model in llm_support_json else None
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        response_format=response_format
-    )
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                response_format=response_format
+            )
+            return response
+        except HTTPStatusError as e:
+            if attempt < max_retries - 1:
+                print(f"HTTP错误: {e}. 正在重试 ({attempt + 1}/{max_retries})...")
+                time.sleep(1)
+            else:
+                raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
+        except Exception as e:
+            raise Exception(f"发生未预期的错误: {e}")
+        
     if response_json:
         try:
             response_data = json_repair.loads(response.choices[0].message.content)
