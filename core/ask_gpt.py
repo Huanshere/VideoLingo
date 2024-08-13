@@ -98,7 +98,7 @@ def ask_gpt(prompt, model = 'deepseek-coder', response_json = True, log_title = 
 
 # test
 if __name__ == '__main__':
-    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model="TA/Qwen/Qwen1.5-110B-Chat", response_json=True)) 
+    print(ask_gpt('hi there hey response in json format, just simply say 你好 .' , model="TA/Qwen/Qwen1.5-72B-Chat", response_json=True)) 
 
 
 
