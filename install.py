@@ -4,6 +4,7 @@ import subprocess
 import sys
 import zipfile
 import shutil
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from config import SPACY_NLP_MODEL, WHISPER_MODEL
 
 def install_package(*packages):

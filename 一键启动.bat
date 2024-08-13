@@ -1,4 +1,4 @@
 @echo off
 cd /d %~dp0
-call .venv\Scripts\streamlit.exe run st.py
+call runtime\python.exe -m streamlit run st.py
 pause

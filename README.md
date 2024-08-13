@@ -1,5 +1,6 @@
 # 🌉 VideoLingo: 连接世界的每一帧
 
+
 ![Python](https://img.shields.io/badge/python-v3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![GitHub stars](https://img.shields.io/github/stars/Huanshere/VideoLingo.svg)
@@ -7,6 +8,8 @@
 [中文](README.md) | [English](README.en.md)
 
 🍖 全自动视频搬运工：从英语视频链接无缝生成本土化翻译和配音视频！
+
+QQ群：875297969
 
 ## 🌟 能做什么
 
@@ -18,7 +21,11 @@
 
 > 看看演示吧！🚀💪
 
-https://github.com/user-attachments/assets/1a08efc7-bb8b-49ed-ade1-a585b8033028
+https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
+
+> 还可以用GPT-SoVITS配上自己的声音！
+
+https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## 特点
 

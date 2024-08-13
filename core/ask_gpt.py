@@ -72,7 +72,6 @@ def ask_gpt(prompt, model = 'deepseek-coder', response_json = True, log_title = 
                 messages=messages,
                 response_format=response_format
             )
-            return response
         except HTTPStatusError as e:
             if attempt < max_retries - 1:
                 print(f"HTTP错误: {e}. 正在重试 ({attempt + 1}/{max_retries})...")
@@ -98,7 +97,7 @@ def ask_gpt(prompt, model = 'deepseek-coder', response_json = True, log_title = 
 
 # test
 if __name__ == '__main__':
-    print(ask_gpt('hi there hey response in json format, just simply say 你好 .' , model="TA/Qwen/Qwen1.5-72B-Chat", response_json=True)) 
+    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model="TA/Qwen/Qwen1.5-72B-Chat", response_json=True)) 
 
 
 

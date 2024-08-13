@@ -162,5 +162,4 @@ _model_cache/
 *.webm
 *.mp3
 .DS_Store
-config_hide.py
-GPT-SoVITS-Inference/
+runtime/
