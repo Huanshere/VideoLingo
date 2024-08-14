@@ -2,28 +2,31 @@
 
 ![Python](https://img.shields.io/badge/python-v3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-<a href="https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/Colab_VideoLingo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"/></a>
 ![GitHub stars](https://img.shields.io/github/stars/Huanshere/VideoLingo.svg)
 
 [中文](README.md) | [English](README.en.md)
 
-🎥✨ Tired of messy YouTube translations? Discover the magic of seamless video localization!
+🍖 Fully automated video localization: Seamlessly generate translated and dubbed videos from English video links!
+
+QQ Group: 875297969
 
 ## 🌟 What We Offer
 
 - 🎬 Netflix-quality subtitles: Say goodbye to amateur translations!
-  
-- 💰 Extremely low cost: Create 5 minutes of cross-language subtitles for just 2 yuan.
-  
-- 🤖 Professional-level translation and subtitle alignment using NLP and LLM.
 
-- 🎤 Personalized dubbing with voice cloning (beta feature).
+- 🎤 Clone your own voice for dubbing!
+
+- ✨ Click-and-done in Streamlit!
 
 > Check out our demo! 🚀💪
 
-https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
+https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
-## 💡 Features
+> You can also use GPT-SoVITS to add your own voice!
+
+https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
+
+## Features
 
 - 📚 NLP and LLM-driven subtitle segmentation
 
@@ -33,26 +36,32 @@ https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
 
 - 🎯 Precise word-level subtitle alignment
 
+- 💰 Extremely low cost: Create 5 minutes of cross-language subtitles for just 0.1 yuan
+
 - 🎤 High-quality personalized dubbing with GPT-SoVits
 
-- 👨‍💻 Developer-friendly: Step-by-step structured files for easy customization
+- 👨‍💻 Developer-friendly: Step-by-step structured files for easy customization: [English Guide](./docs/README_guide_en.md) | [Chinese Guide](./docs/README_guide_zh.md)
 
-- 📘 Comprehensive documentation: [English Guide](./docs/README_guide_en.md) | [中文指南](./docs/README_guide_zh.md)
+## Hardware Requirements
+
+- Tested on Mac M1 Pro 16G and Windows RTX4060
 
 ## 🎯 How to Use
 
-1. Download the one-click startup package from the releases (recommended)
+1. Download the one-click startup package: [Click here](https://pan.baidu.com/s/1bL2zorbs4OpzKC1Ctlh3JQ?pwd=6969) (Windows only, not widely tested. Mac users please install from source)
 
 2. Configure the api_key in `config.py`
 
-3. Click `OnekeyLaunch.bat` to launch Streamlit
+3. Click `OnekeyLaunch.bat` to start Streamlit!
 
-4. Start using VideoLingo!
+<div style="display: flex; justify-content: space-around;">
+  <img src="https://github.com/user-attachments/assets/4c41b498-574d-457b-80de-fefbede731e1" alt="Demo 1" width="45%" />
+  <img src="https://github.com/user-attachments/assets/210ba9e6-1f8a-41d7-a8d5-d0d6fd96deea" alt="Demo 2" width="45%" />
+</div>
 
 ## 🚀 Installation from Scratch
 
-> **Note**: This installation guide is applicable for **Mac** and **Windows** systems.
-> However, this version only includes subtitle translation. For dubbing functionality, please download the one-click startup package.
+> **Note**: This installation guide is applicable for Mac and Windows systems
 
 1. Clone the repository:
    ```bash
@@ -73,11 +82,22 @@ https://github.com/user-attachments/assets/c5e2caa5-99f6-435c-ae3b-bf8fd233bb7b
    python install.py
    ```
 
-🎉 Congratulations! Your VideoLingo environment is now ready.
+5. 🎉 Launch Streamlit!
+   ```bash
+   streamlit run st.py
+   ```
 
-## 🛣️ Roadmap
+## 🙏 Acknowledgements
 
-- [ ] Optimize TTS tone
+Thanks to the following open-source projects for their contributions:
+
+- [whisper](https://github.com/openai/whisper): OpenAI's open-source automatic speech recognition system
+- [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): Extension adding timestamp functionality to Whisper
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp): Command-line tool for downloading YouTube videos and content from other websites
+- [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS) & [GPT-SoVITS-Inference](https://github.com/X-T-E-R/GPT-SoVITS-Inference): Speech synthesis system based on GPT and SoVITS, and its inference library
+- [FFmpeg](https://github.com/FFmpeg/FFmpeg): Complete cross-platform solution for handling multimedia content
+- [Ultimate Vocal Remover GUI v5 (UVR5)](https://github.com/Anjok07/ultimatevocalremovergui): Tool for separating vocals and instrumentals in music
+- [json_repair](https://github.com/mangiucugna/json_repair): Super powerful library for repairing and parsing GPT's JSON output, seamlessly replacing json.loads
 
 ## Star History
 
