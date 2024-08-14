@@ -108,7 +108,7 @@ def align_timestamp_main():
     df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
-    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: x.strip('。').strip('，'))
+    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
     # check if there's empty translation
     if (df_translate['Translation'].str.len() == 0).sum() > 0:
         raise ValueError(r'🚫 Empty translation detected! Please manually check the `output\log\translation_results_for_subtitles.xlsx` then rerun.')
