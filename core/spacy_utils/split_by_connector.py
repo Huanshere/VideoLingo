@@ -39,7 +39,7 @@ def split_by_connectors(text, context_words=5, nlp=None):
     sentences = [doc.text]  # init
     
     while True:
-        #Handle each task with a single cut
+        # Handle each task with a single cut
         # avoiding the fragmentation of a sentence into multiple parts at the same time.
         split_occurred = False
         new_sentences = []
@@ -80,7 +80,7 @@ def split_by_connectors(text, context_words=5, nlp=None):
 def split_sentences_main():
     nlp = init_nlp()
     # Read input sentences
-    with open("output/log/sentence_by_comma.txt", "r") as input_file:
+    with open("output/log/sentence_by_comma.txt", "r", encoding="utf-8") as input_file:
         sentences = input_file.readlines()
     
     all_split_sentences = []
@@ -90,7 +90,7 @@ def split_sentences_main():
         all_split_sentences.extend(split_sentences)
     
     # output to sentence_splitbymark.txt
-    with open("output/log/sentence_splitbymark.txt", "w+") as output_file:
+    with open("output/log/sentence_splitbymark.txt", "w+", encoding="utf-8") as output_file:
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
 

@@ -15,7 +15,7 @@ def split_by_mark():
 
     sentences_by_mark = [sent.text for sent in doc.sents]
 
-    with open("output/log/sentence_by_mark.txt", "w") as output_file:
+    with open("output/log/sentence_by_mark.txt", "w", encoding="utf-8") as output_file:
         for sentence in sentences_by_mark:
             output_file.write(sentence + "\n")
 

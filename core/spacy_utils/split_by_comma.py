@@ -52,7 +52,7 @@ def split_by_comma(text, nlp):
 def split_by_comma_main():
     nlp = init_nlp()
 
-    with open("output/log/sentence_by_mark.txt", "r") as input_file:
+    with open("output/log/sentence_by_mark.txt", "r", encoding="utf-8") as input_file:
         sentences = input_file.readlines()
 
     all_split_sentences = []
@@ -60,7 +60,7 @@ def split_by_comma_main():
         split_sentences = split_by_comma(sentence.strip(), nlp)
         all_split_sentences.extend(split_sentences)
 
-    with open("output/log/sentence_by_comma.txt", "w") as output_file:
+    with open("output/log/sentence_by_comma.txt", "w", encoding="utf-8") as output_file:
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
 
