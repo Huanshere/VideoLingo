@@ -1,5 +1,5 @@
 import streamlit as st
-import os, glob
+import os, glob, json
 from core import step1_ytdlp, step2_whisper_stamped, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
@@ -31,37 +31,22 @@ def sidebar_info():
     st.sidebar.title("🌟 关于 VideoLingo")
     st.sidebar.info("VideoLingo 是一个全自动烤肉机，可以下载视频、转录音频、翻译内容、生成专业级字幕，甚至还可以进行个性化配音。")
     
-    if not api_status:
-        st.sidebar.error("❎ api_key 加载失败，请检查")
+    if not api_status: 
+        st.sidebar.error("😣 api_key 加载有问题 ")
     else:
-        st.sidebar.success("✅ api_key 已加载，开始吧！")
+        st.sidebar.success("🥳 api_key 已加载 开始吧！")
 
     with st.sidebar.expander("使用前看看 👀", expanded= False):
-        faq_data = [
-            {
-                "question": "为什么处理得这么慢？",
-                "answer": "视频翻译难的不在翻译，而在字幕分割和对齐，此外本项目还进行了专有名词提取、多步翻译。若追求速度推荐 **沉浸式翻译** Chrome插件"
-            },
-            {
-                "question": "支持什么语言？",
-                "answer": "理论上输入输出支持所有语言，注意修改 `config.py` 中的设定。"
-            },
-            {
-                "question": "我可以自行编辑处理好的 srt 文件吗？",
-                "answer": "是的，所有的输出文件都在`output`目录下，输出的视频仅为低分辨率的 demo，更推荐自行校对和压制"
-            },
-            {
-                "question": "消耗 api 金额大吗？",
-                "answer": "在默认配置全 Qwen 模型下，10min 视频处理不到 0.5 元。如果按照推荐更换 sonnet 模型，则 10min 视频处理可能需要消耗 3 元。"
-            }
-        ]
+        # read from docs/QA.json
+
+        faq_data = json.loads(open("docs/QA.json", "r", encoding="utf-8").read())
 
         for faq in faq_data:
             st.markdown(f"**Q: {faq['question']}**")
             st.markdown(f"A: {faq['answer']}")
             st.markdown("")
 
-    st.sidebar.markdown("🚀 [看看 GitHub 仓库](https://github.com/Huanshere/VideoLingo) 🌟")
+    st.sidebar.markdown("🚀 [去 GitHub 打个星](https://github.com/Huanshere/VideoLingo) 🌟")
 
 def create_step_progress():
     progress_bar = st.progress(0)
@@ -125,15 +110,15 @@ def text_processing_section(progress_bar, step_status, total_steps):
         👀 输出请在命令行查看
         """)
         if not os.path.exists("output/output_video_with_subs.mp4"):
-            if st.button("开始文本处理", key="text_processing_button"):
+            if st.button("开始处理字幕", key="text_processing_button"):
                 process_text(progress_bar, step_status, total_steps)
                 st.video("output/output_video_with_subs.mp4") # 展示处理后的视频
                 return True
         else:
             update_progress(progress_bar, step_status, 7, total_steps, "字幕合并到视频完成")
-            st.success("文本处理已完成! 🎉")
+            st.success("字幕翻译已完成! 可以在`output`文件夹下查看 srt 文件 ~")
             st.video("output/output_video_with_subs.mp4") # 展示处理后的视频
-            if st.button("📦 一键归档到`history`目录", key="cleanup_in_text_processing"):
+            if st.button("📦 一键归档到`history`文件夹", key="cleanup_in_text_processing"):
                 cleanup()
             return True
     return False
@@ -169,14 +154,16 @@ def audio_processing_section(progress_bar, step_status, total_steps):
         11. 将音频合并到视频中
         """)
         if not os.path.exists("output/output_video_with_audio.mp4"):
-            if st.button("开始音频处理", key="audio_processing_button"):
+            if st.button("开始配音处理", key="audio_processing_button"):
                 process_audio(progress_bar, step_status, total_steps)
                 st.video("output/output_video_with_audio.mp4") # 展示处理后的视频
                 return True
         else:
             update_progress(progress_bar, step_status, total_steps, total_steps, "音频合并到视频完成")
-            st.success("音频处理已完成! 🎉")
+            st.success("配音处理已完成! 可以在`output`文件夹下查看音频文件 ~")
             st.video("output/output_video_with_audio.mp4")
+            if st.button("📦 一键归档到`history`文件夹", key="cleanup_in_audio_processing"):
+                cleanup()
     return False
 
 def process_audio(progress_bar, step_status, total_steps):
@@ -198,7 +185,6 @@ def process_audio(progress_bar, step_status, total_steps):
     st.balloons()
 
 def main():
-    check_api()
     set_page_config()
     st.title("🌉 VideoLingo: 连接世界的每一帧")
     sidebar_info()
@@ -210,9 +196,7 @@ def main():
         update_progress(progress_bar, step_status, 1, total_steps, "视频下载完成")
         
         if text_processing_section(progress_bar, step_status, total_steps):
-            if audio_processing_section(progress_bar, step_status, total_steps):
-                if st.button("📦 一键归档到`history`目录", key="cleanup_in_audio_processing"):
-                    cleanup()
+            audio_processing_section(progress_bar, step_status, total_steps)
 
 if __name__ == "__main__":
     main()
