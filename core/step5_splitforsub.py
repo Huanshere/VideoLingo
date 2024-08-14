@@ -12,6 +12,9 @@ from config import TARGET_LANGUAGE, MAX_ENGLISH_LENGTH, MAX_TARGET_LANGUAGE_LENG
 # TODO you can modify your own function here
 def calc_len(text: str) -> float:
     # 🇨🇳 characters are counted as 1, others are counted as 0.75
+    if not isinstance(text, str):
+        print(f"🚨 Warning: calc_len received a non-string input: {text}")
+        text = str(text)
     if '中文' in TARGET_LANGUAGE or 'cn' in TARGET_LANGUAGE: 
         return sum(1 if ord(char) > 127 else 0.75 for char in text)
     else:

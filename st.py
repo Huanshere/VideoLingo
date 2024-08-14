@@ -10,8 +10,11 @@ from config import step3_2_split_model
 
 def check_api():
     try:
-        ask_gpt('this is a test. response {"status": 200} in json format.', model = step3_2_split_model, response_json=True, log_title='test')
-        return True
+        response = ask_gpt('this is a test. response {"status": 200} in json format.', model = step3_2_split_model, response_json=True, log_title='test')
+        if response['status'] == 200:
+            return True
+        else:
+            return False
     except:
         return False
 
@@ -29,11 +32,11 @@ def sidebar_info():
     st.sidebar.info("VideoLingo 是一个全自动烤肉机，可以下载视频、转录音频、翻译内容、生成专业级字幕，甚至还可以进行个性化配音。")
     
     if not api_status:
-        st.sidebar.warning("⚠️ 请检查 `config.py` 的 api_key 是否正确填写")
+        st.sidebar.error("❎ api_key 加载失败，请检查")
     else:
-        st.sidebar.success("✅ api_key 已加载，开始视频本地化之旅吧！")
+        st.sidebar.success("✅ api_key 已加载，开始吧！")
 
-    with st.sidebar.expander("常见问题", expanded= False):
+    with st.sidebar.expander("使用前看看 👀", expanded= False):
         faq_data = [
             {
                 "question": "为什么处理得这么慢？",
@@ -49,7 +52,7 @@ def sidebar_info():
             },
             {
                 "question": "消耗 api 金额大吗？",
-                "answer": "在推荐配置下，5min 视频只需要 1 元。如果降低质量要求，可以在`config.py`中调整为全使用`deepseek-coder`，近乎免费"
+                "answer": "在默认配置全 Qwen 模型下，10min 视频处理不到 0.5 元。如果按照推荐更换 sonnet 模型，则 10min 视频处理可能需要消耗 3 元。"
             }
         ]
 
@@ -71,12 +74,12 @@ def update_progress(progress_bar, step_status, step, total_steps, description):
     step_status.markdown(f"**步骤 {step}/{total_steps}**: {description}")
 
 def download_video_section():
-    st.header("1. 下载ytb 📥 或 上传本地视频 ⏫")
+    st.header("1. 从油管链接下载 📥 或 上传本地视频 ⏫")
     with st.expander("展开详情", expanded=True):
         # st.info("这一步将从链接下载指定的YouTube视频或上传本地视频文件")
         
         if not glob.glob("*.mp4") + glob.glob("*.webm"):
-            st.warning("请输入ytb链接 或 上传视频文件")
+            st.warning("请输入油管链接 或 上传视频文件")
 
             url = st.text_input("输入YouTube视频链接:")
             if st.button("下载视频", key="download_button"):
@@ -130,6 +133,8 @@ def text_processing_section(progress_bar, step_status, total_steps):
             update_progress(progress_bar, step_status, 7, total_steps, "字幕合并到视频完成")
             st.success("文本处理已完成! 🎉")
             st.video("output/output_video_with_subs.mp4") # 展示处理后的视频
+            if st.button("📦 一键归档到`history`目录", key="cleanup_in_text_processing"):
+                cleanup()
             return True
     return False
 
@@ -206,7 +211,7 @@ def main():
         
         if text_processing_section(progress_bar, step_status, total_steps):
             if audio_processing_section(progress_bar, step_status, total_steps):
-                if st.button("📦 一键归档历史记录", key="cleanup_button"):
+                if st.button("📦 一键归档到`history`目录", key="cleanup_in_audio_processing"):
                     cleanup()
 
 if __name__ == "__main__":
