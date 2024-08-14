@@ -61,6 +61,11 @@ def split_align_subs(en_lines: List[str], tr_lines: List[str], max_en_len=80, ma
     return en_lines, tr_lines
 
 def split_for_sub_main():
+    # check if "output/log/translation_results_for_subtitles.xlsx" exists
+    if os.path.exists("output/log/translation_results_for_subtitles.xlsx"):
+        print("🚨 The file `translation_results_for_subtitles.xlsx` already exists, skipping this step.")
+        return
+
     print('🚀 Starting subtitle splitting process...')
     df = pd.read_excel("output/log/translation_results.xlsx")
     
@@ -68,7 +73,6 @@ def split_for_sub_main():
     tr_lines = df['Translation'].tolist()
     
     en_lines, tr_lines = split_align_subs(en_lines, tr_lines, MAX_ENGLISH_LENGTH, MAX_TARGET_LANGUAGE_LENGTH)
-    
     pd.DataFrame({'English': en_lines, 'Translation': tr_lines}).to_excel("output/log/translation_results_for_subtitles.xlsx", index=False)
     print('✅ Subtitle splitting process completed!')
 

@@ -41,6 +41,10 @@ def translate_chunk(chunk, chunks, theme_prompt, i):
 
 # 🚀 Main function to translate all chunks
 def translate_all(max_workers=8):
+    # Check if the file exists
+    if os.path.exists("output/log/translation_results.xlsx"):
+        print("🚨 The file `translation_results.xlsx` already exists, skipping this step.")
+        return
     
     chunks = split_chunks_by_chars()
     theme_prompt = get_theme_prompt()

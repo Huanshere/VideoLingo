@@ -117,7 +117,9 @@ def align_timestamp_main():
 
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
-    df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: x.strip('。').strip('，'))
+    df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
+    if (df_translate_for_audio['Translation'].str.len() == 0).sum() > 0:
+        raise ValueError(r'🚫 Empty translation detected! Please manually check the `output\log\translation_results.xlsx` then rerun.')
     align_timestamp(df_text, df_translate_for_audio, for_audio=True)
     print('🎉📝 Subtitles for audio generated successfully! Go check it out inside `output/audio` 👀')
 
