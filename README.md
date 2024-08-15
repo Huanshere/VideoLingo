@@ -7,6 +7,8 @@
 
 [**中文**](README.md) | [**English**](README.en.md)
 
+[**b站演示**](https://www.bilibili.com/video/BV1QsYXeGEPP/)
+
 **QQ群：875297969**
 
 </div>
@@ -20,7 +22,7 @@
 
 - ✨ 在 streamlit 中点击-完成！
 
-> 看看演示吧！🚀💪
+> 看看效果吧！💪
 
 https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
