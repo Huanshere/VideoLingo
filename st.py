@@ -90,6 +90,9 @@ def download_video_section():
             st.success("视频文件已存在 ✅")
             video_file = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
             st.video(video_file)
+            if st.button("🔄 删除视频重新选择", key="delete_video_button"):
+                os.remove(video_file)
+                st.rerun()
             return True
     
     return False
