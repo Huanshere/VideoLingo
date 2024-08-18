@@ -4,6 +4,7 @@ from pydub import AudioSegment
 import os, sys, json, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from uvr5.uvr5_for_submagic import uvr5_for_submagic
+from config import MODEL_DIR
 
 def parse_srt(srt_content):
     pattern = re.compile(r'(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:.+\n)+)')
@@ -66,7 +67,7 @@ def step8_main(input_video, DUBBING_CHARACTER="Huanyu"):
         os.remove(audio_filename)  # 清理临时文件 🧹
         os.rename(f"output/audio/vocal_{os.path.basename(audio_filename)}_10.wav", audio_filename)  # 重命名文件 📛
         
-        SOVITS_MODEL_PATH = f"_model_cache/GPT_SoVITS/trained/{DUBBING_CHARACTER}"
+        SOVITS_MODEL_PATH = os.path.join(MODEL_DIR, "GPT_SoVITS", "trained", DUBBING_CHARACTER)
         for file in os.listdir(SOVITS_MODEL_PATH):
             if file.endswith((".wav", ".mp3")):
                 os.remove(os.path.join(SOVITS_MODEL_PATH, file))

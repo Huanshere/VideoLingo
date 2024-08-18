@@ -7,8 +7,7 @@ import pandas as pd
 from typing import List, Dict
 import warnings
 warnings.filterwarnings("ignore")
-from config import WHISPER_MODEL
-MODEL_DIR = "./_model_cache"
+from config import WHISPER_MODEL, MODEL_DIR
 
 def convert_video_to_audio_and_transcribe(input_file: str):
     # 🎬➡️🎵➡️📊 Convert video to audio and transcribe
@@ -26,18 +25,18 @@ def convert_video_to_audio_and_transcribe(input_file: str):
                 '-b:a', '64k',
                 audio_file
             ]
-            print(f"🎬➡️🎵 Converting to audio......")
+            print(f"🎬➡️🎵 正在转换为音频......")
             subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
-            print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}>\n")
+            print(f"🎬➡️🎵 已将 <{input_file}> 转换为 <{audio_file}>\n")
         
         # Check file size
         if os.path.getsize(audio_file) > 25 * 1024 * 1024:
-            print("⚠️ File size exceeds 25MB. Please use a smaller file.")
+            print("⚠️ 文件大小超过25MB。请使用更小的文件。")
             return None
         
         # Transcribe audio
         device = 'cuda:0' if torch.cuda.is_available() else 'cpu' # sadly whisper does not support mps on mac
-        print(f"🚀 Starting Whisper...\n🖥️  ASR Device: {device}")
+        print(f"🚀 正在启动Whisper...\n🖥️  ASR设备: {device}")
         
         audio = whisper.load_audio(audio_file)
         os.makedirs(MODEL_DIR, exist_ok=True)
@@ -55,12 +54,12 @@ def convert_video_to_audio_and_transcribe(input_file: str):
         return df
     
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error converting {input_file}: {e.stderr.decode()}")
+        print(f"❌ 转换 {input_file} 时出错: {e.stderr.decode()}")
         return None
     finally:
         if os.path.exists(audio_file):
             os.remove(audio_file)
-            print(f"🗑️ Temporary audio file {audio_file} has been deleted.")
+            print(f"🗑️ 临时音频文件 {audio_file} 已被删除。")
 
 
 def save_results(df: pd.DataFrame):
@@ -71,7 +70,7 @@ def save_results(df: pd.DataFrame):
     # 给df[text]列都加上""，防止数字被excel自动转换为数字
     df['text'] = df['text'].apply(lambda x: f'"{x}"')
     df.to_excel(excel_path, index=False)
-    print(f"📊 Excel file has been saved to {excel_path}")
+    print(f"📊 Excel文件已保存到 {excel_path}")
 
 def transcript(video_file: StopIteration):
     if not os.path.exists("output/log/cleaned_chunks.xlsx"):
@@ -80,7 +79,7 @@ def transcript(video_file: StopIteration):
         if df is not None:
             save_results(df)
     else:
-        print("📊 The transcription results already exist, skipping the transcription step.")
+        print("📊 转录结果已存在，跳过转录步骤。")
 
 if __name__ == "__main__":
     transcript("KUNG FU PANDA 4 ｜ Official Trailer.mp4")

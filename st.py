@@ -1,5 +1,6 @@
 import streamlit as st
-import os, glob, json
+import os, glob, json, sys
+import zipfile, io
 from core import step1_ytdlp, step2_whisper_stamped, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
@@ -7,6 +8,15 @@ from core import step10_generate_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
 from core.ask_gpt import ask_gpt
 from config import step3_2_split_model
+# 把当前目录加入系统 os 环境中 以便找到 ffmpeg
+current_dir = os.path.dirname(os.path.abspath(__file__))
+os.environ['PATH'] += os.pathsep + current_dir
+
+# 检查是否云环境
+if sys.platform.startswith('linux'):
+    cloud = 1
+else:
+    cloud = 0
 
 def check_api():
     try:
@@ -59,22 +69,23 @@ def update_progress(progress_bar, step_status, step, total_steps, description):
     step_status.markdown(f"**步骤 {step}/{total_steps}**: {description}")
 
 def download_video_section():
-    st.header("1. 从油管链接下载 📥 或 上传本地视频 ⏫")
+    title1 = "1. 上传本地视频 ⏫" if cloud else "1. 从油管链接下载 📥 或 上传本地视频 ⏫"
+    st.header(title1)
     with st.expander("展开详情", expanded=True):
-        # st.info("这一步将从链接下载指定的YouTube视频或上传本地视频文件")
-        
         if not glob.glob("*.mp4") + glob.glob("*.webm"):
-            st.warning("请输入油管链接 或 上传视频文件")
+            info1 = "请上传视频文件" if cloud else "请输入油管链接 或 上传视频文件"
+            st.info(info1)
 
-            url = st.text_input("输入YouTube视频链接:")
-            if st.button("下载视频", key="download_button"):
-                if url:
-                    with st.spinner("正在下载视频..."):
-                        step1_ytdlp.download_video_ytdlp(url, save_path='./')
-                    st.success("视频下载成功! 🎉")
-                    video_file = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
-                    st.video(video_file)
-                    return True
+            if not cloud:
+                url = st.text_input("输入YouTube视频链接:")
+                if st.button("下载视频", key="download_button"):
+                    if url:
+                        with st.spinner("正在下载视频..."):
+                            step1_ytdlp.download_video_ytdlp(url, save_path='./')
+                        st.success("视频下载成功! 🎉")
+                        video_file = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
+                        st.video(video_file)
+                        return True
             
             uploaded_file = st.file_uploader("或者上传视频文件", type=["mp4", "webm"])
             if uploaded_file:
@@ -83,8 +94,8 @@ def download_video_section():
                 st.success("视频上传成功! 🎉")
                 st.video(uploaded_file)
                 st.rerun()  # 刷新
-
-            if not url and not uploaded_file:
+                
+            else:
                 return False
         else:
             st.success("视频文件已存在 ✅")
@@ -115,14 +126,39 @@ def text_processing_section(progress_bar, step_status, total_steps):
         if not os.path.exists("output/output_video_with_subs.mp4"):
             if st.button("开始处理字幕", key="text_processing_button"):
                 process_text(progress_bar, step_status, total_steps)
-                st.video("output/output_video_with_subs.mp4") # 展示处理后的视频
-                return True
+                st.rerun()
         else:
             update_progress(progress_bar, step_status, 7, total_steps, "字幕合并到视频完成")
             st.success("字幕翻译已完成! 可以在`output`文件夹下查看 srt 文件 ~")
+            if cloud:
+                st.warning("目前 Linux 下合并中文字幕展示乱码，请下载 srt 文件自行压制处理～")
             st.video("output/output_video_with_subs.mp4") # 展示处理后的视频
+            
+            # 创建一个内存中的ZIP文件
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                # 添加英文字幕文件
+                if os.path.exists("output/english_subtitles.srt"):
+                    with open("output/english_subtitles.srt", "rb") as file:
+                        zip_file.writestr("english_subtitles.srt", file.read())
+                # 添加翻译后的字幕文件
+                if os.path.exists("output/translated_subtitles.srt"):
+                    with open("output/translated_subtitles.srt", "rb") as file:
+                        zip_file.writestr("translated_subtitles.srt", file.read())
+            zip_buffer.seek(0)
+            
+            # 下载按钮
+            st.download_button(
+                label="📥 下载所有字幕文件",
+                data=zip_buffer,
+                file_name="subtitles.zip",
+                mime="application/zip"
+            )
+            
+            # 一键清理按钮
             if st.button("📦 一键归档到`history`文件夹", key="cleanup_in_text_processing"):
                 cleanup()
+                st.rerun()
             return True
     return False
 
@@ -131,9 +167,9 @@ def process_text(progress_bar, step_status, total_steps):
     
     steps = [
         ("使用Whisper进行转录...", lambda: step2_whisper_stamped.transcript(video_file), 2),
-        ("分割句子...", lambda: (step3_1_spacy_split.split_by_spacy(), step3_2_splitbymeaning.split_sentences_by_meaning()), 3),
+        ("分割长句...", lambda: (step3_1_spacy_split.split_by_spacy(), step3_2_splitbymeaning.split_sentences_by_meaning()), 3),
         ("总结和翻译...", lambda: (step4_1_summarize.get_summary(), step4_2_translate_all.translate_all()), 4),
-        ("处理字幕...", lambda: (step5_splitforsub.split_for_sub_main(), step6_generate_final_timeline.align_timestamp_main()), 6),
+        ("处理对齐字幕...", lambda: (step5_splitforsub.split_for_sub_main(), step6_generate_final_timeline.align_timestamp_main()), 6),
         ("合并字幕到视频...", step7_merge_sub_to_vid.merge_subtitles_to_video, 7)
     ]
     
@@ -142,7 +178,7 @@ def process_text(progress_bar, step_status, total_steps):
             func()
         update_progress(progress_bar, step_status, step, total_steps, f"{description.split('...')[0]}完成")
     
-    st.success("文本处理完成! 🎉")
+    st.success("字幕处理完成! 🎉")
     st.balloons()
 
 def audio_processing_section(progress_bar, step_status, total_steps):
@@ -167,6 +203,7 @@ def audio_processing_section(progress_bar, step_status, total_steps):
             st.video("output/output_video_with_audio.mp4")
             if st.button("📦 一键归档到`history`文件夹", key="cleanup_in_audio_processing"):
                 cleanup()
+                st.rerun()
     return False
 
 def process_audio(progress_bar, step_status, total_steps):
