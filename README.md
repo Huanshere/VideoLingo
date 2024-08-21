@@ -48,7 +48,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## 硬件要求
 
-- 在 Mac M1 Pro 16G 及 Windows RTX4060 上测试通过
+- 在 Mac M1 Pro 16G 及 Win10 RTX4060 上测试通过
 
 ## 如何使用
 
