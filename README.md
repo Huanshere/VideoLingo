@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## 如何使用
 
-1. 下载一键启动包：[点击这里](https://pan.baidu.com/s/1bL2zorbs4OpzKC1Ctlh3JQ?pwd=6969)（仅限 Windows 未广泛测试，Mac 用户请从源码安装）
+1. 下载一键启动包：[点击这里](https://pan.baidu.com/s/1bL2zorbs4OpzKC1Ctlh3JQ?pwd=6969) 🚧ing 请从源码安装 
 
 2. 配置 `config.py` 中的 api_key
 
