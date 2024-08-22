@@ -60,7 +60,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## 本地部署
 
-0. windows 环境确保安装 [Cmake](https://cmake.org/download/) 和 [Visual Studio](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (gpu 版 torch 需要)
+0. windows 环境确保安装 [Cmake](https://cmake.org/download/) 和 [Visual Studio](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) 并重启 (gpu 版 torch 需要)
 
 1. 克隆仓库：
    ```bash
