@@ -20,7 +20,7 @@ pydub
 pydantic
 soundfile
 flash-attention
-numpy
+numpy==1.26.4
 scipy
 tensorboard
 numba
