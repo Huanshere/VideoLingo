@@ -17,7 +17,6 @@ streamlit
 # sovits
 requests
 pydub
-
 pydantic
 soundfile
 flash-attention
@@ -48,5 +47,4 @@ jieba
 LangSegment>=0.3.1
 wordsegment
 srt
-
 pyloudnorm

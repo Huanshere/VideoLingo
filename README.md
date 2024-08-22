@@ -48,9 +48,9 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## 硬件要求
 
-- 在 Mac M1 Pro 16G 及 Win10 RTX4060 上测试通过
+- 在 Mac M1 Pro 16G 及 Win10 RTX4060 上测试通过, Win11 暂时存在 numpy 版本依赖问题 😭
 
-## 如何使用
+<!-- ## 如何使用
 
 1. 下载一键启动包：[点击这里](https://pan.baidu.com/s/1bL2zorbs4OpzKC1Ctlh3JQ?pwd=6969) 🚧ing 请从源码安装 
 
@@ -61,10 +61,15 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 <div style="display: flex; justify-content: space-around;">
   <img src="https://github.com/user-attachments/assets/4c41b498-574d-457b-80de-fefbede731e1" alt="Demo 1" width="45%" />
   <img src="https://github.com/user-attachments/assets/210ba9e6-1f8a-41d7-a8d5-d0d6fd96deea" alt="Demo 2" width="45%" />
-</div>
+</div> -->
 
+## 快速体验
 
-## 安装
+本项目已部署在 [趋动云](https://open.virtaicloud.com/web/project/detail/480194078119297024)，新注册用户赠送等额 35h 免费使用，具体教程 [点击这里](docs/趋动云使用说明.md)
+
+## 本地部署
+
+0. windows 环境确保安装 [Cmake](https://cmake.org/download/) 和 [Visual Studio](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (gpu 版 torch 需要)
 
 1. 克隆仓库：
    ```bash
