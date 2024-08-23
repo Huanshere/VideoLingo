@@ -48,11 +48,6 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 - 开发者友好：逐步结构化文件，便于自定义 : [英文文档](./docs/README_guide_en.md) | [中文文档](./docs/README_guide_zh.md)（待更新）
 
-## 硬件要求
-
-- 在 Mac M1 Pro 16G 及 Win10 RTX4060 上测试通过
-
-- Win11 可能存在 numpy 版本依赖问题 😭 尝试修复了需要好心人帮忙测试
 
 ## 快速体验
 
@@ -60,7 +55,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ![ia9v1d.png](https://files.catbox.moe/ia9v1d.png)
 
-## 本地部署
+## 本地部署（Win or Mac）
 
 0. windows 环境确保安装 [Cmake](https://cmake.org/download/) 和 [Visual Studio](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) 并重启 (gpu 版 torch 需要)
 
