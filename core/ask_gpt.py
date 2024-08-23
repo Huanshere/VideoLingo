@@ -79,7 +79,8 @@ def ask_gpt(prompt, model = 'deepseek-coder', response_json = True, log_title = 
             else:
                 raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
         except Exception as e:
-            raise Exception(f"发生未预期的错误: {e}")
+            print(f"发生未预期的错误: {e}\n正在重试...")
+            time.sleep(1)
         
     if response_json:
         try:
