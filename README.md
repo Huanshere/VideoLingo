@@ -57,6 +57,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 ## 本地部署（Win or Mac）
 
 > 在开始其他依赖项安装之前，请务必下载并安装 Visual Studio 2022 或者 Microsoft C++ 生成工具（体积较前者更小）。勾选并安装组件包：“使用 C++的桌面开发”，执行修改并等待其安装完成。
+> 以及[Cmake扩展程序](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
 1. 克隆仓库：
 > 此步骤需要安装[git](https://git-scm.com/download/win)
