@@ -61,7 +61,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 > 以及安装[Cmake构建程序](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
 1. 克隆仓库：
-> 此步骤需要安装[git](https://git-scm.com/download/win)
+> 此步骤需要系统中安装有[git](https://git-scm.com/download/win)
 
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
@@ -70,7 +70,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 2. 设置并激活 Conda 虚拟环境：
 
-> 此步骤需要安装[Anaconda](https://www.anaconda.com/download/success)
+> 此步骤需要系统中安装有[Anaconda](https://www.anaconda.com/download/success)
 > 
 > 在Anaconda powershell prompt中输入以下指令：
    ```bash
