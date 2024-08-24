@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🌉 VideoLingo: 连接世界的每一帧
+
 ![Python](https://img.shields.io/badge/python-v3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![GitHub stars](https://img.shields.io/github/stars/Huanshere/VideoLingo.svg)
@@ -13,10 +14,9 @@
 
 </div>
 
-
 ## 🌟 能做什么
 
--  🍖 全自动视频搬运工，生成 Netflix 品质的字幕！
+- 🍖 全自动视频搬运工，生成 Netflix 品质的字幕！
 
 - 🎤 克隆自己的声音进行配音!
 
@@ -42,12 +42,11 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 - 精确的单词级字幕对齐
 
-- 仅需  1 元即可创作 5 分钟的 Netflix 级双语字幕
+- 仅需 1 元即可创作 5 分钟的 Netflix 级双语字幕
 
 - GPT-SoVits 高质量的个性化配音
 
 - 开发者友好：逐步结构化文件，便于自定义 : [英文文档](./docs/README_guide_en.md) | [中文文档](./docs/README_guide_zh.md)（待更新）
-
 
 ## 快速体验
 
@@ -57,15 +56,23 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## 本地部署（Win or Mac）
 
-0. windows 环境确保安装 [Cmake](https://cmake.org/download/) 和 [Visual Studio](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) 并重启 (gpu 版 torch 需要)
+> 在开始其他依赖项安装之前，请务必下载并安装 Visual Studio 2022 或者 Microsoft C++ 生成工具（体积较前者更小）。勾选并安装组件包：“使用 C++的桌面开发”，执行修改并等待其安装完成。
+>
+> 以及安装[Cmake构建程序](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
 1. 克隆仓库：
+> 此步骤需要系统中安装有[git](https://git-scm.com/download/win)
+
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
 2. 设置并激活 Conda 虚拟环境：
+
+> 此步骤需要系统中安装有[Anaconda](https://www.anaconda.com/download/success)
+> 
+> 在Anaconda powershell prompt中输入以下指令：
    ```bash
    conda create -n videolingo python=3.12.0
    conda activate videolingo
@@ -74,6 +81,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 3. 配置 `config.py`
 
 4. 执行安装脚本：
+
    ```bash
    python install.py
    ```
@@ -82,7 +90,6 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
    ```bash
    streamlit run st.py
    ```
-
 
 ## 🙏 致谢
 
@@ -95,6 +102,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 - [FFmpeg](https://github.com/FFmpeg/FFmpeg): 用于处理多媒体内容的完整多平台解决方案
 - [Ultimate Vocal Remover GUI v5 (UVR5)](https://github.com/Anjok07/ultimatevocalremovergui): 用于分离音乐中的人声和伴奏的工具
 - [json_repair](https://github.com/mangiucugna/json_repair): 超无敌的 修复解析 gpt 的 json 输出的库，无缝替代 json.loads
+
 ## Star 历史
 
 [![Star 历史图表](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo)
