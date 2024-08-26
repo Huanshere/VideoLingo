@@ -1,6 +1,7 @@
 import streamlit as st
 import os, glob, json, sys
 import zipfile, io
+import shutil
 from core import step1_ytdlp, step2_whisper_stamped, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
@@ -104,6 +105,12 @@ def download_video_section():
             st.video(video_file)
             if st.button("🔄 删除视频重新选择", key="delete_video_button"):
                 os.remove(video_file)
+                # 删除 output 文件夹（如果存在）
+                if os.path.exists("output"):
+                    shutil.rmtree("output")
+                    st.success("视频和 output 文件夹已删除")
+                else:
+                    st.success("视频已删除")
                 st.rerun()
             return True
     
