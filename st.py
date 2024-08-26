@@ -70,6 +70,21 @@ def update_progress(progress_bar, step_status, step, total_steps, description):
     progress_bar.progress(progress)
     step_status.markdown(f"**步骤 {step}/{total_steps}**: {description}")
 
+def update_target_language(new_language):
+    with open('config.py', 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    
+    for i, line in enumerate(lines):
+        if line.startswith('TARGET_LANGUAGE'):
+            lines[i] = f"TARGET_LANGUAGE = '{new_language}'  # 用自然语言描述\n"
+            break
+    
+    with open('config.py', 'w', encoding='utf-8') as file:
+        file.writelines(lines)
+    
+    # 直接更新 config 模块中的 TARGET_LANGUAGE 变量
+    config.TARGET_LANGUAGE = new_language
+
 def download_video_section():
     title1 = "1. 上传本地视频 ⏫" if cloud else "1. 从油管链接下载 📥 或 上传本地视频 ⏫"
     st.header(title1)
@@ -134,8 +149,11 @@ def text_processing_section(progress_bar, step_status, total_steps):
 
         # 添加目标语言输入框
         target_language = st.text_input("目标语言:", value=config.TARGET_LANGUAGE)
-        # 更新 config.py 中的 TARGET_LANGUAGE
-        config.TARGET_LANGUAGE = target_language
+        
+        # 如果输入的语言与当前配置不同，更新配置
+        if target_language != config.TARGET_LANGUAGE:
+            update_target_language(target_language)
+            st.success(f"目标语言已更新为: {target_language}，请按下F5以应用修改")
 
         if not os.path.exists("output/output_video_with_subs.mp4"):
             if st.button("开始处理字幕", key="text_processing_button"):
