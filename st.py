@@ -8,6 +8,8 @@ from core import step10_generate_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
 from core.ask_gpt import ask_gpt
 from config import step3_2_split_model
+import config
+
 # 把当前目录加入系统 os 环境中 以便找到 ffmpeg
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
@@ -48,7 +50,6 @@ def sidebar_info():
 
     with st.sidebar.expander("使用前看看 👀", expanded= False):
         # read from docs/QA.json
-
         faq_data = json.loads(open("docs/QA.json", "r", encoding="utf-8").read())
 
         for faq in faq_data:
@@ -123,6 +124,12 @@ def text_processing_section(progress_bar, step_status, total_steps):
                 
         👀 输出请在命令行查看
         """)
+
+        # 添加目标语言输入框
+        target_language = st.text_input("目标语言:", value=config.TARGET_LANGUAGE)
+        # 更新 config.py 中的 TARGET_LANGUAGE
+        config.TARGET_LANGUAGE = target_language
+
         if not os.path.exists("output/output_video_with_subs.mp4"):
             if st.button("开始处理字幕", key="text_processing_button"):
                 process_text(progress_bar, step_status, total_steps)
