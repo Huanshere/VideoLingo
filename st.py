@@ -103,6 +103,12 @@ def download_video_section():
             st.video(video_file)
             if st.button("🔄 删除视频重新选择", key="delete_video_button"):
                 os.remove(video_file)
+                # 删除 output 文件夹（如果存在）
+                if os.path.exists("output"):
+                    shutil.rmtree("output")
+                    st.success("视频和 output 文件夹已删除")
+                else:
+                    st.success("视频已删除")
                 st.rerun()
             return True
     
