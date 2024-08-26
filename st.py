@@ -1,6 +1,7 @@
 import streamlit as st
 import os, glob, json, sys
 import zipfile, io
+import shutil
 from core import step1_ytdlp, step2_whisper_stamped, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
@@ -8,6 +9,8 @@ from core import step10_generate_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
 from core.ask_gpt import ask_gpt
 from config import step3_2_split_model
+import config
+
 # 把当前目录加入系统 os 环境中 以便找到 ffmpeg
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
@@ -48,7 +51,6 @@ def sidebar_info():
 
     with st.sidebar.expander("使用前看看 👀", expanded= False):
         # read from docs/QA.json
-
         faq_data = json.loads(open("docs/QA.json", "r", encoding="utf-8").read())
 
         for faq in faq_data:
@@ -67,6 +69,21 @@ def update_progress(progress_bar, step_status, step, total_steps, description):
     progress = int(step / total_steps * 100)
     progress_bar.progress(progress)
     step_status.markdown(f"**步骤 {step}/{total_steps}**: {description}")
+
+def update_target_language(new_language):
+    with open('config.py', 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    
+    for i, line in enumerate(lines):
+        if line.startswith('TARGET_LANGUAGE'):
+            lines[i] = f"TARGET_LANGUAGE = '{new_language}'  # 用自然语言描述\n"
+            break
+    
+    with open('config.py', 'w', encoding='utf-8') as file:
+        file.writelines(lines)
+    
+    # 直接更新 config 模块中的 TARGET_LANGUAGE 变量
+    config.TARGET_LANGUAGE = new_language
 
 def download_video_section():
     title1 = "1. 上传本地视频 ⏫" if cloud else "1. 从油管链接下载 📥 或 上传本地视频 ⏫"
@@ -103,6 +120,12 @@ def download_video_section():
             st.video(video_file)
             if st.button("🔄 删除视频重新选择", key="delete_video_button"):
                 os.remove(video_file)
+                # 删除 output 文件夹（如果存在）
+                if os.path.exists("output"):
+                    shutil.rmtree("output")
+                    st.success("视频和 output 文件夹已删除")
+                else:
+                    st.success("视频已删除")
                 st.rerun()
             return True
     
@@ -123,6 +146,15 @@ def text_processing_section(progress_bar, step_status, total_steps):
                 
         👀 输出请在命令行查看
         """)
+
+        # 添加目标语言输入框
+        target_language = st.text_input("目标语言:", value=config.TARGET_LANGUAGE)
+        
+        # 如果输入的语言与当前配置不同，更新配置
+        if target_language != config.TARGET_LANGUAGE:
+            update_target_language(target_language)
+            st.success(f"目标语言已更新为: {target_language}，请按下F5以应用修改")
+
         if not os.path.exists("output/output_video_with_subs.mp4"):
             if st.button("开始处理字幕", key="text_processing_button"):
                 process_text(progress_bar, step_status, total_steps)
