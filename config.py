@@ -8,7 +8,7 @@ load_dotenv()
 
 # 从环境变量中获取 API key
 AYUNWU_API_KEY = os.getenv('AYUNWU_API_KEY ')
-
+print(AYUNWU_API_KEY)
 # 其他配置...
 # 语言设置
 TARGET_LANGUAGE = '简体中文'  # 用自然语言描述
