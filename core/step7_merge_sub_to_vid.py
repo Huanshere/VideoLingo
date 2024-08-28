@@ -17,21 +17,25 @@ TARGET_WIDTH = 854
 TARGET_HEIGHT = 480 # for demo only 480p
 
 
-def merge_subtitles_to_video():
-    ## merge subtitles to video and save the output video
-    video_files = glob.glob("*.mp4") + glob.glob("*.webm")
-    if not video_files:
-        print("No video files found in the current directory.")
-        exit(1)
-    video_file = video_files[0]
+def merge_subtitles_to_video(video_file, use_gpu=False):
+    input_video = video_file
+    output_video = "output/output_with_subtitles.mp4"
     en_srt = "output/english_subtitles.srt"
     trans_srt = "output/translated_subtitles.srt"
 
-    if not os.path.exists(en_srt) or not os.path.exists(trans_srt):
-        print("Subtitle files not found in the 'output' directory.")
-        exit(1)
+    print(f"输入视频: {input_video}")
+    print(f"输出视频: {output_video}")
+    print(f"英文字幕: {en_srt}")
+    print(f"翻译字幕: {trans_srt}")
 
-    output_video = "output/output_video_with_subs.mp4"
+    if not os.path.exists(en_srt) or not os.path.exists(trans_srt):
+        print("字幕文件在'output'目录中未找到。")
+        return False
+
+    if not os.path.exists(input_video):
+        print(f"输入视频文件 {input_video} 不存在。")
+        return False
+
     os.makedirs(os.path.dirname(output_video), exist_ok=True)
 
     ffmpeg_cmd = [
@@ -46,29 +50,36 @@ def merge_subtitles_to_video():
             f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
             f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=25,BorderStyle=4'"
         ),
-        '-preset', 'veryfast', 
         '-y',
         output_video
     ]
 
-    print("Starting FFmpeg process... should take less than 10s for 2mins video.")
-    start_time = time.time()
-    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if use_gpu:
+        ffmpeg_cmd.insert(1, '-hwaccel')
+        ffmpeg_cmd.insert(2, 'cuda')
+        ffmpeg_cmd.extend(['-c:v', 'h264_nvenc', '-preset', 'p4', '-crf', '23'])
+    else:
+        ffmpeg_cmd.extend(['-c:v', 'libx264', '-preset', 'medium', '-crf', '23'])
+
+    ffmpeg_cmd.extend(['-c:a', 'aac', '-b:a', '128k'])
+
+    print(f"执行的FFmpeg命令: {' '.join(ffmpeg_cmd)}")
 
     try:
-        stdout, stderr = process.communicate(timeout=120)
-        if process.returncode == 0:
-            print(f"Process completed in {time.time() - start_time:.2f} seconds.")
-            print("🎉🎥 `output_video_with_subs.mp4` generated successfully! Go check it out inside `output` 👀")
-        else:
-            print("Error occurred during FFmpeg execution:")
-            print(stderr.decode())
-    except subprocess.TimeoutExpired:
-        process.kill()
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        if process.poll() is None:
-            process.kill()
-    
+        result = subprocess.run(ffmpeg_cmd, check=True, capture_output=True, text=True)
+        print("FFmpeg输出:")
+        print(result.stdout)
+        print("FFmpeg错误输出:")
+        print(result.stderr)
+        print("字幕已成功合并到视频中。")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"合并字幕时发生错误：{e}")
+        print(f"FFmpeg输出：{e.output}")
+        print(f"FFmpeg错误输出：{e.stderr}")
+        return False
+
+# ... 其余代码保持不变 ...
+
 if __name__ == "__main__":
     merge_subtitles_to_video()

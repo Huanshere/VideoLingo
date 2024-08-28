@@ -1,242 +1,201 @@
 import streamlit as st
-import os, glob, json, sys
-import zipfile, io
+import os, glob, time
 from core import step1_ytdlp, step2_whisper_stamped, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
 from core import step10_generate_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
-from core.ask_gpt import ask_gpt
-from config import step3_2_split_model
-# 把当前目录加入系统 os 环境中 以便找到 ffmpeg
-current_dir = os.path.dirname(os.path.abspath(__file__))
-os.environ['PATH'] += os.pathsep + current_dir
+import tqdm
+import logging
+import traceback
 
-# 检查是否云环境
-if sys.platform.startswith('linux'):
-    cloud = 1
-else:
-    cloud = 0
+# 设置页面配置
+st.set_page_config(page_title="VideoLingo", page_icon="🌉", layout="wide")
 
-def check_api():
-    try:
-        response = ask_gpt('this is a test. response {"status": 200} in json format.', model = step3_2_split_model, response_json=True, log_title='test')
-        if response['status'] == 200:
-            return True
-        else:
-            return False
-    except:
-        return False
+os.environ['STREAMLIT_SERVER_MAX_UPLOAD_SIZE'] = '1028'
 
-def set_page_config():
-    st.set_page_config(
-        page_title="VideoLingo: 连接世界的每一帧",
-        page_icon="🌉",
-        layout="wide",
-        initial_sidebar_state="expanded",
-    )
+# 设置日志
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def clear_proxy_settings():
+    logger.info("开始清除代理设置")
+    proxy_vars = ['http_proxy', 'https_proxy', 'ftp_proxy', 'no_proxy', 'HTTP_PROXY', 'HTTPS_PROXY', 'FTP_PROXY', 'NO_PROXY', 'SOCKS_PROXY', 'socks_proxy']
+    for var in proxy_vars:
+        if var in os.environ:
+            logger.debug(f"删除环境变量: {var}")
+            del os.environ[var]
+    
+    # 设置 no_proxy 为 *，这将禁用所有代理
+    logger.debug("设置 no_proxy 和 NO_PROXY 为 '*'")
+    os.environ['no_proxy'] = '*'
+    os.environ['NO_PROXY'] = '*'
+    logger.info("代理设置清除完成")
 
 def sidebar_info():
-    api_status = check_api()
     st.sidebar.title("🌟 关于 VideoLingo")
-    st.sidebar.info("VideoLingo 是一个全自动烤肉机，可以下载视频、转录音频、翻译内容、生成专业级字幕，甚至还可以进行个性化配音。")
+    st.sidebar.info("VideoLingo 是一个全自动视频处理工具。")
+
+def process_video():
+    st.header("视频处理")
     
-    if not api_status: 
-        st.sidebar.error("😣 api_key 加载有问题 ")
-    else:
-        st.sidebar.success("🥳 api_key 已加载 开始吧！")
-
-    with st.sidebar.expander("使用前看看 👀", expanded= False):
-        # read from docs/QA.json
-
-        faq_data = json.loads(open("docs/QA.json", "r", encoding="utf-8").read())
-
-        for faq in faq_data:
-            st.markdown(f"**Q: {faq['question']}**")
-            st.markdown(f"A: {faq['answer']}")
-            st.markdown("")
-
-    st.sidebar.markdown("🚀 [去 GitHub 打个星](https://github.com/Huanshere/VideoLingo) 🌟")
-
-def create_step_progress():
-    progress_bar = st.progress(0)
-    step_status = st.empty()
-    return progress_bar, step_status
-
-def update_progress(progress_bar, step_status, step, total_steps, description):
-    progress = int(step / total_steps * 100)
-    progress_bar.progress(progress)
-    step_status.markdown(f"**步骤 {step}/{total_steps}**: {description}")
-
-def download_video_section():
-    title1 = "1. 上传本地视频 ⏫" if cloud else "1. 从油管链接下载 📥 或 上传本地视频 ⏫"
-    st.header(title1)
-    with st.expander("展开详情", expanded=True):
-        if not glob.glob("*.mp4") + glob.glob("*.webm"):
-            info1 = "请上传视频文件" if cloud else "请输入油管链接 或 上传视频文件"
-            st.info(info1)
-
-            if not cloud:
-                url = st.text_input("输入YouTube视频链接:")
-                if st.button("下载视频", key="download_button"):
-                    if url:
-                        with st.spinner("正在下载视频..."):
-                            step1_ytdlp.download_video_ytdlp(url, save_path='./')
-                        st.success("视频下载成功! 🎉")
-                        video_file = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
-                        st.video(video_file)
-                        return True
+    tab1, tab2 = st.tabs(["上传视频", "YouTube链接"])
+    
+    video_file = None
+    
+    with tab1:
+        uploaded_file = st.file_uploader("上传视频文件", type=["mp4", "webm"])
+        if uploaded_file:
+            file_details = {"文件名":uploaded_file.name,"文件类型":uploaded_file.type,"文件大小":uploaded_file.size}
+            st.write(file_details)
             
-            uploaded_file = st.file_uploader("或者上传视频文件", type=["mp4", "webm"])
-            if uploaded_file:
-                with open(os.path.join("./", uploaded_file.name), "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                st.success("视频上传成功! 🎉")
-                st.video(uploaded_file)
-                st.rerun()  # 刷新
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            speed_text = st.empty()
+            
+            start_time = time.time()
+            total_size = uploaded_file.size
+            chunk_size = 1024 * 1024  # 1MB
+            
+            with open(os.path.join("./", uploaded_file.name), "wb") as f:
+                bytes_read = 0
+                for chunk in iter(lambda: uploaded_file.read(chunk_size), b''):
+                    f.write(chunk)
+                    bytes_read += len(chunk)
+                    percent_complete = bytes_read / total_size
+                    progress_bar.progress(percent_complete)
+                    
+                    current_time = time.time()
+                    elapsed_time = current_time - start_time
+                    if elapsed_time > 0:
+                        upload_speed = bytes_read / elapsed_time / (1024 * 1024)  # MB/s
+                        status_text.text(f"上传进度: {percent_complete:.2%}")
+                        speed_text.text(f"上传速度: {upload_speed:.2f} MB/s")
+                    
+                    time.sleep(0.1)  # 稍微降低更新频率，避免界面卡顿
                 
-            else:
-                return False
-        else:
-            st.success("视频文件已存在 ✅")
-            video_file = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
+            end_time = time.time()
+            total_time = end_time - start_time
+            average_speed = total_size / total_time / (1024 * 1024)  # MB/s
+            st.success(f"视频上传成功! 平均上传速度: {average_speed:.2f} MB/s")
+            video_file = uploaded_file.name
+            
+            # 显示视频预览
+            st.subheader("视频预览")
             st.video(video_file)
-            if st.button("🔄 删除视频重新选择", key="delete_video_button"):
-                os.remove(video_file)
-                st.rerun()
-            return True
+            
+            # 显示处理按钮
+            if st.button("开始处理视频"):
+                process_downloaded_video(video_file)
     
-    return False
-
-def text_processing_section(progress_bar, step_status, total_steps):
-    st.header("2-7. 字幕翻译生成 📝")
-    with st.expander("展开详情", expanded=True):
-        st.info("""
-        这个阶段包括以下步骤：
-
-        2. 使用Whisper进行语音转录
-        3. 分割句子
-        4. 总结和翻译内容
-        5. 处理字幕
-        6. 生成最终时间线
-        7. 将字幕合并到视频中
+    with tab2:
+        url = st.text_input("输入YouTube视频链接:")
+        download_button = st.button("下载视频")
+        
+        if download_button and url:
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            speed_text = st.empty()
+            
+            try:
+                video_file = step1_ytdlp.download_video_ytdlp(url, save_path='./', progress_callback=lambda p: update_progress(p, progress_bar, status_text, speed_text))
                 
-        👀 输出请在命令行查看
-        """)
-        if not os.path.exists("output/output_video_with_subs.mp4"):
-            if st.button("开始处理字幕", key="text_processing_button"):
-                process_text(progress_bar, step_status, total_steps)
-                st.rerun()
+                st.success(f"视频下载成功!")
+                
+                # 显示视频预览
+                st.subheader("视频预览")
+                st.video(video_file)
+                
+            except Exception as e:
+                st.error(f"下载过程中发生错误: {str(e)}")
+                return
+
+        # 将处理按钮移到这里，确它在下载完成后才显示
+        if video_file and st.button("开始处理下载的视频"):
+            process_downloaded_video(video_file)
+
+def process_downloaded_video(video_file):
+    logger.info("开始处理视频")
+    clear_proxy_settings()
+    logger.debug("代理设置已清除")
+    
+    # 创建 Streamlit 元素用于显示进度和状态
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    st.info("开始处理视频...")
+    
+    # 添加 GPU 选项
+    use_gpu = st.checkbox("使用GPU加速（如果可用）", value=True)
+    
+    try:
+        initial_steps = [
+            ("转录音频", lambda: step2_whisper_stamped.transcript(video_file)),
+            ("分割句子 (spaCy)", step3_1_spacy_split.split_by_spacy),
+            ("分割句子 (意义)", lambda: step3_2_splitbymeaning.split_sentences_by_meaning()),
+            ("总结", step4_1_summarize.get_summary),  # 更新这一行
+            ("翻译", step4_2_translate_all.translate_all),
+            ("分割字幕", step5_splitforsub.split_for_sub_main),
+            ("生成最终时间轴", step6_generate_final_timeline.align_timestamp_main),
+            ("合并字幕到视频", lambda: step7_merge_sub_to_vid.merge_subtitles_to_video(video_file, use_gpu)),
+        ]
+        
+        for i, (step_name, step_func) in enumerate(initial_steps):
+            logger.info(f"开始执行步骤: {step_name}")
+            status_text.text(f"正在处理: {step_name}")
+            st.text(f"开始 {step_name}")
+            try:
+                result = step_func()
+                if result is False:
+                    logger.error(f"{step_name} 失败")
+                    st.error(f"{step_name} 失败。请检查日志以获取更多信息。")
+                    break
+                logger.info(f"完成步骤: {step_name}")
+                st.success(f"完成 {step_name}")
+            except Exception as e:
+                logger.exception(f"{step_name} 发生错误")
+                st.error(f"{step_name} 发生错误: {str(e)}")
+                st.text(f"错误详情: {type(e).__name__}: {str(e)}")
+                st.text(f"错误堆栈: {traceback.format_exc()}")
+                break
+            progress_bar.progress((i + 1) / len(initial_steps))
+        
+        if os.path.exists("output/output_with_subtitles.mp4"):
+            st.success("处理完成！")
+            st.video("output/output_with_subtitles.mp4")
         else:
-            update_progress(progress_bar, step_status, 7, total_steps, "字幕合并到视频完成")
-            st.success("字幕翻译已完成! 可以在`output`文件夹下查看 srt 文件 ~")
-            if cloud:
-                st.warning("目前 Linux 下合并中文字幕展示乱码，请下载 srt 文件自行压制处理～")
-            st.video("output/output_video_with_subs.mp4") # 展示处理后的视频
-            
-            # 创建一个内存中的ZIP文件
-            zip_buffer = io.BytesIO()
-            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                # 添加英文字幕文件
-                if os.path.exists("output/english_subtitles.srt"):
-                    with open("output/english_subtitles.srt", "rb") as file:
-                        zip_file.writestr("english_subtitles.srt", file.read())
-                # 添加翻译后的字幕文件
-                if os.path.exists("output/translated_subtitles.srt"):
-                    with open("output/translated_subtitles.srt", "rb") as file:
-                        zip_file.writestr("translated_subtitles.srt", file.read())
-            zip_buffer.seek(0)
-            
-            # 下载按钮
-            st.download_button(
-                label="📥 下载所有字幕文件",
-                data=zip_buffer,
-                file_name="subtitles.zip",
-                mime="application/zip"
-            )
-            
-            # 一键清理按钮
-            if st.button("📦 一键归档到`history`文件夹", key="cleanup_in_text_processing"):
-                cleanup()
-                st.rerun()
-            return True
-    return False
+            st.warning("处理可能未完全成功。请检查输出文件。")
+    
+    except Exception as e:
+        logger.exception("处理视频时发生未捕获的异常")
+        st.error(f"处理过程中发生错误: {str(e)}")
+        st.text(f"错误堆栈: {traceback.format_exc()}")
 
-def process_text(progress_bar, step_status, total_steps):
-    video_file = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
-    
-    steps = [
-        ("使用Whisper进行转录...", lambda: step2_whisper_stamped.transcript(video_file), 2),
-        ("分割长句...", lambda: (step3_1_spacy_split.split_by_spacy(), step3_2_splitbymeaning.split_sentences_by_meaning()), 3),
-        ("总结和翻译...", lambda: (step4_1_summarize.get_summary(), step4_2_translate_all.translate_all()), 4),
-        ("处理对齐字幕...", lambda: (step5_splitforsub.split_for_sub_main(), step6_generate_final_timeline.align_timestamp_main()), 6),
-        ("合并字幕到视频...", step7_merge_sub_to_vid.merge_subtitles_to_video, 7)
-    ]
-    
-    for description, func, step in steps:
-        with st.spinner(description):
-            func()
-        update_progress(progress_bar, step_status, step, total_steps, f"{description.split('...')[0]}完成")
-    
-    st.success("字幕处理完成! 🎉")
-    st.balloons()
+    finally:
+        # 清理进度条和状态文本
+        progress_bar.empty()
+        status_text.empty()
 
-def audio_processing_section(progress_bar, step_status, total_steps):
-    st.header("8-11. SoVits 配音 🎵")
-    with st.expander("展开详情", expanded=True):
-        st.info("""
-        这个阶段包括以下步骤：
+@st.cache_data
+def load_video_file(file_path):
+    return open(file_path, "rb").read()
 
-        8. 提取参考音频
-        9. 生成音频任务
-        10. 使用SoVITS生成音频 (如果出错了请检查命令行输出手动精简 `output/audio/sovits_tasks.xlsx` 中对应行的字幕) (完成后可手动关闭cmd)
-        11. 将音频合并到视频中
-        """)
-        if not os.path.exists("output/output_video_with_audio.mp4"):
-            if st.button("开始配音处理", key="audio_processing_button"):
-                process_audio(progress_bar, step_status, total_steps)
-                st.video("output/output_video_with_audio.mp4") # 展示处理后的视频
-                return True
-        else:
-            update_progress(progress_bar, step_status, total_steps, total_steps, "音频合并到视频完成")
-            st.success("配音处理已完成! 可以在`output`文件夹下查看音频文件 ~")
-            st.video("output/output_video_with_audio.mp4")
-            if st.button("📦 一键归档到`history`文件夹", key="cleanup_in_audio_processing"):
-                cleanup()
-                st.rerun()
-    return False
-
-def process_audio(progress_bar, step_status, total_steps):
-    input_video = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
-    
-    steps = [
-        ("提取音频...", lambda: step8_extract_refer_audio.step8_main(input_video), 8),
-        ("生成音频任务...", step9_generate_audio_task.step9_main, 9),
-        ("使用SoVITS生成音频...\n⚠️ 如果这一步因字幕出错，请根据cmd提示修改对应字幕后重新运行", step10_generate_audio.process_sovits_tasks, 10),
-        ("合并音频到视频...", step11_merge_audio_to_vid.merge_main, 11),
-    ]
-    
-    for description, func, step in steps:
-        with st.spinner(description):
-            func()
-        update_progress(progress_bar, step_status, step, total_steps, f"{description.split('...')[0]}完成")
-    
-    st.success("音频处理完成! 🎉")
-    st.balloons()
+def update_progress(progress, progress_bar, status_text, speed_text, start_time):
+    progress_bar.progress(progress)
+    current_time = time.time()
+    elapsed_time = current_time - start_time
+    if elapsed_time > 0:
+        download_speed = progress / elapsed_time / (1024 * 1024)  # MB/s
+        status_text.text(f"下载进度: {progress:.2%}")
+        speed_text.text(f"下载速度: {download_speed:.2f} MB/s")
 
 def main():
-    set_page_config()
-    st.title("🌉 VideoLingo: 连接世界的每一帧")
     sidebar_info()
+    process_video()
 
-    total_steps = 11
-    progress_bar, step_status = create_step_progress()
-
-    if download_video_section():
-        update_progress(progress_bar, step_status, 1, total_steps, "视频下载完成")
-        
-        if text_processing_section(progress_bar, step_status, total_steps):
-            audio_processing_section(progress_bar, step_status, total_steps)
+    if st.button("清理文件"):
+        cleanup()
+        st.success("文件已清理")
 
 if __name__ == "__main__":
     main()
