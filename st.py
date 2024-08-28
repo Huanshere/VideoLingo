@@ -9,6 +9,10 @@ import tqdm
 
 os.environ['STREAMLIT_SERVER_MAX_UPLOAD_SIZE'] = '1028'
 
+# 在文件开头添加以下代码
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 def set_page_config():
     st.set_page_config(page_title="VideoLingo", page_icon="🌉", layout="wide")
 
@@ -38,7 +42,8 @@ def process_video():
             total_size = uploaded_file.size
             chunk_size = 1024 * 1024  # 1MB
             
-            with open(os.path.join("./", uploaded_file.name), "wb") as f:
+            file_path = os.path.join(UPLOAD_FOLDER, uploaded_file.name)
+            with open(file_path, "wb") as f:
                 bytes_read = 0
                 for chunk in iter(lambda: uploaded_file.read(chunk_size), b''):
                     f.write(chunk)
@@ -59,7 +64,7 @@ def process_video():
             total_time = end_time - start_time
             average_speed = total_size / total_time / (1024 * 1024)  # MB/s
             st.success(f"视频上传成功! 平均上传速度: {average_speed:.2f} MB/s")
-            video_file = uploaded_file.name
+            video_file = file_path
     
     with tab2:
         url = st.text_input("输入YouTube视频链接:")
@@ -68,7 +73,7 @@ def process_video():
             status_text = st.empty()
             
             start_time = time.time()
-            video_file = step1_ytdlp.download_video_ytdlp(url, save_path='./', progress_callback=lambda p: progress_bar.progress(p))
+            video_file = step1_ytdlp.download_video_ytdlp(url, save_path=UPLOAD_FOLDER, progress_callback=lambda p: progress_bar.progress(p))
             end_time = time.time()
             
             file_size = os.path.getsize(video_file)
@@ -92,7 +97,7 @@ def process_video():
         if st.button("更新预览"):
             with video_preview.container():
                 st.video(video_file, start_time=int(start_time))
-            st.info(f"预览视频从 {start_time} 秒开始，持续 {duration} 秒")
+            st.info(f"预览视���从 {start_time} 秒开始，持续 {duration} 秒")
 
     # 处理视频
     if video_file:
