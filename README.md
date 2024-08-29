@@ -22,7 +22,7 @@
 
 - ✨ 在 streamlit 中点击-完成！
 
-![iqzp96.png](https://files.catbox.moe/iqzp96.png)
+![demo.png](https://files.catbox.moe/clsmt9.png)
 
 > 看看效果吧！💪
 
@@ -67,11 +67,12 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 - 新注册用户赠送等额 35h 免费使用，详细图文教程 [点击这里](docs/趋动云使用说明.md)
 
-![ia9v1d.png](https://files.catbox.moe/ia9v1d.png)
+
+
+![qudongcloud.png](https://files.catbox.moe/ia9v1d.png)
 
 ## 🏠 本地部署
-
-> 支持 Win 和 Mac 系统
+> 支持 Win 和 Mac 系统 (本地一键包还在开发中...)
 
 
 > Windows在开始其他依赖项安装之前，请务必下载并安装 Visual Studio 2022 或者 Microsoft C++ 生成工具（体积较前者更小）。勾选并安装组件包：“使用 C++的桌面开发”，执行修改并等待其安装完成。
