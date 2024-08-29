@@ -5,11 +5,6 @@ from core.ask_gpt import ask_gpt, step3_2_split_model
 from core.prompts_storage import get_split_prompt
 from difflib import SequenceMatcher
 from config import MAX_SPLIT_LENGTH
-import os
-import requests
-import logging
-
-logger = logging.getLogger(__name__)
 
 def find_split_positions(original, modified):
     split_positions = []
@@ -89,75 +84,22 @@ def parallel_split_sentences(sentences, max_length, max_workers, retry_attempt=0
 
     return [sentence for sublist in new_sentences for sentence in sublist]
 
-def print_proxy_settings():
-    logger.debug("当前代理设置:")
-    for var in ['http_proxy', 'https_proxy', 'ftp_proxy', 'no_proxy', 'HTTP_PROXY', 'HTTPS_PROXY', 'FTP_PROXY', 'NO_PROXY']:
-        if var in os.environ:
-            logger.debug(f"{var}: {os.environ[var]}")
-    logger.debug("requests 库的当前代理设置:")
-    logger.debug(requests.utils.getproxies())
-
 def split_sentences_by_meaning():
-    logger.info("开始执行 split_sentences_by_meaning 函数")
-    print_proxy_settings()
-    
-    logger.debug("禁用 requests 库的代理")
-    old_getproxies = requests.utils.getproxies
-    requests.utils.getproxies = lambda: {}
-    
-    old_session = requests.Session
-    requests.Session = lambda: type('MockSession', (), {'proxies': {}})()
-    
-    try:
-        logger.debug("开始执行主要逻辑")
-        # 在这里添加函数的主要逻辑，每个重要步骤都添加日志
-        # 例如：
-        # logger.debug("正在读取输入文件")
-        # with open('input_file.txt', 'r') as f:
-        #     content = f.read()
-        # logger.debug(f"读取到的内容长度: {len(content)}")
-        
-        # logger.debug("开始处理内容")
-        # processed_content = process_content(content)
-        # logger.debug(f"处理后的内容长度: {len(processed_content)}")
-        
-        # logger.debug("开始写入输出文件")
-        # with open('output_file.txt', 'w') as f:
-        #     f.write(processed_content)
-        # logger.debug("输出文件写入完成")
-        
-    except Exception as e:
-        logger.exception("在 split_sentences_by_meaning 函数中发生异常")
-        raise
-    finally:
-        logger.debug("恢复 requests 库的原始设置")
-        requests.utils.getproxies = old_getproxies
-        requests.Session = old_session
+    """Main function to split sentences by meaning."""
+    # Read input sentences
+    with open('output/log/sentence_splitbymark.txt', 'r', encoding='utf-8') as f:
+        sentences = [line.strip() for line in f.readlines()]
 
-    logger.info("split_sentences_by_meaning 函数执行完成")
-    # 返回结果
-    # ...
-    
-    try:
-        # Read input sentences
-        with open('output/log/sentence_splitbymark.txt', 'r', encoding='utf-8') as f:
-            sentences = [line.strip() for line in f.readlines()]
+    max_length = MAX_SPLIT_LENGTH # 18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 
-        max_length = MAX_SPLIT_LENGTH # 18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
+    # 🔄 Process sentences multiple times to ensure all are split
+    for retry_attempt in range(5):
+        sentences = parallel_split_sentences(sentences, max_length=max_length, max_workers=8, retry_attempt=retry_attempt)
 
-        # 🔄 Process sentences multiple times to ensure all are split
-        for retry_attempt in range(5):
-            sentences = parallel_split_sentences(sentences, max_length=max_length, max_workers=8, retry_attempt=retry_attempt)
-
-        # 💾 Save the results
-        with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sentences))
-        print('✅ All sentences have been successfully split')
-
-    finally:
-        # 恢复 requests 库的原始代理设置
-        requests.utils.getproxies = old_getproxies
-        requests.Session = old_session
+    # 💾 Save the results
+    with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:
+        f.write('\n'.join(sentences))
+    print('✅ All sentences have been successfully split')
 
 if __name__ == '__main__':
     print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))

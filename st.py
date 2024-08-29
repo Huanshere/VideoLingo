@@ -8,6 +8,13 @@ from core.onekeycleanup import cleanup
 import tqdm
 
 os.environ['STREAMLIT_SERVER_MAX_UPLOAD_SIZE'] = '1028'
+# 清除所有代理设置
+os.environ.pop('ALL_PROXY', None)
+os.environ.pop('all_proxy', None)
+os.environ.pop('HTTP_PROXY', None)
+os.environ.pop('HTTPS_PROXY', None)
+os.environ.pop('http_proxy', None)
+os.environ.pop('https_proxy', None)   
 
 # 在文件开头添加以下代码
 UPLOAD_FOLDER = "uploads"
