@@ -112,7 +112,8 @@ def main():
         st.markdown(give_star_button, unsafe_allow_html=True)
     download_video_section(cloud)
     text_processing_section()
-    audio_processing_section()
+    if not cloud:
+        audio_processing_section()
 
 if __name__ == "__main__":
     main()

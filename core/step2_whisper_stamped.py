@@ -7,7 +7,7 @@ import pandas as pd
 from typing import List, Dict
 import warnings
 warnings.filterwarnings("ignore")
-from config import WHISPER_MODEL, MODEL_DIR
+from config import WHISPER_MODEL, MODEL_DIR, AUDIO_LANGUAGE
 
 def convert_video_to_audio_and_transcribe(input_file: str):
     # 🎬➡️🎵➡️📊 Convert video to audio and transcribe
@@ -42,7 +42,10 @@ def convert_video_to_audio_and_transcribe(input_file: str):
         os.makedirs(MODEL_DIR, exist_ok=True)
         model = whisper.load_model(WHISPER_MODEL, device=device, download_root=MODEL_DIR)
         # result = whisper.transcribe(model, audio, language="en")
-        result = whisper.transcribe(model, audio)
+        if AUDIO_LANGUAGE == 'auto':
+            result = whisper.transcribe(model, audio)
+        else:
+            result = whisper.transcribe(model, audio, language=AUDIO_LANGUAGE)
         
         # Process transcription results
         all_words: List[Dict[str, float]] = [

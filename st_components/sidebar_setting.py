@@ -44,9 +44,15 @@ def page_setting():
         changes["llm_config"] = new_llm_config
     
     st.header("字幕设置")
-    target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
-    if target_language != config.TARGET_LANGUAGE:
-        changes["TARGET_LANGUAGE"] = target_language
+    cols_audio = st.columns(2)
+    with cols_audio[0]:
+        audio_language = st.radio("whisper 识别语言:", options=["auto", "en"], index=0 if config.AUDIO_LANGUAGE == "auto" else 1)
+        if audio_language != config.AUDIO_LANGUAGE:
+            changes["AUDIO_LANGUAGE"] = audio_language
+    with cols_audio[1]:
+        target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
+        if target_language != config.TARGET_LANGUAGE:
+            changes["TARGET_LANGUAGE"] = target_language
     st.write("每行字幕最大字符数：")
     col1, col2 = st.columns(2)
     with col1:
