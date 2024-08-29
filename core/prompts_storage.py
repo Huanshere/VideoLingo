@@ -9,7 +9,7 @@ def get_split_prompt(sentence, num_parts = 2, word_limit = 20):
 You are a professional and experienced Netflix subtitle splitter.
 
 ### Task
-Your task is to split the given English subtitle text into **{num_parts}** parts, each should be less than {word_limit} words.
+Your task is to split the given subtitle text into **{num_parts}** parts, each should be less than {word_limit} words.
 
 ### Requirements
 1. Try to maintain the coherence of the sentence meaning, split according to Netflix subtitle standards, ensuring the two parts are relatively independent.
@@ -46,15 +46,12 @@ Please provide your answer in the following JSON format, <<>> represents placeho
 def get_summary_prompt(English_content, target_language):
     summary_prompt = f"""
 ### 角色
-你是一位专业的英语视频翻译专家和术语顾问。你的专业不仅在于准确理解英语原文,还在于提取关键专业术语,优化译文以更符合{target_language}的表达习惯和文化背景。
-
-### 任务背景
-我们需要翻译一些英语视频,其中可能包含一些专业术语。为了确保翻译的准确性和专业性,我们需要你的帮助。
+你是一位专业的视频翻译专家和术语顾问。你的专业不仅在于准确理解原文,还在于提取关键专业术语,优化译文以更符合{target_language}的表达习惯和文化背景。
 
 ### 任务描述 
-对于提供的英语视频文本,你需要:
+对于提供的原文视频文本,你需要:
 1. 用一句话概括视频的主题
-2. 提取视频中出现的专业术语,并提供{target_language}翻译或建议保留英文术语。避免提取简单、常见的词汇。
+2. 提取视频中出现的专业术语,并提供{target_language}翻译或建议保留原语言术语。避免提取简单、常见的词汇。
 3. 对每个翻译的术语,给出简要解释
 
 ### 分析和总结步骤
@@ -64,9 +61,9 @@ def get_summary_prompt(English_content, target_language):
    - 用一句简洁的话概括主题
 2. 术语提取:
    - 仔细阅读全文,标记专业术语
-   - 对每个术语,提供{target_language}翻译或建议保留英文,只需单词本身,不需要读音
+   - 对每个术语,提供{target_language}翻译或建议保留原文,只需单词本身,不需要读音
    - 为每个术语添加简要解释,帮助译者理解
-   - 如果该词为英文缩写,请保留英文。
+   - 如果该词为固定缩写,请保留原文。
 
 ### 输出格式
 请按以下JSON格式输出你的分析结果,其中<>表示占位符:
@@ -74,13 +71,13 @@ def get_summary_prompt(English_content, target_language):
     "theme": "<简要概括这个视频的主题,用1句话表示>",
     "terms": [
         {{
-            "original": "<英文术语1>",
-            "translation": "<{target_language}翻译或保留英文>",
+            "original": "<原语言的术语1>",
+            "translation": "<{target_language}翻译或保留原文>",
             "explanation": "<术语简要解释>"
         }},
         {{
-            "original": "<英文术语2>",
-            "translation": "<{target_language}翻译或保留英文>",
+            "original": "<原语言的术语2>",
+            "translation": "<{target_language}翻译或保留原文>",
             "explanation": "<术语简要解释>"
         }},
         ...
@@ -149,14 +146,14 @@ def get_prompt_faithfulness(lines, shared_prompt, target_language = '简体中�
     
     prompt_faithfulness = f'''
 ### 角色定义
-你是一位专业的 Netflix 英文字幕翻译专家,精通英语和{target_language}两种语言和文化。你的专长在于准确理解英文原文的语义和结构,并能够忠实地将其翻译成{target_language},同时保持原意。
+你是一位专业的 Netflix 字幕翻译专家,精通原视频语言和{target_language}两种语言和文化。你的专长在于准确理解原文的语义和结构,并能够忠实地将其翻译成{target_language},同时保持原意。
 
 ### 任务背景
-我们有一段英文字幕需要直接翻译成{target_language}。这些字幕来自特定的上下文,可能包含特定的主题和术语。
+我们有一段原文字幕需要直接翻译成{target_language}。这些字幕来自特定的上下文,可能包含特定的主题和术语。
 
 ### 任务描述
-根据提供的英文字幕,你需要:
-1. 逐行将英文字幕翻译成{target_language}
+根据提供的原文字幕,你需要:
+1. 逐行将原文字幕翻译成{target_language}
 2. 确保翻译忠实于原文,准确传达原意
 3. 考虑上下文和专业术语
 
@@ -192,13 +189,13 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt, target_
 
     prompt_expressiveness = f'''
 ### 角色定义
-你是一名专业的 Netflix 英文字幕翻译专家和语言顾问。你的专长不仅在于准确理解英文原文,还在于优化{target_language}翻译,使之更符合目标语言的表达习惯和文化背景。
+你是一名专业的 Netflix 字幕翻译专家和语言顾问。你的专长不仅在于准确理解原视频语言,还在于优化{target_language}翻译,使之更符合目标语言的表达习惯和文化背景。
 
 ### 任务背景
-我们已经有了英文字幕的直译版本,现在需要你反思并改进这些直译,创作出更自然流畅的{target_language}字幕。
+我们已经有了原文字幕的直译版本,现在需要你反思并改进这些直译,创作出更自然流畅的{target_language}字幕。
 
 ### 任务描述  
-根据提供的英文原文和{target_language}直译版本,你需要:
+根据提供的原文和{target_language}直译版本,你需要:
 1. 逐行分析直译结果,指出存在的问题
 2. 提供详细的修改建议
 3. 在分析的基础上进行自由翻译
@@ -240,36 +237,36 @@ def get_align_prompt(en_original, target_original, en_part, target_language = '�
     en_part = en_part.replace('\n', ' [br] ')
     align_prompt = '''
 ### 角色定义
-你是一位精通英语和{target_language}的Netflix字幕对齐专家。你的专长在于准确理解两种语言的语义和结构,能够灵活地分割句子同时保持原意。
+你是一位精通原视频语言和{target_language}的Netflix字幕对齐专家。你的专长在于准确理解两种语言的语义和结构,能够灵活地分割句子同时保持原意。
 
 ### 任务背景
-我们有一个Netflix节目的英语和{target_language}原始字幕,以及预处理过的英语字幕分割版本。你的任务是基于这些信息,为{target_language}字幕创建最佳的分割方案。
+我们有一个Netflix节目的原视频语言和{target_language}原始字幕,以及预处理过的原视频语言字幕分割版本。你的任务是基于这些信息,为{target_language}字幕创建最佳的分割方案。
 
 ### 任务描述
-基于提供的英语和{target_language}原始字幕以及预处理的英语分割版本,你需要:
-1. 分析英语和{target_language}字幕之间的词序和结构对应关系
+基于提供的原视频语言和{target_language}原始字幕以及预处理的分割版本,你需要:
+1. 分析原视频语言和{target_language}字幕之间的词序和结构对应关系
 2. 为{target_language}字幕提供 3 种不同的分割方案
 3. 评估这些方案并选择最佳方案
 4. 绝不留下空行。如果难以基于意义进行分割,你可以适当地重写需要对齐的句子
 
 ### 字幕数据
 <subtitles>
-英语原文: "{en_original}"
+原文: "{en_original}"
 {target_language}原文: "{target_original}"
-预处理英语 ( [br] 表示分割点): {en_part}
+预处理原视频语言 ( [br] 表示分割点): {en_part}
 </subtitles>
 
 ### 处理步骤
 请按照以下步骤处理,并在JSON输出中提供每个步骤的结果:
-1. 分析和比较:简要分析英语和{target_language}字幕之间的词序、句子结构和语义对应关系。指出关键词对应、句型的异同,以及可能影响分割的语言特征。
-2. 开始对齐:根据你的分析,按照格式提供 3 种不同的{target_language}字幕对齐方式, 其中英文的分割位置要和预处理的英文分割版本一致，不能擅自更改。
+1. 分析和比较:简要分析原视频语言和{target_language}字幕之间的词序、句子结构和语义对应关系。指出关键词对应、句型的异同,以及可能影响分割的语言特征。
+2. 开始对齐:根据你的分析,按照格式提供 3 种不同的{target_language}字幕对齐方式, 其中原视频语言的分割位置要和预处理的原视频语言分割版本一致，不能擅自更改。
 3. 评估和选择:检查并简要评估 3 种方案,考虑句子完整性、语义连贯性和分割点的适当性等因素。
 4. 最佳方案:选择最佳对齐方案,只输出单个数字,1 or 2 or 3.
 
 ### 输出格式
 请完成以下JSON数据,其中 << >> 表示占位符,并用JSON格式返回你的结果:
 {{
-    "analysis": "<<对英语和{target_language}字幕之间的词序、结构和语义对应关系的详细分析>>",
+    "analysis": "<<对原视频语言和{target_language}字幕之间的词序、结构和语义对应关系的详细分析>>",
     "align_way_1": [
         {align_parts_json}
     ],

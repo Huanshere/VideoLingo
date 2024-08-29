@@ -1,4 +1,6 @@
-import os, glob, subprocess, time
+import os, glob, subprocess, time, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import RESOLUTIOM
 
 EN_FONT_SIZE = 16
 TRANS_FONT_SIZE = 18
@@ -13,9 +15,7 @@ TRANS_OUTLINE_COLOR = '&H000000'
 TRANS_OUTLINE_WIDTH = 1 
 TRANS_BACK_COLOR = '&H33000000'
 
-TARGET_WIDTH = 854
-TARGET_HEIGHT = 480 # for demo only 480p
-
+TARGET_WIDTH, TARGET_HEIGHT = RESOLUTIOM.split('x')
 
 def merge_subtitles_to_video():
     ## merge subtitles to video and save the output video

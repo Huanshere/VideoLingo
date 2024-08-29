@@ -55,7 +55,8 @@ def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0
     if index != -1:
         print(f'✅ Sentence {index} has been successfully split')
     print(f'📄 Original English:   {sentence}')
-    print(f"📚 Split Sentence: {best_split.replace('\n',' [br] ')}")
+    print_split = best_split.replace('\n',' [br] ')
+    print(f"📚 Split Sentence: {print_split}")
     
     return best_split
 

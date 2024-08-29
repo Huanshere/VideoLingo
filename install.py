@@ -32,7 +32,7 @@ def check_gpu():
             try:
                 output = subprocess.check_output(["lspci"])
             except FileNotFoundError:
-                print("lspci command not found. Attempting to install pciutils...")
+                print("未找到lspci命令。正在尝试安装pciutils...")
                 subprocess.check_call(["apt-get", "update"])
                 subprocess.check_call(["apt-get", "install", "-y", "pciutils"])
                 output = subprocess.check_output(["lspci"])
@@ -47,35 +47,35 @@ def install_torch(gpu_available):
     """Install PyTorch based on GPU availability and platform."""
     if platform.system() == "Windows":
         if gpu_available:
-            print("GPU detected. Installing PyTorch with CUDA support...")
+            print("检测到GPU。正在安装支持CUDA的PyTorch...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchvision", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
         else:
-            print("No GPU detected. Installing PyTorch without CUDA support...")
+            print("未检测到GPU。正在安装不支持CUDA的PyTorch...")
             install_package("torch", "torchvision", "torchaudio")
     elif platform.system() == "Darwin":  # macOS
         if "arm" in platform.processor().lower():
-            print("Apple Silicon detected. Installing PyTorch with MLX (Metal) support...")
+            print("检测到Apple Silicon。正在安装支持MLX (Metal)的PyTorch...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "--pre", "torch", "torchvision", "torchaudio", "--extra-index-url", "https://download.pytorch.org/whl/nightly/cpu"])
         else:
-            print("Installing PyTorch for macOS without MLX support...")
+            print("正在为macOS安装不支持MLX的PyTorch...")
             install_package("torch", "torchvision", "torchaudio")
     elif platform.system() == "Linux":
         if gpu_available:
-            print("GPU detected. Installing PyTorch with CUDA support...")
+            print("检测到GPU。正在安装支持CUDA的PyTorch...")
             install_package("torch", "torchvision", "torchaudio")
         else:
-            print("No GPU detected. Installing PyTorch without CUDA support...")  
+            print("未检测到GPU。正在安装不支持CUDA的PyTorch...")  
             install_package("torch", "torchvision", "torchaudio", "--extra-index-url", "https://download.pytorch.org/whl/cpu")
     else:
-        print("Unsupported platform. Please install PyTorch manually.")
+        print("不支持的平台。请手动安装PyTorch。")
 
 def install_requirements():
     """Install requirements from requirements.txt file."""
     if os.path.exists("requirements.txt"):
-        print("Installing requirements from requirements.txt...")
+        print("正在从requirements.txt安装依赖...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
     else:
-        print("requirements.txt not found. Skipping.")
+        print("未找到requirements.txt。跳过安装。")
 
 def download_spacy_model():
     """Download the specified spaCy model."""
@@ -84,7 +84,7 @@ def download_spacy_model():
     try:
         spacy.load(SPACY_NLP_MODEL)
     except:
-        print(f"Downloading {SPACY_NLP_MODEL} model...")
+        print(f"正在下载{SPACY_NLP_MODEL}模型...")
         download(SPACY_NLP_MODEL)
 
 def dowanload_uvr_model():
@@ -92,14 +92,14 @@ def dowanload_uvr_model():
     if not os.path.exists("_model_cache/uvr5_weights/HP2_all_vocals.pth"):
         os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
         import requests
-        print("Downloading UVR model...")
+        print("正在下载UVR模型...")
         url = "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth"
         response = requests.get(url)
         with open("_model_cache/uvr5_weights/HP2_all_vocals.pth", "wb") as file:
             file.write(response.content)
-        print("UVR model downloaded successfully.")
+        print("UVR模型下载成功。")
     else:
-        print("HP2_all_vocals.pth already exists. Skipping download.")
+        print("HP2_all_vocals.pth已存在。跳过下载。")
 
 
 def download_sovits_model():
@@ -117,18 +117,18 @@ def download_sovits_model():
         for file in files:
             save_path = os.path.join(model_dir, file)
             if os.path.exists(save_path):
-                print(f"{file} already exists. Skipping download.")
+                print(f"{file}已存在。跳过下载。")
                 continue
             import requests
             url = f"{base_url}{model}/{file}"
-            print(f"Downloading {file}...")
+            print(f"正在下载{file}...")
             response = requests.get(url)
             if response.status_code == 200:
                 with open(save_path, "wb") as f:
                     f.write(response.content)
-                print(f"{file} downloaded successfully.")
+                print(f"{file}下载成功。")
             else:
-                print(f"Failed to download {file}, status code: {response.status_code}")
+                print(f"下载{file}失败，状态码：{response.status_code}")
 
 def download_huanyu_model():
     """Download the specified Huanyu model files for GPT-SoVITS."""
@@ -146,21 +146,21 @@ def download_huanyu_model():
     for file in files:
         save_path = os.path.join(model_dir, file)
         if os.path.exists(save_path):
-            print(f"{file} already exists. Skipping download.")
+            print(f"{file}已存在。跳过下载。")
             continue
 
         url = base_url + file
         if file == "and to be able to get really good results doing that for a variety of classes.wav":
             url = base_url + "and%20to%20be%20able%20to%20get%20really%20good%20results%20doing%20that%20for%20a%20variety%20of%20classes.wav"
         import requests
-        print(f"Downloading {file}...")
+        print(f"正在下载{file}...")
         response = requests.get(url)
         if response.status_code == 200:
             with open(save_path, "wb") as f:
                 f.write(response.content)
-            print(f"{file} downloaded successfully.")
+            print(f"{file}下载成功。")
         else:
-            print(f"Failed to download {file}, status code: {response.status_code}")
+            print(f"下载{file}失败，状态码：{response.status_code}")
 
 def download_and_extract_ffmpeg():
     """Download FFmpeg based on the platform, extract it, and clean up."""
@@ -175,23 +175,23 @@ def download_and_extract_ffmpeg():
         ffmpeg_exe = "ffmpeg"
         url = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
     else:
-        print("FFmpeg download is only supported on Windows and macOS.")
+        print("FFmpeg下载仅支持Windows和macOS。")
         return
 
     if os.path.exists(ffmpeg_exe):
-        print(f"{ffmpeg_exe} already exists. Skipping download.")
+        print(f"{ffmpeg_exe}已存在。跳过下载。")
         return
 
-    print("Downloading FFmpeg...")
+    print("正在下载FFmpeg...")
     import requests
     response = requests.get(url)
     if response.status_code == 200:
         filename = "ffmpeg.zip"
         with open(filename, 'wb') as f:
             f.write(response.content)
-        print(f"FFmpeg downloaded to {filename}")
+        print(f"FFmpeg已下载到{filename}")
         
-        print("Extracting FFmpeg...")
+        print("正在解压FFmpeg...")
         if system == "Linux":
             import tarfile
             with tarfile.open(filename) as tar_ref:
@@ -208,18 +208,18 @@ def download_and_extract_ffmpeg():
                         shutil.move(os.path.join(*file.split('/')[:-1], ffmpeg_exe), ffmpeg_exe)
                         break
         
-        print("Cleaning up...")
+        print("正在清理...")
         os.remove(filename)  
         if system != "Linux":
             for item in os.listdir():
                 if os.path.isdir(item) and "ffmpeg" in item.lower():
                     shutil.rmtree(item)
-        print("FFmpeg extraction complete.")
+        print("FFmpeg解压完成。")
     else:
-        print("Failed to download FFmpeg")
+        print("下载FFmpeg失败")
 
 def main():
-    print("Starting submagic installation...")
+    print("开始安装喽...")
     
     # Install requests first
     install_package("requests")
@@ -259,7 +259,7 @@ def main():
     # Download and extract FFmpeg
     download_and_extract_ffmpeg()
     
-    print("Installation completed successfully!")
+    print("所有安装步骤都完成啦!")
 
 if __name__ == "__main__":
     main()

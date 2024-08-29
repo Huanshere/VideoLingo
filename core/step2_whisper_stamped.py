@@ -41,7 +41,8 @@ def convert_video_to_audio_and_transcribe(input_file: str):
         audio = whisper.load_audio(audio_file)
         os.makedirs(MODEL_DIR, exist_ok=True)
         model = whisper.load_model(WHISPER_MODEL, device=device, download_root=MODEL_DIR)
-        result = whisper.transcribe(model, audio, language="en")
+        # result = whisper.transcribe(model, audio, language="en")
+        result = whisper.transcribe(model, audio)
         
         # Process transcription results
         all_words: List[Dict[str, float]] = [

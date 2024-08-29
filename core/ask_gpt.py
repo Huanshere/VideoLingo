@@ -43,15 +43,13 @@ def check_ask_gpt_history(prompt, model):
     return False
 
 def select_llm(model):
-    for config in llm_config:
-        if model in config['model'] and config.get('api_key'):
-            llm = config
-            break
+    if model in llm_config['model'] and llm_config.get('api_key'):
+        return llm_config
     else:
-        raise ValueError(f"⚠️Model <{model}> not found in llm_config or api_key is missing")
-    return llm
+        print(f"{model} {llm_config}")
+        raise ValueError(f"⚠️Model <{model}> 在 llm_config 中未找到或缺少 api_key")
 
-def ask_gpt(prompt, model = 'deepseek-coder', response_json = True, log_title = 'default'):
+def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
     with LOCK:
         if check_ask_gpt_history(prompt, model):
             return check_ask_gpt_history(prompt, model)
@@ -98,7 +96,7 @@ def ask_gpt(prompt, model = 'deepseek-coder', response_json = True, log_title = 
 
 # test
 if __name__ == '__main__':
-    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model="TA/Qwen/Qwen1.5-72B-Chat", response_json=True)) 
+    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model='claude-3-5-sonnet-20240620', response_json=True)) 
 
 
 

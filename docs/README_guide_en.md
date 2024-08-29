@@ -1,52 +1,43 @@
-## Magic Introduction 🪄✨
+**Videolingo Video Translation System Technical Documentation**
 
-🔙 Back to README | [English](../README.md) | [中文](README.zh-CN.md) | [Español](README.es.md) | [Français](README.fr.md) | [Deutsch](README.de.md) |  [Türkçe](README.tr.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+🔙 Back to README | [中文](../README.md) | [English](../README.en.md)
 
-Welcome to SubMagic! The main features of this project can be summarized as follows:
+Videolingo is a highly integrated video translation system capable of automating a series of complex operations including video downloading, audio extraction, speech recognition, subtitle generation, text translation, and audio-video synthesis. The system also provides a web interface for task management and system configuration. Below are the core technical modules and workflow of the system:
 
-1. **Video Download**: Use `yt-dlp` to download videos from specified URLs.
-   - `core/step1_ytdlp.py`: Call the `download_video_ytdlp` function, passing in the video URL and save path to download the video file.
+1. **Video Acquisition Module**:
+   - `st_components/download_video_section.py`: A web application component built on the Streamlit framework, offering two methods of video acquisition: YouTube link download and local file upload.
+   - `core/step1_ytdlp.py`: Integrates the `yt_dlp` library to efficiently download videos from specified URLs.
 
-2. **Transcription**: Use OpenAI's `whisper` model to transcribe audio from the video into text.
-   - `core/step2_whisper_stamped.py`: Call the `transcript` function, set language and timestamp return method, and save the transcription result as an Excel file.
+2. **Audio Processing and Speech Recognition Module**:
+   - `core/step2_whisper_stamped.py`: Utilizes OpenAI's Whisper model for high-precision speech recognition, generating timestamped text transcription results.
 
-3. **Text Processing**: Process the transcribed text, splitting sentences by punctuation and semantics.
-   - `core/step3_1_spacy_split.py`: Use SpaCy model to split text, including splitting by comma (`split_by_comma_main`), period (`split_sentences_main`), and punctuation (`split_by_mark`).
-   - `core/step3_2_splitbymeaning.py`: Call the `split_sentences_by_meaning` function, using the GPT model to split sentences based on semantics.
+3. **Text Processing and Translation Module**:
+   - `core/step3_1_spacy_split.py`: Applies SpaCy natural language processing tools for preliminary text segmentation.
+   - `core/step3_2_splitbymeaning.py`: Combines GPT model's semantic understanding capability for more precise segmentation of long sentences.
+   - `core/step4_1_summarize.py`: Uses GPT model for intelligent summarization of video content and extraction of key terms.
+   - `core/step4_2_translate_all.py`: Implements batch processing of subtitle text translation.
+   - `core/step4_2_translate_once.py`: Adopts a three-step translation method (literal translation, free translation, and polishing) to achieve high-quality sentence-by-sentence translation from English to Chinese.
 
-4. **Summarization**: Use the GPT model to summarize content and identify key terms.
-   - `core/step4_1_summarize.py`: Call the `get_summary` function to generate content summaries and key terms.
+4. **Subtitle Processing and Synthesis Module**:
+   - `core/step5_splitforsub.py`: Performs precise segmentation and time alignment of translated text according to subtitle format specifications.
+   - `core/step6_generate_final_timeline.py`: Generates standard SRT format subtitle files with precise timeline information.
+   - `core/step7_merge_sub_to_vid.py`: Achieves seamless integration of subtitles with video.
 
-5. **Translation**: Translate the processed text into another language, considering the identified key terms.
-   - `core/step4_2_translate_all.py`: Call the `translate_all` function to divide the text into chunks and translate them.
-   - `core/step4_2_translate_once.py`: Define the `translate_lines` function, using a three-step translation method (literal translation, free translation, and polishing) to translate English text line by line into the target language.
+5. **Audio Processing and Dubbing Module**:
+   - `core/step8_extract_refer_audio.py`: Extracts key audio segments from the source video as references.
+   - `core/step9_generate_audio_task.py`: Generates structured audio synthesis tasks based on translated subtitle content.
+   - `core/step10_generate_audio.py`: Utilizes the advanced SoVITS model to generate high-quality dubbing audio.
+   - `core/step11_merge_audio_to_vid.py`: Performs professional-level synthesis of generated dubbing audio with video.
 
-6. **Subtitle Alignment**: Align the translated text with the original transcription to generate subtitles.
-   - `core/step5_splitforsub.py`: Call the `split_for_sub_main` function to split and adjust subtitle files, using the GPT model for subtitle alignment.
+6. **Natural Language Processing Toolkit**:
+   - `core/ask_gpt.py`: Encapsulates a standardized interface for interaction with GPT models, used for various text generation and analysis tasks.
+   - `core/prompts_storage.py`: Centrally manages optimized prompt templates for different tasks.
+   - `core/spacy_utils/`: Encapsulates advanced text processing functions based on SpaCy, such as sentence segmentation.
 
-7. **Final Subtitle Generation**: Generate the final subtitles in SRT format, ensuring correct timing and alignment.
-   - `core/step6_generate_final_timeline.py`: Call the `align_timestamp_main` function to generate the final subtitle timeline and output the subtitles in SRT format.
-   - `core/step7_merge_sub_to_vid.py`: Call the `merge_subtitles_to_video` function to merge the generated subtitle file with the original video.
-
-# 🧙‍♂️ SubMagic Q&A Magic Time 🎩✨
-
-### Q: How to make the GPT model more "budget-friendly"? 💰
-A: We're already using the super cost-effective deepseek-coder! It costs less than a dollar per video. Want to save even more? Try other models in `config.py` or optimize the subtitle splitting strategy. Don't forget to feed GPT well, it can't cast good spells on an empty stomach! 🍽️
-
-### Q: Translation quality not magical enough? What to do? 🌈
-A: Our three-step translation method is already pretty awesome! Want to take it to the next level? You can tweak the prompts in `prompts_storage.py` or switch to an even more powerful model. Let's make translation as magical as it can be! 🎭
-
-### Q: Can SubMagic conjure up new tricks? 🌺
-A: Of course! SubMagic is like a treasure chest, you can add any magical ingredients you want. The modular design allows you to easily add new features and customize the processing flow. Let your creativity run wild! 🛠️
-
-### Q: Can the subtitle style be cooler? 😎
-A: You can give subtitles a new look in `step7`! However, we recommend using professional software to give SubMagic-generated subtitles a magical makeover. Make them shine in your videos! ✨👗
-
-### Q: The project's not running fast enough? I'm dying here! 🐢➡️🐇
-A: Don't panic, we're already using multi-threading magic! Want to go even faster? Try simplifying the CoT steps in the prompts. Let's make SubMagic fly! 🚀
-
-### Q: Subtitle splitting and alignment not smart enough? 🧠
-A: We're currently using strategies based on character count, semantics, and timestamps. Want it smarter? You can adjust parameters based on language characteristics and reading speed, or try advanced algorithms like dynamic programming or machine learning. Let's make subtitle alignment as precise as magic! 🎯
-
-### Q: There's "dirt" in the transcribed text, what to do? 🧹
-A: No worries! Before feeding it to GPT, you can use regex or string processing for a big cleanup. Clean up punctuation, special characters, capitalization, etc. Give the text a purification ritual, make it brand new! 🧼✨
+7. **System Configuration and Utility Module**:
+   - `config.py`: Centrally stores and manages global parameter configurations for the system.
+   - `st.py`: An interactive web application built on the Streamlit framework, achieving seamless integration of various processing modules.
+   - `install.py`: Automates the installation and configuration process of system dependencies and models.
+   - `onekeycleanup.py`: Provides one-click intermediate file cleanup functionality, optimizing system storage space.
+   - `st_components/imports_and_utils.py`: Encapsulates a library of common utility functions for interface components.
+   - `st_components/sidebar_setting.py`: Implements a sidebar-based system settings interface, providing intuitive configuration management.
