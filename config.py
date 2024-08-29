@@ -1,6 +1,7 @@
+import os, sys
 ## ======================== 基本设置 ======================== ##
 # API 设置 建议使用唯一真神 https://api.wlai.vip, sonnet 价格仅 10r/1M, 也可以参考格式修改成你的API
-llm_config = {'api_key': 'sk-xxx', 'base_url': 'https://api.wlai.vip', 'model': ['claude-3-5-sonnet-20240620']}
+llm_config = {'api_key': 'sk-xxx', 'base_url': 'https://cdn.wlai.vip', 'model': ['claude-3-5-sonnet-20240620']}
 
 # 每一步的 LLM 模型选择，其中 3_2 和 5 只建议 sonnet，换模型会不稳定报错
 step3_2_split_model = llm_config['model'][0]
@@ -32,8 +33,14 @@ AUDIO_LANGUAGE = 'auto'
 # 支持返回 JSON 格式的 LLM，不重要
 llm_support_json = ['deepseek-coder']
 
+## 设置趋动云 model dir
+cloud = 1 if sys.platform.startswith('linux') else 0
+if cloud: # 趋动云
+    gemini_pretrain = os.getenv('GEMINI_PRETRAIN')
+    cloud_model_dir = os.path.join(gemini_pretrain, "_model_cache") 
+
 # Whisper 和 NLP 配置
-MODEL_DIR = "./_model_cache"
+MODEL_DIR = "./_model_cache" if not cloud else cloud_model_dir
 WHISPER_MODEL = "medium"    # medium :12 GB < GPU > 12GB : large-v2
 SPACY_NLP_MODEL = "en_core_web_md"   # _md 足够
 
