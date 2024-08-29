@@ -70,6 +70,20 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
                 messages=messages,
                 response_format=response_format
             )
+            
+            if response_json:
+                try:
+                    response_data = json_repair.loads(response.choices[0].message.content)
+                    break  # 成功访问且成功解析，跳出循环
+                except Exception as e:
+                    response_data = response.choices[0].message.content
+                    print(f"❎ json_repair 解析失败 正在重试: '''{response_data}'''")
+                    if attempt == max_retries - 1:
+                        raise Exception(f"在{max_retries}次尝试后json解析仍然失败: {e}")
+            else:
+                response_data = response.choices[0].message.content
+                break  # 非json格式，直接跳出循环
+                
         except HTTPStatusError as e:
             if attempt < max_retries - 1:
                 print(f"HTTP错误: {e}. 正在重试 ({attempt + 1}/{max_retries})...")
@@ -77,17 +91,11 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
             else:
                 raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
         except Exception as e:
-            print(f"发生未预期的错误: {e}\n正在重试...")
-            time.sleep(1)
-        
-    if response_json:
-        try:
-            response_data = json_repair.loads(response.choices[0].message.content)
-        except:
-            print(f"⚠️json_repair failed:\n{response.choices[0].message.content}")
-            response_data = response.choices[0].message.content
-    else:
-        response_data =  response.choices[0].message.content
+            if attempt < max_retries - 1:
+                print(f"发生未预期的错误: {e}\n正在重试...")
+                time.sleep(1)
+            else:
+                raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
     
     with LOCK:
         save_log(model, prompt, response_data, log_title=log_title)
