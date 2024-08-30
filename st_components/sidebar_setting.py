@@ -18,13 +18,11 @@ def update_config(key, value):
         pattern = rf"^{re.escape(key)}\s*=.*$"
         replacement = f"{key} = {repr(value)}"
         new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
-    
+
     with open('config.py', 'w', encoding='utf-8') as f:
         f.write(new_content)
-
-def page_setting():
-    # st.title("🔧 VideoLingo 设置")
     
+def page_setting():
     changes = {}  # 用于存储所有更改
 
     st.header("LLM 配置")
