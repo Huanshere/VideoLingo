@@ -26,8 +26,8 @@ DUBBNING_CHARACTER = 'Huanyu'
 # 视频分辨率
 RESOLUTIOM = '854x480'
 
-# whisper 指定语言，auto 为自动识别，如果出错请尝试 en
-AUDIO_LANGUAGE = 'auto'
+# whisper 指定语言，auto 为自动识别但目前不用英文后续会有小问题
+AUDIO_LANGUAGE = 'en'
 
 ## ======================== 进阶设置设置 ======================== ##
 # 支持返回 JSON 格式的 LLM，不重要
