@@ -38,6 +38,11 @@ def cleanup():
 
 def move_file(src, dst):
     try:
+        # 获取目标路径的目录和文件名
+        dst_dir, dst_filename = os.path.split(dst)
+        # 使用 os.path.join 来确保路径的正确性
+        dst = os.path.join(dst_dir, sanitize_filename(dst_filename))
+        
         shutil.move(src, dst, copy_function=shutil.copy2)
         print(f"✅ 已移动: {src} -> {dst}")
     except shutil.Error as e:
@@ -45,6 +50,16 @@ def move_file(src, dst):
         os.remove(dst)
         shutil.move(src, dst, copy_function=shutil.copy2)
         print(f"✅ 已覆盖并移动: {src} -> {dst}")
+    except Exception as e:
+        print(f"❌ 移动失败: {src} -> {dst}")
+        print(f"错误信息: {str(e)}")
+
+def sanitize_filename(filename):
+    # 移除或替换不允许的字符
+    invalid_chars = '<>:"/\\|?*'
+    for char in invalid_chars:
+        filename = filename.replace(char, '_')
+    return filename
 
 if __name__ == "__main__":
     cleanup()
