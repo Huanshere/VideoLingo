@@ -1,23 +1,17 @@
 import re
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from st_components.imports_and_utils import ask_gpt, config
+from st_components.imports_and_utils import ask_gpt
+import config
 import streamlit as st
 
 def update_config(key, value):
     with open('config.py', 'r', encoding='utf-8') as f:
         content = f.read()
     
-    if key == "llm_config":
-        # 为 llm_config 使用特殊处理
-        pattern = r'(llm_config\s*=\s*)\{.*?\}'
-        replacement = f'llm_config = {repr(value)}'
-        new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-    else:
-        # 单行键值对
-        pattern = rf"^{re.escape(key)}\s*=.*$"
-        replacement = f"{key} = {repr(value)}"
-        new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    pattern = rf"^{re.escape(key)}\s*=.*$"
+    replacement = f"{key} = {repr(value)}"
+    new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
     with open('config.py', 'w', encoding='utf-8') as f:
         f.write(new_content)
@@ -27,19 +21,16 @@ def page_setting():
 
     st.header("LLM 配置")
     
-    llm_config = config.llm_config if config.llm_config else {}
+    api_key = st.text_input("API_key", value=config.API_KEY)
+    base_url = st.text_input("Base_url", value=config.BASE_URL)
+    models = st.text_input("Model", value=','.join(config.MODEL))
     
-    api_key = st.text_input("API_key", value=llm_config.get('api_key', ''))
-    base_url = st.text_input("Base_url", value=llm_config.get('base_url', ''))
-    models = st.text_input("Model", value=','.join(llm_config.get('model', [])))
-    new_llm_config = {
-        'api_key': api_key,
-        'base_url': base_url,
-        'model': models.split(',') if models else []
-    }
-    
-    if new_llm_config != config.llm_config:
-        changes["llm_config"] = new_llm_config
+    if api_key != config.API_KEY:
+        changes["API_KEY"] = api_key
+    if base_url != config.BASE_URL:
+        changes["BASE_URL"] = base_url
+    if models.split(',') != config.MODEL:
+        changes["MODEL"] = models.split(',')
     
     st.header("字幕设置")
     cols_audio = st.columns(2)
@@ -92,11 +83,11 @@ def page_setting():
         if st.button("验    证",use_container_width = True):
             st.toast("正在尝试访问...", icon="🔄")
             try:
-                response = ask_gpt("this is a test, response 'code':'200' in json format.", model=llm_config.get('model')[0], response_json=True)
+                response = ask_gpt("this is a test, response 'code':'200' in json format.", model=config.MODEL[0], response_json=True)
                 if response.get('code') == '200':
                     st.toast("验证成功", icon="✅")
                 else:
-                    st.toast("验证失败, 请检查 api_key 和 base_url 是否正确", icon="❌")
+                    st.toast("验证失败, 请检查 API_KEY 和 BASE_URL 是否正确", icon="❌")
             except Exception as e:
                 st.toast(f"访问失败 {e}", icon="❌")
     st.warning("警告：目前更新设置后需要从命令行重启 streamlit 才能生效!")

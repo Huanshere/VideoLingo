@@ -43,11 +43,11 @@ def check_ask_gpt_history(prompt, model):
     return False
 
 def select_llm(model):
-    if model in llm_config['model'] and llm_config.get('api_key'):
-        return llm_config
+    if model in MODEL and API_KEY:
+        return {'api_key': API_KEY, 'base_url': BASE_URL, 'model': MODEL}
     else:
-        print(f"{model} {llm_config}")
-        raise ValueError(f"⚠️Model <{model}> 在 llm_config 中未找到或缺少 api_key")
+        print(f"{model} {MODEL}")
+        raise ValueError(f"⚠️Model <{model}> 在 MODEL 中未找到或缺少 API_KEY")
 
 def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
     with LOCK:
@@ -104,7 +104,7 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
 
 # test
 if __name__ == '__main__':
-    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model='claude-3-5-sonnet-20240620', response_json=True)) 
+    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model=step3_2_split_model, response_json=True))
 
 
 
