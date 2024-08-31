@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+
 def cleanup():
     # Get video file name
     video_files = glob.glob("*.mp4") + glob.glob("*.webm")
@@ -37,10 +38,13 @@ def cleanup():
 
 def move_file(src, dst):
     try:
-        shutil.move(src, dst)
-        print(f"✅ Moved: {src} -> {dst}")
+        shutil.move(src, dst, copy_function=shutil.copy2)
+        print(f"✅ 已移动: {src} -> {dst}")
     except shutil.Error as e:
-        pass
+        # 如果目标文件已存在，强制覆盖
+        os.remove(dst)
+        shutil.move(src, dst, copy_function=shutil.copy2)
+        print(f"✅ 已覆盖并移动: {src} -> {dst}")
 
 if __name__ == "__main__":
     cleanup()
