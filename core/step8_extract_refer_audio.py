@@ -3,8 +3,7 @@ import subprocess
 from pydub import AudioSegment
 import os, sys, json, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from uvr5.uvr5_for_submagic import uvr5_for_submagic
-from config import MODEL_DIR
+from uvr5.uvr5_for_videolingo import uvr5_for_videolingo
 
 def parse_srt(srt_content):
     pattern = re.compile(r'(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:.+\n)+)')
@@ -29,7 +28,7 @@ def extract_audio(input_video, start_time, end_time, output_file):
     
     os.remove(temp_audio)
 
-def step8_main(input_video, DUBBING_CHARACTER="Huanyu"):
+def step8_main(input_video):
     if os.path.exists('output/audio/background.wav'):
         print('output/audio/background.wav already exists, skip.')
         return
@@ -62,11 +61,12 @@ def step8_main(input_video, DUBBING_CHARACTER="Huanyu"):
         audio_filename = f"output/audio/{cleaned_text}.wav"
         extract_audio(input_video, target_subtitle['start'], target_subtitle['end'], audio_filename)
         print('Starting uvr5_for_submagic...')  # 开始处理音频
-        uvr5_for_submagic(audio_filename, 'output/audio')
+        uvr5_for_videolingo(audio_filename, 'output/audio')
         os.remove(f"output/audio/instrument_{os.path.basename(audio_filename)}_10.wav")  # 清理临时文件 🧹
         os.remove(audio_filename)  # 清理临时文件 🧹
         os.rename(f"output/audio/vocal_{os.path.basename(audio_filename)}_10.wav", audio_filename)  # 重命名文件 📛
         
+        from config import MODEL_DIR, DUBBING_CHARACTER
         SOVITS_MODEL_PATH = os.path.join(MODEL_DIR, "GPT_SoVITS", "trained", DUBBING_CHARACTER)
         for file in os.listdir(SOVITS_MODEL_PATH):
             if file.endswith((".wav", ".mp3")):
@@ -91,8 +91,8 @@ def step8_main(input_video, DUBBING_CHARACTER="Huanyu"):
     full_audio_path = 'output/audio/full_audio.wav'
     print("Extracting full audio...")  # 提取完整音频
     subprocess.run(['ffmpeg', '-i', input_video, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', full_audio_path], check=True)
-    print('Starting uvr5_for_submagic for full audio...')  # 开始处理完整音频
-    uvr5_for_submagic(full_audio_path, 'output/audio')
+    print('Starting uvr5_for_videolingo for full audio...')  # 开始处理完整音频
+    uvr5_for_videolingo(full_audio_path, 'output/audio')
     os.remove(full_audio_path)  # 清理临时文件 🧹
     os.rename('output/audio/vocal_full_audio.wav_10.wav', 'output/audio/original_vocal.wav')  # 重命名文件 📛
     os.rename('output/audio/instrument_full_audio.wav_10.wav', 'output/audio/background.wav')  # 重命名文件 📛

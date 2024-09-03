@@ -1,8 +1,8 @@
 import os, sys, json
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from ask_gpt import ask_gpt, step4_1_summarize_model, TARGET_LANGUAGE
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.ask_gpt import ask_gpt
 import pandas as pd
-from prompts_storage import get_summary_prompt
+from core.prompts_storage import get_summary_prompt
 
 def combine_chunks():
     """Combine the text chunks identified by whisper into a single long text"""
@@ -47,10 +47,10 @@ def search_things_to_note_in_prompt(sentence):
     else:
         return None
 
-def get_summary(target_language=TARGET_LANGUAGE):
-    global step4_1_summarize_model
+def get_summary():
+    from config import step4_1_summarize_model, TARGET_LANGUAGE
     English_content = combine_chunks()
-    summary_prompt = get_summary_prompt(English_content, target_language)
+    summary_prompt = get_summary_prompt(English_content, TARGET_LANGUAGE)
     summary = ask_gpt(summary_prompt, model=step4_1_summarize_model, response_json=True, log_title='summary')
 
     with open('output/log/translate terminology.json', 'w', encoding='utf-8') as f:
@@ -59,5 +59,5 @@ def get_summary(target_language=TARGET_LANGUAGE):
     print('💾 Summary log saved to → `output/log/translate terminology.json`')
 
 if __name__ == '__main__':
-    # get_summary(target_language=TARGET_LANGUAGE)
+    # get_summary()
     print(get_theme_prompt())

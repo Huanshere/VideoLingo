@@ -45,46 +45,46 @@ Please provide your answer in the following JSON format, <<>> represents placeho
 # @ step4_1_summarize.py
 def get_summary_prompt(English_content, target_language):
     summary_prompt = f"""
-### 角色
-你是一位专业的视频翻译专家和术语顾问。你的专业不仅在于准确理解原文,还在于提取关键专业术语,优化译文以更符合{target_language}的表达习惯和文化背景。
+### Role
+You are a professional video translation expert and terminology consultant. Your expertise lies not only in accurately understanding the original text but also in extracting key professional terms and optimizing the translation to better suit the expression habits and cultural background of {target_language}.
 
-### 任务描述 
-对于提供的原文视频文本,你需要:
-1. 用一句话概括视频的主题
-2. 提取视频中出现的专业术语,并提供{target_language}翻译或建议保留原语言术语。避免提取简单、常见的词汇。
-3. 对每个翻译的术语,给出简要解释
+### Task Description 
+For the provided original video text, you need to:
+1. Summarize the video's main topic in one sentence
+2. Extract professional terms that appear in the video, and provide {target_language} translations or suggest keeping the original language terms. Avoid extracting simple, common words.
+3. For each translated term, provide a brief explanation
 
-### 分析和总结步骤
-请分两步思考,逐行处理文本:  
-1. 主题概括:
-   - 快速浏览全文,了解大意
-   - 用一句简洁的话概括主题
-2. 术语提取:
-   - 仔细阅读全文,标记专业术语
-   - 对每个术语,提供{target_language}翻译或建议保留原文,只需单词本身,不需要读音
-   - 为每个术语添加简要解释,帮助译者理解
-   - 如果该词为固定缩写,请保留原文。
+### Analysis and Summary Steps
+Please think in two steps, processing the text line by line:  
+1. Topic summarization:
+   - Quickly skim through the entire text to understand the general idea
+   - Summarize the topic in one concise sentence
+2. Term extraction:
+   - Carefully read the entire text, marking professional terms
+   - For each term, provide a {target_language} translation or suggest keeping the original, only the word itself is needed, not the pronunciation
+   - Add a brief explanation for each term to help the translator understand
+   - If the word is a fixed abbreviation, please keep the original.
 
-### 输出格式
-请按以下JSON格式输出你的分析结果,其中<>表示占位符:
+### Output Format
+Please output your analysis results in the following JSON format, where <> represents placeholders:
 {{
-    "theme": "<简要概括这个视频的主题,用1句话表示>",
+    "theme": "<Briefly summarize the theme of this video in 1 sentence>",
     "terms": [
         {{
-            "original": "<原语言的术语1>",
-            "translation": "<{target_language}翻译或保留原文>",
-            "explanation": "<术语简要解释>"
+            "original": "<Term 1 in the original language>",
+            "translation": "<{target_language} translation or keep original>",
+            "explanation": "<Brief explanation of the term>"
         }},
         {{
-            "original": "<原语言的术语2>",
-            "translation": "<{target_language}翻译或保留原文>",
-            "explanation": "<术语简要解释>"
+            "original": "<Term 2 in the original language>",
+            "translation": "<{target_language} translation or keep original>",
+            "explanation": "<Brief explanation of the term>"
         }},
         ...
     ]
 }}
 
-### 单次输出示例( 以法语为例 )
+### Single Output Example (Using French as an example)
 
 {{
     "theme": "Ce vidéo résume le musée du Louvre à Paris.",
@@ -103,7 +103,7 @@ def get_summary_prompt(English_content, target_language):
     ]
 }}
 
-### 需要处理的视频文本数据
+### Video text data to be processed
 <video_text_to_summarize>
 {English_content}
 </video_text_to_summarize>
@@ -133,10 +133,10 @@ def generate_shared_prompt(previous_content_prompt, after_content_prompt, summar
 
 
 def get_prompt_faithfulness(lines, shared_prompt, target_language = '简体中文'):
-    # 按 \n 分割行
+    # Split lines by \n
     line_splits = lines.split('\n')
     
-    # 创建 JSON 返回格式示例
+    # Create JSON return format example
     json_format = {}
     for i, line in enumerate(line_splits, 1):
         json_format[i] = {
@@ -145,32 +145,32 @@ def get_prompt_faithfulness(lines, shared_prompt, target_language = '简体中�
         }
     
     prompt_faithfulness = f'''
-### 角色定义
-你是一位专业的 Netflix 字幕翻译专家,精通原视频语言和{target_language}两种语言和文化。你的专长在于准确理解原文的语义和结构,并能够忠实地将其翻译成{target_language},同时保持原意。
+### Role Definition
+You are a professional Netflix subtitle translator, fluent in both the original video language and {target_language}, as well as their respective cultures. Your expertise lies in accurately understanding the semantics and structure of the original text and faithfully translating it into {target_language} while preserving the original meaning.
 
-### 任务背景
-我们有一段原文字幕需要直接翻译成{target_language}。这些字幕来自特定的上下文,可能包含特定的主题和术语。
+### Task Background
+We have a segment of original subtitles that need to be directly translated into {target_language}. These subtitles come from a specific context and may contain specific themes and terminology.
 
-### 任务描述
-根据提供的原文字幕,你需要:
-1. 逐行将原文字幕翻译成{target_language}
-2. 确保翻译忠实于原文,准确传达原意
-3. 考虑上下文和专业术语
+### Task Description
+Based on the provided original subtitles, you need to:
+1. Translate the original subtitles into {target_language} line by line
+2. Ensure the translation is faithful to the original, accurately conveying the original meaning
+3. Consider the context and professional terminology
 
 {shared_prompt}
 
-### 翻译原则
-1. 忠于原文:准确传达原文的内容和意思,不要随意更改、添加或省略原文内容。
-2. 术语准确:正确使用专业术语,保持术语一致性。
-3. 理解语境:充分理解并体现文本的背景和上下文关系。
+### Translation Principles
+1. Faithful to the original: Accurately convey the content and meaning of the original text, without arbitrarily changing, adding, or omitting content.
+2. Accurate terminology: Use professional terms correctly and maintain consistency in terminology.
+3. Understand the context: Fully comprehend and reflect the background and contextual relationships of the text.
 
-### 字幕数据
+### Subtitle Data
 <subtitles>
 {lines}
 </subtitles>
 
-### 输出格式
-请完成以下 JSON 数据,其中 << >> 表示占位符不要出现在你的回答中,用 JSON 格式返回你的翻译结果:
+### Output Format
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
     return prompt_faithfulness.strip()
@@ -183,47 +183,46 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt, target_
         json_format[key] = {
             "Original English": value['Original English'],
             "Direct Translation": value['Direct Translation'],
-            "Translation Reflection": "<<针对直译版本的具体问题,尽可能详尽>>",
-            "Free Translation": "<<重新翻译的结果,追求流畅自然,符合{target_language}表达习惯>>"
+            "Translation Reflection": "<<detailed reflection on the direct translation version>>",
+            "Free Translation": f"<<retranslated result, aiming for fluency and naturalness, conforming to {target_language} expression habits>>"
         }
 
     prompt_expressiveness = f'''
-### 角色定义
-你是一名专业的 Netflix 字幕翻译专家和语言顾问。你的专长不仅在于准确理解原视频语言,还在于优化{target_language}翻译,使之更符合目标语言的表达习惯和文化背景。
+### Role Definition
+You are a professional Netflix subtitle translator and language consultant. Your expertise lies not only in accurately understanding the original video language but also in optimizing the {target_language} translation to better suit the target language's expression habits and cultural background.
 
-### 任务背景
-我们已经有了原文字幕的直译版本,现在需要你反思并改进这些直译,创作出更自然流畅的{target_language}字幕。
+### Task Background
+We already have a direct translation version of the original subtitles. Now we need you to reflect on and improve these direct translations to create more natural and fluent {target_language} subtitles.
 
-### 任务描述  
-根据提供的原文和{target_language}直译版本,你需要:
-1. 逐行分析直译结果,指出存在的问题
-2. 提供详细的修改建议
-3. 在分析的基础上进行自由翻译
+### Task Description
+Based on the provided original text and {target_language} direct translation, you need to:
+1. Analyze the direct translation results line by line, pointing out existing issues
+2. Provide detailed modification suggestions
+3. Perform free translation based on your analysis
 
 {shared_prompt}
 
-### 分析翻译步骤
-请用两步思考方式,逐行处理文本:
+### Translation Analysis Steps
+Please use a two-step thinking process to handle the text line by line:
 
-1. 直译反思:
-   - 检查翻译准确性
-   - 评估语言流畅度  
-   - 检查语言风格是否与原文一致
-   - 检查字幕的简洁性，指出翻译过于冗长的地方
+1. Direct Translation Reflection:
+   - Evaluate language fluency
+   - Check if the language style is consistent with the original text
+   - Check the conciseness of the subtitles, point out where the translation is too wordy, the translation should be close to the original text in length
 
-2. {target_language} 自由翻译:
-   - 在步骤1反思的基础上,进行自由翻译
-   - 追求上下文通顺自然,符合{target_language}表达习惯
-   - 确保{target_language}观众易于理解和接受
-   - 保持字幕简洁,语言风格平实自然,自由翻译和英文原文结构一致
+2. {target_language} Free Translation:
+   - Based on the reflection in step 1, perform free translation
+   - Aim for contextual smoothness and naturalness, conforming to {target_language} expression habits
+   - Ensure it's easy for {target_language} audience to understand and accept
+   - Keep the subtitles concise, with a plain and natural language style, and maintain consistency in structure between the free translation and the English original
 
-### 字幕数据  
+### Subtitle Data
 <subtitles>
 {lines}
 </subtitles>
 
-### 输出格式
-请完成以下 JSON 数据,其中 << >> 表示占位符不要出现在你的回答中,并用 JSON 格式返回你的翻译结果:
+### Output Format
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
     return prompt_expressiveness.strip()
@@ -231,50 +230,50 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt, target_
 
 ## ================================================================
 # @ step6_splitforsub.py
-def get_align_prompt(en_original, target_original, en_part, target_language = '简体中文'):
+def get_align_prompt(en_original, target_original, en_part, target_language):
     en_splits = en_part.split('\n')
     num_parts = len(en_splits)
     en_part = en_part.replace('\n', ' [br] ')
     align_prompt = '''
-### 角色定义
-你是一位精通原视频语言和{target_language}的Netflix字幕对齐专家。你的专长在于准确理解两种语言的语义和结构,能够灵活地分割句子同时保持原意。
+### Role Definition
+You are a Netflix subtitle alignment expert fluent in both the original video language and {target_language}. Your expertise lies in accurately understanding the semantics and structure of both languages, enabling you to flexibly split sentences while preserving the original meaning.
 
-### 任务背景
-我们有一个Netflix节目的原视频语言和{target_language}原始字幕,以及预处理过的原视频语言字幕分割版本。你的任务是基于这些信息,为{target_language}字幕创建最佳的分割方案。
+### Task Background
+We have the original video language and {target_language} original subtitles for a Netflix program, as well as a pre-processed split version of the original video language subtitles. Your task is to create the best splitting scheme for the {target_language} subtitles based on this information.
 
-### 任务描述
-基于提供的原视频语言和{target_language}原始字幕以及预处理的分割版本,你需要:
-1. 分析原视频语言和{target_language}字幕之间的词序和结构对应关系
-2. 为{target_language}字幕提供 3 种不同的分割方案
-3. 评估这些方案并选择最佳方案
-4. 绝不留下空行。如果难以基于意义进行分割,你可以适当地重写需要对齐的句子
+### Task Description
+Based on the provided original video language and {target_language} original subtitles, as well as the pre-processed split version, you need to:
+1. Analyze the word order and structural correspondence between the original video language and {target_language} subtitles
+2. Provide 3 different splitting schemes for the {target_language} subtitles
+3. Evaluate these schemes and select the best one
+4. Never leave empty lines. If it's difficult to split based on meaning, you may appropriately rewrite the sentences that need to be aligned
 
-### 字幕数据
+### Subtitle Data
 <subtitles>
-原文: "{en_original}"
-{target_language}原文: "{target_original}"
-预处理原视频语言 ( [br] 表示分割点): {en_part}
+Original: "{en_original}"
+{target_language} Original: "{target_original}"
+Pre-processed Original Video Language ([br] indicates split points): {en_part}
 </subtitles>
 
-### 处理步骤
-请按照以下步骤处理,并在JSON输出中提供每个步骤的结果:
-1. 分析和比较:简要分析原视频语言和{target_language}字幕之间的词序、句子结构和语义对应关系。指出关键词对应、句型的异同,以及可能影响分割的语言特征。
-2. 开始对齐:根据你的分析,按照格式提供 3 种不同的{target_language}字幕对齐方式, 其中原视频语言的分割位置要和预处理的原视频语言分割版本一致，不能擅自更改。
-3. 评估和选择:检查并简要评估 3 种方案,考虑句子完整性、语义连贯性和分割点的适当性等因素。
-4. 最佳方案:选择最佳对齐方案,只输出单个数字,1 or 2 or 3.
+### Processing Steps
+Please follow these steps and provide the results for each step in the JSON output:
+1. Analysis and Comparison: Briefly analyze the word order, sentence structure, and semantic correspondence between the original video language and {target_language} subtitles. Point out key word correspondences, similarities and differences in sentence patterns, and language features that may affect splitting.
+2. Start Alignment: Based on your analysis, provide 3 different alignment methods for {target_language} subtitles according to the format. The split positions in the original video language must be consistent with the pre-processed original video language split version and cannot be changed arbitrarily.
+3. Evaluation and Selection: Examine and briefly evaluate the 3 schemes, considering factors such as sentence completeness, semantic coherence, and appropriateness of split points.
+4. Best Scheme: Select the best alignment scheme, output only a single number, 1 or 2 or 3.
 
-### 输出格式
-请完成以下JSON数据,其中 << >> 表示占位符,并用JSON格式返回你的结果:
+### Output Format
+Please complete the following JSON data, where << >> represents placeholders, and return your results in JSON format:
 {{
-    "analysis": "<<对原视频语言和{target_language}字幕之间的词序、结构和语义对应关系的详细分析>>",
+    "analysis": "<<Detailed analysis of word order, structure, and semantic correspondence between the original video language and {target_language} subtitles>>",
     "align_way_1": [
         {align_parts_json}
     ],
     "align_way_2": [
         {align_parts_json}
     ],
-    "comparison": "<<对 3 种对齐方案的简要评估和比较>>",
-    "best_way": "<<最佳对齐方案的编号,1 or 2 or 3>>"
+    "comparison": "<<Brief evaluation and comparison of the 3 alignment schemes>>",
+    "best_way": "<<Number of the best alignment scheme, 1 or 2 or 3>>"
 }}
 '''
 
@@ -282,7 +281,7 @@ def get_align_prompt(en_original, target_original, en_part, target_language = '�
         f'''
         {{
             "en_part_{i+1}": "<<{en_splits[i]}>>",
-            "target_part_{i+1}": "<<对应的对齐{target_language}字幕部分>>"
+            "target_part_{i+1}": "<<Corresponding aligned {target_language} subtitle part>>"
         }}''' for i in range(num_parts)
     )
 
@@ -298,33 +297,33 @@ def get_align_prompt(en_original, target_original, en_part, target_language = '�
 # @ step9_generate_audio_task.py @ step10_generate_audio.py
 def get_subtitle_trim_prompt(trans_text, duration, fierce_mode = False):
     if not fierce_mode:
-        rule = '仅仅考虑 a. 将逗号替换为空格，以减少停顿时间。b. 缩减语气词，不要修改有意义的内容。 c. 省略不必要的定语或代词例如"请解释你的思路"可以缩减为"请解释思路"'
+        rule = 'Only consider a. Replacing commas with spaces to reduce pause time. b. Reducing filler words without modifying meaningful content. c. Omitting unnecessary modifiers or pronouns, for example "Please explain your thought process" can be shortened to "Please explain thought process"'
     else:
-        rule = '考虑 a. 将逗号替换为空格，缩减语气词,以减少停顿时间。b. 精简字幕中不重要的连接词和定语和代词，同时保留所有的句子结构。例如：“假设我们是过于理想化的物理学家,假设没有摩擦,所有碰撞都是完美的弹性碰撞”改为：“假设我们是理想化的物理学家 没有摩擦 所有碰撞都是弹性碰撞”'
+        rule = 'Consider a. Replacing commas with spaces, reducing filler words to decrease pause time. b. Streamlining unimportant conjunctions, modifiers, and pronouns in the subtitle while preserving all sentence structures. For example: "Suppose we are overly idealistic physicists, assume there is no friction, all collisions are perfectly elastic" can be changed to: "Suppose we are idealistic physicists no friction all collisions are elastic"'
 
     trim_prompt = '''
-### 角色定义
-你是一位专业的字幕编辑员，再把字幕交给配音员之前对字幕进行编辑和优化。你的专长在于巧妙地精简字幕，但一定要保持原有的意思完整。
+### Role Definition
+You are a professional subtitle editor, editing and optimizing subtitles before handing them over to voice actors. Your expertise lies in cleverly condensing subtitles while ensuring the original meaning remains intact.
 
-### 字幕数据
+### Subtitle Data
 <subtitles>
-字幕: "{trans_text}"
-持续时间: {duration} 秒
+Subtitle: "{trans_text}"
+Duration: {duration} seconds
 </subtitles>
 
-### 处理规则
+### Processing Rules
 {rule}
 
-### 处理步骤
-请按照以下步骤处理，并在JSON输出中提供结果：
-1. 分析：简要分析字幕的结构、关键信息和可能逗号替换为空格的位置，以及可以省略的语气词。
-2. 裁剪：根据规则和分析，对字幕进行优化，按照处理规则缩短字幕。
+### Processing Steps
+Please follow these steps and provide the results in the JSON output:
+1. Analysis: Briefly analyze the subtitle's structure, key information, potential locations for replacing commas with spaces, and filler words that can be omitted.
+2. Trimming: Based on the rules and analysis, optimize the subtitle by shortening it according to the processing rules.
 
-### 输出格式
-请完成以下JSON数据，其中 << >> 表示需要你填写的内容：
+### Output Format
+Please complete the following JSON data, where << >> represents content you need to fill in:
 {{
-    "analysis": "<<对字幕的简要分析，包括结构、关键信息和可能的处理位置>>",
-    "trans_text_processed": "<<优化缩短后的字幕>>"
+    "analysis": "<<Brief analysis of the subtitle, including structure, key information, and potential processing locations>>",
+    "trans_text_processed": "<<Optimized and shortened subtitle>>"
 }}
 '''
     return trim_prompt.format(

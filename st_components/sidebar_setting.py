@@ -77,7 +77,7 @@ def page_setting():
         if st.button("保    存", use_container_width = True):
             for key, value in changes.items():
                 update_config(key, value)
-            st.toast("设置已更新 但现阶段需要从命令行重启 streamlit 才能生效！", icon="⚠️")
+            st.toast("设置已更新", icon="✅")
             changes.clear()  # 清空更改字典
     with cols_save[1]:
         if st.button("验    证",use_container_width = True):
@@ -90,4 +90,3 @@ def page_setting():
                     st.toast("验证失败, 请检查 API_KEY 和 BASE_URL 是否正确", icon="❌")
             except Exception as e:
                 st.toast(f"访问失败 {e}", icon="❌")
-    st.warning("警告：目前更新设置后需要从命令行重启 streamlit 才能生效!")

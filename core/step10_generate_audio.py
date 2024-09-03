@@ -4,7 +4,6 @@ from tqdm import tqdm
 import soundfile as sf
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import MIN_SUBTITLE_DURATION, step9_trim_model, DUBBNING_CHARACTER
 from core.prompts_storage import get_subtitle_trim_prompt
 from core.ask_gpt import ask_gpt
 from GPT_SoVITS_Inference.SoVITS_for_videolingo import init_model, tts_function, unload_model
@@ -25,6 +24,7 @@ def generate_audio(text, character, target_duration, save_as, number):
     """
     生成音频并选择最接近目标时长的版本
     """
+    from config import MIN_SUBTITLE_DURATION
     speeds = [1.0, 1.15, 1.3]
     results = []
     os.makedirs('output/audio/tmp', exist_ok=True)
@@ -93,6 +93,7 @@ def process_sovits_tasks():
             print(f"文件 {output_file} 已存在,跳过处理")
             continue
         
+        from config import step9_trim_model, DUBBNING_CHARACTER
         for attempt in range(3): # 尝试三次
             try:
                 generate_audio(text, DUBBNING_CHARACTER, duration, output_file, number)

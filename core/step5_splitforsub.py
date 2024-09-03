@@ -7,20 +7,18 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step3_2_splitbymeaning import split_sentence
 from core.ask_gpt import ask_gpt, step5_align_model
 from core.prompts_storage import get_align_prompt
-from config import TARGET_LANGUAGE, MAX_ENGLISH_LENGTH, MAX_TARGET_LANGUAGE_LENGTH
 
 # TODO you can modify your own function here
 def calc_len(text: str) -> float:
+    from config import TARGET_LANGUAGE
     # 🇨🇳 characters are counted as 1, others are counted as 0.75
-    if not isinstance(text, str):
-        print(f"🚨 Warning: calc_len received a non-string input: {text}")
-        text = str(text)
     if '中文' in TARGET_LANGUAGE or 'cn' in TARGET_LANGUAGE: 
         return sum(1 if ord(char) > 127 else 0.75 for char in text)
     else:
         return len(text)
 
 def align_subs(en_sub: str, tr_sub: str, en_part: str) -> Tuple[List[str], List[str]]:
+    from config import TARGET_LANGUAGE
     align_prompt = get_align_prompt(en_sub, tr_sub, en_part, target_language=TARGET_LANGUAGE)
     
     parsed = ask_gpt(align_prompt, model=step5_align_model, response_json=True, log_title='align_subs')
@@ -61,6 +59,7 @@ def split_align_subs(en_lines: List[str], tr_lines: List[str], max_en_len=80, ma
     return en_lines, tr_lines
 
 def split_for_sub_main():
+    from config import MAX_ENGLISH_LENGTH, MAX_TARGET_LANGUAGE_LENGTH
     # check if "output/log/translation_results_for_subtitles.xlsx" exists
     if os.path.exists("output/log/translation_results_for_subtitles.xlsx"):
         print("🚨 The file `translation_results_for_subtitles.xlsx` already exists, skipping this step.")

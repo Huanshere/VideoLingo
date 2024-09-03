@@ -1,10 +1,9 @@
 import sys,os,math
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import concurrent.futures
-from core.ask_gpt import ask_gpt, step3_2_split_model
+from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_split_prompt
 from difflib import SequenceMatcher
-from config import MAX_SPLIT_LENGTH
 
 def find_split_positions(original, modified):
     split_positions = []
@@ -40,6 +39,7 @@ def find_split_positions(original, modified):
 def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0):
     """Split a long sentence using GPT and return the result as a string."""
     split_prompt = get_split_prompt(sentence, num_parts, word_limit)
+    from config import step3_2_split_model
     response_data = ask_gpt(split_prompt + ' ' * retry_attempt, model=step3_2_split_model, response_json=True, log_title='sentence_splitbymeaning')
     best_split_way = response_data[f"split_way_{response_data['best_way']}"]
     split_points = find_split_positions(sentence, best_split_way)
@@ -91,6 +91,7 @@ def split_sentences_by_meaning():
     with open('output/log/sentence_splitbymark.txt', 'r', encoding='utf-8') as f:
         sentences = [line.strip() for line in f.readlines()]
 
+    from config import MAX_SPLIT_LENGTH
     max_length = MAX_SPLIT_LENGTH # 18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 
     # 🔄 Process sentences multiple times to ensure all are split

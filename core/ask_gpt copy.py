@@ -1,6 +1,6 @@
 import os, sys, json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import *
+# from config import *
 from threading import Lock
 import json_repair
 import json 
@@ -42,28 +42,25 @@ def check_ask_gpt_history(prompt, model):
                         return item["response"]
     return False
 
-def select_llm(model):
-    from config import MODEL, API_KEY, BASE_URL
-    print(f"API_KEY: {API_KEY}")
-    if model in MODEL and API_KEY:
-        return {'api_key': API_KEY, 'base_url': BASE_URL, 'model': MODEL}
+def select_llm(model: str, config: dict):
+    if model in config['MODEL'] and config['API_KEY']:
+        return {'api_key': config['API_KEY'], 'base_url': config['BASE_URL'], 'model': config['MODEL']}
     else:
-        print(f"{model} {MODEL}")
+        print(f"{model} {config['MODEL']}")
         raise ValueError(f"⚠️Model <{model}> 在 MODEL 中未找到或缺少 API_KEY")
 
 def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
+    config = json.load(open('core/config.json', 'r', encoding='utf-8'))
     with LOCK:
         if check_ask_gpt_history(prompt, model):
             return check_ask_gpt_history(prompt, model)
-    llm = select_llm(model)
+    llm = select_llm(model, config)
     messages = [
         {"role": "user", "content": prompt},
     ]
     
-    
     client = OpenAI(api_key=llm['api_key'], base_url=llm['base_url']+ '/v1')
-    from config import llm_support_json
-    response_format = {"type": "json_object"} if response_json and model in llm_support_json else None
+    response_format = {"type": "json_object"} if response_json and model in config['llm_support_json'] else None
     
     max_retries = 3
     for attempt in range(max_retries):
@@ -107,8 +104,8 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
 
 # test
 if __name__ == '__main__':
-    from config import step3_2_split_model
-    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model=step3_2_split_model, response_json=True))
+    config = json.load(open('core/config.json', 'r', encoding='utf-8'))
+    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model=config['step3_2_split_model'], response_json=True))
 
 
 

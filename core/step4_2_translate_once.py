@@ -1,10 +1,10 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.ask_gpt import ask_gpt, step4_2_translate_direct_model, step4_2_translate_free_model
+from core.ask_gpt import ask_gpt
 from core.prompts_storage import generate_shared_prompt, get_prompt_faithfulness, get_prompt_expressiveness
-from config import TARGET_LANGUAGE
 
 def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_to_note_prompt, summary_prompt, index = 0):
+    from config import step4_2_translate_direct_model, step4_2_translate_free_model, TARGET_LANGUAGE
     """Translate multiple lines of English text separated by \n into Chinese, using a three-step translation approach for fidelity, expressiveness, and elegance. Returns multiple lines of translated results."""
     
     shared_prompt = generate_shared_prompt(previous_content_prompt, after_cotent_prompt, summary_prompt, things_to_note_prompt)

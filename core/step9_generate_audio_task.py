@@ -2,7 +2,6 @@ import pandas as pd
 import datetime
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import MIN_SUBTITLE_DURATION, step9_trim_model
 import re
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_subtitle_trim_prompt
@@ -30,6 +29,7 @@ def check(text, duration, max_chars_per_second=8):
         print(f"字幕长度超过{max_chars}，需要缩短。")
         original_text = text
         prompt = get_subtitle_trim_prompt(text, duration)
+        from config import step9_trim_model
         response = ask_gpt(prompt, model = step9_trim_model,response_json=True, log_title='subtitle_trim')
         shortened_text = response['trans_text_processed']
         print(f"缩短前的字幕：{original_text}\n缩短后的字幕: {shortened_text}")
@@ -76,6 +76,7 @@ def process_srt(file_path):
     df = pd.DataFrame(subtitles)
     
     i = 0
+    from config import MIN_SUBTITLE_DURATION
     while i < len(df):
         if df.loc[i, 'duration'] < MIN_SUBTITLE_DURATION:
             if i < len(df) - 1 and (datetime.datetime.combine(datetime.date.today(), df.loc[i+1, 'start_time']) - 
