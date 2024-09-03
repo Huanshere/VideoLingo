@@ -86,23 +86,20 @@ def parallel_split_sentences(sentences, max_length, max_workers, retry_attempt=0
     return [sentence for sublist in new_sentences for sentence in sublist]
 
 def split_sentences_by_meaning():
-    """Main function to split sentences by meaning."""
-    # Read input sentences
+    """按意义分割句子的主要函数。"""
+    # 读取输入的句子
     with open('output/log/sentence_splitbymark.txt', 'r', encoding='utf-8') as f:
         sentences = [line.strip() for line in f.readlines()]
 
-    from config import MAX_SPLIT_LENGTH
-    max_length = MAX_SPLIT_LENGTH # 18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
-
-    # 🔄 Process sentences multiple times to ensure all are split
-    from config import MAX_WORKERS
+    # 🔄 多次处理句子以确保全部被分割
+    from config import MAX_WORKERS, MAX_SPLIT_LENGTH
     for retry_attempt in range(5):
-        sentences = parallel_split_sentences(sentences, max_length=max_length, max_workers=MAX_WORKERS, retry_attempt=retry_attempt)
+        sentences = parallel_split_sentences(sentences, max_length=MAX_SPLIT_LENGTH, max_workers=MAX_WORKERS, retry_attempt=retry_attempt)
 
-    # 💾 Save the results
+    # 💾 保存结果
     with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:
         f.write('\n'.join(sentences))
-    print('✅ All sentences have been successfully split')
+    print('✅ 所有句子已成功分割')
 
 if __name__ == '__main__':
     print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))
