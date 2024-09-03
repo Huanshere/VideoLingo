@@ -1,5 +1,5 @@
 import streamlit as st
-import os, glob, sys
+import os, sys
 from st_components.imports_and_utils import *
 from st_components.download_video_section import download_video_section
 from st_components.sidebar_setting import page_setting
@@ -42,7 +42,7 @@ def text_processing_section():
             return True
 
 def process_text():
-    video_file = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
+    video_file = step1_ytdlp.find_video_files()
     
     with st.spinner("使用Whisper进行转录..."):
         step2_whisper_stamped.transcript(video_file)
@@ -86,7 +86,7 @@ def audio_processing_section():
                 st.rerun()
 
 def process_audio():
-    input_video = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
+    input_video = step1_ytdlp.find_video_files()
     
     with st.spinner("提取音频..."): 
         step8_extract_refer_audio.step8_main(input_video)

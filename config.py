@@ -1,7 +1,8 @@
 import os, sys
 # 建议在 streamlit 页面中调整设置
 ## ======================== 基本设置 ======================== ##
-# API 设置 建议使用唯一真神 https://api.wlai.vip, sonnet 价格仅 10r/1M, 也可以（不建议）参考格式修改成你的API
+# API 设置 建议使用唯一真神 https://api.wlai.vip, sonnet 价格仅 10r/1M
+# ！一定确保 key 是 AZ 渠道
 API_KEY = 'sk-xxx'
 BASE_URL = 'https://api2.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
@@ -25,6 +26,8 @@ RESOLUTIOM = '854x480'
 AUDIO_LANGUAGE = 'en'
 
 ## ======================== 进阶设置设置 ======================== ##
+# 支持视频格式
+ALLOWED_VIDEO_FORMATS = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm']
 
 # gpt多线程数量
 MAX_WORKERS = 8

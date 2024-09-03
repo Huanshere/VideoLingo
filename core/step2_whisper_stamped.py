@@ -6,10 +6,11 @@ import torch
 import pandas as pd
 from typing import List, Dict
 import warnings
+from core.step1_ytdlp import find_video_files
 warnings.filterwarnings("ignore")
-from config import WHISPER_MODEL, MODEL_DIR, AUDIO_LANGUAGE
 
 def convert_video_to_audio_and_transcribe(input_file: str):
+    from config import WHISPER_MODEL, MODEL_DIR, AUDIO_LANGUAGE
     # 🎬➡️🎵➡️📊 Convert video to audio and transcribe
     audio_file = os.path.splitext(input_file)[0] + '_temp.mp3'
     
@@ -86,4 +87,6 @@ def transcript(video_file: StopIteration):
         print("📊 转录结果已存在，跳过转录步骤。")
 
 if __name__ == "__main__":
-    transcript("KUNG FU PANDA 4 ｜ Official Trailer.mp4")
+    video_file = find_video_files()
+    print(f"🎬 找到的视频文件: {video_file}, 开始转录...")
+    transcript(video_file)

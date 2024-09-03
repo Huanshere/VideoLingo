@@ -1,5 +1,6 @@
 import os, glob, subprocess, time, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.step1_ytdlp import find_video_files
 
 EN_FONT_SIZE = 16
 TRANS_FONT_SIZE = 18
@@ -20,11 +21,7 @@ def merge_subtitles_to_video():
     from config import RESOLUTIOM
     TARGET_WIDTH, TARGET_HEIGHT = RESOLUTIOM.split('x')
     ## merge subtitles to video and save the output video
-    video_files = glob.glob("*.mp4") + glob.glob("*.webm")
-    if not video_files:
-        print("No video files found in the current directory.")
-        exit(1)
-    video_file = video_files[0]
+    video_file = find_video_files()
     en_srt = "output/english_subtitles.srt"
     trans_srt = "output/translated_subtitles.srt"
 
@@ -52,7 +49,7 @@ def merge_subtitles_to_video():
         output_video
     ]
 
-    print("Starting FFmpeg process... should take less than 10s for 2mins video.")
+    print("开始压制字幕到视频...")
     start_time = time.time()
     process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -60,7 +57,7 @@ def merge_subtitles_to_video():
         stdout, stderr = process.communicate(timeout=120)
         if process.returncode == 0:
             print(f"Process completed in {time.time() - start_time:.2f} seconds.")
-            print("🎉🎥 `output_video_with_subs.mp4` generated successfully! Go check it out inside `output` 👀")
+            print("🎉🎥 压制字幕到视频完成! 在 `output` 文件夹中查看 `output_video_with_subs.mp4` 👀")
         else:
             print("Error occurred during FFmpeg execution:")
             print(stderr.decode())

@@ -99,6 +99,6 @@ def step8_main(input_video):
     print("Full audio extracted and cleaned and saved as original_vocal.wav and background.wav")  # 完整音频处理完成
 
 if __name__ == "__main__":
-    import glob  
-    input_video = (glob.glob("*.mp4") + glob.glob("*.webm"))[0]
+    from core.step1_ytdlp import find_video_files
+    input_video = find_video_files()
     step8_main(input_video)

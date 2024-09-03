@@ -44,7 +44,6 @@ def check_ask_gpt_history(prompt, model):
 
 def select_llm(model):
     from config import MODEL, API_KEY, BASE_URL
-    print(f"API_KEY: {API_KEY}")
     if model in MODEL and API_KEY:
         return {'api_key': API_KEY, 'base_url': BASE_URL, 'model': MODEL}
     else:
