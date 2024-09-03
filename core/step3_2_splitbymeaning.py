@@ -95,8 +95,9 @@ def split_sentences_by_meaning():
     max_length = MAX_SPLIT_LENGTH # 18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 
     # 🔄 Process sentences multiple times to ensure all are split
+    from config import MAX_WORKERS
     for retry_attempt in range(5):
-        sentences = parallel_split_sentences(sentences, max_length=max_length, max_workers=8, retry_attempt=retry_attempt)
+        sentences = parallel_split_sentences(sentences, max_length=max_length, max_workers=MAX_WORKERS, retry_attempt=retry_attempt)
 
     # 💾 Save the results
     with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:

@@ -6,6 +6,9 @@ API_KEY = 'sk-xxx'
 BASE_URL = 'https://api2.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
 
+# gpt多线程数量
+MAX_WORKERS = 8
+
 # 每一步的 LLM 模型选择，其中 3_2 和 5 只建议 sonnet，换模型会不稳定报错
 step3_2_split_model = MODEL[0]
 step4_1_summarize_model = MODEL[0]

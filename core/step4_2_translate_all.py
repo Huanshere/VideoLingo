@@ -1,9 +1,9 @@
 import sys, os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step4_2_translate_once import translate_lines
 import pandas as pd
 import concurrent.futures
-from step4_1_summarize import search_things_to_note_in_prompt, get_theme_prompt
+from core.step4_1_summarize import search_things_to_note_in_prompt, get_theme_prompt
 
 # Function to split text into chunks
 def split_chunks_by_chars(chunk_size=600, max_i=12): 
@@ -40,7 +40,8 @@ def translate_chunk(chunk, chunks, theme_prompt, i):
     return i, english_result, translation
 
 # 🚀 Main function to translate all chunks
-def translate_all(max_workers=8):
+def translate_all():
+    from config import MAX_WORKERS
     # Check if the file exists
     if os.path.exists("output/log/translation_results.xlsx"):
         print("🚨 The file `translation_results.xlsx` already exists, skipping this step.")
@@ -50,7 +51,7 @@ def translate_all(max_workers=8):
     theme_prompt = get_theme_prompt()
 
     # 🔄 Use concurrent execution for translation
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
         for i, chunk in enumerate(chunks):
             future = executor.submit(translate_chunk, chunk, chunks, theme_prompt, i)
