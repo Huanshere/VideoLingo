@@ -1,6 +1,7 @@
 import os, sys
+# 建议在 streamlit 页面中调整设置
 ## ======================== 基本设置 ======================== ##
-# API 设置 建议使用唯一真神 https://api.wlai.vip, sonnet 价格仅 10r/1M, 也可以参考格式修改成你的API
+# API 设置 建议使用唯一真神 https://api.wlai.vip, sonnet 价格仅 10r/1M, 也可以（不建议）参考格式修改成你的API
 API_KEY = 'sk-xxx'
 BASE_URL = 'https://api2.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
@@ -19,7 +20,7 @@ TARGET_LANGUAGE = '简体中文'
 # 字幕设置
 ## 每行英文字幕的最大长度字母数量
 MAX_ENGLISH_LENGTH = 80
-## 每行翻译字幕的最大长度 根据目标语言调整（如中文为30）
+## 每行翻译字幕的最大长度 根据目标语言调整（如中文为30个字）
 MAX_TARGET_LANGUAGE_LENGTH = 30  
 
 # SoVITS角色配置
@@ -33,7 +34,7 @@ AUDIO_LANGUAGE = 'en'
 
 ## ======================== 进阶设置设置 ======================== ##
 # 支持返回 JSON 格式的 LLM，不重要
-llm_support_json = ['deepseek-coder']
+llm_support_json = ['deepseek-coder', 'gpt-4o']
 
 ## 设置趋动云 model dir
 cloud = 1 if sys.platform.startswith('linux') else 0
