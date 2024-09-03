@@ -53,5 +53,8 @@ SPACY_NLP_MODEL = "en_core_web_md"   # _md 足够
 # 音频配置
 MIN_SUBTITLE_DURATION = 5
 
+# 配音视频中原始人声音量
+ORIGINAL_VOLUME = 0.1
+
 # 第一次粗切单词数，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 MAX_SPLIT_LENGTH = 18

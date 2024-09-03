@@ -1,8 +1,10 @@
-import pandas as pd
-import subprocess
-import os
+
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime
 import librosa
+import pandas as pd
+import subprocess
 
 def time_to_datetime(time_str):
     return datetime.strptime(time_str, '%H:%M:%S.%f')
@@ -84,7 +86,8 @@ def merge_video_audio():
         return
 
     # 合并视频和音频
-    volumn = 0.1
+    from config import ORIGINAL_VOLUME
+    volumn = ORIGINAL_VOLUME
     cmd = ['ffmpeg', '-i', video_file, '-i', background_file, '-i', original_vocal, '-i', audio_file, '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={volumn}[a2];[3:a]volume=1[a3];[a1][a2][a3]amix=inputs=3:duration=first:dropout_transition=3[a]', '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', output_file]
 
     try:
