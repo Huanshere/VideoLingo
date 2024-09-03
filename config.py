@@ -6,17 +6,6 @@ API_KEY = 'sk-xxx'
 BASE_URL = 'https://api2.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
 
-# gpt多线程数量
-MAX_WORKERS = 8
-
-# 每一步的 LLM 模型选择，其中 3_2 和 5 只建议 sonnet，换模型会不稳定报错
-step3_2_split_model = MODEL[0]
-step4_1_summarize_model = MODEL[0]
-step4_2_translate_direct_model = MODEL[0]
-step4_2_translate_free_model = MODEL[0]
-step5_align_model = MODEL[0]
-step9_trim_model = MODEL[0]
-
 # 语言设置，用自然语言描述
 TARGET_LANGUAGE = '简体中文'
 
@@ -36,6 +25,18 @@ RESOLUTIOM = '854x480'
 AUDIO_LANGUAGE = 'en'
 
 ## ======================== 进阶设置设置 ======================== ##
+
+# gpt多线程数量
+MAX_WORKERS = 8
+
+# 每一步的 LLM 模型选择，其中 3_2 和 5 只建议 sonnet，换模型会不稳定报错
+step3_2_split_model = MODEL[0]
+step4_1_summarize_model = MODEL[0]
+step4_2_translate_direct_model = MODEL[0]
+step4_2_translate_free_model = MODEL[0]
+step5_align_model = MODEL[0]
+step9_trim_model = MODEL[0]
+
 # 支持返回 JSON 格式的 LLM，不重要
 llm_support_json = ['deepseek-coder', 'gpt-4o']
 
