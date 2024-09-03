@@ -25,12 +25,6 @@ def search_things_to_note_in_prompt(sentence, things_to_note):
     else:
         return None
 
-def get_theme_prompt():
-    with open('output/log/translate terminology.json', 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    topic = data.get('theme', None)
-    return topic
-
 def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""
     with open('output/log/translate terminology.json', 'r', encoding='utf-8') as file:
@@ -59,5 +53,4 @@ def get_summary():
     print('💾 Summary log saved to → `output/log/translate terminology.json`')
 
 if __name__ == '__main__':
-    # get_summary()
-    print(get_theme_prompt())
+    get_summary()

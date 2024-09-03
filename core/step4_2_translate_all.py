@@ -2,8 +2,9 @@ import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step4_2_translate_once import translate_lines
 import pandas as pd
+import json
 import concurrent.futures
-from core.step4_1_summarize import search_things_to_note_in_prompt, get_theme_prompt
+from core.step4_1_summarize import search_things_to_note_in_prompt
 
 # Function to split text into chunks
 def split_chunks_by_chars(chunk_size=600, max_i=12): 
@@ -48,7 +49,8 @@ def translate_all():
         return
     
     chunks = split_chunks_by_chars()
-    theme_prompt = get_theme_prompt()
+    with open('output/log/translate terminology.json', 'r', encoding='utf-8') as file:
+        theme_prompt = json.load(file).get('theme')
 
     # 🔄 Use concurrent execution for translation
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
