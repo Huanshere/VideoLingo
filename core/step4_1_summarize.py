@@ -11,20 +11,6 @@ def combine_chunks():
     combined_text = ' '.join(df['text'])
     return combined_text
 
-def search_things_to_note_in_prompt(sentence, things_to_note):
-    """Search for terms to note in the given sentence, return prompt if found"""
-    things_to_note_list = [term['original'] for term in things_to_note['terms'] if term['original'].lower() in sentence.lower()]
-    if things_to_note_list:
-        prompt = '\n'.join(
-            f'{i+1}. "{term["original"]}":"{term["translation"]}",'
-            f'{term["explanation"]}'
-            for i, term in enumerate(things_to_note['terms'])
-            if term['original'] in things_to_note_list
-        )
-        return prompt
-    else:
-        return None
-
 def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""
     with open('output/log/translate terminology.json', 'r', encoding='utf-8') as file:
