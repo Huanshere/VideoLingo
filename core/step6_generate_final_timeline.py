@@ -16,20 +16,22 @@ def convert_to_srt_format(start_time, end_time):
     return f"{start_srt} --> {end_srt}"
 
 def align_timestamp(df_text, df_translate, for_audio = False):
+    from config import SPECIAL_STRINGS
     """Align timestamps and add a new timestamp column to df_translate"""
     df_trans_time = df_translate.copy()
 
     #! 特殊符号特殊处理
     # 1. 把df_translate['Source']中每一句的"-"替换为" ",(避免连词)
     df_translate['Source'] = df_translate['Source'].str.replace('-', ' ')
-    # 2. 所有,和.都替换为" "，然后把"  "替换为" "（避免大数字）
+    # 2. 处理特殊字符串
+    for special_string in SPECIAL_STRINGS:
+        df_translate['Source'] = df_translate['Source'].str.replace(special_string, special_string.replace('.', '').lower())
+    # 3. 所有,和.都替换为" "，然后把"  "替换为" "（避免大数字）
     df_translate['Source'] = df_translate['Source'].str.replace(',', ' ').str.replace('.', ' ').str.replace('  ', ' ')
-    # 3. 使用string.punctuation删除所有标点符号
+    # 4. 使用string.punctuation删除所有标点符号
     df_text['text'] = df_text['text'].str.translate(str.maketrans('', '', string.punctuation))
     df_translate['Source'] = df_translate['Source'].str.translate(str.maketrans('', '', string.punctuation))
-    # 4. 转换为小写
-    df_text['text'] = df_text['text'].str.lower()
-    df_translate['Source'] = df_translate['Source'].str.lower()
+    # 5. 转换为小写
 
     # Assign an ID to each word in df_text['text'] and create a new DataFrame
     words = df_text['text'].str.split(expand=True).stack().reset_index(level=1, drop=True).reset_index()

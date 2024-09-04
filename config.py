@@ -58,3 +58,7 @@ ORIGINAL_VOLUME = 0.1
 
 # 第一次粗切单词数，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 MAX_SPLIT_LENGTH = 18
+
+
+# 字幕对齐时，处理特殊字符串
+SPECIAL_STRINGS =['U.S.', 'E.K.']
