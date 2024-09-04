@@ -93,10 +93,10 @@ def process_sovits_tasks():
             print(f"文件 {output_file} 已存在,跳过处理")
             continue
         
-        from config import step9_trim_model, DUBBNING_CHARACTER
+        from config import step9_trim_model, DUBBING_CHARACTER
         for attempt in range(3): # 尝试三次
             try:
-                generate_audio(text, DUBBNING_CHARACTER, duration, output_file, number)
+                generate_audio(text, DUBBING_CHARACTER, duration, output_file, number)
                 break  # 如果生成音频成功，跳出循环
             except Exception as e:
                 if attempt < 2:  # 第一次和第二次尝试

@@ -64,9 +64,9 @@ def page_setting():
         changes["RESOLUTIOM"] = resolution
 
     st.header("SoVITS 角色配置")
-    dubbing_character = st.text_input("配音角色:", value=config.DUBBNING_CHARACTER)
-    if dubbing_character != config.DUBBNING_CHARACTER:
-        changes["DUBBNING_CHARACTER"] = dubbing_character
+    dubbing_character = st.text_input("配音角色:", value=config.DUBBING_CHARACTER)
+    if dubbing_character != config.DUBBING_CHARACTER:
+        changes["DUBBING_CHARACTER"] = dubbing_character
     
     if changes:
         st.toast("记得点击下方的'保存设置'按钮", icon="🔔")
