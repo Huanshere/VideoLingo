@@ -60,6 +60,7 @@ def page_setting():
     if resolution != config.RESOLUTIOM:
         changes["RESOLUTIOM"] = resolution
 
+
     #! 配音功能仍在开发中，暂已停用，感谢理解！
     # st.header("SoVITS 角色配置")
     # dubbing_character = st.text_input("配音角色:", value=config.DUBBNING_CHARACTER)
