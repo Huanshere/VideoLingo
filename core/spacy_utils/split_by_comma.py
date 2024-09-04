@@ -32,7 +32,7 @@ def split_by_comma(text, nlp):
     start = 0
     
     for i, token in enumerate(doc):
-        if token.text == ",":
+        if token.text == "," or token.text == "，":
             suitable_for_splitting = analyze_comma(start, doc, token)
             
             if suitable_for_splitting :
@@ -67,6 +67,7 @@ def split_by_comma_main():
     print("💾 Sentences split by commas saved to →  `sentences_by_comma.txt`")
 
 if __name__ == "__main__":
-    # split_by_comma_main()
-    test = "So in the same frame, right there, almost in the exact same spot on the ice, Brown has committed himself, whereas McDavid has not."
-    print(split_by_comma(test))
+    split_by_comma_main()
+    # nlp = init_nlp()
+    # test = "So in the same frame, right there, almost in the exact same spot on the ice, Brown has committed himself, whereas McDavid has not."
+    # print(split_by_comma(test, nlp))

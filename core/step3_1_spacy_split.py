@@ -15,5 +15,3 @@ def split_by_spacy():
 
 if __name__ == '__main__':
     split_by_spacy()
-        
-

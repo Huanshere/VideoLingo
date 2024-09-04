@@ -13,7 +13,7 @@ def combine_chunks():
 
 def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""
-    with open('output/log/translate terminology.json', 'r', encoding='utf-8') as file:
+    with open('output/log/terminology.json', 'r', encoding='utf-8') as file:
         things_to_note = json.load(file)
     things_to_note_list = [term['original'] for term in things_to_note['terms'] if term['original'].lower() in sentence.lower()]
     if things_to_note_list:
@@ -28,15 +28,15 @@ def search_things_to_note_in_prompt(sentence):
         return None
 
 def get_summary():
-    from config import step4_1_summarize_model, TARGET_LANGUAGE
-    English_content = combine_chunks()
-    summary_prompt = get_summary_prompt(English_content, TARGET_LANGUAGE)
+    from config import step4_1_summarize_model
+    src_content = combine_chunks()
+    summary_prompt = get_summary_prompt(src_content)
     summary = ask_gpt(summary_prompt, model=step4_1_summarize_model, response_json=True, log_title='summary')
 
-    with open('output/log/translate terminology.json', 'w', encoding='utf-8') as f:
+    with open('output/log/terminology.json', 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=4)
 
-    print('💾 Summary log saved to → `output/log/translate terminology.json`')
+    print('💾 Summary log saved to → `output/log/terminology.json`')
 
 if __name__ == '__main__':
     get_summary()

@@ -89,14 +89,18 @@ def split_sentences_main():
         split_sentences = split_by_connectors(sentence.strip(), nlp = nlp)
         all_split_sentences.extend(split_sentences)
     
-    # output to sentence_splitbymark.txt
-    with open("output/log/sentence_splitbymark.txt", "w+", encoding="utf-8") as output_file:
+    # output to sentence_splitbynlp.txt
+    with open("output/log/sentence_splitbynlp.txt", "w+", encoding="utf-8") as output_file:
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
+        # 最后一行不加换行符
+        output_file.seek(output_file.tell() - 1, os.SEEK_SET)
+        output_file.truncate()
 
-    print("💾 Sentences split by connectors saved to →  `sentence_splitbymark.txt`")
+    print("💾 Sentences split by connectors saved to →  `sentence_splitbynlp.txt`")
 
 if __name__ == "__main__":
-    # split_sentences_main()
-    a = "and show the specific differences that make a difference between a breakaway that results in a goal in the NHL versus one that doesn't."
-    print(split_by_connectors(a))
+    split_sentences_main()
+    # nlp = init_nlp()
+    # a = "and show the specific differences that make a difference between a breakaway that results in a goal in the NHL versus one that doesn't."
+    # print(split_by_connectors(a, nlp))

@@ -5,7 +5,6 @@ jupyter
 openai
 openpyxl
 spacy
-whisper_timestamped
 yt-dlp
 pyyaml
 pydub
@@ -14,37 +13,31 @@ json-repair
 resampy
 streamlit
 
-# sovits
-requests
-pydub
-pydantic
-soundfile
-flash-attention
-numpy==1.26.4
-scipy
-tensorboard
-numba
-pytorch-lightning
-gradio>=4.29
-gradio_client
-ffmpeg-python
-onnxruntime
-tqdm
-funasr==1.0.0
-cn2an
-pypinyin
-pyopenjtalk
-g2p_en
-torchaudio
-modelscope==1.10.0
-sentencepiece
-transformers
-chardet
-PyYAML
-psutil
-jieba_fast
-jieba
-LangSegment>=0.3.1
-wordsegment
-srt
-pyloudnorm
+#! sovits依赖项 暂时停用配音功能，开发好后请更改此处及 install.py
+# pydantic
+# soundfile
+# flash-attention
+# numpy==1.26.4
+# scipy
+# tensorboard
+# numba
+# pytorch-lightning
+# ffmpeg-python
+# onnxruntime
+# tqdm
+# funasr==1.0.0
+# cn2an
+# pypinyin
+# pyopenjtalk
+# g2p_en
+# modelscope==1.10.0
+# sentencepiece
+# transformers
+# chardet
+# psutil
+# jieba_fast
+# jieba
+# LangSegment>=0.3.1
+# wordsegment
+# srt
+# pyloudnorm

@@ -1,29 +1,27 @@
-import os, glob, subprocess, time, sys
+import os, subprocess, time, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step1_ytdlp import find_video_files
 
-EN_FONT_SIZE = 16
-TRANS_FONT_SIZE = 18
+SRC_FONT_SIZE = 15
+TRANS_FONT_SIZE = 19
 FONT_NAME = 'Arial'
 TRANS_FONT_NAME = 'Arial'
-EN_FONT_COLOR = '&HFFFFFF' 
-EN_OUTLINE_COLOR = '&H000000'
-EN_OUTLINE_WIDTH = 1
-EN_SHADOW_COLOR = '&H80000000'
+SRC_FONT_COLOR = '&HFFFFFF' 
+SRC_OUTLINE_COLOR = '&H000000'
+SRC_OUTLINE_WIDTH = 1
+SRC_SHADOW_COLOR = '&H80000000'
 TRANS_FONT_COLOR = '&H00FFFF'
 TRANS_OUTLINE_COLOR = '&H000000'
 TRANS_OUTLINE_WIDTH = 1 
 TRANS_BACK_COLOR = '&H33000000'
-
-
 
 def merge_subtitles_to_video():
     from config import RESOLUTIOM
     TARGET_WIDTH, TARGET_HEIGHT = RESOLUTIOM.split('x')
     ## merge subtitles to video and save the output video
     video_file = find_video_files()
-    en_srt = "output/english_subtitles.srt"
-    trans_srt = "output/translated_subtitles.srt"
+    en_srt = "output/src_subtitles.srt"
+    trans_srt = "output/trans_subtitles.srt"
 
     if not os.path.exists(en_srt) or not os.path.exists(trans_srt):
         print("Subtitle files not found in the 'output' directory.")
@@ -37,9 +35,9 @@ def merge_subtitles_to_video():
         '-vf', (
             f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
             f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,"
-            f"subtitles={en_srt}:force_style='FontSize={EN_FONT_SIZE},FontName={FONT_NAME}," 
-            f"PrimaryColour={EN_FONT_COLOR},OutlineColour={EN_OUTLINE_COLOR},OutlineWidth={EN_OUTLINE_WIDTH},"
-            f"ShadowColour={EN_SHADOW_COLOR},BorderStyle=1',"
+            f"subtitles={en_srt}:force_style='FontSize={SRC_FONT_SIZE},FontName={FONT_NAME}," 
+            f"PrimaryColour={SRC_FONT_COLOR},OutlineColour={SRC_OUTLINE_COLOR},OutlineWidth={SRC_OUTLINE_WIDTH},"
+            f"ShadowColour={SRC_SHADOW_COLOR},BorderStyle=1',"
             f"subtitles={trans_srt}:force_style='FontSize={TRANS_FONT_SIZE},FontName={TRANS_FONT_NAME},"
             f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
             f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=25,BorderStyle=4'"

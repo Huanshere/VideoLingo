@@ -9,7 +9,7 @@ from core.step4_1_summarize import search_things_to_note_in_prompt
 # Function to split text into chunks
 def split_chunks_by_chars(chunk_size=600, max_i=12): 
     """Split text into chunks based on character count, return a list of multi-line text chunks"""
-    with open("output/log/sentence_splitbymeaning.txt", "r", encoding="utf-8") as file:
+    with open("output/log/sentence_splitbynlp.txt", "r", encoding="utf-8") as file:
         sentences = file.read().strip().split('\n')
 
     chunks = []
@@ -42,17 +42,17 @@ def translate_chunk(chunk, chunks, theme_prompt, i):
 
 # 🚀 Main function to translate all chunks
 def translate_all():
-    from config import MAX_WORKERS
     # Check if the file exists
     if os.path.exists("output/log/translation_results.xlsx"):
-        print("🚨 The file `translation_results.xlsx` already exists, skipping this step.")
+        print("🚨 文件 `translation_results.xlsx` 已经存在，跳过此步。")
         return
     
     chunks = split_chunks_by_chars()
-    with open('output/log/translate terminology.json', 'r', encoding='utf-8') as file:
+    with open('output/log/terminology.json', 'r', encoding='utf-8') as file:
         theme_prompt = json.load(file).get('theme')
 
     # 🔄 Use concurrent execution for translation
+    from config import MAX_WORKERS
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
         for i, chunk in enumerate(chunks):
@@ -66,11 +66,11 @@ def translate_all():
     results.sort(key=lambda x: x[0])  # Sort results based on original order
     
     # 💾 Save results to lists and Excel file
-    en_text, trans_text = [], []
+    src_text, trans_text = [], []
     for _, chunk, translation in results:
-        en_text.extend(chunk.split('\n'))
+        src_text.extend(chunk.split('\n'))
         trans_text.extend(translation.split('\n'))
-    pd.DataFrame({'English': en_text, 'Translation': trans_text}).to_excel("output/log/translation_results.xlsx", index=False)
+    pd.DataFrame({'Source': src_text, 'Translation': trans_text}).to_excel("output/log/translation_results.xlsx", index=False)
 
 
 if __name__ == '__main__':
