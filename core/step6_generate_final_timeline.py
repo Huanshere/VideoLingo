@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import string
 
 def convert_to_srt_format(start_time, end_time):
     """Convert time (in seconds) to the format: hours:minutes:seconds,milliseconds"""
@@ -18,13 +19,17 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     """Align timestamps and add a new timestamp column to df_translate"""
     df_trans_time = df_translate.copy()
 
-    # Clean text 🧹
-    clean_list = [',', '.']
-    for char in clean_list:
-        df_text['text'] = df_text['text'].str.replace(char, '')
-        df_translate['English'] = df_translate['English'].str.replace(char, '')
+    #! 特殊符号特殊处理
+    # 1. 把df_translate['Source']中每一句的"-"替换为" ",(避免连词)
+    df_translate['Source'] = df_translate['Source'].str.replace('-', ' ')
+    # 2. 所有,和.都替换为" "，然后把"  "替换为" "（避免大数字）
+    df_translate['Source'] = df_translate['Source'].str.replace(',', ' ').str.replace('.', ' ').str.replace('  ', ' ')
+    # 3. 使用string.punctuation删除所有标点符号
+    df_text['text'] = df_text['text'].str.translate(str.maketrans('', '', string.punctuation))
+    df_translate['Source'] = df_translate['Source'].str.translate(str.maketrans('', '', string.punctuation))
+    # 4. 转换为小写
     df_text['text'] = df_text['text'].str.lower()
-    df_translate['English'] = df_translate['English'].str.lower()
+    df_translate['Source'] = df_translate['Source'].str.lower()
 
     # Assign an ID to each word in df_text['text'] and create a new DataFrame
     words = df_text['text'].str.split(expand=True).stack().reset_index(level=1, drop=True).reset_index()
@@ -37,7 +42,7 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     line_index = 0
     
 
-    for line in df_translate['English']:
+    for line in df_translate['Source']:
         line_words = line.split()
         line_word_index = 0
         start_time_id = None
@@ -80,49 +85,47 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     df_trans_time['timestamp'] = df_trans_time['timestamp'].apply(lambda x: convert_to_srt_format(x[0], x[1]))
 
     # Output subtitles 📜
-    en_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['English']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
+    src_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Source']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
     trans_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Translation']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
-    en_trans_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['English']}\n{row['Translation']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
-    trans_en_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Translation']}\n{row['English']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
+    src_trans_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Source']}\n{row['Translation']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
+    trans_en_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Translation']}\n{row['Source']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
 
     if not for_audio:
         os.makedirs('output', exist_ok=True)
-        with open('output/english_subtitles.srt', 'w', encoding='utf-8') as f:
-            f.write(en_sub_str)
-        with open('output/translated_subtitles.srt', 'w', encoding='utf-8') as f:
+        with open('output/src_subtitles.srt', 'w', encoding='utf-8') as f:
+            f.write(src_sub_str)
+        with open('output/trans_subtitles.srt', 'w', encoding='utf-8') as f:
             f.write(trans_sub_str)
-        with open('output/bilingual_en_trans_subtitles.srt', 'w', encoding='utf-8') as f:
-            f.write(en_trans_sub_str)
-        with open('output/bilingual_trans_en_subtitles.srt', 'w', encoding='utf-8') as f:
+        with open('output/bilingual_src_trans_subtitles.srt', 'w', encoding='utf-8') as f:
+            f.write(src_trans_sub_str)
+        with open('output/bilingual_trans_src_subtitles.srt', 'w', encoding='utf-8') as f:
             f.write(trans_en_sub_str)
     else:
         os.makedirs('output/audio', exist_ok=True)
-        with open('output/audio/english_subtitles_for_audio.srt', 'w', encoding='utf-8') as f:
-            f.write(en_sub_str)
-        with open('output/audio/translated_subtitles_for_audio.srt', 'w', encoding='utf-8') as f:
-            f.write(trans_sub_str
-                    )
+        with open('output/audio/src_subs_for_audio.srt', 'w', encoding='utf-8') as f:
+            f.write(src_sub_str)
+        with open('output/audio/trans_subs_for_audio.srt', 'w', encoding='utf-8') as f:
+            f.write(trans_sub_str)
     return df_trans_time
 
 def align_timestamp_main():
     df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
-    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
+    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，').strip('"') if pd.notna(x) else '')
     # check if there's empty translation
     if (df_translate['Translation'].str.len() == 0).sum() > 0:
-        raise ValueError(r'🚫 Empty translation detected! Please manually check the `output\log\translation_results_for_subtitles.xlsx` then rerun.')
+        raise ValueError(r'🚫 检测到空的翻译行！请手动检查 `output\log\translation_results_for_subtitles.xlsx` 中的空行填充内容，然后重新运行。')
     align_timestamp(df_text, df_translate)
-    print('🎉📝 Subtitles generated successfully! Go check it out inside `output` 👀')
+    print('🎉📝 字幕生成成功！请在 `output` 文件夹中查看 👀')
 
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
     if (df_translate_for_audio['Translation'].str.len() == 0).sum() > 0:
-        raise ValueError(r'🚫 Empty translation detected! Please manually check the `output\log\translation_results.xlsx` then rerun.')
+        raise ValueError(r'🚫 检测到空的翻译行！请手动检查 `output\log\translation_results.xlsx` 中的空行填充内容，然后重新运行。')
     align_timestamp(df_text, df_translate_for_audio, for_audio=True)
-    print('🎉📝 Subtitles for audio generated successfully! Go check it out inside `output/audio` 👀')
-
+    print('🎉📝 音频字幕生成成功！请在 `output/audio` 文件夹中查看 👀')
     
 
 if __name__ == '__main__':

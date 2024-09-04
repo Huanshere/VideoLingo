@@ -5,7 +5,6 @@ import sys
 import zipfile
 import shutil
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from config import SPACY_NLP_MODEL, WHISPER_MODEL
 
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
@@ -50,14 +49,14 @@ def install_torch(gpu_available):
             print("检测到GPU。正在安装支持CUDA的PyTorch...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchvision", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
         else:
-            print("未检测到GPU。正在安装不支持CUDA的PyTorch...")
+            print("正在安装cpu版本的PyTorch...")
             install_package("torch", "torchvision", "torchaudio")
     elif platform.system() == "Darwin":  # macOS
         if "arm" in platform.processor().lower():
             print("检测到Apple Silicon。正在安装支持MLX (Metal)的PyTorch...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "--pre", "torch", "torchvision", "torchaudio", "--extra-index-url", "https://download.pytorch.org/whl/nightly/cpu"])
         else:
-            print("正在为macOS安装不支持MLX的PyTorch...")
+            print("正在为macOS安装cpu版本的PyTorch...")
             install_package("torch", "torchvision", "torchaudio")
     elif platform.system() == "Linux":
         if gpu_available:
@@ -76,16 +75,6 @@ def install_requirements():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
     else:
         print("未找到requirements.txt。跳过安装。")
-
-def download_spacy_model():
-    """Download the specified spaCy model."""
-    import spacy
-    from spacy.cli import download
-    try:
-        spacy.load(SPACY_NLP_MODEL)
-    except:
-        print(f"正在下载{SPACY_NLP_MODEL}模型...")
-        download(SPACY_NLP_MODEL)
 
 def dowanload_uvr_model():
     """Download the specified uvr model."""
@@ -175,7 +164,6 @@ def download_and_extract_ffmpeg():
         ffmpeg_exe = "ffmpeg"
         url = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
     else:
-        print("FFmpeg下载仅支持Windows和macOS。")
         return
 
     if os.path.exists(ffmpeg_exe):
@@ -219,42 +207,34 @@ def download_and_extract_ffmpeg():
         print("下载FFmpeg失败")
 
 def main():
-    print("开始安装喽...")
+    print("开始安装...")
     
     # Install requests first
     install_package("requests")
     
     # Check GPU availability
     gpu_available = check_gpu()
-    
+    print(f"GPU 可用: {gpu_available}")
+    if gpu_available:
+        if_gpu = input("是否安装GPU版本的PyTorch? (注意：Windows 下安装 GPU 版本需要额外安装 Cmake 及 Visual Studio, 详情见 Github 主页) (y/n): ")
+        gpu_available = if_gpu.lower() == 'y'
     # Install PyTorch
     install_torch(gpu_available)
     
     # Install other requirements
     install_requirements()
 
-    # Download nltk for sovits
-    import nltk
-    nltk.download('averaged_perceptron_tagger_eng')
+    #! 暂时停用配音功能
+    # # Download nltk for sovits
+    # import nltk
+    # nltk.download('averaged_perceptron_tagger_eng')
     
-    # Install spaCy model
-    install_package("spacy")
-    download_spacy_model()
-    
-    # Download UVR model
-    dowanload_uvr_model()
+    # # Download UVR model
+    # dowanload_uvr_model()
 
-    # Download GPT-SoVITS model
-    download_sovits_model()
-    download_huanyu_model() # custom model
-    
-    # Download Whisper model .pt
-    import torch
-    import whisper_timestamped as whisper
-    MODEL_DIR = "./_model_cache"
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    model = whisper.load_model(WHISPER_MODEL, device=device, download_root=MODEL_DIR)
+    # # Download GPT-SoVITS model
+    # download_sovits_model()
+    # download_huanyu_model() # custom model
 
     # Download and extract FFmpeg
     download_and_extract_ffmpeg()

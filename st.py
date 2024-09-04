@@ -16,8 +16,8 @@ def text_processing_section():
         <p style='font-size: 20px;'>
         该阶段包括以下步骤：
         <p style='font-size: 20px;'>
-            1. Whisper语音转录<br>
-            2. Spacy 和 llm 分割句子<br>
+            1. Whisper 单词级转录<br>
+            2. Spacy 和 Claude 分割句子<br>
             3. 总结和多步翻译<br>
             4. 切割对齐长字幕<br>
             5. 生成时间轴和字幕<br>
@@ -45,7 +45,8 @@ def process_text():
     video_file = step1_ytdlp.find_video_files()
     
     with st.spinner("使用Whisper进行转录..."):
-        step2_whisper_stamped.transcript(video_file)
+        # step2_whisper_stamped.transcript(video_file)
+        step2_whisperapi.transcribe(video_file)
     with st.spinner("分割长句..."):  
         step3_1_spacy_split.split_by_spacy()
         step3_2_splitbymeaning.split_sentences_by_meaning()
@@ -112,8 +113,9 @@ def main():
         st.markdown(give_star_button, unsafe_allow_html=True)
     download_video_section(cloud)
     text_processing_section()
-    if not cloud:
-        audio_processing_section()
+    st.warning("配音功能仍在开发中，暂已停用，感谢理解！")
+    # if not cloud:
+    #     audio_processing_section()
 
 if __name__ == "__main__":
     main()

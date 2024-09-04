@@ -21,36 +21,33 @@ def page_setting():
 
     st.header("LLM 配置")
     
-    api_key = st.text_input("API_key", value=config.API_KEY)
-    base_url = st.text_input("Base_url", value=config.BASE_URL)
-    models = st.text_input("Model", value=','.join(config.MODEL))
+    api_key = st.text_input("API_KEU", value=config.API_KEY)
+    whisper_api_key = st.text_input("WHISPER_API_KEY(纯 AZ 渠道)", value=config.WHISPER_API_KEY)
+    base_url = st.text_input("BASE_URL", value=config.BASE_URL)
+    models = st.text_input("MODEL", value=','.join(config.MODEL))
     
     if api_key != config.API_KEY:
         changes["API_KEY"] = api_key
+    if whisper_api_key != config.WHISPER_API_KEY:
+        changes["WHISPER_API_KEY"] = whisper_api_key
     if base_url != config.BASE_URL:
         changes["BASE_URL"] = base_url
     if models.split(',') != config.MODEL:
         changes["MODEL"] = models.split(',')
     
     st.header("字幕设置")
-    cols_audio = st.columns(2)
-    with cols_audio[0]:
-        audio_language = st.radio("whisper 识别语言:", options=["auto", "en"], index=0 if config.AUDIO_LANGUAGE == "auto" else 1)
-        if audio_language != config.AUDIO_LANGUAGE:
-            changes["AUDIO_LANGUAGE"] = audio_language
-    with cols_audio[1]:
-        target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
-        if target_language != config.TARGET_LANGUAGE:
-            changes["TARGET_LANGUAGE"] = target_language
+    target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
+    if target_language != config.TARGET_LANGUAGE:
+        changes["TARGET_LANGUAGE"] = target_language
     st.write("每行字幕最大字符数：")
-    col1, col2 = st.columns(2)
-    with col1:
-        max_english_length = st.number_input("英文:", value=config.MAX_ENGLISH_LENGTH)
-        if max_english_length != config.MAX_ENGLISH_LENGTH:
-            changes["MAX_ENGLISH_LENGTH"] = int(max_english_length)
+    cols_sub = st.columns(2)
+    with cols_sub[0]:
+        max_src_length = st.number_input("原字幕:", value=config.MAX_SRC_LENGTH)
+        if max_src_length != config.MAX_SRC_LENGTH:
+            changes["MAX_SRC_LENGTH"] = int(max_src_length)
     
-    with col2:
-        max_target_language_length = st.number_input("翻译:", value=config.MAX_TARGET_LANGUAGE_LENGTH)
+    with cols_sub[1]:
+        max_target_language_length = st.number_input("翻译字幕:", value=config.MAX_TARGET_LANGUAGE_LENGTH)
         if max_target_language_length != config.MAX_TARGET_LANGUAGE_LENGTH:
             changes["MAX_TARGET_LANGUAGE_LENGTH"] = int(max_target_language_length)
 
@@ -63,10 +60,12 @@ def page_setting():
     if resolution != config.RESOLUTIOM:
         changes["RESOLUTIOM"] = resolution
 
-    st.header("SoVITS 角色配置")
-    dubbing_character = st.text_input("配音角色:", value=config.DUBBING_CHARACTER)
-    if dubbing_character != config.DUBBING_CHARACTER:
-        changes["DUBBING_CHARACTER"] = dubbing_character
+
+    #! 配音功能仍在开发中，暂已停用，感谢理解！
+    # st.header("SoVITS 角色配置")
+    # dubbing_character = st.text_input("配音角色:", value=config.DUBBNING_CHARACTER)
+    # if dubbing_character != config.DUBBNING_CHARACTER:
+    #     changes["DUBBNING_CHARACTER"] = dubbing_character
     
     if changes:
         st.toast("记得点击下方的'保存设置'按钮", icon="🔔")

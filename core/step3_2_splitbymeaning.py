@@ -88,7 +88,7 @@ def parallel_split_sentences(sentences, max_length, max_workers, retry_attempt=0
 def split_sentences_by_meaning():
     """按意义分割句子的主要函数。"""
     # 读取输入的句子
-    with open('output/log/sentence_splitbymark.txt', 'r', encoding='utf-8') as f:
+    with open('output/log/sentence_splitbynlp.txt', 'r', encoding='utf-8') as f:
         sentences = [line.strip() for line in f.readlines()]
 
     # 🔄 多次处理句子以确保全部被分割
@@ -102,5 +102,5 @@ def split_sentences_by_meaning():
     print('✅ 所有句子已成功分割')
 
 if __name__ == '__main__':
-    print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))
-    # split_sentences_by_meaning()
+    # print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))
+    split_sentences_by_meaning()

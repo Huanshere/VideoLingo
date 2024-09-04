@@ -33,7 +33,7 @@ def step8_main(input_video):
         print('output/audio/background.wav already exists, skip.')
         return
     
-    with open('output/audio/english_subtitles_for_audio.srt', 'r', encoding='utf-8') as f:
+    with open('output/audio/src_subs_for_audio.srt', 'r', encoding='utf-8') as f:
         srt_content = f.read()  
     subtitles = parse_srt(srt_content)
     

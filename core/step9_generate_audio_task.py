@@ -6,7 +6,6 @@ import re
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_subtitle_trim_prompt
 
-
 def check(text, duration, max_chars_per_second=8):
     # 定义标点符号列表
     punctuations = ',，。！？：；"（）《》【】'
@@ -85,12 +84,12 @@ def process_srt(file_path):
                 df.loc[i, 'text'] += ', ' + df.loc[i+1, 'text']
                 df.loc[i, 'end_time'] = df.loc[i+1, 'end_time']
                 df.loc[i, 'duration'] = (datetime.datetime.combine(datetime.date.today(), df.loc[i, 'end_time']) - 
-                                         datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time'])).total_seconds()
+                                        datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time'])).total_seconds()
                 df = df.drop(i+1).reset_index(drop=True)
             else:
                 print(f"延长字幕 {i+1} 的持续时间到{MIN_SUBTITLE_DURATION}秒")
                 df.loc[i, 'end_time'] = (datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time']) + 
-                                         datetime.timedelta(seconds=MIN_SUBTITLE_DURATION)).time()
+                                        datetime.timedelta(seconds=MIN_SUBTITLE_DURATION)).time()
                 df.loc[i, 'duration'] = MIN_SUBTITLE_DURATION
                 i += 1
         else:

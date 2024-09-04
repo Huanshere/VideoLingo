@@ -2,6 +2,7 @@ import streamlit as st
 import os, sys, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step1_ytdlp import download_video_ytdlp, find_video_files
+from time import sleep
 
 def download_video_section(cloud):
     title1 = "上传视频 " if cloud else "下载或上传视频"
@@ -14,6 +15,7 @@ def download_video_section(cloud):
                 os.remove(video_file)
                 if os.path.exists("output"):
                     shutil.rmtree("output")
+                sleep(0.5)
                 st.rerun()
             return True
         except:
@@ -25,7 +27,7 @@ def download_video_section(cloud):
                             download_video_ytdlp(url)
                         st.rerun()
             from config import ALLOWED_VIDEO_FORMATS
-            uploaded_file = st.file_uploader("或上传视频 <30min", type=ALLOWED_VIDEO_FORMATS)
+            uploaded_file = st.file_uploader("或上传视频 建议<40min", type=ALLOWED_VIDEO_FORMATS)
             if uploaded_file:
                 os.makedirs("output", exist_ok=True)
                 # 视频写入output文件夹
