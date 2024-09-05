@@ -53,20 +53,20 @@ def get_sentence_timestamps(df_words, df_sentences):
                 decreasing_count = 0
             else:
                 decreasing_count += 1
-            # 如果连续 3 个词都没有匹配，则跳出循环
-            if decreasing_count >= 3:
+            # 如果连续 5 个词都没有匹配，则跳出循环
+            if decreasing_count >= 5:
                 break
             word_index += 1
         
-        if best_match['score'] <0.9:
-            print("原句：", sentence)
-            print("匹配：", best_match['phrase'])
-            print("相似度：{:.2f}".format(best_match['score']))
-            print("-" * 50)
+        if best_match['score'] > 0.9:
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
             word_index = start_index + best_match['word_count']  # 更新word_index到下一个句子的开始
         else:
             print(f"警告：无法为句子找到匹配: {sentence}")
+            print("原句：", sentence)
+            print("匹配：", best_match['phrase'])
+            print("相似度：{:.2f}".format(best_match['score']))
+            print("-" * 50)
         
         start_index = word_index  # 为下一个句子更新start_index
     

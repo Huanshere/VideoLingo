@@ -10,7 +10,7 @@ from config import get_joiner, WHISPER_LANGUAGE
 def split_by_mark():
     language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # 考虑强制英文的情况
     joiner = get_joiner(language)
-    print(f"🔍 正在使用 {language} 语言的拼接方式: '{joiner}'") s
+    print(f"🔍 正在使用 {language} 语言的拼接方式: '{joiner}'")
     nlp = init_nlp()
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"'))

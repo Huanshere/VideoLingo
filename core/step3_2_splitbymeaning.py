@@ -44,7 +44,7 @@ def find_split_positions(original, modified):
             print(f"警告：无法为第 {i+1} 部分找到合适的分割点。")
 
     return split_positions
-o
+
 def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0):
     """Split a long sentence using GPT and return the result as a string."""
     split_prompt = get_split_prompt(sentence, num_parts, word_limit)
