@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌉 VideoLingo: Connecting the World Frame by Frame
+# 🌉 VideoLingo: Connecting Every Frame of the World
 
 ![Python](https://img.shields.io/badge/python-v3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -16,13 +16,13 @@
 
 ## 🌟 What Can It Do
 
-- 🍖 Fully automatic video translation, generating Netflix-quality subtitles!
+- 🍖 Fully automatic video translation tool, generating Netflix-quality subtitles!
 
 - 🎤 Clone your own voice for dubbing! (🚧 Under development)
 
-- ✨ Click-and-done in Streamlit!
+- ✨ Click-and-complete in Streamlit!
 
-![iqzp96.png](https://files.catbox.moe/iqzp96.png)
+![demo.png](https://files.catbox.moe/clsmt9.png)
 
 > Check out the results! 💪
 
@@ -63,32 +63,30 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## ⚡️ Quick Experience
 
-- This project has been uploaded to [Qudong Cloud-VideoLingo](https://open.virtaicloud.com/web/project/detail/480194078119297024) for quick cloning and launching
+- This project has been uploaded to [Qudong Cloud-VideoLingo](https://open.virtaicloud.com/web/project/detail/480194078119297024) (v0.2 version), which can be quickly cloned and launched. Detailed tutorial with images [Click here](docs/趋动云使用说明.md)
 
-- New registered users are gifted with 35 hours of free usage. Detailed tutorial with images [Click here](docs/趋动云使用说明.md)
+![qudongcloud.png](https://files.catbox.moe/ia9v1d.png)
 
-![ia9v1d.png](https://files.catbox.moe/ia9v1d.png)
+## 🏠 Local Deployment (Win or Mac)
 
-## 🏠 Local Deployment
-
-> Supports Windows and Mac systems
-
-
-> For Windows, before installing other dependencies, please make sure to download and install Visual Studio 2022 or Microsoft C++ Build Tools (smaller in size). Check and install the component package: "Desktop development with C++", execute the modification and wait for it to complete.
+<!-- > For Windows, before installing other dependencies, please make sure to download and install Visual Studio 2022 or Microsoft C++ Build Tools (smaller in size). Check and install the component package: "Desktop development with C++", execute the modification and wait for it to complete.
 >
-> Also install [Cmake build program](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
+> Also install [Cmake build program](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi) -->
 
-1. Clone the repository:
-> This step requires [git](https://git-scm.com/download/win) installed on your system
+1. Register and recharge at [Yunwu API](https://api.wlai.vip/register?aff=TXMB) to apply for a token (fill in the application as shown in the image)
+![image](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
+
+2. Clone the repository:
+> This step requires [git](https://git-scm.com/download/win) to be installed on your system
 
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-2. Set up and activate Conda virtual environment:
+3. Set up and activate Conda virtual environment:
 
-> This step requires [Anaconda](https://www.anaconda.com/download/success) installed on your system
+> This step requires [Anaconda](https://www.anaconda.com/download/success) to be installed on your system
 > 
 > Enter the following commands in Anaconda powershell prompt:
    ```bash
@@ -96,22 +94,20 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
    conda activate videolingo
    ```
 
-3. Configure `config.py`
-
 4. Run the installation script:
 
    ```bash
    python install.py
    ```
 
-5. 🎉Launch Streamlit!
+5. 🎉 Launch Streamlit and modify configurations in the web interface
    ```bash
    streamlit run st.py
    ```
 
 ## 🙏 Acknowledgements
 
-Thanks to the contributions of the following open-source projects:
+Thanks to the following open-source projects for their contributions:
 
 - [whisper](https://github.com/openai/whisper): OpenAI's open-source automatic speech recognition system
 - [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): Extension adding timestamp functionality to Whisper
