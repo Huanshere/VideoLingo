@@ -218,9 +218,21 @@ def download_and_extract_ffmpeg():
     else:
         print("下载FFmpeg失败")
 
+def init_config():
+    """Initialize the config.py file with the specified API key and base URL."""
+    if not os.path.exists("config.py"):
+        # 从 config.example.py 复制 config.py
+        shutil.copy("config.example.py", "config.py")
+        print("config.py文件已创建。请在config.py文件中填写API密钥和基础URL。") 
+    else:
+        print("config.py文件已存在。")
+
 def main():
     print("开始安装...")
-    
+
+    # 初始化 config.py 文件
+    init_config()
+
     # Install requests first
     install_package("requests")
     

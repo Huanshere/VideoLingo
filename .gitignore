@@ -160,3 +160,4 @@ _model_cache/
 /ffmpeg
 .DS_Store
 _config.py
+config.py
