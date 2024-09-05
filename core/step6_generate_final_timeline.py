@@ -92,7 +92,7 @@ def align_timestamp(df_text, df_translate, for_audio = False):
 
     # 输出字幕 📜
     def generate_subtitle_string(df, columns):
-        return ''.join([f"{i+1}\n{row['timestamp']}\n{' '.join([row[col].strip() for col in columns])}\n\n" for i, row in df.iterrows()]).strip()
+        return ''.join([f"{i+1}\n{row['timestamp']}\n{row[columns[0]].strip()}\n{row[columns[1]].strip() if len(columns) > 1 else ''}\n\n" for i, row in df.iterrows()]).strip()
 
     subtitle_configs = [
         ('src_subtitles.srt', ['Source']),
