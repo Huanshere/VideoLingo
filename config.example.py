@@ -26,6 +26,7 @@ RESOLUTIOM = '854x480'
 ## ======================== 进阶设置设置 ======================== ##
 # Whisper 指定识别语言
 WHISPER_LANGUAGE = 'auto'
+WHISPER_MODEL = 'large-v2'
 
 # 支持视频格式
 ALLOWED_VIDEO_FORMATS = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm']
@@ -61,3 +62,36 @@ ORIGINAL_VOLUME = 0.1
 
 # 第一次粗切单词数，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 MAX_SPLIT_LENGTH = 20
+
+## ======================== 语言模型 ======================== ##
+# Spacy model
+SPACY_MODEL_MAP = {
+    "en": "en_core_web_sm",
+    "zh": "zh_core_web_sm",
+    "es": "es_core_news_sm",
+    "fr": "fr_core_news_sm",
+    "de": "de_core_news_sm",
+    "it": "it_core_news_sm",
+    "ja": "ja_core_news_sm",
+    "pt": "pt_core_news_sm",
+    "nl": "nl_core_news_sm",
+    "el": "el_core_news_sm",
+    "ru": "ru_core_news_sm",
+    "ar": "ar_core_news_sm",
+    "hi": "hi_core_news_sm",
+    "ko": "ko_core_news_sm",
+    "pl": "pl_core_news_sm",
+    "uk": "uk_core_news_sm",
+    "vi": "vi_core_news_sm",
+    "tr": "tr_core_news_sm",
+    "th": "th_core_news_sm",
+    "ro": "ro_core_news_sm",
+    "da": "da_core_news_sm",
+    "fi": "fi_core_news_sm",
+    "hu": "hu_core_news_sm",
+    "nb": "nb_core_news_sm",
+    "sv": "sv_core_news_sm"
+}
+
+LANGUAGE_SPLIT_WITH_SPACE = ['en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'el', 'ru', 'ar', 'hi', 'pl', 'uk', 'vi', 'tr', 'ro', 'da', 'fi', 'hu', 'nb', 'sv']
+LANGUAGE_SPLIT_WITHOUT_SPACE = ['zh', 'ja', 'th', 'ko']

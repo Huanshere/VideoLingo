@@ -1,7 +1,10 @@
 import pandas as pd
-import os
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from difflib import SequenceMatcher
 import re
+from config import get_joiner, WHISPER_LANGUAGE
+from core.step2_whisper_stamped import get_whisper_language
 
 def convert_to_srt_format(start_time, end_time):
     """Convert time (in seconds) to the format: hours:minutes:seconds,milliseconds"""
@@ -22,7 +25,9 @@ def remove_punctuation(text):
 def get_sentence_timestamps(df_words, df_sentences):
     time_stamp_list = []
     word_index = 0
-    
+    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
+    joiner = get_joiner(language)
+
     for idx,sentence in df_sentences['Source'].items():
         sentence = remove_punctuation(sentence.lower())
         best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0}
@@ -33,15 +38,14 @@ def get_sentence_timestamps(df_words, df_sentences):
         while word_index < len(df_words):
             word = remove_punctuation(df_words['text'][word_index].lower())
 
-            #! 去掉空格, 这样是为了支持中文和日文这样的不用空格隔开的语言
-            sentence = sentence.replace(" ", "")
-            current_phrase += word + ''
+            #! user joiner to join the sentence
+            current_phrase += word + joiner
 
             similarity = SequenceMatcher(None, sentence, current_phrase.strip()).ratio()
             if similarity > best_match['score']:
                 best_match = {
                     'score': similarity,
-                    'start': df_words['start'][start_index],  # 使用start_index
+                    'start': df_words['start'][start_index],
                     'end': df_words['end'][word_index],
                     'word_count': word_index - start_index + 1,
                     'phrase': current_phrase

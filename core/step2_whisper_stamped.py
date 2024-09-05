@@ -12,7 +12,6 @@ import json
 def convert_video_to_audio_and_transcribe(input_file: str):
     from config import WHISPER_MODEL, MODEL_DIR, WHISPER_LANGUAGE
     # 🎬➡️🎵➡️📊 Convert video to audio and transcribe
-    # audio_file = os.path.splitext(input_file)[0] + '_temp.mp3'
     os.makedirs('output/audio', exist_ok=True)
     audio_file = 'output/audio/raw_full_audio.wav'
     
@@ -44,13 +43,12 @@ def convert_video_to_audio_and_transcribe(input_file: str):
     audio = whisper.load_audio(audio_file)
     os.makedirs(MODEL_DIR, exist_ok=True)
     model = whisper.load_model(WHISPER_MODEL, device=device, download_root=MODEL_DIR)
-    if WHISPER_LANGUAGE == 'auto':
-        # result = whisper.transcribe(model, audio, beam_size=5, best_of=5, detect_disfluencies=True, vad=True, temperature=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
-        result = whisper.transcribe(model, audio, beam_size=5, best_of=5, temperature=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
-    else:
-        result = whisper.transcribe(model, audio, beam_size=5, best_of=5, temperature=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0), language=WHISPER_LANGUAGE)
     
-    # 将 result['language'] 保存到 output\log\transcript_language.json，格式如 {"language": "japanese"}
+    transcribe_params = {'model': model, 'audio': audio, 'beam_size': 5, 'best_of': 5, 'temperature': (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)}
+    if WHISPER_LANGUAGE != 'auto':
+        transcribe_params['language'] = WHISPER_LANGUAGE
+    result = whisper.transcribe(**transcribe_params)
+    
     os.makedirs('output/log', exist_ok=True)
     with open('output/log/transcript_language.json', 'w', encoding='utf-8') as f:
         json.dump({"language": result['language']}, f, ensure_ascii=False, indent=4)
