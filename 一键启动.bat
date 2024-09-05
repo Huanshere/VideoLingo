@@ -1,5 +1,5 @@
 @echo off
 cd /d %~dp0
-call conda activate videolingo
+call .venv\Scripts\activate
 call streamlit run st.py
 pause

@@ -98,16 +98,16 @@ def transcribe_audio(audio_file: str):
         file=audio,
         model="whisper-1",
         response_format="verbose_json",
-        timestamp_granularities=["word"]
+        timestamp_granularities=["word"],
     )
 
     # 保存原始转录文本
     os.makedirs('output/log', exist_ok=True)
-    with open("output/log/raw_transcript.txt", "w") as f:
+    with open("output/log/raw_transcript.txt", "w", encoding='utf-8') as f:
         f.write(transcript.text)
 
     print(f"🎵➡️📝 转录音频为文本完成，识别语言为: {transcript.language}")
-    with open("output/log/transcript_language.json", "w") as f:
+    with open("output/log/transcript_language.json", "w", encoding='utf-8') as f:
         json.dump({"language": transcript.language}, f)
 
     # 处理转录结果
@@ -127,7 +127,7 @@ def transcribe_audio(audio_file: str):
 
 def get_whisper_language():
     try:
-        with open("output/log/transcript_language.json", "r") as f:
+        with open("output/log/transcript_language.json", "r", encoding='utf-8') as f:
             language = json.load(f)["language"]
         return language
     except:

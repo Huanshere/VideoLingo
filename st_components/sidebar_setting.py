@@ -21,19 +21,18 @@ def page_setting():
 
     st.header("LLM 配置")
     
-    api_key = st.text_input("API_KEU", value=config.API_KEY)
-    whisper_api_key = st.text_input("WHISPER_API_KEY(纯 AZ 渠道)", value=config.WHISPER_API_KEY)
-    base_url = st.text_input("BASE_URL", value=config.BASE_URL)
-    models = st.text_input("MODEL", value=','.join(config.MODEL))
-    
+    api_key = st.text_input("API_KEY", value=config.API_KEY)
     if api_key != config.API_KEY:
         changes["API_KEY"] = api_key
-    if whisper_api_key != config.WHISPER_API_KEY:
-        changes["WHISPER_API_KEY"] = whisper_api_key
-    if base_url != config.BASE_URL:
-        changes["BASE_URL"] = base_url
-    if models.split(',') != config.MODEL:
-        changes["MODEL"] = models.split(',')
+
+    urls = ["https://api2.wlai.vip", "https://api.wlai.vip"]
+    selected_base_url = st.selectbox("BASE_URL", options=urls, index=urls.index(config.BASE_URL) if config.BASE_URL in urls else 0)
+    if selected_base_url != config.BASE_URL:
+        changes["BASE_URL"] = selected_base_url
+    
+    # models = st.text_input("MODEL", value=','.join(config.MODEL))
+    # if models.split(',') != config.MODEL:
+    #     changes["MODEL"] = models.split(',')
     
     st.header("字幕设置")
     target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)

@@ -1,10 +1,10 @@
 import os, sys
 # 建议在 streamlit 页面中调整设置
 ## ======================== 基本设置 ======================== ##
-# API 设置 建议使用唯一真神 https://api.wlai.vip, sonnet 价格仅 10r/1M
-# ！WHISPER_API_KEY 暂时必须走 `纯AZ渠道`， API_KEY 建议走默认渠道
+# API 设置 建议使用唯一真神 https://api.wlai.vip/register?aff=TXMB, sonnet 价格仅 10r/1M。
+# 申请令牌时同时勾选`claude-3-5-sonnet-20240620`和`whisper-1`，建议选`默认渠道1.0`
 API_KEY = 'sk-xxx'
-WHISPER_API_KEY = 'sk-xxx'
+WHISPER_API_KEY = API_KEY
 BASE_URL = 'https://api2.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
 
@@ -39,7 +39,7 @@ step5_align_model = MODEL[0]
 step9_trim_model = MODEL[0]
 
 # 支持返回 JSON 格式的 LLM，不重要
-llm_support_json = ['deepseek-coder', 'gpt-4o']
+llm_support_json = []
 
 ## 设置趋动云 model dir
 cloud = 1 if sys.platform.startswith('linux') else 0
@@ -60,5 +60,5 @@ ORIGINAL_VOLUME = 0.1
 MAX_SPLIT_LENGTH = 18
 
 
-# 字幕对齐时，处理特殊字符串
+#! 字幕对齐时，处理特殊字符串
 SPECIAL_STRINGS =['U.S.', 'E.K.']

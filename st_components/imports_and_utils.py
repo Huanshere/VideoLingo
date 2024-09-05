@@ -12,17 +12,12 @@ import io, zipfile
 
 def download_subtitle_zip_button(text="📥 下载所有字幕文件"):
     zip_buffer = io.BytesIO()
-    subtitle_files = [
-        "english_subtitles.srt",
-        "translated_subtitles.srt",
-        "bilingual_trans_en_subtitles.srt",
-        "bilingual_en_trans_subtitles.srt"
-    ]
+    output_dir = "output"
     
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        for file_name in subtitle_files:
-            file_path = os.path.join("output", file_name)
-            if os.path.exists(file_path):
+        for file_name in os.listdir(output_dir):
+            if file_name.endswith(".srt"):
+                file_path = os.path.join(output_dir, file_name)
                 with open(file_path, "rb") as file:
                     zip_file.writestr(file_name, file.read())
     
