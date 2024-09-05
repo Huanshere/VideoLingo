@@ -94,13 +94,21 @@ def transcribe_audio(audio_file: str):
     )
 
     audio = open(audio_file, "rb")
-    transcript = client.audio.transcriptions.create(
-        file=audio,
-        model="whisper-1",
-        response_format="verbose_json",
-        timestamp_granularities=["word"],
-        language=WHISPER_LANGUAGE
-    )
+    if WHISPER_LANGUAGE == 'auto':
+        transcript = client.audio.transcriptions.create(
+            file=audio,
+            model="whisper-1",
+            response_format="verbose_json",
+            timestamp_granularities=["word"]
+        )
+    else:
+        transcript = client.audio.transcriptions.create(
+            file=audio,
+            model="whisper-1",
+            response_format="verbose_json",
+            timestamp_granularities=["word"],
+            language=WHISPER_LANGUAGE
+        )
 
     # 保存原始转录文本
     os.makedirs('output/log', exist_ok=True)
