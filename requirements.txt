@@ -13,7 +13,7 @@ json-repair
 resampy
 streamlit
 
-#! sovits依赖项 暂时停用配音功能，开发好后请更改此处及 install.py
+##! gpt-sovits requirements
 # pydantic
 # soundfile
 # flash-attention

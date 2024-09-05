@@ -71,6 +71,18 @@ def install_torch(gpu_available):
 def install_requirements():
     """Install requirements from requirements.txt file."""
     if os.path.exists("requirements.txt"):
+        print("正在将requirements.txt转换为GBK编码...")
+        try:
+            with open("requirements.txt", "r", encoding="utf-8") as file:
+                content = file.read()
+            with open("requirements.txt", "w", encoding="gbk") as file:
+                file.write(content)
+            print("转换完成。")
+        except UnicodeDecodeError:
+            print("requirements.txt已经是GBK编码，无需转换。")
+        except Exception as e:
+            print(f"转换编码时出错：{str(e)}")
+        
         print("正在从requirements.txt安装依赖...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
     else:
