@@ -38,6 +38,7 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> 
         to_split = []
         
         for i, (en, tr) in enumerate(zip(src_lines, tr_lines)):
+            en, tr = str(en), str(tr)
             if len(en) > MAX_SRC_LENGTH or calc_len(tr) > MAX_TARGET_LANGUAGE_LENGTH:
                 to_split.append(i)
                 print(f"📏 第 {i} 行需要切割:\nSRC_LANG:    {en}\nTARGET_LANG: {tr}\n")
