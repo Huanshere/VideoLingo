@@ -54,7 +54,7 @@ def get_sentence_timestamps(df_words, df_sentences):
                 break
             word_index += 1
         
-        if best_match['score'] > 0:
+        if best_match['score'] <0.9:
             print("原句：", sentence)
             print("匹配：", best_match['phrase'])
             print("相似度：{:.2f}".format(best_match['score']))

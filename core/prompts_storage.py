@@ -1,6 +1,6 @@
 import os,sys,json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.step2_whisperapi import get_whisper_language
+from core.step2_whisper_stamped import get_whisper_language
 ## ================================================================
 # @ step4_splitbymeaning.py
 def get_split_prompt(sentence, num_parts = 2, word_limit = 20):

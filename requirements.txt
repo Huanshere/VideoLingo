@@ -13,6 +13,9 @@ json-repair
 resampy
 streamlit
 
+whisper-timestamped
+onnxruntime
+
 ##! gpt-sovits requirements
 # pydantic
 # soundfile
