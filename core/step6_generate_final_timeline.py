@@ -78,18 +78,21 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     time_stamp_list = get_sentence_timestamps(df_text, df_translate)
     df_trans_time['timestamp'] = time_stamp_list
 
-    # Remove gaps 🕳️
+    # 移除间隙 🕳️
     for i in range(len(df_trans_time)-1):
         delta_time = df_trans_time.loc[i+1, 'timestamp'][0] - df_trans_time.loc[i, 'timestamp'][1]
         if 0 < delta_time < 1:
             df_trans_time.at[i, 'timestamp'] = (df_trans_time.loc[i, 'timestamp'][0], df_trans_time.loc[i+1, 'timestamp'][0])
 
-    # Convert start and end timestamps to SRT format
+    # 将开始和结束时间戳转换为SRT格式
     df_trans_time['timestamp'] = df_trans_time['timestamp'].apply(lambda x: convert_to_srt_format(x[0], x[1]))
+
+    # 美化字幕：替换Translation中的标点符号
+    df_trans_time['Translation'] = df_trans_time['Translation'].apply(lambda x: re.sub(r'[,，。]', ' ', x).strip())
 
     # 输出字幕 📜
     def generate_subtitle_string(df, columns):
-        return ''.join([f"{i}\n{row['timestamp']}\n{'\n'.join([row[col] for col in columns])}\n\n" for i, row in df.iterrows()]).strip()
+        return ''.join([f"{i+1}\n{row['timestamp']}\n{' '.join([row[col].strip() for col in columns])}\n\n" for i, row in df.iterrows()]).strip()
 
     subtitle_configs = [
         ('src_subtitles.srt', ['Source']),
