@@ -1,6 +1,7 @@
 import pandas as pd
 import os
-import string
+from difflib import SequenceMatcher
+import re
 
 def convert_to_srt_format(start_time, end_time):
     """Convert time (in seconds) to the format: hours:minutes:seconds,milliseconds"""
@@ -15,23 +16,58 @@ def convert_to_srt_format(start_time, end_time):
     end_srt = seconds_to_hmsm(end_time)
     return f"{start_srt} --> {end_srt}"
 
+def remove_punctuation(text):
+    return re.sub(r'[^\w\s]', '', text)
+
+def get_sentence_timestamps(df_words, df_sentences):
+    time_stamp_list = []
+    word_index = 0
+    
+    for idx,sentence in df_sentences['Source'].items():
+        sentence = remove_punctuation(sentence.lower())
+        best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0}
+        decreasing_count = 0
+        current_phrase = ""
+        start_index = word_index  # 记录当前句子开始的词索引
+
+        while word_index < len(df_words):
+            word = remove_punctuation(df_words['text'][word_index].lower())
+
+            #! 去掉空格, 这样是为了支持中文和日文这样的不用空格隔开的语言
+            sentence = sentence.replace(" ", "")
+            current_phrase += word + ''
+
+            similarity = SequenceMatcher(None, sentence, current_phrase.strip()).ratio()
+            if similarity > best_match['score']:
+                best_match = {
+                    'score': similarity,
+                    'start': df_words['start'][start_index],  # 使用start_index
+                    'end': df_words['end'][word_index],
+                    'word_count': word_index - start_index + 1
+                }
+                decreasing_count = 0
+            else:
+                decreasing_count += 1
+            # 如果连续 3 个词都没有匹配，则跳出循环
+            if decreasing_count >= 3:
+                break
+            word_index += 1
+        
+        if best_match['score'] > 0:
+            if best_match['score'] != 1:
+                print(f"score : {best_match['score']}")
+            time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
+            word_index = start_index + best_match['word_count']  # 更新word_index到下一个句子的开始
+        else:
+            print(f"警告：无法为句子找到匹配: {sentence}")
+        
+        start_index = word_index  # 为下一个句子更新start_index
+    
+    return time_stamp_list
+
 def align_timestamp(df_text, df_translate, for_audio = False):
-    from config import SPECIAL_STRINGS
     """Align timestamps and add a new timestamp column to df_translate"""
     df_trans_time = df_translate.copy()
-
-    #! 特殊符号特殊处理
-    # 1. 把df_translate['Source']中每一句的"-"替换为" ",(避免连词)
-    df_translate['Source'] = df_translate['Source'].str.replace('-', ' ')
-    # 2. 处理特殊字符串
-    for special_string in SPECIAL_STRINGS:
-        df_translate['Source'] = df_translate['Source'].str.replace(special_string, special_string.replace('.', '').lower())
-    # 3. 所有,和.都替换为" "，然后把"  "替换为" "（避免大数字）
-    df_translate['Source'] = df_translate['Source'].str.replace(',', ' ').str.replace('.', ' ').str.replace('  ', ' ')
-    # 4. 使用string.punctuation删除所有标点符号
-    df_text['text'] = df_text['text'].str.translate(str.maketrans('', '', string.punctuation))
-    df_translate['Source'] = df_translate['Source'].str.translate(str.maketrans('', '', string.punctuation))
-    # 5. 转换为小写
 
     # Assign an ID to each word in df_text['text'] and create a new DataFrame
     words = df_text['text'].str.split(expand=True).stack().reset_index(level=1, drop=True).reset_index()
@@ -39,42 +75,7 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     words['id'] = words['id'].astype(int)
 
     # Process timestamps ⏰
-    time_stamp_list = []
-    word_index = 0
-    line_index = 0
-    
-
-    for line in df_translate['Source']:
-        line_words = line.split()
-        line_word_index = 0
-        start_time_id = None
-
-        while line_word_index < len(line_words):
-            if line_words[line_word_index] == words['word'][word_index]:
-                if start_time_id is None:
-                    start_time_id = words['id'][word_index]
-                line_word_index += 1
-                word_index += 1
-            else:
-                # Check if the next word in both dataframes match
-                if (line_word_index + 1 < len(line_words) and word_index + 1 < len(words) and
-                        line_words[line_word_index + 1] == words['word'][word_index + 1]):
-                    # If so, consider it a minor error and replace the current word
-                    print(f'Warning: Word mismatch @line{line_index}, replacing \'{line_words[line_word_index]}\' with \'{words["word"][word_index]}\'')
-                    line_words[line_word_index] = words['word'][word_index]
-                    start_time_id = words['id'][word_index]
-                    line_word_index += 1
-                    word_index += 1
-                else:
-                    input(f'Error: Word mismatch @line{line_index}\nExpected: \'{words["word"][word_index]}\', Actual: \'{line_words[line_word_index]}\', Word index: {word_index}')
-
-        start_time = df_text['start'][start_time_id]
-        end_time_id = words['id'][word_index - 1]
-        end_time = df_text['end'][end_time_id]
-        time_stamp_list.append((float(start_time), float(end_time)))
-
-        line_index += 1
-
+    time_stamp_list = get_sentence_timestamps(df_text, df_translate)
     df_trans_time['timestamp'] = time_stamp_list
 
     # Remove gaps 🕳️
@@ -86,28 +87,31 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     # Convert start and end timestamps to SRT format
     df_trans_time['timestamp'] = df_trans_time['timestamp'].apply(lambda x: convert_to_srt_format(x[0], x[1]))
 
-    # Output subtitles 📜
-    src_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Source']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
-    trans_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Translation']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
-    src_trans_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Source']}\n{row['Translation']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
-    trans_en_sub_str = ''.join([f"{i}\n{row['timestamp']}\n{row['Translation']}\n{row['Source']}\n\n" for i, row in df_trans_time.iterrows()]).strip()
+    # 输出字幕 📜
+    def generate_subtitle_string(df, columns):
+        return ''.join([f"{i}\n{row['timestamp']}\n{'\n'.join([row[col] for col in columns])}\n\n" for i, row in df.iterrows()]).strip()
 
-    if not for_audio:
-        os.makedirs('output', exist_ok=True)
-        with open('output/src_subtitles.srt', 'w', encoding='utf-8') as f:
-            f.write(src_sub_str)
-        with open('output/trans_subtitles.srt', 'w', encoding='utf-8') as f:
-            f.write(trans_sub_str)
-        with open('output/bilingual_src_trans_subtitles.srt', 'w', encoding='utf-8') as f:
-            f.write(src_trans_sub_str)
-        with open('output/bilingual_trans_src_subtitles.srt', 'w', encoding='utf-8') as f:
-            f.write(trans_en_sub_str)
-    else:
-        os.makedirs('output/audio', exist_ok=True)
+    subtitle_configs = [
+        ('src_subtitles.srt', ['Source']),
+        ('trans_subtitles.srt', ['Translation']),
+        ('bilingual_src_trans_subtitles.srt', ['Source', 'Translation']),
+        ('bilingual_trans_src_subtitles.srt', ['Translation', 'Source'])
+    ]
+
+    output_dir = 'output/audio' if for_audio else 'output'
+    os.makedirs(output_dir, exist_ok=True)
+
+    for filename, columns in subtitle_configs:
+        subtitle_str = generate_subtitle_string(df_trans_time, columns)
+        with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
+            f.write(subtitle_str)
+
+    if for_audio:
+        # 为音频生成额外的字幕文件
         with open('output/audio/src_subs_for_audio.srt', 'w', encoding='utf-8') as f:
-            f.write(src_sub_str)
+            f.write(generate_subtitle_string(df_trans_time, ['Source']))
         with open('output/audio/trans_subs_for_audio.srt', 'w', encoding='utf-8') as f:
-            f.write(trans_sub_str)
+            f.write(generate_subtitle_string(df_trans_time, ['Translation']))
     return df_trans_time
 
 def align_timestamp_main():
