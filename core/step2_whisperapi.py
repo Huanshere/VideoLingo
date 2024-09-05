@@ -86,7 +86,7 @@ def uvr5_process(audio_file: str):
     return comp_vocal
 
 def transcribe_audio(audio_file: str):
-    from config import WHISPER_API_KEY, BASE_URL
+    from config import WHISPER_API_KEY, BASE_URL, WHISPER_LANGUAGE
     print(f"🎵➡️📝 正在转录音频{audio_file}为文本......")
     client = OpenAI(
         base_url=BASE_URL+"/v1",
@@ -99,6 +99,7 @@ def transcribe_audio(audio_file: str):
         model="whisper-1",
         response_format="verbose_json",
         timestamp_granularities=["word"],
+        language=WHISPER_LANGUAGE
     )
 
     # 保存原始转录文本

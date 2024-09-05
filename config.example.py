@@ -24,6 +24,9 @@ DUBBING_CHARACTER = 'Huanyu'
 RESOLUTIOM = '854x480'
 
 ## ======================== 进阶设置设置 ======================== ##
+# Whisper 指定识别语言
+WHISPER_LANGUAGE = 'auto'
+
 # 支持视频格式
 ALLOWED_VIDEO_FORMATS = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm']
 

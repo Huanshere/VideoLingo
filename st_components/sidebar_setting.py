@@ -35,17 +35,23 @@ def page_setting():
     #     changes["MODEL"] = models.split(',')
     
     st.header("字幕设置")
-    target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
-    if target_language != config.TARGET_LANGUAGE:
-        changes["TARGET_LANGUAGE"] = target_language
+    lang_cols = st.columns(2)
+    with lang_cols[1]:
+        target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
+        if target_language != config.TARGET_LANGUAGE:
+            changes["TARGET_LANGUAGE"] = target_language
+    with lang_cols[0]:
+        whisper_language_options = ["auto", "en"]
+        selected_whisper_language = st.selectbox("Whisper识别语言:", options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE) if config.WHISPER_LANGUAGE in whisper_language_options else 0)
+        if selected_whisper_language != config.WHISPER_LANGUAGE:
+            changes["WHISPER_LANGUAGE"] = selected_whisper_language
     st.write("每行字幕最大字符数：")
-    cols_sub = st.columns(2)
-    with cols_sub[0]:
+    max_length_cols = st.columns(2)
+    with max_length_cols[0]:
         max_src_length = st.number_input("原字幕:", value=config.MAX_SRC_LENGTH)
         if max_src_length != config.MAX_SRC_LENGTH:
             changes["MAX_SRC_LENGTH"] = int(max_src_length)
-    
-    with cols_sub[1]:
+    with max_length_cols[1]:
         max_target_language_length = st.number_input("翻译字幕:", value=config.MAX_TARGET_LANGUAGE_LENGTH)
         if max_target_language_length != config.MAX_TARGET_LANGUAGE_LENGTH:
             changes["MAX_TARGET_LANGUAGE_LENGTH"] = int(max_target_language_length)
