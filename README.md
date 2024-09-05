@@ -63,19 +63,20 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 ## ⚡️ 快速体验
 
-- 本项目已上传至 [趋动云-VideoLingo](https://open.virtaicloud.com/web/project/detail/480194078119297024)，可以快速克隆启动，详细图文教程 [点击这里](docs/趋动云使用说明.md)
+- 本项目已上传至 [趋动云-VideoLingo](https://open.virtaicloud.com/web/project/detail/480194078119297024)(v0.2版本)，可以快速克隆启动，详细图文教程 [点击这里](docs/趋动云使用说明.md)
 
 ![qudongcloud.png](https://files.catbox.moe/ia9v1d.png)
 
-## 🏠 本地部署
-> 支持 Win 和 Mac 系统
-
+## 🏠 本地部署 （Win or Mac）
 
 <!-- > Windows在开始其他依赖项安装之前，请务必下载并安装 Visual Studio 2022 或者 Microsoft C++ 生成工具（体积较前者更小）。勾选并安装组件包：“使用 C++的桌面开发”，执行修改并等待其安装完成。
 >
 > 以及安装[Cmake构建程序](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi) -->
 
-1. 克隆仓库：
+1. 在 [云雾api](https://api.wlai.vip/register?aff=TXMB) 注册充值申请令牌（按图填写申请）
+![image](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
+
+2. 克隆仓库：
 > 此步骤需要系统中安装有[git](https://git-scm.com/download/win)
 
    ```bash
@@ -83,7 +84,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
    cd VideoLingo
    ```
 
-2. 设置并激活 Conda 虚拟环境：
+3. 设置并激活 Conda 虚拟环境：
 
 > 此步骤需要系统中安装有[Anaconda](https://www.anaconda.com/download/success)
 > 
@@ -93,13 +94,13 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
    conda activate videolingo
    ```
 
-3. 执行安装脚本：
+4. 执行安装脚本：
 
    ```bash
    python install.py
    ```
 
-4. 🎉启动streamlt!
+5. 🎉启动streamlt，在 web 中修改配置
    ```bash
    streamlit run st.py
    ```
