@@ -161,3 +161,7 @@ _model_cache/
 .DS_Store
 _config.py
 config.py
+
+# runtime
+runtime/
+venv/
