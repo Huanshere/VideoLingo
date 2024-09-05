@@ -9,7 +9,7 @@ from core.step4_1_summarize import search_things_to_note_in_prompt
 # Function to split text into chunks
 def split_chunks_by_chars(chunk_size=600, max_i=12): 
     """Split text into chunks based on character count, return a list of multi-line text chunks"""
-    with open("output/log/sentence_splitbynlp.txt", "r", encoding="utf-8") as file:
+    with open("output/log/sentence_splitbymeaning.txt", "r", encoding="utf-8") as file:
         sentences = file.read().strip().split('\n')
 
     chunks = []

@@ -43,7 +43,8 @@ def get_sentence_timestamps(df_words, df_sentences):
                     'score': similarity,
                     'start': df_words['start'][start_index],  # 使用start_index
                     'end': df_words['end'][word_index],
-                    'word_count': word_index - start_index + 1
+                    'word_count': word_index - start_index + 1,
+                    'phrase': current_phrase
                 }
                 decreasing_count = 0
             else:
@@ -54,8 +55,10 @@ def get_sentence_timestamps(df_words, df_sentences):
             word_index += 1
         
         if best_match['score'] > 0:
-            if best_match['score'] != 1:
-                print(f"score : {best_match['score']}")
+            print("原句：", sentence)
+            print("匹配：", best_match['phrase'])
+            print("相似度：{:.2f}".format(best_match['score']))
+            print("-" * 50)
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
             word_index = start_index + best_match['word_count']  # 更新word_index到下一个句子的开始
         else:

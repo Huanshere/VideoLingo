@@ -31,7 +31,7 @@ WHISPER_LANGUAGE = 'auto'
 ALLOWED_VIDEO_FORMATS = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm']
 
 # gpt多线程数量
-MAX_WORKERS = 8
+MAX_WORKERS = 5
 
 # 每一步的 LLM 模型选择，其中 3_2 和 5 只建议 sonnet，换模型会不稳定报错
 step3_2_split_model = MODEL[0]
@@ -54,10 +54,10 @@ if cloud: # 趋动云
 MODEL_DIR = "./_model_cache" if not cloud else cloud_model_dir
 
 # 音频配置
-MIN_SUBTITLE_DURATION = 5
+MIN_SUBTITLE_DURATION = 8
 
 # 配音视频中原始人声音量 0.1=10%
 ORIGINAL_VOLUME = 0.1
 
 # 第一次粗切单词数，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
-MAX_SPLIT_LENGTH = 18
+MAX_SPLIT_LENGTH = 20

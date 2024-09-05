@@ -64,7 +64,7 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
     from config import llm_support_json
     response_format = {"type": "json_object"} if response_json and model in llm_support_json else None
     
-    max_retries = 3
+    max_retries = 5
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(

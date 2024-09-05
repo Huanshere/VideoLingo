@@ -1,4 +1,4 @@
-import os,sys,json
+import os,sys
 import spacy
 from spacy.cli import download
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -40,7 +40,11 @@ def get_spacy_model(language: str):
 
 def init_nlp():
     try:
-        language = get_whisper_language()
+        from config import WHISPER_LANGUAGE
+        if WHISPER_LANGUAGE == "en":
+            language = "english"
+        else:
+            language = get_whisper_language()
         model = get_spacy_model(language)
         print(f"⏳ 正在加载 NLP Spacy 模型: <{model}> ...")
         try:
