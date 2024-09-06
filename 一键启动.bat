@@ -1,5 +1,5 @@
 @echo off
 cd /d %~dp0
-call conda activate videolingo
-call streamlit run st.py
+set PATH=%~dp0runtime;%PATH%
+"%~dp0runtime\python.exe" -m streamlit run st.py
 pause
