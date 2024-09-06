@@ -173,7 +173,7 @@ Based on the provided original {src_language} subtitles, you need to:
 </subtitles>
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return the translation in exactly the following JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
     return prompt_faithfulness.strip()
@@ -227,7 +227,7 @@ Please use a two-step thinking process to handle the text line by line:
 </subtitles>
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return the translation in exactly the following JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
     return prompt_expressiveness.strip()
@@ -270,7 +270,7 @@ Please follow these steps and provide the results for each step in the JSON outp
 4. Best Scheme: Select the best alignment scheme, output only a single number, 1 or 2 or 3.
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders, and return your results in JSON format:
+Please complete the following JSON data, where << >> represents placeholders, and return the translation in exactly the following JSON format:
 {{
     "analysis": "<<Detailed analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles>>",
     "align_way_1": [
@@ -329,7 +329,7 @@ Please follow these steps and provide the results in the JSON output:
 2. Trimming: Based on the rules and analysis, optimize the subtitle by shortening it according to the processing rules.
 
 ### Output Format
-Please complete the following JSON data, where << >> represents content you need to fill in:
+Please complete the following JSON data, where << >> represents content you need to fill in,and return the translation in exactly the following JSON format:
 {{
     "analysis": "<<Brief analysis of the subtitle, including structure, key information, and potential processing locations>>",
     "trans_text_processed": "<<Optimized and shortened subtitle>>"
