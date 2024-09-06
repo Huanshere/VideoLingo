@@ -36,15 +36,22 @@ def page_setting():
     
     st.header("字幕设置")
     lang_cols = st.columns(2)
-    with lang_cols[1]:
-        target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
-        if target_language != config.TARGET_LANGUAGE:
-            changes["TARGET_LANGUAGE"] = target_language
     with lang_cols[0]:
+        whisper_model_options = ["medium", "large-v2"]
+        selected_whisper_model = st.selectbox("Whisper模型:", options=whisper_model_options, index=whisper_model_options.index(config.WHISPER_MODEL) if config.WHISPER_MODEL in whisper_model_options else 0, help="对于英文视频 medium 足够，对于亚洲语言必须使用 large-v2，v0.4 进行精细识别，所需时间非常长，遇到问题请反馈谢谢～")
+        if selected_whisper_model != config.WHISPER_MODEL:
+            changes["WHISPER_MODEL"] = selected_whisper_model
+    with lang_cols[1]:
         whisper_language_options = ["auto", "en"]
         selected_whisper_language = st.selectbox("Whisper识别语言:", options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE) if config.WHISPER_LANGUAGE in whisper_language_options else 0)
         if selected_whisper_language != config.WHISPER_LANGUAGE:
             changes["WHISPER_LANGUAGE"] = selected_whisper_language
+        
+
+    target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
+    if target_language != config.TARGET_LANGUAGE:
+        changes["TARGET_LANGUAGE"] = target_language
+
     st.write("每行字幕最大字符数：")
     max_length_cols = st.columns(2)
     with max_length_cols[0]:
@@ -64,7 +71,6 @@ def page_setting():
     resolution = resolution_options[selected_resolution]
     if resolution != config.RESOLUTIOM:
         changes["RESOLUTIOM"] = resolution
-
 
     #! 配音功能仍在开发中，暂已停用，感谢理解！
     # st.header("SoVITS 角色配置")
@@ -94,3 +100,4 @@ def page_setting():
                     st.toast("验证失败, 请检查 API_KEY 和 BASE_URL 是否正确", icon="❌")
             except Exception as e:
                 st.toast(f"访问失败 {e}", icon="❌")
+    st.warning("当前版本为 v0.4.0, whisper 本地识别非常耗时，请耐心等待...遇到问题可在Q群反馈")

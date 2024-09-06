@@ -23,16 +23,17 @@ DUBBING_CHARACTER = 'Huanyu'
 # 视频分辨率
 RESOLUTIOM = '854x480'
 
+# 指定Whisper模型，对于英文视频 medium 足够，对于亚洲语言必须使用 large-v2，v0.4 进行精细识别，所需时间非常长，遇到问题请反馈谢谢～
+WHISPER_MODEL = 'large-v2'
 ## ======================== 进阶设置设置 ======================== ##
 # Whisper 指定识别语言
 WHISPER_LANGUAGE = 'auto'
-WHISPER_MODEL = 'large-v2'
 
 # 支持视频格式
 ALLOWED_VIDEO_FORMATS = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm']
 
 # gpt多线程数量
-MAX_WORKERS = 5
+MAX_WORKERS = 6
 
 # 每一步的 LLM 模型选择，其中 3_2 和 5 只建议 sonnet，换模型会不稳定报错
 step3_2_split_model = MODEL[0]
@@ -95,3 +96,11 @@ SPACY_MODEL_MAP = {
 
 LANGUAGE_SPLIT_WITH_SPACE = ['en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'el', 'ru', 'ar', 'hi', 'pl', 'uk', 'vi', 'tr', 'ro', 'da', 'fi', 'hu', 'nb', 'sv']
 LANGUAGE_SPLIT_WITHOUT_SPACE = ['zh', 'ja', 'th', 'ko']
+
+def get_joiner(language):
+    if language in LANGUAGE_SPLIT_WITH_SPACE:
+        return " "
+    elif language in LANGUAGE_SPLIT_WITHOUT_SPACE:
+        return ""
+    else:
+        raise ValueError(f"不支持的语言代码: {language}")

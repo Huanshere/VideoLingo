@@ -44,7 +44,7 @@ def convert_video_to_audio_and_transcribe(input_file: str):
     os.makedirs(MODEL_DIR, exist_ok=True)
     model = whisper.load_model(WHISPER_MODEL, device=device, download_root=MODEL_DIR)
     
-    transcribe_params = {'model': model, 'audio': audio, 'beam_size': 5, 'best_of': 5, 'temperature': (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)}
+    transcribe_params = {'model': model, 'audio': audio, 'beam_size': 3, 'best_of': 3, 'temperature': (0.0, 0.4, 0.8)}
     if WHISPER_LANGUAGE != 'auto':
         transcribe_params['language'] = WHISPER_LANGUAGE
     result = whisper.transcribe(**transcribe_params)
