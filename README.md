@@ -89,7 +89,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 1. 解压到本地，双击 `一键启动.bat` (在弹出窗口随便填一个邮箱), 自动弹出网页
 
-### 方法二：从源码安装（Win or Mac）
+### 方法二：从源码安装（Win / Mac / Linux）
 
 1. 克隆仓库：
 
