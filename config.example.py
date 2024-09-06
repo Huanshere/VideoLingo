@@ -2,9 +2,8 @@ import os, sys
 # 建议在 streamlit 页面中调整设置
 ## ======================== 基本设置 ======================== ##
 # API 设置 建议使用唯一真神 https://api.wlai.vip/register?aff=TXMB, sonnet 价格仅 10r/1M。
-# 申请令牌时同时勾选`claude-3-5-sonnet-20240620`和`whisper-1`，建议选`默认渠道1.0`
+# 申请令牌时勾选模型`claude-3-5-sonnet-20240620`，渠道建议选`默认渠道1.0`
 API_KEY = 'sk-xxx'
-WHISPER_API_KEY = API_KEY
 BASE_URL = 'https://api2.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
 
@@ -17,7 +16,7 @@ MAX_SRC_LENGTH = 80
 ## 每行翻译字幕的最大长度 根据目标语言调整（如中文为30个字）
 MAX_TARGET_LANGUAGE_LENGTH = 30  
 
-# SoVITS角色配置
+# *SoVITS角色配置
 DUBBING_CHARACTER = 'Huanyu'
 
 # 视频分辨率
@@ -25,6 +24,7 @@ RESOLUTIOM = '854x480'
 
 # 指定Whisper模型，对于英文视频 medium 足够，对于亚洲语言必须使用 large-v2，v0.4 进行精细识别，所需时间非常长，遇到问题请反馈谢谢～
 WHISPER_MODEL = 'large-v2'
+
 ## ======================== 进阶设置设置 ======================== ##
 # Whisper 指定识别语言
 WHISPER_LANGUAGE = 'auto'

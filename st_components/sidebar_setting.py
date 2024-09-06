@@ -30,10 +30,6 @@ def page_setting():
     if selected_base_url != config.BASE_URL:
         changes["BASE_URL"] = selected_base_url
     
-    # models = st.text_input("MODEL", value=','.join(config.MODEL))
-    # if models.split(',') != config.MODEL:
-    #     changes["MODEL"] = models.split(',')
-    
     st.header("字幕设置")
     lang_cols = st.columns(2)
     with lang_cols[0]:
@@ -100,4 +96,3 @@ def page_setting():
                     st.toast("验证失败, 请检查 API_KEY 和 BASE_URL 是否正确", icon="❌")
             except Exception as e:
                 st.toast(f"访问失败 {e}", icon="❌")
-    st.warning("当前版本为 v0.4.0, whisper 本地识别非常耗时，请耐心等待...遇到问题可在Q群反馈")
