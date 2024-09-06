@@ -11,7 +11,6 @@ import json
 
 def convert_video_to_audio(input_file: str):
     # 🎬➡️🎵 Convert video to audio
-    # audio_file = os.path.splitext(input_file)[0] + '_temp.mp3'
     os.makedirs('output/audio', exist_ok=True)
     audio_file = 'output/audio/raw_full_audio.wav'
 

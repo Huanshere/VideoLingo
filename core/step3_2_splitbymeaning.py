@@ -6,6 +6,8 @@ from core.prompts_storage import get_split_prompt
 from difflib import SequenceMatcher
 import math
 from core.spacy_utils.load_nlp_model import init_nlp
+from config import get_joiner, WHISPER_LANGUAGE
+from core.step2_whisper_stamped import get_whisper_language
 
 def tokenize_sentence(sentence, nlp):
     # 分词器 统计句子单词数量
@@ -16,17 +18,16 @@ def find_split_positions(original, modified):
     split_positions = []
     parts = modified.split('[br]')
     start = 0
-
-    # 移除原始句子中的所有空格
-    original_no_space = ''.join(original.split())
+    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
+    joiner = get_joiner(language)
 
     for i in range(len(parts) - 1):
         max_similarity = 0
         best_split = None
 
-        for j in range(start, len(original_no_space)):
-            original_left = original_no_space[start:j]
-            modified_left = ''.join(parts[i].split())  # 移除修改后部分的空格
+        for j in range(start, len(original)):
+            original_left = original[start:j]
+            modified_left = joiner.join(parts[i].split())
 
             left_similarity = SequenceMatcher(None, original_left, modified_left).ratio()
 
@@ -37,24 +38,12 @@ def find_split_positions(original, modified):
         if max_similarity < 0.9:
             print(f"警告：找到的最佳分割点相似度较低 {max_similarity}")
         if best_split is not None:
-            # 将无空格版本的分割点映射回原始句子
-            original_split = map_no_space_to_original(original, best_split)
-            split_positions.append(original_split)
-            start = best_split + 1
+            split_positions.append(best_split)
+            start = best_split
         else:
             print(f"警告：无法为第 {i+1} 部分找到合适的分割点。")
 
     return split_positions
-
-def map_no_space_to_original(original, no_space_index):
-    # 将无空格版本的索引映射回原始句子
-    space_count = 0
-    for i, char in enumerate(original):
-        if char.isspace():
-            space_count += 1
-        elif i - space_count == no_space_index:
-            return i
-    return len(original)  # 如果没有找到匹配，返回原始句子的长度
 
 def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0):
     """Split a long sentence using GPT and return the result as a string."""

@@ -1,6 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core import step1_ytdlp, step2_whisperapi, step3_1_spacy_split, step3_2_splitbymeaning
+from core import step2_whisper_stamped, step1_ytdlp, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline 
 from core import step7_merge_sub_to_vid, step8_extract_refer_audio, step9_generate_audio_task
 from core import step10_generate_audio, step11_merge_audio_to_vid

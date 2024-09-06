@@ -13,7 +13,7 @@ def analyze_connectors(doc, token):
     2. For 'that', check if it's part of a contraction (e.g., that's, that'll).
     3. For all connectors, check if they function as a 'mark' dependent of a verb.
     4. For 'which', 'where', 'when', check if they function as determiners or pronouns 
-       for nouns or proper nouns.
+    for nouns or proper nouns.
     5. Default to splitting for 'which', 'where', 'when' if no other conditions are met.
     6. For 'and', 'or', 'but', check if they connect two independent clauses.
     """

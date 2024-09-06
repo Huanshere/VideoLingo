@@ -1,12 +1,23 @@
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 import os,sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from load_nlp_model import init_nlp
+import pandas as pd
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from core.spacy_utils.load_nlp_model import init_nlp
+from core.step2_whisper_stamped import get_whisper_language
+from config import get_joiner, WHISPER_LANGUAGE
 
 def split_by_mark():
+    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # 考虑强制英文的情况
+    joiner = get_joiner(language)
+    print(f"🔍 正在使用 {language} 语言的拼接方式: '{joiner}'")
     nlp = init_nlp()
-    input_text = open("output/log/raw_transcript.txt", "r", encoding="utf-8").read()
+    chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
+    chunks.text = chunks.text.apply(lambda x: x.strip('"'))
+    
+    # 用 joiner 拼接
+    input_text = joiner.join(chunks.text.to_list())
+
     doc = nlp(input_text)
     assert doc.has_annotation("SENT_START")
 

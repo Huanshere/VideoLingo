@@ -1,9 +1,9 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.step4_2_translate_once import translate_lines
 import pandas as pd
 import json
 import concurrent.futures
+from core.translate_once import translate_lines
 from core.step4_1_summarize import search_things_to_note_in_prompt
 
 # Function to split text into chunks
