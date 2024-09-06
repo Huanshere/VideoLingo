@@ -68,6 +68,19 @@ def install_torch(gpu_available):
     else:
         print("不支持的平台。请手动安装PyTorch。")
 
+def download_spacy_model():
+    """Download the specified spacy model."""
+    import spacy
+    from spacy.cli import download
+    models = ['en_core_web_sm', 'zh_core_web_sm','ja_core_news_sm']
+    for model in models:
+        try:
+            nlp = spacy.load(model)
+        except:
+            print(f"正在下载 {model} 模型...")
+            download(model)
+            nlp = spacy.load(model)
+
 def install_requirements():
     """Install requirements from requirements.txt file."""
     if os.path.exists("requirements.txt"):
@@ -247,6 +260,9 @@ def main():
     
     # Install other requirements
     install_requirements()
+
+    # 下载 spacy 模型
+    download_spacy_model()
 
     #! 暂时停用配音功能
     # # Download nltk for sovits
