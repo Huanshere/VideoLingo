@@ -237,13 +237,12 @@ def main():
     install_package("requests")
     
     # Check GPU availability
-    # gpu_available = check_gpu()
-    # print(f"GPU 可用: {gpu_available}")
-    # if gpu_available:
-    #     if_gpu = input("是否安装GPU版本的PyTorch? (注意：Windows 下安装 GPU 版本需要额外安装 Cmake 及 Visual Studio, 详情见 Github 主页) (y/n): ")
-    #     gpu_available = if_gpu.lower() == 'y'
+    gpu_available = check_gpu()
+    print(f"GPU 可用: {gpu_available}")
+    if gpu_available:
+        if_gpu = input("是否安装GPU版本的PyTorch? (注意：Windows 下安装 GPU 版本需要额外安装 Cmake 及 Visual Studio, 详情见 Github 主页) (y/n): ")
+        gpu_available = if_gpu.lower() == 'y'
     # Install PyTorch
-    gpu_available = False
     install_torch(gpu_available)
     
     # Install other requirements
