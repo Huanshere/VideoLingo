@@ -80,13 +80,14 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 1. 下载并安装一键安装包：
    - [Windows CPU 版](https://vip.123pan.cn/1817874751/7908462)
    - [Windows GPU 版](https://vip.123pan.cn/1817874751/7909068)
+   > GPU配置要求：处理英文视频可以切换medium模型 要求显存8G，处理非英语建议使用默认large-v2模型 要求RTX3070 显存12G及以上
 
-   注意：**GPU 版本**需要额外安装以下软件：
+   <!-- 注意：**GPU 版本**需要额外安装以下软件：
    - CMake：可从[官网](https://cmake.org/download/)下载
    - Visual Studio：可从[官网](https://visualstudio.microsoft.com/downloads/)下载 (安装时勾选使用C++的桌面开发)
-   - 或者从[此网盘链接](https://www.123pan.com/s/2pDvjv-PnOPH)下载上述软件
+   - 或者从[此网盘链接](https://www.123pan.com/s/2pDvjv-PnOPH)下载上述软件 -->
 
-2. 解压到本地，双击 `一键启动.bat` (在弹出窗口随便填一个邮箱), 自动弹出网页
+1. 解压到本地，双击 `一键启动.bat` (在弹出窗口随便填一个邮箱), 自动弹出网页
 
 ### 方法二：从源码安装（Win or Mac）
 
