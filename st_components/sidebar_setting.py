@@ -25,8 +25,7 @@ def page_setting():
     if api_key != config.API_KEY:
         changes["API_KEY"] = api_key
 
-    urls = ["https://api2.wlai.vip"]
-    selected_base_url = st.selectbox("BASE_URL", options=urls, index=urls.index(config.BASE_URL) if config.BASE_URL in urls else 0)
+    selected_base_url = st.text_input("BASE_URL", value=config.BASE_URL)
     if selected_base_url != config.BASE_URL:
         changes["BASE_URL"] = selected_base_url
     
