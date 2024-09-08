@@ -18,7 +18,7 @@
 
 - 🍖 全自动视频搬运工，生成 Netflix 品质的字幕！
 
-- 🎤 克隆自己的声音进行配音!（🚧 开发完善中）
+- 🎤 克隆自己的声音进行配音!（🚧 仍在开发中）
 
 - ✨ 在 streamlit 中点击-完成！
 
@@ -28,18 +28,9 @@
 
 <table>
 <tr>
-<td width="50%">
-
-**翻译字幕效果**
+<td width="100%">
 
 https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
-
-</td>
-<td width="50%">
-
-**加上配音效果**
-
-https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 </td>
 </tr>
@@ -57,53 +48,19 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 - 仅需 1 元即可创作 5 分钟的 Netflix 级双语字幕
 
-- GPT-SoVits 高质量的个性化配音
+- 开发者友好：逐步结构化文件，便于自定义开发 : [中文技术文档](./docs/README_guide_zh.md) | [英文技术文档](./docs/README_guide_en.md) 
+    > 你甚至可以单独运行每一个`core`下的`step__.py`文件！   
 
-- 开发者友好：逐步结构化文件，便于自定义 : [中文技术文档](./docs/README_guide_zh.md) | [英文技术文档](./docs/README_guide_en.md) 
+
+## 🏠 本地部署（Windows）
+
+本项目需要安装多个依赖项，对用户的动手能力有一定要求。安装指南请[点击此处](./docs/install_locally_zh.md)查看
 
 ## ⚡️ 快速体验
 
-- 本项目已上传至 [趋动云-VideoLingo](https://open.virtaicloud.com/web/project/detail/480194078119297024)(v0.2版本)，可以快速克隆启动，详细图文教程 [点击这里](docs/趋动云使用说明.md)
+为方便用户快速上手，我们已将项目部署至[趋动云-VideoLingo平台](https://open.virtaicloud.com/web/project/detail/480194078119297024)（请注意：当前仅更新至v0.2版本）。您可以轻松克隆并启动项目，体验其功能。如需查看详细的图文教程，请[点击此处](docs/趋动云使用说明.md)。
 
-![qudongcloud.png](https://files.catbox.moe/ia9v1d.png)
-
-## 🏠 本地部署 （Win or Mac）
-
-<!-- > Windows在开始其他依赖项安装之前，请务必下载并安装 Visual Studio 2022 或者 Microsoft C++ 生成工具（体积较前者更小）。勾选并安装组件包：“使用 C++的桌面开发”，执行修改并等待其安装完成。
->
-> 以及安装[Cmake构建程序](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi) -->
-
-1. 在 [云雾api](https://api.wlai.vip/register?aff=TXMB) 注册充值申请令牌（按图填写申请）
-![image](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
-
-2. 克隆仓库：
-> 此步骤需要系统中安装有[git](https://git-scm.com/download/win)
-
-   ```bash
-   git clone https://github.com/Huanshere/VideoLingo.git
-   cd VideoLingo
-   ```
-
-3. 设置并激活 Conda 虚拟环境：
-
-> 此步骤需要系统中安装有[Anaconda](https://www.anaconda.com/download/success)
-> 
-> 在Anaconda powershell prompt中输入以下指令：
-   ```bash
-   conda create -n videolingo python=3.12.0
-   conda activate videolingo
-   ```
-
-4. 执行安装脚本：
-
-   ```bash
-   python install.py
-   ```
-
-5. 🎉启动streamlt，在 web 中修改配置
-   ```bash
-   streamlit run st.py
-   ```
+<!-- ![qudongcloud.png](https://files.catbox.moe/ia9v1d.png) -->
 
 ## 🙏 致谢
 
@@ -111,6 +68,7 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 - [whisper](https://github.com/openai/whisper): OpenAI的开源自动语音识别系统
 - [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): 为Whisper添加时间戳功能的扩展
+- [whisperX](https://github.com/m-bain/whisperX): 为Whisper添加时间戳功能的扩展
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp): 用于下载YouTube视频和其他网站内容的命令行工具
 - [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS) & [GPT-SoVITS-Inference](https://github.com/X-T-E-R/GPT-SoVITS-Inference): 基于GPT和SoVITS的语音合成系统及推理库
 - [FFmpeg](https://github.com/FFmpeg/FFmpeg): 用于处理多媒体内容的完整多平台解决方案

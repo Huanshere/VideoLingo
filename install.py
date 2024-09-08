@@ -9,52 +9,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
-def check_gpu():
-    """Check if the system has a GPU."""
-    system = platform.system()
-    if system == "Windows":
-        try:
-            output = subprocess.check_output(["wmic", "path", "win32_VideoController", "get", "name"])
-            if "nvidia" in output.decode().lower() or "amd" in output.decode().lower():
-                return True
-        except subprocess.CalledProcessError:
-            pass
-    elif system == "Darwin":
-        try:
-            output = subprocess.check_output(["system_profiler", "SPDisplaysDataType"])
-            if "vendor: nvidia" in output.decode().lower() or "vendor: amd" in output.decode().lower():
-                return True
-        except subprocess.CalledProcessError:
-            pass
-    elif system == "Linux":
-        try:
-            try:
-                output = subprocess.check_output(["lspci"])
-            except FileNotFoundError:
-                print("未找到lspci命令。正在尝试安装pciutils...")
-                subprocess.check_call(["apt-get", "update"])
-                subprocess.check_call(["apt-get", "install", "-y", "pciutils"])
-                output = subprocess.check_output(["lspci"])
-
-            if "nvidia" in output.decode().lower() or "amd" in output.decode().lower():
-                return True
-        except subprocess.CalledProcessError:
-            pass
-    return False
-
-def install_torch(gpu_available):
-    """使用pip安装最新版的PyTorch，根据GPU可用性和平台选择合适的版本。"""
-    if platform.system() == "Windows" or platform.system() == "Linux":
-        if gpu_available:
-            print("检测到GPU。正在安装支持CUDA的最新版PyTorch...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchvision", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
-        else:
-            print("正在安装CPU版本的最新版PyTorch...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchvision", "torchaudio"])
-    else:
-        print("不支持的平台。请手动安装PyTorch。")
-    print("PyTorch安装完成")
-
 def install_requirements():
     """Install requirements from requirements.txt file."""
     if os.path.exists("requirements.txt"):
@@ -88,66 +42,6 @@ def dowanload_uvr_model():
         print("UVR模型下载成功。")
     else:
         print("HP2_all_vocals.pth已存在。跳过下载。")
-
-def download_sovits_model():
-    """Download the specified GPT-SoVITS model files."""
-    base_url = "https://huggingface.co/lj1995/GPT-SoVITS/resolve/main/"
-    models = {
-        "chinese-roberta-wwm-ext-large": ["config.json", "pytorch_model.bin", "tokenizer.json"],
-        "chinese-hubert-base": ["config.json", "preprocessor_config.json", "pytorch_model.bin"]
-    }
-
-    for model, files in models.items():
-        model_dir = os.path.join("_model_cache", "GPT_SoVITS", "pretrained_models", model)
-        os.makedirs(model_dir, exist_ok=True)
-
-        for file in files:
-            save_path = os.path.join(model_dir, file)
-            if os.path.exists(save_path):
-                print(f"{file}已存在。跳过下载。")
-                continue
-            import requests
-            url = f"{base_url}{model}/{file}"
-            print(f"正在下载{file}...")
-            response = requests.get(url)
-            if response.status_code == 200:
-                with open(save_path, "wb") as f:
-                    f.write(response.content)
-                print(f"{file}下载成功。")
-            else:
-                print(f"下载{file}失败，状态码：{response.status_code}")
-
-def download_huanyu_model():
-    """Download the specified Huanyu model files for GPT-SoVITS."""
-    base_url = "https://huggingface.co/Huan69/GPT-SoVITS-Huanyu/resolve/main/"
-    model_dir = os.path.join("_model_cache", "GPT_SoVITS", "trained", "Huanyu")
-    os.makedirs(model_dir, exist_ok=True)
-
-    files = [
-        "huanyushort222-e10.ckpt",
-        "huanyushort222_e15_s135.pth",
-        "infer_config.json",
-        "and to be able to get really good results doing that for a variety of classes.wav"
-    ]
-
-    for file in files:
-        save_path = os.path.join(model_dir, file)
-        if os.path.exists(save_path):
-            print(f"{file}已存在。跳过下载。")
-            continue
-
-        url = base_url + file
-        if file == "and to be able to get really good results doing that for a variety of classes.wav":
-            url = base_url + "and%20to%20be%20able%20to%20get%20really%20good%20results%20doing%20that%20for%20a%20variety%20of%20classes.wav"
-        import requests
-        print(f"正在下载{file}...")
-        response = requests.get(url)
-        if response.status_code == 200:
-            with open(save_path, "wb") as f:
-                f.write(response.content)
-            print(f"{file}下载成功。")
-        else:
-            print(f"下载{file}失败，状态码：{response.status_code}")
 
 def download_and_extract_ffmpeg():
     """Download FFmpeg based on the platform, extract it, and clean up."""
@@ -213,47 +107,54 @@ def init_config():
     else:
         print("config.py文件已存在。")
 
+def install_whisper_model(choice):
+    if choice == '1':
+        print("正在安装 whisper_timestamped...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "whisper-timestamped"])
+    elif choice == '2':
+        print("正在安装 whisperX...")
+        current_dir = os.getcwd()
+        whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
+        os.chdir(whisperx_dir)
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
+        os.chdir(current_dir)
+
 def main():
     print("开始安装...")
 
     # 初始化 config.py 文件
     init_config()
 
-    # Install requests first
+    # 安装 requests
     install_package("requests")
     
-    try:
-        import torch
-        print(f"PyTorch 版本: {torch.__version__}")
-    except ImportError:
-        # Check GPU availability
-        # gpu_available = check_gpu()
-        # print(f"GPU 可用: {gpu_available}")
-        # if gpu_available:
-        #     if_gpu = input("是否安装GPU版本的PyTorch? (y/n): ")
-        #     gpu_available = if_gpu.lower() == 'y'
-        # Install PyTorch
-        install_torch(gpu_available = False)
+    # 用户选择 Whisper 模型
+    print("\n请选择要安装的 Whisper 模型：")
+    print("1. whisper_timestamped")
+    print("2. whisperX")
+    print("3. whisperX_api")
+    choice = input("请输入选项编号 (1, 2 或 3): ")
     
-    # Install other requirements
+    # 安装 PyTorch
+    if choice in ['1', '2']:
+        print("正在安装支持 CUDA 的 PyTorch...")
+        subprocess.check_call(["conda", "install", "pytorch==2.0.0", "torchaudio==2.0.0", "pytorch-cuda=11.8", "-c", "pytorch", "-c", "nvidia", "-y"])
+    elif choice == '3':
+        print("正在安装 cpu 版本的 PyTorch...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+    
+    # 安装其他依赖
     install_requirements()
 
-    #! 暂时停用配音功能
-    # # Download nltk for sovits
-    # import nltk
-    # nltk.download('averaged_perceptron_tagger_eng')
-    
-    # Download UVR model
-    # dowanload_uvr_model()
+    # 安装选择的 Whisper 模型
+    install_whisper_model(choice)
 
-    # # Download GPT-SoVITS model
-    # download_sovits_model()
-    # download_huanyu_model() # custom model
-
-    # Download and extract FFmpeg
+    # 下载并解压 FFmpeg
     download_and_extract_ffmpeg()
     
     print("所有安装步骤都完成啦!")
+    print("请使用以下命令启动 Streamlit：")
+    print("streamlit run st.py")
 
 if __name__ == "__main__":
     main()
