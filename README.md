@@ -28,7 +28,7 @@
 
 <table>
 <tr>
-<td width="100%">
+<td width="60%">
 
 https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
@@ -54,11 +54,11 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
 ## 🏠 本地部署（Windows）
 
-本项目需要安装多个依赖项，对用户的动手能力有一定要求。安装指南请[点击此处](./docs/install_locally_zh.md)查看
+本项目需要安装多个依赖项，对用户的动手能力有一定要求。安装指南请 [点击此处](./docs/install_locally_zh.md) 查看
 
 ## ⚡️ 快速体验
 
-为方便用户快速上手，我们已将项目部署至[趋动云-VideoLingo平台](https://open.virtaicloud.com/web/project/detail/480194078119297024)（请注意：当前仅更新至v0.2版本）。您可以轻松克隆并启动项目，体验其功能。如需查看详细的图文教程，请[点击此处](docs/趋动云使用说明.md)。
+我们已将项目部署至[趋动云-VideoLingo平台](https://open.virtaicloud.com/web/project/detail/480194078119297024)（请注意：当前仅更新至v0.2版本），可以轻松克隆并启动项目体验，详细的图文教程请 [点击此处](docs/趋动云使用说明.md) 查看。
 
 <!-- ![qudongcloud.png](https://files.catbox.moe/ia9v1d.png) -->
 
