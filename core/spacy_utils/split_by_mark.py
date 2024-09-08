@@ -29,5 +29,15 @@ def split_by_mark(nlp):
     print("💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`")
 
 if __name__ == "__main__":
+    # nlp = init_nlp()
+    # split_by_mark(nlp)
+
+    s = """そうで。"""
     nlp = init_nlp()
-    split_by_mark(nlp)
+    doc = nlp(s)
+    print(doc)
+    assert doc.has_annotation("SENT_START")
+
+    sentences_by_mark = [sent.text for sent in doc.sents]
+    print(sentences_by_mark)
+
