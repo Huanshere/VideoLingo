@@ -5,12 +5,12 @@ VideoLingo 提供多种 Whisper 方案的选择（因为目前为止没有唯一
 | 方案 | 优势 | 劣势 |
 |:-----|:-----|:-----|
 | **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想 |
-| **whisperX_api** | • 利用 Replicate API，无需本地算力 | • Replicate 服务可能不稳定<br>• 偶发 CUDA 错误 |
-| **whisperX** (🌟推荐) | • 本地运行<br>• 基于 faster-whisper，性能卓越 | • 需配置 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型 |
+| **whisperX_api** | • 利用 Replicate API，无需本地算力 | • Replicate 服务可能不稳定 偶发 CUDA 错误 |
+| **whisperX** (🌟推荐) | • 本地运行<br>• 基于 faster-whisper，性能卓越 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型 |
 
 ## 📋 前期准备
 
-1. 在 [云雾 API](https://api.wlai.vip/register?aff=TXMB) 注册账号并充值以获取令牌
+1. 在 [云雾 API](https://api.wlai.vip/register?aff=TXMB) 注册账号并充值以获取令牌（或者换任意的claude-3.5-sonnet提供商）
    
    ![云雾 API 注册流程](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
 
@@ -20,7 +20,7 @@ VideoLingo 提供多种 Whisper 方案的选择（因为目前为止没有唯一
 
 ### 前置依赖
 
-在开始安装 VideoLingo 之前，请确保完成以下步骤（其中大部分步骤都是为了GPU加速）：
+在开始安装 VideoLingo 之前，请确保完成以下步骤：
 
 1. 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
    - 选择并安装"使用 C++ 的桌面开发"组件包
