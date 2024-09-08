@@ -41,7 +41,7 @@ def encode_file_to_base64(file_path: str) -> str:
 def transcribe_audio(audio_file: str) -> Dict:
     from config import WHISPER_LANGUAGE
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    batch_size = 8  # 如果 GPU 内存不足，请减小此值
+    batch_size = 16  # 如果 GPU 内存不足，请减小此值
     compute_type = "float16"  # 如果 GPU 内存不足，请改为 "int8"（可能会降低准确性）
     print(f"🚀 正在启动WhisperX... 请耐心等待...")
     try:
