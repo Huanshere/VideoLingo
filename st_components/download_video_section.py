@@ -15,7 +15,7 @@ def download_video_section(cloud):
                 os.remove(video_file)
                 if os.path.exists("output"):
                     shutil.rmtree("output")
-                sleep(0.5)
+                sleep(1)
                 st.rerun()
             return True
         except:

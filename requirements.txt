@@ -13,8 +13,8 @@ json-repair
 resampy
 streamlit
 
-whisper-timestamped
-onnxruntime
+# for whisperX api
+replicate
 
 ##! gpt-sovits requirements
 # pydantic

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌉 VideoLingo: Connecting the World Frame by Frame
+# 🌉 VideoLingo: Connecting Every Frame of the World
 
 ![Python](https://img.shields.io/badge/python-v3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -16,11 +16,11 @@
 
 ## 🌟 What Can It Do
 
-- 🍖 Fully automated video translation tool, generating Netflix-quality subtitles in multiple languages!
+- 🍖 Fully automatic video translation tool, generating Netflix-quality subtitles!
 
-- 🎤 Clone your own voice for dubbing! (🚧 Under development, temporarily offline)
+- 🎤 Clone your own voice for dubbing! (🚧 Under development)
 
-- ✨ Click-and-done in Streamlit!
+- ✨ Click-and-complete in Streamlit!
 
 ![demo.png](https://files.catbox.moe/clsmt9.png)
 
@@ -51,83 +51,70 @@ https://github.com/user-attachments/assets/e9833df3-236c-46da-ba6c-a9636947c48b
 
 - Intelligent terminology knowledge base for context-aware translation
 
-- Three-step translation process: Direct Translation - Reflection - Improvement
+- Three-step translation process: Direct translation - Reflection - Improvement
 
 - Precise word-level subtitle alignment
 
 - Create 5 minutes of Netflix-quality bilingual subtitles for just 1 yuan
 
-- High-quality personalized dubbing with GPT-SoVits (🚧 Under development, may migrate to fish-speech)
+- High-quality personalized dubbing with GPT-SoVits
 
-- Developer-friendly: Structured step-by-step files for easy customization: [Chinese Technical Documentation](./docs/README_guide_zh.md) | [English Technical Documentation](./docs/README_guide_en.md) 
-   > You can even execute each `step__.py` file under `core` individually!
+- Developer-friendly: Step-by-step structured files for easy customization: [Chinese Technical Documentation](./docs/README_guide_zh.md) | [English Technical Documentation](./docs/README_guide_en.md)
 
-## 🏠 Local Deployment
+## ⚡️ Quick Experience
 
-### Prerequisites
+- This project has been uploaded to [Qudong Cloud-VideoLingo](https://open.virtaicloud.com/web/project/detail/480194078119297024) (v0.2 version), which can be quickly cloned and launched. Detailed tutorial with images [Click here](docs/趋动云使用说明.md)
 
-- **Register** and **recharge** at [Cloud Fog API](https://api.wlai.vip/register?aff=TXMB), then **apply for a token** (fill in the application as shown in the image)
+![qudongcloud.png](https://files.catbox.moe/ia9v1d.png)
 
-- Copy this `api_key` to fill in the Streamlit webpage sidebar later
+## 🏠 Local Deployment (Win or Mac)
 
-![image](https://github.com/user-attachments/assets/6e1b6fa8-f50a-4ac7-acb8-24d186645749)
+<!-- > For Windows, before installing other dependencies, please make sure to download and install Visual Studio 2022 or Microsoft C++ Build Tools (smaller in size). Check and install the component package: "Desktop development with C++", execute the modification and wait for it to complete.
+>
+> Also install [Cmake build program](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi) -->
 
-### Method 1: One-click Installation Package (Windows Only)
+1. Register and recharge at [Yunwu API](https://api.wlai.vip/register?aff=TXMB) to apply for a token (fill in the application as shown in the image)
+![image](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
 
-1. Download and install the one-click installation package:
-   - [Windows CPU Version](https://vip.123pan.cn/1817874751/7908462)
-   - [Windows GPU Version](https://vip.123pan.cn/1817874751/7909068)
-
-   Note: The **GPU version** requires additional software:
-   - CMake: Download from [official website](https://cmake.org/download/)
-   - Visual Studio: Download from [official website](https://visualstudio.microsoft.com/downloads/) (Check "Desktop development with C++" during installation)
-   - Or download the above software from [this cloud drive link](https://www.123pan.com/s/2pDvjv-PnOPH)
-
-2. Extract locally, double-click `一键启动.bat` (enter any email in the pop-up window), and the webpage will automatically open
-
-### Method 2: Install from Source (Win or Mac)
-
-1. Clone the repository:
+2. Clone the repository:
+> This step requires [git](https://git-scm.com/download/win) to be installed on your system
 
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-2. Set up and activate Conda virtual environment:
+3. Set up and activate Conda virtual environment:
 
+> This step requires [Anaconda](https://www.anaconda.com/download/success) to be installed on your system
+> 
+> Enter the following commands in Anaconda powershell prompt:
    ```bash
    conda create -n videolingo python=3.12.0
    conda activate videolingo
    ```
 
-3. Run the installation script:
+4. Run the installation script:
 
    ```bash
    python install.py
    ```
 
-4. 🎉 Launch Streamlit and modify configurations in the web interface:
+5. 🎉 Launch Streamlit and modify configurations in the web interface
    ```bash
    streamlit run st.py
    ```
 
-## ☁️ Cloud Experience
-
-- This project has been uploaded to [Qudong Cloud-VideoLingo](https://open.virtaicloud.com/web/project/detail/480194078119297024) (v0.2 version), which can be quickly cloned and launched. Detailed tutorial with images [click here](docs/趋动云使用说明.md)
-
-![qudongcloud.png](https://files.catbox.moe/ia9v1d.png)
-
 ## 🙏 Acknowledgements
 
-Thanks to the contributions of the following open-source projects:
+Thanks to the following open-source projects for their contributions:
 
 - [whisper](https://github.com/openai/whisper): OpenAI's open-source automatic speech recognition system
 - [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): Extension adding timestamp functionality to Whisper
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp): Command-line tool for downloading YouTube videos and content from other websites
 - [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS) & [GPT-SoVITS-Inference](https://github.com/X-T-E-R/GPT-SoVITS-Inference): Speech synthesis system and inference library based on GPT and SoVITS
-- [FFmpeg](https://github.com/FFmpeg/FFmpeg): Complete cross-platform solution for handling multimedia content
-- [Ultimate Vocal Remover GUI v5 (UVR5)](https://github.com/Anjok07/ultimatevocalremovergui): Tool for separating vocals and accompaniment in music
+- [FFmpeg](https://github.com/FFmpeg/FFmpeg): Complete, cross-platform solution for processing multimedia content
+- [Ultimate Vocal Remover GUI v5 (UVR5)](https://github.com/Anjok07/ultimatevocalremovergui): Tool for separating vocals and instrumentals in music
 - [json_repair](https://github.com/mangiucugna/json_repair): Super powerful library for repairing and parsing GPT's JSON output, seamlessly replacing json.loads
 
 ## 🤝 Contributions Welcome

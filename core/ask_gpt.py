@@ -5,8 +5,9 @@ from threading import Lock
 import json_repair
 import json 
 from openai import OpenAI
-from httpx import HTTPStatusError
 import time
+from requests.exceptions import RequestException
+
 LOG_FOLDER = 'output/gpt_log'
 LOCK = Lock()
 
@@ -50,6 +51,13 @@ def select_llm(model):
         print(f"{model} {MODEL}")
         raise ValueError(f"⚠️Model <{model}> 在 MODEL 中未找到或缺少 API_KEY")
 
+def make_api_call(client, model, messages, response_format):
+    return client.chat.completions.create(
+        model=model,
+        messages=messages,
+        response_format=response_format
+    )
+
 def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
     with LOCK:
         if check_ask_gpt_history(prompt, model):
@@ -59,7 +67,6 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
         {"role": "user", "content": prompt},
     ]
     
-    
     client = OpenAI(api_key=llm['api_key'], base_url=llm['base_url']+ '/v1')
     from config import llm_support_json
     response_format = {"type": "json_object"} if response_json and model in llm_support_json else None
@@ -67,11 +74,7 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
     max_retries = 5
     for attempt in range(max_retries):
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                response_format=response_format
-            )
+            response = make_api_call(client, model, messages, response_format)
             
             if response_json:
                 try:
@@ -86,21 +89,22 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
                 response_data = response.choices[0].message.content
                 break  # 非json格式，直接跳出循环
                 
-        except HTTPStatusError as e:
+        except RequestException as e:
             if attempt < max_retries - 1:
-                print(f"HTTP错误: {e}. 正在重试 ({attempt + 1}/{max_retries})...")
-                time.sleep(1)
+                print(f"请求错误: {e}. 正在重试 ({attempt + 1}/{max_retries})...")
+                time.sleep(2)
             else:
                 raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
         except Exception as e:
             if attempt < max_retries - 1:
                 print(f"发生未预期的错误: {e}\n正在重试...")
-                time.sleep(1)
+                time.sleep(2)
             else:
                 raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
     
     with LOCK:
-        save_log(model, prompt, response_data, log_title=log_title)
+        if log_title != 'None':
+            save_log(model, prompt, response_data, log_title=log_title)
 
     return response_data
 
@@ -108,6 +112,3 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
 if __name__ == '__main__':
     from config import step3_2_split_model
     print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model=step3_2_split_model, response_json=True))
-
-
-

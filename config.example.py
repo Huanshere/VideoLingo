@@ -7,6 +7,9 @@ API_KEY = 'sk-xxx'
 BASE_URL = 'https://api2.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
 
+# Replicate API 设置
+REPLICATE_API_TOKEN = "xxx"
+
 # 语言设置，用自然语言描述
 TARGET_LANGUAGE = '简体中文'
 
@@ -16,16 +19,13 @@ MAX_SRC_LENGTH = 80
 ## 每行翻译字幕的最大长度 根据目标语言调整（如中文为30个字）
 MAX_TARGET_LANGUAGE_LENGTH = 30  
 
-# *SoVITS角色配置
-DUBBING_CHARACTER = 'Huanyu'
-
 # 视频分辨率
 RESOLUTIOM = '854x480'
 
-# 指定Whisper模型，对于英文视频 medium 足够，对于亚洲语言必须使用 large-v2，v0.4 进行精细识别，所需时间非常长，遇到问题请反馈谢谢～
-WHISPER_MODEL = 'large-v2'
-
 ## ======================== 进阶设置设置 ======================== ##
+# Whisper 设置 [whisperx, whisperxapi, whisper_timestamped]
+WHISPER_METHOD = 'whisperx'
+
 # Whisper 指定识别语言
 WHISPER_LANGUAGE = 'auto'
 
@@ -104,3 +104,8 @@ def get_joiner(language):
         return ""
     else:
         raise ValueError(f"不支持的语言代码: {language}")
+    
+
+# 配音设置 暂时弃用
+# *SoVITS角色配置
+DUBBING_CHARACTER = 'Huanyu'

@@ -6,7 +6,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.prompts_storage import get_subtitle_trim_prompt
 from core.ask_gpt import ask_gpt
-from GPT_SoVITS_Inference.SoVITS_for_videolingo import init_model, tts_function, unload_model
+from third_party.GPT_SoVITS_Inference.SoVITS_for_videolingo import init_model, tts_function, unload_model
 
 def check_wav_duration(file_path):
     try:

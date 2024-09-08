@@ -1,9 +1,11 @@
+# ! 请在此处停下 仍在开发中
+
 import re
 import subprocess
 from pydub import AudioSegment
 import os, sys, json, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from uvr5.uvr5_for_videolingo import uvr5_for_videolingo
+from third_party.uvr5.uvr5_for_videolingo import uvr5_for_videolingo
 
 def parse_srt(srt_content):
     pattern = re.compile(r'(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:.+\n)+)')

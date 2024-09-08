@@ -7,7 +7,7 @@ from difflib import SequenceMatcher
 import math
 from core.spacy_utils.load_nlp_model import init_nlp
 from config import get_joiner, WHISPER_LANGUAGE
-from core.step2_whisper_stamped import get_whisper_language
+from core.step2_whisper import get_whisper_language
 
 def tokenize_sentence(sentence, nlp):
     # 分词器 统计句子单词数量
@@ -64,9 +64,9 @@ def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0
     if index != -1:
         print(f'✅ Sentence {index} has been successfully split')
     print("best_split:",best_split)
-    print(f'📄 Original English:   {sentence}')
+    print(f'📄 Original Sentence:   {sentence}')
     print_split = best_split.replace('\n',' [br] ')
-    print(f"📚 Split Sentence: {print_split}")
+    print(f"📚 Split Sentence:      {print_split}")
     
     return best_split
 
@@ -77,8 +77,7 @@ def parallel_split_sentences(sentences, max_length, max_workers, nlp, retry_atte
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for index, sentence in enumerate(sentences):
-            # 按照空格切割
-            # tokens = sentence.split() # TODO 使用分词器
+            # 使用分词器分割
             tokens = tokenize_sentence(sentence, nlp)
             print("分词结果：",tokens)
             num_parts = math.ceil(len(tokens) / max_length)

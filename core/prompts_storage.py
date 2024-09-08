@@ -1,6 +1,6 @@
 import os,sys,json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.step2_whisper_stamped import get_whisper_language
+from core.step2_whisper import get_whisper_language
 ## ================================================================
 # @ step4_splitbymeaning.py
 def get_split_prompt(sentence, num_parts = 2, word_limit = 20):
@@ -20,9 +20,9 @@ Your task is to split the given subtitle text into **{num_parts}** parts, each s
 
 ### Steps
 1. Analyze the grammar and structure of the given text.
-2. Provide 3 different ways to split the text, each with different split points, output complete sentences (do not change any letters or punctuation), insert [br] tags at the split positions.
-3. Briefly compare and evaluate the above 3 split methods, considering readability, grammatical structure, and contextual coherence, choose the best split method.
-4. Give the best split method number, 1, 2, or 3.
+2. Provide 2 different ways to split the text, each with different split points, output complete sentences (do not change any letters or punctuation), insert [br] tags at the split positions.
+3. Briefly compare and evaluate the above 2 split methods, considering readability, grammatical structure, and contextual coherence, choose the best split method.
+4. Give the best split method number, 1 or 2.
 
 ### Output Format
 Please provide your answer in the following JSON format, <<>> represents placeholders:
@@ -30,9 +30,8 @@ Please provide your answer in the following JSON format, <<>> represents placeho
     "analysis": "Brief analysis of the text structure and split strategy",
     "split_way_1": "<<The first split method, output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>",
     "split_way_2": "<<The second split method>>",
-    "split_way_3": "<<The third split method>>",
-    "evaluation": "<<Unified brief evaluation of the 3 split methods, written in one sentence, no line breaks>>",
-    "best_way": "<<The best split method number, 1, 2, or 3>>"
+    "evaluation": "<<Unified brief evaluation of the 2 split methods, written in one sentence, no line breaks>>",
+    "best_way": "<<The best split method number, 1 or 2>>"
 }}
 
 ### Given Text
@@ -173,7 +172,7 @@ Based on the provided original {src_language} subtitles, you need to:
 </subtitles>
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return the translation in exactly the following JSON format:
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
     return prompt_faithfulness.strip()
@@ -227,7 +226,7 @@ Please use a two-step thinking process to handle the text line by line:
 </subtitles>
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return the translation in exactly the following JSON format:
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
     return prompt_expressiveness.strip()
@@ -270,7 +269,7 @@ Please follow these steps and provide the results for each step in the JSON outp
 4. Best Scheme: Select the best alignment scheme, output only a single number, 1 or 2 or 3.
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders, and return the translation in exactly the following JSON format:
+Please complete the following JSON data, where << >> represents placeholders, and return your results in JSON format:
 {{
     "analysis": "<<Detailed analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles>>",
     "align_way_1": [
@@ -329,7 +328,7 @@ Please follow these steps and provide the results in the JSON output:
 2. Trimming: Based on the rules and analysis, optimize the subtitle by shortening it according to the processing rules.
 
 ### Output Format
-Please complete the following JSON data, where << >> represents content you need to fill in,and return the translation in exactly the following JSON format:
+Please complete the following JSON data, where << >> represents content you need to fill in:
 {{
     "analysis": "<<Brief analysis of the subtitle, including structure, key information, and potential processing locations>>",
     "trans_text_processed": "<<Optimized and shortened subtitle>>"

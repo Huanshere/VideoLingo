@@ -43,43 +43,17 @@ def check_gpu():
     return False
 
 def install_torch(gpu_available):
-    """Install PyTorch based on GPU availability and platform."""
-    if platform.system() == "Windows":
+    """使用pip安装最新版的PyTorch，根据GPU可用性和平台选择合适的版本。"""
+    if platform.system() == "Windows" or platform.system() == "Linux":
         if gpu_available:
-            print("检测到GPU。正在安装支持CUDA的PyTorch...")
+            print("检测到GPU。正在安装支持CUDA的最新版PyTorch...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchvision", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
         else:
-            print("正在安装cpu版本的PyTorch...")
-            install_package("torch", "torchvision", "torchaudio")
-    elif platform.system() == "Darwin":  # macOS
-        if "arm" in platform.processor().lower():
-            print("检测到Apple Silicon。正在安装支持MLX (Metal)的PyTorch...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "--pre", "torch", "torchvision", "torchaudio", "--extra-index-url", "https://download.pytorch.org/whl/nightly/cpu"])
-        else:
-            print("正在为macOS安装cpu版本的PyTorch...")
-            install_package("torch", "torchvision", "torchaudio")
-    elif platform.system() == "Linux":
-        if gpu_available:
-            print("检测到GPU。正在安装支持CUDA的PyTorch...")
-            install_package("torch", "torchvision", "torchaudio")
-        else:
-            print("未检测到GPU。正在安装不支持CUDA的PyTorch...")  
-            install_package("torch", "torchvision", "torchaudio", "--extra-index-url", "https://download.pytorch.org/whl/cpu")
+            print("正在安装CPU版本的最新版PyTorch...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchvision", "torchaudio"])
     else:
         print("不支持的平台。请手动安装PyTorch。")
-
-def download_spacy_model():
-    """Download the specified spacy model."""
-    import spacy
-    from spacy.cli import download
-    models = ['en_core_web_sm', 'zh_core_web_sm','ja_core_news_sm']
-    for model in models:
-        try:
-            nlp = spacy.load(model)
-        except:
-            print(f"正在下载 {model} 模型...")
-            download(model)
-            nlp = spacy.load(model)
+    print("PyTorch安装完成")
 
 def install_requirements():
     """Install requirements from requirements.txt file."""
@@ -114,7 +88,6 @@ def dowanload_uvr_model():
         print("UVR模型下载成功。")
     else:
         print("HP2_all_vocals.pth已存在。跳过下载。")
-
 
 def download_sovits_model():
     """Download the specified GPT-SoVITS model files."""
@@ -249,27 +222,28 @@ def main():
     # Install requests first
     install_package("requests")
     
-    # Check GPU availability
-    gpu_available = check_gpu()
-    print(f"GPU 可用: {gpu_available}")
-    if gpu_available:
-        if_gpu = input("是否安装GPU版本的PyTorch? (注意：Windows 下安装 GPU 版本需要额外安装 Cmake 及 Visual Studio, 详情见 Github 主页) (y/n): ")
-        gpu_available = if_gpu.lower() == 'y'
-    # Install PyTorch
-    install_torch(gpu_available)
+    try:
+        import torch
+        print(f"PyTorch 版本: {torch.__version__}")
+    except ImportError:
+        # Check GPU availability
+        # gpu_available = check_gpu()
+        # print(f"GPU 可用: {gpu_available}")
+        # if gpu_available:
+        #     if_gpu = input("是否安装GPU版本的PyTorch? (y/n): ")
+        #     gpu_available = if_gpu.lower() == 'y'
+        # Install PyTorch
+        install_torch(gpu_available = False)
     
     # Install other requirements
     install_requirements()
-
-    # 下载 spacy 模型
-    download_spacy_model()
 
     #! 暂时停用配音功能
     # # Download nltk for sovits
     # import nltk
     # nltk.download('averaged_perceptron_tagger_eng')
     
-    # # Download UVR model
+    # Download UVR model
     # dowanload_uvr_model()
 
     # # Download GPT-SoVITS model

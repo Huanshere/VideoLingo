@@ -49,8 +49,7 @@ def split_by_comma(text, nlp):
     sentences.append(doc[start:].text.strip())
     return sentences
 
-def split_by_comma_main():
-    nlp = init_nlp()
+def split_by_comma_main(nlp):
 
     with open("output/log/sentence_by_mark.txt", "r", encoding="utf-8") as input_file:
         sentences = input_file.readlines()
@@ -67,7 +66,8 @@ def split_by_comma_main():
     print("💾 Sentences split by commas saved to →  `sentences_by_comma.txt`")
 
 if __name__ == "__main__":
-    split_by_comma_main()
+    nlp = init_nlp()
+    split_by_comma_main(nlp)
     # nlp = init_nlp()
     # test = "So in the same frame, right there, almost in the exact same spot on the ice, Brown has committed himself, whereas McDavid has not."
     # print(split_by_comma(test, nlp))

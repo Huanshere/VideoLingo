@@ -25,28 +25,33 @@ def page_setting():
     if api_key != config.API_KEY:
         changes["API_KEY"] = api_key
 
-    urls = ["https://api2.wlai.vip", "https://api.wlai.vip","https://cdn.wlai.vip", "http://huiyuan.wlai.vip"]
+    urls = ["https://api2.wlai.vip"]
     selected_base_url = st.selectbox("BASE_URL", options=urls, index=urls.index(config.BASE_URL) if config.BASE_URL in urls else 0)
     if selected_base_url != config.BASE_URL:
         changes["BASE_URL"] = selected_base_url
     
     st.header("字幕设置")
+    # select WHISPER_METHOD = 'whisperx'
+    whisper_method_options = ["whisperx", "whisperxapi", "whisper_timestamped"]
+    selected_whisper_method = st.selectbox("Whisper Method:", options=whisper_method_options, index=whisper_method_options.index(config.WHISPER_METHOD) if config.WHISPER_METHOD in whisper_method_options else 0)
+    if selected_whisper_method != config.WHISPER_METHOD:
+        changes["WHISPER_METHOD"] = selected_whisper_method
+    # 如果是whisperxapi，则需要填写Replicate API Token
+    if selected_whisper_method == "whisperxapi":    
+        replicate_api_token = st.text_input("Replicate API Token:", value=config.REPLICATE_API_TOKEN, help="调用whisperX api用，获取地址：https://replicate.com/account/api-tokens")
+        if replicate_api_token != config.REPLICATE_API_TOKEN:
+            changes["REPLICATE_API_TOKEN"] = replicate_api_token
+        
     lang_cols = st.columns(2)
     with lang_cols[0]:
-        whisper_model_options = ["medium", "large-v2"]
-        selected_whisper_model = st.selectbox("Whisper模型:", options=whisper_model_options, index=whisper_model_options.index(config.WHISPER_MODEL) if config.WHISPER_MODEL in whisper_model_options else 0, help="对于英文视频 medium 足够，对于亚洲语言必须使用 large-v2，v0.4 进行精细识别，所需时间非常长，遇到问题请反馈谢谢～")
-        if selected_whisper_model != config.WHISPER_MODEL:
-            changes["WHISPER_MODEL"] = selected_whisper_model
-    with lang_cols[1]:
         whisper_language_options = ["auto", "en"]
         selected_whisper_language = st.selectbox("Whisper识别语言:", options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE) if config.WHISPER_LANGUAGE in whisper_language_options else 0)
         if selected_whisper_language != config.WHISPER_LANGUAGE:
             changes["WHISPER_LANGUAGE"] = selected_whisper_language
-        
-
-    target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
-    if target_language != config.TARGET_LANGUAGE:
-        changes["TARGET_LANGUAGE"] = target_language
+    with lang_cols[1]:
+        target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
+        if target_language != config.TARGET_LANGUAGE:
+            changes["TARGET_LANGUAGE"] = target_language
 
     st.write("每行字幕最大字符数：")
     max_length_cols = st.columns(2)
@@ -89,7 +94,7 @@ def page_setting():
         if st.button("验    证",use_container_width = True):
             st.toast("正在尝试访问...", icon="🔄")
             try:
-                response = ask_gpt("this is a test, response 'code':'200' in json format.", model=config.MODEL[0], response_json=True)
+                response = ask_gpt("this is a test, response 'code':'200' in json format.", model=config.MODEL[0], response_json=True, log_title='None')
                 if response.get('code') == '200':
                     st.toast("验证成功", icon="✅")
                 else:

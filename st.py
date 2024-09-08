@@ -45,7 +45,7 @@ def process_text():
     video_file = step1_ytdlp.find_video_files()
     
     with st.spinner("使用Whisper进行转录..."):
-        step2_whisper_stamped.transcribe(video_file)
+        step2_whisper.transcribe(video_file)
     with st.spinner("分割长句..."):  
         step3_1_spacy_split.split_by_spacy()
         step3_2_splitbymeaning.split_sentences_by_meaning()

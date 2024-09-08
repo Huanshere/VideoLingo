@@ -2,7 +2,6 @@ import sys, os
 import pandas as pd
 from typing import List, Tuple
 import concurrent.futures
-import math
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.step3_2_splitbymeaning import split_sentence
@@ -12,18 +11,11 @@ from core.prompts_storage import get_align_prompt
 # TODO you can modify your own function here
 def calc_len(text: str) -> float:
     from config import TARGET_LANGUAGE
-    try:
-        if isinstance(text, float) and math.isnan(text):
-            return 0.0  # 或者你可以选择其他适当的默认值
-        # 🇨🇳 characters are counted as 1, others are counted as 0.75
-        if '中文' in TARGET_LANGUAGE or 'cn' in TARGET_LANGUAGE: 
-            return sum(1 if ord(char) > 127 else 0.75 for char in text)
-        else:
-            return len(text)
-    except TypeError as e:
-        print(f"An error occurred: {e}")
-        print(f"Invalid text value: {text}")
-        raise
+    # 🇨🇳 characters are counted as 1, others are counted as 0.75
+    if '中文' in TARGET_LANGUAGE or 'cn' in TARGET_LANGUAGE: 
+        return sum(1 if ord(char) > 127 else 0.75 for char in text)
+    else:
+        return len(text)
 
 def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], List[str]]:
     align_prompt = get_align_prompt(src_sub, tr_sub, src_part)

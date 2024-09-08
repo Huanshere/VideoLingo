@@ -2,7 +2,7 @@ import os,sys
 import spacy
 from spacy.cli import download
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from core.step2_whisper_stamped import get_whisper_language
+from core.step2_whisper import get_whisper_language
 from config import SPACY_MODEL_MAP
 
 def get_spacy_model(language: str):

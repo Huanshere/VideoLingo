@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from difflib import SequenceMatcher
 import re
 from config import get_joiner, WHISPER_LANGUAGE
-from core.step2_whisper_stamped import get_whisper_language
+from core.step2_whisper import get_whisper_language
 
 def convert_to_srt_format(start_time, end_time):
     """Convert time (in seconds) to the format: hours:minutes:seconds,milliseconds"""
