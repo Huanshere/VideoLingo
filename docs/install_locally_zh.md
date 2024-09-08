@@ -4,9 +4,9 @@ VideoLingo 提供多种 Whisper 方案的选择（因为目前为止没有唯一
 
 | 方案 | 优势 | 劣势 |
 |:-----|:-----|:-----|
-| **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想 |
+| **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想<br>• 需要8G以上显存的显卡 |
+| **whisperX** (🌟推荐) | • 本地运行<br>• 基于 faster-whisper，性能卓越 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
 | **whisperX_api** | • 利用 Replicate API，无需本地算力 | • Replicate 服务可能不稳定 偶发 CUDA 错误 |
-| **whisperX** (🌟推荐) | • 本地运行<br>• 基于 faster-whisper，性能卓越 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型 |
 
 ## 📋 前期准备
 
