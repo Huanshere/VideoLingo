@@ -1,6 +1,6 @@
 # 🏠 VideoLingo 本地部署指南 (Windows)
 
-VideoLingo 提供多种 Whisper 方案的选择（因为目前为止没有唯一完美的选择）：
+VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为目前为止没有唯一完美的选择）：
 
 | 方案 | 优势 | 劣势 |
 |:-----|:-----|:-----|
