@@ -20,6 +20,8 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ### 前置依赖
 
+> 后续会尽快将 whisperX 模型上云，就可以避免本地安装过多依赖
+
 在开始安装 VideoLingo 之前，注意预留至少 **20G** 硬盘空间，并请确保完成以下步骤：
 
 1. 安装 [Anaconda](https://www.anaconda.com/download/success)
