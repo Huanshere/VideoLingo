@@ -130,8 +130,9 @@ def main():
     
     # 用户选择 Whisper 模型
     print("\n请选择要安装的 Whisper 模型：")
+    print("若不清楚各模型区别请见 https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md")
     print("1. whisper_timestamped")
-    print("2. whisperX")
+    print("2. whisperX (推荐)")
     print("3. whisperX_api")
     choice = input("请输入选项编号 (1, 2 或 3): ")
     
