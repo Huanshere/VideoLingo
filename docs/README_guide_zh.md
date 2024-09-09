@@ -11,15 +11,15 @@ Videolingo是一个高度集成的视频翻译系统,能够自动化执行视频
    - `core/step1_ytdlp.py`: 集成`yt_dlp`库,实现从指定URL高效下载视频的功能。
 
 2. **音频处理与语音识别模块**: 
-   - `core/all_whisper_methods
-   - `core/step2_whisper.py`: 利用OpenAI的Whisper模型进行高精度的语音识别,生成带时间戳的文本转录结果。
+   - `core/all_whisper_methods`: 不同的 whisper 方法选择。
+   - `core/step2_whisper.py`: 利用Whisper模型进行高精度的语音识别,生成带时间戳的文本转录结果。
 
 3. **文本处理与翻译模块**: 
    - `core/step3_1_spacy_split.py`: 应用SpaCy自然语言处理工具进行初步的文本分割。
    - `core/step3_2_splitbymeaning.py`: 结合GPT模型的语义理解能力,对长句进行更精确的分割。 
    - `core/step4_1_summarize.py`: 利用GPT模型对视频内容进行智能摘要,提取关键术语。
    - `core/step4_2_translate_all.py`: 实现批量化的字幕文本翻译处理。
-   - `core/step4_2_translate_once.py`: 采用三步翻译法(直译、意译和润色)实现高质量的英文到中文的逐句翻译。
+   - `core/translate_once.py`: 采用三步翻译法(直译、意译和润色)实现高质量的英文到中文的逐句翻译。
 
 4. **字幕处理与合成模块**:
    - `core/step5_splitforsub.py`: 根据字幕格式规范,对翻译后的文本进行精确分割和时间对齐。 
