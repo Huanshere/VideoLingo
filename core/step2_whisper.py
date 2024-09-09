@@ -14,11 +14,11 @@ def get_whisper_language():
 def transcribe(video_file: str):
     from config import WHISPER_METHOD
     if WHISPER_METHOD == 'whisperx':
-        from core.all_whisper_methos.whisperX import transcribe as ts
+        from core.all_whisper_methods.whisperX import transcribe as ts
     elif WHISPER_METHOD == 'whisperxapi':
-        from core.all_whisper_methos.whisperXapi import transcribe as ts
+        from core.all_whisper_methods.whisperXapi import transcribe as ts
     elif WHISPER_METHOD == 'whisper_timestamped':
-        from core.all_whisper_methos.whisper_timestamped import transcribe as ts
+        from core.all_whisper_methods.whisper_timestamped import transcribe as ts
     ts(video_file)
 
 if __name__ == "__main__":
