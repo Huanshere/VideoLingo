@@ -38,7 +38,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ### 安装步骤
 > 遇到问题可以把整个步骤丢给 GPT 问问~
-1. 打开 Anaconda Prompt 并切换到桌面目录：
+1. 打开 Anaconda Powershell Prompt 并切换到桌面目录：
    ```bash
    cd desktop
    ```
