@@ -20,9 +20,9 @@ Your task is to split the given subtitle text into **{num_parts}** parts, each s
 
 ### Steps
 1. Analyze the grammar and structure of the given text.
-2. Provide 2 different ways to split the text, each with different split points, output complete sentences (do not change any letters or punctuation), insert [br] tags at the split positions.
-3. Briefly compare and evaluate the above 2 split methods, considering readability, grammatical structure, and contextual coherence, choose the best split method.
-4. Give the best split method number, 1 or 2.
+2. Provide 3 different ways to split the text, each with different split points, output complete sentences (do not change any letters or punctuation), insert [br] tags at the split positions.
+3. Briefly compare and evaluate the above 3 split methods, considering readability, grammatical structure, and contextual coherence, choose the best split method.
+4. Give the best split method number, 1, 2, or 3.
 
 ### Output Format
 Please provide your answer in the following JSON format, <<>> represents placeholders:
@@ -30,9 +30,19 @@ Please provide your answer in the following JSON format, <<>> represents placeho
     "analysis": "Brief analysis of the text structure and split strategy",
     "split_way_1": "<<The first split method, output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>",
     "split_way_2": "<<The second split method>>",
-    "evaluation": "<<Unified brief evaluation of the 2 split methods, written in one sentence, no line breaks>>",
-    "best_way": "<<The best split method number, 1 or 2>>"
+    "split_way_3": "<<The third split method>>",
+    "evaluation": "<<Unified brief evaluation of the 3 split methods, written in one sentence, no line breaks>>",
+    "best_way": "<<The best split method number, 1, 2, or 3>>"
 }}
+
+### Important Note
+Ensure that the JSON keys are exactly as follows:
+- "analysis"
+- "split_way_1"
+- "split_way_2"
+- "split_way_3"
+- "evaluation"
+- "best_way"
 
 ### Given Text
 <split_this_sentence>\n{sentence}\n</split_this_sentence>
@@ -40,7 +50,6 @@ Please provide your answer in the following JSON format, <<>> represents placeho
 """.strip()
 
     return split_prompt
-
 
 ## ================================================================
 # @ step4_1_summarize.py
@@ -69,19 +78,19 @@ Please think in two steps, processing the text line by line:
    - If the word is a fixed abbreviation, please keep the original.
 
 ### Output Format
-Please output your analysis results in the following JSON format, where <> represents placeholders:
+Please output your analysis results in the following JSON format, where << >> represents placeholders:
 {{
-    "theme": "<Briefly summarize the theme of this video in 1 sentence>",
+    "theme": "<<Briefly summarize the theme of this video in 1 sentence>>",
     "terms": [
         {{
-            "original": "<Term 1 in the {src_language}>",
-            "translation": "<{TARGET_LANGUAGE} translation or keep original>",
-            "explanation": "<Brief explanation of the term>"
+            "original": "<<Term 1 in the {src_language}>>",
+            "translation": "<<{TARGET_LANGUAGE} translation or keep original>>",
+            "explanation": "<<Brief explanation of the term>>"
         }},
         {{
-            "original": "<Term 2 in the {src_language}>",
-            "translation": "<{TARGET_LANGUAGE} translation or keep original>",
-            "explanation": "<Brief explanation of the term>"
+            "original": "<<Term 2 in the {src_language}>>",
+            "translation": "<<{TARGET_LANGUAGE} translation or keep original>>",
+            "explanation": "<<Brief explanation of the term>>"
         }},
         ...
     ]
@@ -105,6 +114,14 @@ Please output your analysis results in the following JSON format, where <> repre
         ...
     ]
 }}
+
+### Important Note
+Ensure that the JSON keys are exactly as follows:
+- "theme"
+- "terms"
+- "original"
+- "translation"
+- "explanation"
 
 ### Video text data to be processed
 <video_text_to_summarize>
@@ -172,8 +189,13 @@ Based on the provided original {src_language} subtitles, you need to:
 </subtitles>
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return the translation in the following JSON format, with the JSON key values unchanged, in the format provided:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
+
+### Important Note
+Ensure that the JSON keys are exactly as follows:
+- "Original Subtitle"
+- "Direct Translation"
 '''
     return prompt_faithfulness.strip()
 
@@ -181,13 +203,24 @@ Please complete the following JSON data, where << >> represents placeholders tha
 
 def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
     from config import TARGET_LANGUAGE
+    import json
+
+    # 定义正确的键名
+    correct_keys = {
+        "Original Subtitle": "Original Subtitle",
+        "Direct Translation": "Direct Translation",
+        "Translation Reflection": "Translation Reflection",
+        "Free Translation": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
+    }
+
+    # 生成 JSON 格式
     json_format = {}
     for key, value in faithfulness_result.items():
         json_format[key] = {
-            "Original Subtitle": value['Original Subtitle'],
-            "Direct Translation": value['Direct Translation'],
-            "Translation Reflection": "<<reflection on the direct translation version>>",
-            "Free Translation": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
+            correct_keys["Original Subtitle"]: value.get('Original Subtitle', ''),
+            correct_keys["Direct Translation"]: value.get('Direct Translation', ''),
+            correct_keys["Translation Reflection"]: "<<reflection on the direct translation version>>",
+            correct_keys["Free Translation"]: f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
         }
 
     src_language = get_whisper_language()
@@ -226,8 +259,15 @@ Please use a two-step thinking process to handle the text line by line:
 </subtitles>
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return the translation in the following JSON format, with the JSON key values unchanged, in the format provided:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
+
+### Important Note
+Ensure that the JSON keys are exactly as follows:
+- "Original Subtitle"
+- "Direct Translation"
+- "Translation Reflection"
+- "Free Translation"
 '''
     return prompt_expressiveness.strip()
 
@@ -240,6 +280,13 @@ def get_align_prompt(src_sub, tr_sub, src_part):
     src_splits = src_part.split('\n')
     num_parts = len(src_splits)
     src_part = src_part.replace('\n', ' [br] ')
+    align_parts_json = ','.join(
+        f'''
+        {{
+            "src_part_{i+1}": "<<{src_splits[i]}>>",
+            "target_part_{i+1}": "<<Corresponding aligned {TARGET_LANGUAGE} subtitle part>>"
+        }}''' for i in range(num_parts)
+    )
     align_prompt = '''
 ### Role Definition
 You are a Netflix subtitle alignment expert fluent in both {src_language} and {target_language}. Your expertise lies in accurately understanding the semantics and structure of both languages, enabling you to flexibly split sentences while preserving the original meaning.
@@ -269,7 +316,7 @@ Please follow these steps and provide the results for each step in the JSON outp
 4. Best Scheme: Select the best alignment scheme, output only a single number, 1 or 2 or 3.
 
 ### Output Format
-Please complete the following JSON data, where << >> represents placeholders, and return your results in JSON format:
+Please complete the following JSON data, where << >> represents placeholders, and return the translation in the following JSON format, with the JSON key values unchanged, in the format provided:
 {{
     "analysis": "<<Detailed analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles>>",
     "align_way_1": [
@@ -278,18 +325,22 @@ Please complete the following JSON data, where << >> represents placeholders, an
     "align_way_2": [
         {align_parts_json}
     ],
+    "align_way_3": [
+        {align_parts_json}
+    ],
     "comparison": "<<Brief evaluation and comparison of the 3 alignment schemes>>",
     "best_way": "<<Number of the best alignment scheme, 1 or 2 or 3>>"
 }}
-'''
 
-    align_parts_json = ','.join(
-        f'''
-        {{
-            "src_part_{i+1}": "<<{src_splits[i]}>>",
-            "target_part_{i+1}": "<<Corresponding aligned {TARGET_LANGUAGE} subtitle part>>"
-        }}''' for i in range(num_parts)
-    )
+### Important Note
+Ensure that the JSON keys are exactly as follows:
+- "analysis"
+- "align_way_1"
+- "align_way_2"
+- "align_way_3"
+- "comparison"
+- "best_way"
+'''
 
     return align_prompt.format(
         src_language=src_language,
@@ -302,7 +353,7 @@ Please complete the following JSON data, where << >> represents placeholders, an
 
 ## ================================================================
 # @ step9_generate_audio_task.py @ step10_generate_audio.py
-def get_subtitle_trim_prompt(trans_text, duration, fierce_mode = False):
+def get_subtitle_trim_prompt(trans_text, duration, fierce_mode=False):
     src_language = get_whisper_language()
     if not fierce_mode:
         rule = 'Only consider a. Replacing commas with spaces to reduce pause time. b. Reducing filler words without modifying meaningful content. c. Omitting unnecessary modifiers or pronouns, for example "Please explain your thought process" can be shortened to "Please explain thought process"'
@@ -328,11 +379,16 @@ Please follow these steps and provide the results in the JSON output:
 2. Trimming: Based on the rules and analysis, optimize the subtitle by shortening it according to the processing rules.
 
 ### Output Format
-Please complete the following JSON data, where << >> represents content you need to fill in:
+Please complete the following JSON data, where << >> represents content you need to fill in, and return the translation in the following JSON format, with the JSON key values unchanged, in the format provided:
 {{
     "analysis": "<<Brief analysis of the subtitle, including structure, key information, and potential processing locations>>",
     "trans_text_processed": "<<Optimized and shortened subtitle>>"
 }}
+
+### Important Note
+Ensure that the JSON keys are exactly as follows:
+- "analysis"
+- "trans_text_processed"
 '''
     return trim_prompt.format(
         src_language=src_language,
