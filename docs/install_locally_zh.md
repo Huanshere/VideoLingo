@@ -20,7 +20,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ### 前置依赖
 
-在开始安装 VideoLingo 之前，请确保完成以下步骤：
+在开始安装 VideoLingo 之前，注意预留约 **30G** 硬盘空间，并请确保完成以下步骤：
 
 1. 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
    - 选择并安装"使用 C++ 的桌面开发"组件包
