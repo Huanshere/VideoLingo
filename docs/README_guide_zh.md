@@ -1,8 +1,10 @@
-**Videolingo视频翻译系统技术文档**
+**Videolingo视频翻译系统技术文档**、
 
-🔙 返回 README | [中文](../README.md) | [English](../README.en.md) 
+Videolingo是一个高度集成的视频翻译系统,能够自动化执行视频下载、音频提取、语音识别、字幕生成、文本翻译,以及音视频合成等一系列复杂操作。该系统还提供了一个Web界面,用于任务管理和系统配置。
 
-Videolingo是一个高度集成的视频翻译系统,能够自动化执行视频下载、音频提取、语音识别、字幕生成、文本翻译,以及音视频合成等一系列复杂操作。该系统还提供了一个Web界面,用于任务管理和系统配置。以下是系统的核心技术模块和工作流程:
+对于开发人员，可以单步执行 `core` 下的每一个 `step__.py` 文件并在 `output` 下检查每一步的输出。
+
+以下是系统的核心技术模块和工作流程:
 
 1. **视频获取模块**: 
    - `st_components/download_video_section.py`: 基于Streamlit框架构建的Web应用程序组件,提供YouTube链接下载和本地文件上传两种视频获取方式。
@@ -23,7 +25,7 @@ Videolingo是一个高度集成的视频翻译系统,能够自动化执行视频
    - `core/step6_generate_final_timeline.py`: 生成标准SRT格式的字幕文件,包含精确的时间轴信息。
    - `core/step7_merge_sub_to_vid.py`: 实现字幕与视频的无缝集成。
 
-5. **音频处理与配音模块**:
+5. **音频处理与配音模块**（⚠️暂时停用）:
    - `core/step8_extract_refer_audio.py`: 从源视频中提取关键音频片段作为参考。
    - `core/step9_generate_audio_task.py`: 基于翻译后的字幕内容,生成结构化的音频合成任务。
    - `core/step10_generate_audio.py`: 利用先进的SoVITS模型生成高质量的配音音频。
