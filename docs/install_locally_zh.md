@@ -20,24 +20,24 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ### 前置依赖
 
-在开始安装 VideoLingo 之前，注意预留约 **30G** 硬盘空间，并请确保完成以下步骤：
+在开始安装 VideoLingo 之前，注意预留至少 **20G** 硬盘空间，并请确保完成以下步骤：
 
-1. 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
-   - 选择并安装"使用 C++ 的桌面开发"组件包
+1. 安装 [Anaconda](https://www.anaconda.com/download/success)
 
-2. 安装 [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
+2. 安装 [Git](https://git-scm.com/download/win)
 
-3. 安装 [Anaconda](https://www.anaconda.com/download/success)
-
-4. 安装 [Git](https://git-scm.com/download/win)
-
-5. 对于选择 `whisperX` 的用户：
+3. 对于选择 `whisperX` 的用户：
    - 安装 [Cuda Toolkit](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
    - 安装 [Cudnn](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
    - 完成安装后重启计算机
 
-### 安装步骤
+4. 对于选择 `whisper_timestamped` 的用户：
+   - 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
+     - 在安装界面勾选"使用 C++ 的桌面开发"组件包
+   - 安装 [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
+### 安装步骤
+   > 遇到问题可以把整个步骤丢给 GPT 问问~
 1. 打开 Anaconda Prompt 并切换到桌面目录：
    ```bash
    cd desktop
