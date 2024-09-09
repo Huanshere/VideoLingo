@@ -37,7 +37,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
    - 安装 [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
 ### 安装步骤
-   > 遇到问题可以把整个步骤丢给 GPT 问问~
+> 遇到问题可以把整个步骤丢给 GPT 问问~
 1. 打开 Anaconda Prompt 并切换到桌面目录：
    ```bash
    cd desktop
@@ -51,7 +51,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 3. 配置虚拟环境：
    ```bash
-   conda create -n videolingo python=3.10.0
+   conda create -n videolingo python=3.11.0
    conda activate videolingo
    ```
 
