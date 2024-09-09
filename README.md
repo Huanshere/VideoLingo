@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
 ## 🤝 欢迎贡献
 
-我们欢迎所有形式的贡献，无论是新功能、bug修复还是文档改进。如果您有任何想法或建议，请随时提出issue或提交pull request。
+我们欢迎所有形式的贡献，如果有任何想法或建议，请随时提出issue或提交pull request。
 
 如需进一步交流或寻求帮助，欢迎加入我们的QQ群
 
