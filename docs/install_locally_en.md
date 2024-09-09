@@ -1,26 +1,26 @@
 # 🏠 VideoLingo Local Deployment Guide (Windows)
 
-VideoLingo offers a choice of multiple Whisper solutions (as there is no single perfect option so far):
+VideoLingo offers multiple Whisper solutions for speech recognition text steps (as there's no single perfect choice currently). Choose one based on your personal configuration and needs.
 
 | Solution | Advantages | Disadvantages |
 |:---------|:-----------|:--------------|
-| **whisper_timestamped** | • Runs locally<br>• Easy to install<br>• Uses native Whisper model | • Ideal for English only |
-| **whisperX_api** | • Uses Replicate API, no local computing power needed | • Replicate service may be unstable<br>• Occasional CUDA errors |
-| **whisperX** (🌟Recommended) | • Runs locally<br>• Based on faster-whisper, excellent performance | • Requires CUDA and cuDNN configuration<br>• Separate wav2vec model download for each language |
+| **whisper_timestamped** | • Runs locally<br>• Easy installation<br>• Uses native Whisper model | • Ideal for English only<br>• Requires GPU with 8GB+ VRAM |
+| **whisperX** (🌟Recommended) | • Runs locally<br>• Based on faster-whisper, excellent performance<br>• Good multi-language support | • Requires CUDA and cuDNN installation<br>• Separate wav2vec model download for each language<br>• Requires GPU with 8GB+ VRAM |
+| **whisperX_api** | • Uses Replicate API, no local computing power needed | • Replicate service may be unstable, occasional CUDA errors<br>• Uses large-v3, punctuation not as good as local v2 |
 
 ## 📋 Preparation
 
-1. Register an account on [Cloud Fog API](https://api.wlai.vip/register?aff=TXMB) and recharge to get a token
+1. Register an account on [Yunwu API](https://api.wlai.vip/register?aff=TXMB) and recharge to get a token (or use any claude-3.5-sonnet provider)
    
-   ![Cloud Fog API Registration Process](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
+   ![Yunwu API Registration Process](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
 
-2. If using `whisperX_api`, please register a Replicate account and bind a payment method
+2. If using `whisperX_api`, register a Replicate account, link a payment method, and get your token
 
 ## 🛠️ Installation Process
 
 ### Prerequisites
 
-Before installing VideoLingo, please ensure you complete the following steps (most of which are for GPU acceleration):
+Before installing VideoLingo, ensure you complete the following steps:
 
 1. Install [Visual Studio 2022](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
    - Select and install the "Desktop development with C++" component package
@@ -38,26 +38,31 @@ Before installing VideoLingo, please ensure you complete the following steps (mo
 
 ### Installation Steps
 
-1. Clone the project:
+1. Open Anaconda Prompt and switch to the desktop directory:
+   ```bash
+   cd desktop
+   ```
+
+2. Clone the project:
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-2. Configure virtual environment:
+3. Configure virtual environment:
    ```bash
-   conda create -n videolingo python=3.12.0
+   conda create -n videolingo python=3.10.0
    conda activate videolingo
    ```
 
-3. Run the installation script:
+4. Run the installation script:
    ```bash
    python install.py
    ```
-   Follow the prompts to select the desired Whisper project, and the script will automatically install the corresponding torch and whisper versions.
+   Choose the desired Whisper project when prompted, and the script will automatically install the corresponding torch and whisper versions.
 
-4. 🎉 Launch the Streamlit application:
+5. 🎉 Launch the Streamlit application: Double-click `一键启动.bat` or enter
    ```bash
    streamlit run st.py
    ```
-   Open the Web interface in your browser, select the corresponding Whisper method through the sidebar and configure it.
+   Open the Web interface in your browser, select the corresponding Whisper method in the sidebar, and configure it.
