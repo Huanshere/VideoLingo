@@ -26,6 +26,9 @@ RESOLUTIOM = '854x480'
 # Whisper 设置 [whisperx, whisperxapi, whisper_timestamped]
 WHISPER_METHOD = 'whisperx'
 
+# 预留给 whisper_timestamped 的模型，英语场景下 medium 甚至比 large-v2 的时间轴还准
+WHISPER_MODEL = 'medium'
+
 # Whisper 指定识别语言
 WHISPER_LANGUAGE = 'auto'
 
