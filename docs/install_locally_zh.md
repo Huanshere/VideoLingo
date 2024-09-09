@@ -11,7 +11,6 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 ## 📋 前期准备
 
 1. 在 [云雾 API](https://api.wlai.vip/register?aff=TXMB) 注册账号并充值以获取令牌（或者换任意的claude-3.5-sonnet提供商）
-   > 云雾 api 的成本是官方的 1/10，但近期不稳定，也可以考虑 deepseek-coder 尝试效果。
    
    ![云雾 API 注册流程](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
 
@@ -39,25 +38,30 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ### 安装步骤
 
-1. 克隆项目：
+1. 打开 Anaconda Prompt 并切换到桌面目录：
+   ```bash
+   cd desktop
+   ```
+
+2. 克隆项目：
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-2. 配置虚拟环境：
+3. 配置虚拟环境：
    ```bash
-   conda create -n videolingo python=3.12.0
+   conda create -n videolingo python=3.10.0
    conda activate videolingo
    ```
 
-3. 运行安装脚本：
+4. 运行安装脚本：
    ```bash
    python install.py
    ```
    根据提示选择所需的 Whisper 项目，脚本将自动安装相应的 torch 和 whisper 版本。
 
-4. 🎉 启动 Streamlit 应用：
+5. 🎉 启动 Streamlit 应用：双击 `一键启动.bat` 或输入
    ```bash
    streamlit run st.py
    ```
