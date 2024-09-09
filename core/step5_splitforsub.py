@@ -8,14 +8,23 @@ from core.step3_2_splitbymeaning import split_sentence
 from core.ask_gpt import ask_gpt, step5_align_model
 from core.prompts_storage import get_align_prompt
 
-# TODO you can modify your own function here
+# ! 你可以在这里修改你自己的权重
+# 中文日文 2.5 个字符，韩文 2 个字符，泰文 1.5 个字符，全角符号 2 个字符，其他英语系和半角符号 1 个字符
 def calc_len(text: str) -> float:
-    from config import TARGET_LANGUAGE
-    # 🇨🇳 characters are counted as 1, others are counted as 0.75
-    if '中文' in TARGET_LANGUAGE or 'cn' in TARGET_LANGUAGE: 
-        return sum(1 if ord(char) > 127 else 0.75 for char in text)
-    else:
-        return len(text)
+    def char_weight(char):
+        code = ord(char)
+        if 0x4E00 <= code <= 0x9FFF or 0x3040 <= code <= 0x30FF:  # 中文和日文
+            return 1.75
+        elif 0xAC00 <= code <= 0xD7A3 or 0x1100 <= code <= 0x11FF:  # 韩文
+            return 1.5
+        elif 0x0E00 <= code <= 0x0E7F:  # 泰文
+            return 1
+        elif 0xFF01 <= code <= 0xFF5E:  # 全角符号
+            return 1.75
+        else:  # 其他字符（如英文和半角符号）
+            return 1
+
+    return sum(char_weight(char) for char in text)
 
 def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], List[str]]:
     align_prompt = get_align_prompt(src_sub, tr_sub, src_part)
@@ -32,22 +41,24 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     return src_parts, tr_parts
 
 def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> Tuple[List[str], List[str]]:
-    from config import MAX_SRC_LENGTH, MAX_TARGET_LANGUAGE_LENGTH
+    from config import MAX_SUB_LENGTH, TARGET_SUB_MULTIPLIER, MAX_WORKERS
     for attempt in range(max_retry):
         print(f"🔄 切割尝试第 {attempt + 1} 次")
         to_split = []
         
-        for i, (en, tr) in enumerate(zip(src_lines, tr_lines)):
-            en, tr = str(en), str(tr)
-            if len(en) > MAX_SRC_LENGTH or calc_len(tr) > MAX_TARGET_LANGUAGE_LENGTH:
+        for i, (src, tr) in enumerate(zip(src_lines, tr_lines)):
+            src, tr = str(src), str(tr)
+            if len(src) > MAX_SUB_LENGTH or calc_len(tr) * TARGET_SUB_MULTIPLIER > MAX_SUB_LENGTH:
                 to_split.append(i)
-                print(f"📏 第 {i} 行需要切割:\nSRC_LANG:    {en}\nTARGET_LANG: {tr}\n")
+                print(f"📏 第 {i} 行需要切割:")
+                print(f"Source Line:   {src}")
+                print(f"Target Line:   {tr}")
+                print()
         
         def process(i):
-            split_en = split_sentence(src_lines[i], num_parts=2).strip()
-            src_lines[i], tr_lines[i] = align_subs(src_lines[i], tr_lines[i], split_en)
+            split_src = split_sentence(src_lines[i], num_parts=2).strip()
+            src_lines[i], tr_lines[i] = align_subs(src_lines[i], tr_lines[i], split_src)
         
-        from config import MAX_WORKERS
         with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             executor.map(process, to_split)
         
@@ -55,7 +66,7 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> 
         src_lines = [item for sublist in src_lines for item in (sublist if isinstance(sublist, list) else [sublist])]
         tr_lines = [item for sublist in tr_lines for item in (sublist if isinstance(sublist, list) else [sublist])]
         
-        if all(len(en) <= MAX_SRC_LENGTH for en in src_lines) and all(calc_len(tr) <= MAX_TARGET_LANGUAGE_LENGTH for tr in tr_lines):
+        if all(len(src) <= MAX_SUB_LENGTH for src in src_lines) and all(calc_len(tr) * TARGET_SUB_MULTIPLIER <= MAX_SUB_LENGTH for tr in tr_lines):
             break
     
     return src_lines, tr_lines
@@ -75,3 +86,24 @@ def split_for_sub_main():
 
 if __name__ == '__main__':
     split_for_sub_main()
+
+    # # 短句
+    # print(calc_len("你好")) # 4
+    # print(calc_len("Hello")) # 5
+    # print(calc_len("こんにちは")) # 5
+    # print(calc_len("안녕하세요")) # 5
+    # print(calc_len("สวัสดี")) # 3
+
+    # # 中等长度句子
+    # print(calc_len("你好，世界！")) # 8
+    # print(calc_len("Hello, world!")) # 13
+    # print(calc_len("こんにちは、世界！")) # 10
+    # print(calc_len("안녕하세요, 세계!")) # 10
+    # print(calc_len("สวัสดีครับ, โลก!")) # 10
+
+    # # 较长句子
+    # print(calc_len("欢迎来到美丽的中国，希望你玩得开心！")) # 22
+    # print(calc_len("Welcome to beautiful China, hope you have a great time!")) # 55
+    # print(calc_len("美しい中国へようこそ、楽しい時間を過ごせますように！")) # 26
+    # print(calc_len("아름다운 중국에 오신 것을 환영합니다. 즐거운 시간 보내세요!")) # 31
+    # print(calc_len("ยินดีต้อนรับสู่ประเทศจีนที่สวยงาม หวังว่าคุณจะสนุกนะครับ!")) # 35

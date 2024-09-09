@@ -21,11 +21,11 @@ def page_setting():
 
     st.header("LLM 配置")
     
-    api_key = st.text_input("API_KEY", value=config.API_KEY)
+    api_key = st.text_input("API_KEY", value=config.API_KEY, help="请确保 API_KEY 支持 claude-3-5-sonnet-20240620")
     if api_key != config.API_KEY:
         changes["API_KEY"] = api_key
 
-    selected_base_url = st.text_input("BASE_URL", value=config.BASE_URL)
+    selected_base_url = st.text_input("BASE_URL", value=config.BASE_URL, help="不需要添加 v1 后缀，会自动补充 /v1/chat/completions")
     if selected_base_url != config.BASE_URL:
         changes["BASE_URL"] = selected_base_url
     
@@ -44,24 +44,24 @@ def page_setting():
     lang_cols = st.columns(2)
     with lang_cols[0]:
         whisper_language_options = ["auto", "en"]
-        selected_whisper_language = st.selectbox("Whisper识别语言:", options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE) if config.WHISPER_LANGUAGE in whisper_language_options else 0)
+        selected_whisper_language = st.selectbox("Whisper识别语言:", options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE) if config.WHISPER_LANGUAGE in whisper_language_options else 0, help="auto 为自动识别，en 为强制指定识别或转译")
         if selected_whisper_language != config.WHISPER_LANGUAGE:
             changes["WHISPER_LANGUAGE"] = selected_whisper_language
     with lang_cols[1]:
-        target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE)
+        target_language = st.text_input("翻译目标语言:", value=config.TARGET_LANGUAGE, help="使用自然语言描述即可，如：简体中文，繁体中文，English，日本語")
         if target_language != config.TARGET_LANGUAGE:
             changes["TARGET_LANGUAGE"] = target_language
 
-    st.write("每行字幕最大字符数：")
+    st.write("字幕行长度设置：")
     max_length_cols = st.columns(2)
     with max_length_cols[0]:
-        max_src_length = st.number_input("原字幕:", value=config.MAX_SRC_LENGTH)
-        if max_src_length != config.MAX_SRC_LENGTH:
-            changes["MAX_SRC_LENGTH"] = int(max_src_length)
+        max_src_length = st.number_input("单行最大字符数:", value=config.MAX_SUB_LENGTH, help="每一行字幕的最大字符数，按照英文计算，中文会自动乘以1.75，默认 80")
+        if max_src_length != config.MAX_SUB_LENGTH:
+            changes["MAX_SUB_LENGTH"] = int(max_src_length)
     with max_length_cols[1]:
-        max_target_language_length = st.number_input("翻译字幕:", value=config.MAX_TARGET_LANGUAGE_LENGTH)
-        if max_target_language_length != config.MAX_TARGET_LANGUAGE_LENGTH:
-            changes["MAX_TARGET_LANGUAGE_LENGTH"] = int(max_target_language_length)
+        target_sub_multiplier = st.number_input("翻译长度倍数:", value=config.TARGET_SUB_MULTIPLIER, help="考虑到受众，翻译字幕一般比原语言字号大，默认设置为长度上的1.5倍")
+        if target_sub_multiplier != config.TARGET_SUB_MULTIPLIER:
+            changes["TARGET_SUB_MULTIPLIER"] = int(target_sub_multiplier)
 
     resolution_options = {
         "1080p": "1920x1080",

@@ -14,10 +14,10 @@ REPLICATE_API_TOKEN = "xxx"
 TARGET_LANGUAGE = '简体中文'
 
 # 字幕设置
-## 每行原字幕的最大长度字母数量
-MAX_SRC_LENGTH = 80
-## 每行翻译字幕的最大长度 根据目标语言调整（如中文为30个字）
-MAX_TARGET_LANGUAGE_LENGTH = 30  
+# 每行字幕的最大长度字母数量
+MAX_SUB_LENGTH = 80
+# 输出字幕字号更大一些
+TARGET_SUB_MULTIPLIER = 1.5
 
 # 视频分辨率
 RESOLUTIOM = '854x480'
