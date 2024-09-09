@@ -51,7 +51,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 3. 配置虚拟环境：
    ```bash
-   conda create -n videolingo python=3.11.0
+   conda create -n videolingo python=3.10.0
    conda activate videolingo
    ```
 
