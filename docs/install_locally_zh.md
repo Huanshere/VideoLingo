@@ -5,22 +5,21 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 | 方案 | 优势 | 劣势 |
 |:-----|:-----|:-----|
 | **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想<br>• 需要8G以上显存的显卡 |
-| **whisperX** (🌟推荐) | • 本地运行<br>• 基于 faster-whisper，性能卓越<br>• 多语言支持好 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
-| **whisperX_api** | • 利用 Replicate API，无需本地算力 | • Replicate 服务可能不稳定 偶发 CUDA 错误<br>• 使用的large-v3 标点效果不如本地使用v2好 |
+| **whisperX**  | • 本地运行<br>• 基于 faster-whisper，性能卓越<br>• 多语言支持好 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
+| **whisperX_api** (🌟推荐) | • 利用 Replicate API，无需本地算力 | • Replicate 服务可能不稳定 偶发 CUDA 错误<br>• 使用的large-v3 标点效果可能不如v2 |
 
 ## 📋 前期准备
 
 1. 在 [云雾 API](https://api.wlai.vip/register?aff=TXMB) 注册账号并充值以获取令牌（或者换任意的claude-3.5-sonnet提供商）
+   > 为了最佳效果请选择claude-3.5-sonnet, 若测试体验也可选择 deepseek-coder，稍后在侧边栏进行设置
    
    ![云雾 API 注册流程](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
 
-2. 若选用 `whisperX_api`，请注册 Replicate 账号并绑定支付方式，获取你的令牌
+2. 若选用 `whisperX_api`，请注册 Replicate 账号并绑定支付方式，获取你的令牌。也可联系我，我可以免费提供给你key测试用。
 
 ## 🛠️ 安装流程
 
 ### 前置依赖
-
-> 后续会尽快将 whisperX 模型上云，就可以避免本地安装过多依赖
 
 在开始安装 VideoLingo 之前，注意预留至少 **20G** 硬盘空间，并请确保完成以下步骤：
 
