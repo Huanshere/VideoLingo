@@ -60,7 +60,15 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
 我们已将项目部署至[趋动云-VideoLingo平台](https://open.virtaicloud.com/web/project/detail/480194078119297024)（请注意：当前仅更新至v0.2版本），可以轻松克隆并启动项目体验，详细的图文教程请 [点击此处](docs/趋动云使用说明.md) 查看。
 
-<!-- ![qudongcloud.png](https://files.catbox.moe/ia9v1d.png) -->
+## 🚧 当前限制和未来改进
+
+我们正在不断改进VideoLingo，但目前仍存在一些限制：
+
+| 限制 | 当前状况 | 未来改进计划 |
+|------|----------|--------------|
+| 安装步骤 | 复杂，需要较高动手能力和计算资源 | 计划将Whisper部分上传到Replicate，简化使用流程 |
+| 音频长度 | 仅支持30分钟以内 | 将很快扩展这一限制 |
+| 多语言支持 | 英文较准确，其他语言（如日语）精度待提高 | 计划引入针对不同语言的专门模型 |
 
 ## 🙏 致谢
 
