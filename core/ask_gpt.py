@@ -49,7 +49,7 @@ def select_llm(model):
         return {'api_key': API_KEY, 'base_url': BASE_URL, 'model': MODEL}
     else:
         print(f"{model} {MODEL}")
-        raise ValueError(f"⚠️Model <{model}> 在 MODEL 中未找到或缺少 API_KEY")
+        raise ValueError(f"⚠️Model <{model}> not found in MODEL or API_KEY is missing")
 
 def make_api_call(client, model, messages, response_format):
     return client.chat.completions.create(
@@ -80,31 +80,30 @@ def ask_gpt(prompt, model, response_json=True, valid_key='', log_title='default'
                 try:
                     response_data = json_repair.loads(response.choices[0].message.content)
                     if valid_key and valid_key not in response_data:
-                        print(f"❎ API响应错误：缺少'{valid_key}'键。正在重试...")
-                        raise ValueError(f"响应中缺少'{valid_key}'键")
-                    break  # 成功访问且成功解析，跳出循环
+                        print(f"❎ API response error: Missing '{valid_key}' key. Retrying...")
+                        raise ValueError(f"Response missing '{valid_key}' key")
+                    break  # Successfully accessed and parsed, break the loop
                 except Exception as e:
                     response_data = response.choices[0].message.content
-                    print(f"❎ json_repair 解析失败 正在重试: '''{response_data}'''")
+                    print(f"❎ json_repair parsing failed. Retrying: '''{response_data}'''")
                     if attempt == max_retries - 1:
-                        raise Exception(f"在{max_retries}次尝试后json解析仍然失败: {e}")
+                        raise Exception(f"JSON parsing still failed after {max_retries} attempts: {e}")
             else:
                 response_data = response.choices[0].message.content
-                break  # 非json格式，直接跳出循环
+                break  # Non-JSON format, break the loop directly
                 
         except RequestException as e:
             if attempt < max_retries - 1:
-                print(f"请求错误: {e}. 正在重试 ({attempt + 1}/{max_retries})...")
+                print(f"Request error: {e}. Retrying ({attempt + 1}/{max_retries})...")
                 time.sleep(2)
             else:
-                raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
+                raise Exception(f"Still failed after {max_retries} attempts: {e}")
         except Exception as e:
             if attempt < max_retries - 1:
-                print(f"发生未预期的错误: {e}\n正在重试...")
+                print(f"Unexpected error occurred: {e}\nRetrying...")
                 time.sleep(2)
             else:
-                raise Exception(f"在{max_retries}次尝试后仍然失败: {e}")
-    
+                raise Exception(f"Still failed after {max_retries} attempts: {e}")
     with LOCK:
         if log_title != 'None':
             save_log(model, prompt, response_data, log_title=log_title)

@@ -10,44 +10,44 @@ def split_long_sentence(doc):
     tokens = [token.text for token in doc]
     n = len(tokens)
     
-    # 动态规划数组，dp[i]表示从开始到第i个token的最优分割方案
+    # dynamic programming array, dp[i] represents the optimal split scheme from the start to the ith token
     dp = [float('inf')] * (n + 1)
     dp[0] = 0
     
-    # 记录最优分割点
+    # record optimal split points
     prev = [0] * (n + 1)
     
     for i in range(1, n + 1):
-        for j in range(max(0, i - 100), i):  # 限制查找范围，避免过长的句子
-            if i - j >= 30:  # 确保分句长度至少为30
+        for j in range(max(0, i - 100), i):  # limit search range to avoid overly long sentences
+            if i - j >= 30:  # ensure sentence length is at least 30
                 token = doc[i-1]
                 if j == 0 or (token.is_sent_end or token.pos_ in ['VERB', 'AUX'] or token.dep_ == 'ROOT'):
                     if dp[j] + 1 < dp[i]:
                         dp[i] = dp[j] + 1
                         prev[i] = j
     
-    # 根据最优分割点重建句子
+    # rebuild sentences based on optimal split points
     sentences = []
     i = n
-    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # 考虑强制英文的情况
+    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
     joiner = get_joiner(language)
     while i > 0:
         j = prev[i]
         sentences.append(joiner.join(tokens[j:i]).strip())
         i = j
     
-    return sentences[::-1]  # 反转列表以保持原始顺序
+    return sentences[::-1]  # reverse list to keep original order
 
 def split_extremely_long_sentence(doc):
     tokens = [token.text for token in doc]
     n = len(tokens)
     
-    num_parts = (n + 59) // 60  # 向上取整
+    num_parts = (n + 59) // 60  # round up
     
     part_length = n // num_parts
     
     sentences = []
-    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # 考虑强制英文的情况
+    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
     joiner = get_joiner(language)
     for i in range(num_parts):
         start = i * part_length
@@ -70,7 +70,7 @@ def split_long_by_root_main(nlp):
             if any(len(nlp(sent)) > 60 for sent in split_sentences):
                 split_sentences = [subsent for sent in split_sentences for subsent in split_extremely_long_sentence(nlp(sent))]
             all_split_sentences.extend(split_sentences)
-            print(f"✂️  分割长句: {sentence[:30]}...")
+            print(f"✂️  Splitting long sentences by root: {sentence[:30]}...")
         else:
             all_split_sentences.append(sentence.strip())
 

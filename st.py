@@ -1,42 +1,45 @@
 import streamlit as st
 import os, sys
+import pandas as pd
 from st_components.imports_and_utils import *
 from st_components.download_video_section import download_video_section
 from st_components.sidebar_setting import page_setting
+from st_components.i18n import get_localized_string as gls
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
 
 cloud = 1 if sys.platform.startswith('linux') else 0
+st.set_page_config(page_title="VideoLingo", page_icon="🌉")
 
 def text_processing_section():
-    st.header("翻译并生成字幕")
+    st.header(gls("translate_generate_subtitle"))
     with st.container(border=True):
-        st.markdown("""
+        st.markdown(f"""
         <p style='font-size: 20px;'>
-        该阶段包括以下步骤：
+        {gls("text_processing_steps")}
         <p style='font-size: 20px;'>
-            1. Whisper 单词级转录<br>
-            2. Spacy 和 Claude 分割句子<br>
-            3. 总结和多步翻译<br>
-            4. 切割对齐长字幕<br>
-            5. 生成时间轴和字幕<br>
-            6. 将字幕合并到视频中
+            {gls("step1")}<br>
+            {gls("step2")}<br>
+            {gls("step3")}<br>
+            {gls("step4")}<br>
+            {gls("step5")}<br>
+            {gls("step6")}
         """, unsafe_allow_html=True)
 
         if not os.path.exists("output/output_video_with_subs.mp4"):
-            if st.button(" 开始处理字幕 ", key="text_processing_button"):
+            if st.button(gls("start_processing_subtitles"), key="text_processing_button"):
                 process_text()
                 st.rerun()
         else:
             if cloud:
-                st.warning("目前 Linux 下合并中文字幕展示乱码，请下载 srt 文件自行压制处理～")
+                st.warning(gls("linux_warning"))
             else:
-                st.success("字幕翻译已完成! 建议下载 srt 文件自行压制 ~")
+                st.success(gls("subtitle_translation_complete"))
             st.video("output/output_video_with_subs.mp4")
-            download_subtitle_zip_button(text="下载所有字幕")
+            download_subtitle_zip_button(text=gls("download_all_subtitles"))
             
-            if st.button("归档到`history`文件夹", key="cleanup_in_text_processing"):
+            if st.button(gls("archive_to_history"), key="cleanup_in_text_processing"):
                 cleanup()
                 st.rerun()
             return True
@@ -44,44 +47,44 @@ def text_processing_section():
 def process_text():
     video_file = step1_ytdlp.find_video_files()
     
-    with st.spinner("使用Whisper进行转录..."):
+    with st.spinner(gls("using_whisper_transcription")):
         step2_whisper.transcribe(video_file)
-    with st.spinner("分割长句..."):  
+    with st.spinner(gls("splitting_long_sentences")):  
         step3_1_spacy_split.split_by_spacy()
         step3_2_splitbymeaning.split_sentences_by_meaning()
-    with st.spinner("总结和翻译..."):
+    with st.spinner(gls("summarizing_and_translating")):
         step4_1_summarize.get_summary()
         step4_2_translate_all.translate_all()
-    with st.spinner("处理对齐字幕..."): 
+    with st.spinner(gls("processing_aligning_subtitles")): 
         step5_splitforsub.split_for_sub_main()
         step6_generate_final_timeline.align_timestamp_main()
-    with st.spinner("合并字幕到视频..."):
+    with st.spinner(gls("merging_subtitles_to_video")):
         step7_merge_sub_to_vid.merge_subtitles_to_video()
     
-    st.success("字幕处理完成! 🎉")
+    st.success(gls("subtitle_processing_complete"))
     st.balloons()
 
 def audio_processing_section():
-    st.header("GPT-SoVits 配音(beta 开发完善中)")
+    st.header(gls("audio_dubbing_title"))
     with st.container(border=True):
-        st.markdown("""
+        st.markdown(f"""
         <p style='font-size: 20px;'>
-        该阶段包括以下步骤：
+        {gls("audio_processing_steps")}
         <p style='font-size: 20px;'>
-            1. 提取参考音频<br>
-            2. 生成音频任务<br>
-            3. 使用SoVITS生成音频<br>
-            4. 将音频合并到视频中
+            {gls("audio_step1")}<br>
+            {gls("audio_step2")}<br>
+            {gls("audio_step3")}<br>
+            {gls("audio_step4")}
         """, unsafe_allow_html=True)
         if not os.path.exists("output/output_video_with_audio.mp4"):
-            if st.button("开始配音处理", key="audio_processing_button"):
+            if st.button(gls("start_audio_processing"), key="audio_processing_button"):
                 process_audio()
                 st.video("output/output_video_with_audio.mp4")
                 return True
         else:
-            st.success("配音处理已完成! 可以在`output`文件夹下查看音频文件 ~")
+            st.success(gls("audio_processing_complete"))
             st.video("output/output_video_with_audio.mp4") 
-            if st.button("归档到`history`文件夹", key="cleanup_in_audio_processing"):
+            if st.button(gls("archive_to_history"), key="cleanup_in_audio_processing"):
                 cleanup()
                 st.rerun()
 
@@ -101,18 +104,18 @@ def process_audio():
     st.balloons()
 
 def main():
-    st.set_page_config(page_title="VideoLingo: 连接世界的每一帧", page_icon="🌉")
+    
     st.markdown(button_style, unsafe_allow_html=True)
 
-    st.markdown("<h1 style='font-size: 3rem;'>VideoLingo: 连接世界的每一帧</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 20px; color: #808080;'>哈喽，感谢访问 VideoLingo. 目前该项目还在建设中，遇到任何问题可以在 Github 或 QQ 群提问！我们将在不久的未来呈现更多功能，感谢理解！</p>", unsafe_allow_html=True)
-    # 在侧边栏添加设置部分
+    st.markdown(f"<h1 style='font-size: 3rem;'>{gls('app_title')}</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size: 20px; color: #808080;'>{gls('app_description')}</p>", unsafe_allow_html=True)
+    # add settings
     with st.sidebar:
         page_setting()
         st.markdown(give_star_button, unsafe_allow_html=True)
     download_video_section(cloud)
     text_processing_section()
-    st.warning("配音功能仍在开发中，暂已停用，感谢理解！")
+    st.warning(gls("dubbing_feature_warning"))
     # if not cloud:
     #     audio_processing_section()
 

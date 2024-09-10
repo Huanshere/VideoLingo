@@ -44,7 +44,7 @@ def translate_chunk(chunk, chunks, theme_prompt, i):
 def translate_all():
     # Check if the file exists
     if os.path.exists("output/log/translation_results.xlsx"):
-        print("🚨 文件 `translation_results.xlsx` 已经存在，跳过此步。")
+        print("🚨 File `translation_results.xlsx` already exists, skipping TRANSLATE ALL.")
         return
     
     chunks = split_chunks_by_chars()

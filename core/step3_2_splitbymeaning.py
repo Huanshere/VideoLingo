@@ -10,7 +10,7 @@ from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
 
 def tokenize_sentence(sentence, nlp):
-    # 分词器 统计句子单词数量
+    # tokenizer counts the number of words in the sentence
     doc = nlp(sentence)
     return [token.text for token in doc]
 
@@ -36,12 +36,12 @@ def find_split_positions(original, modified):
                 best_split = j
 
         if max_similarity < 0.9:
-            print(f"警告：找到的最佳分割点相似度较低 {max_similarity}")
+            print(f"Warning: low similarity found at the best split point: {max_similarity}")
         if best_split is not None:
             split_positions.append(best_split)
             start = best_split
         else:
-            print(f"警告：无法为第 {i+1} 部分找到合适的分割点。")
+            print(f"Warning: Unable to find a suitable split point for the {i+1}th part.")
 
     return split_positions
 
@@ -98,21 +98,21 @@ def parallel_split_sentences(sentences, max_length, max_workers, nlp, retry_atte
     return [sentence for sublist in new_sentences for sentence in sublist]
 
 def split_sentences_by_meaning():
-    """按意义分割句子的主要函数。"""
-    # 读取输入的句子
+    """The main function to split sentences by meaning."""
+    # read input sentences
     with open('output/log/sentence_splitbynlp.txt', 'r', encoding='utf-8') as f:
         sentences = [line.strip() for line in f.readlines()]
 
     nlp = init_nlp()
-    # 🔄 多次处理句子以确保全部被分割
+    # 🔄 process sentences multiple times to ensure all are split
     from config import MAX_WORKERS, MAX_SPLIT_LENGTH
     for retry_attempt in range(5):
         sentences = parallel_split_sentences(sentences, max_length=MAX_SPLIT_LENGTH, max_workers=MAX_WORKERS, nlp=nlp, retry_attempt=retry_attempt)
 
-    # 💾 保存结果
+    # 💾 save results
     with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:
         f.write('\n'.join(sentences))
-    print('✅ 所有句子已成功分割')
+    print('✅ All sentences have been successfully split!')
 
 if __name__ == '__main__':
     # print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))

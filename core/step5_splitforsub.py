@@ -8,20 +8,20 @@ from core.step3_2_splitbymeaning import split_sentence
 from core.ask_gpt import ask_gpt, step5_align_model
 from core.prompts_storage import get_align_prompt
 
-# ! 你可以在这里修改你自己的权重
-# 中文日文 2.5 个字符，韩文 2 个字符，泰文 1.5 个字符，全角符号 2 个字符，其他英语系和半角符号 1 个字符
+# ! You can modify your own weights here
+# Chinese and Japanese 2.5 characters, Korean 2 characters, Thai 1.5 characters, full-width symbols 2 characters, other English-based and half-width symbols 1 character
 def calc_len(text: str) -> float:
     def char_weight(char):
         code = ord(char)
-        if 0x4E00 <= code <= 0x9FFF or 0x3040 <= code <= 0x30FF:  # 中文和日文
+        if 0x4E00 <= code <= 0x9FFF or 0x3040 <= code <= 0x30FF:  # Chinese and Japanese
             return 1.75
-        elif 0xAC00 <= code <= 0xD7A3 or 0x1100 <= code <= 0x11FF:  # 韩文
+        elif 0xAC00 <= code <= 0xD7A3 or 0x1100 <= code <= 0x11FF:  # Korean
             return 1.5
-        elif 0x0E00 <= code <= 0x0E7F:  # 泰文
+        elif 0x0E00 <= code <= 0x0E7F:  # Thai
             return 1
-        elif 0xFF01 <= code <= 0xFF5E:  # 全角符号
+        elif 0xFF01 <= code <= 0xFF5E:  # full-width symbols
             return 1.75
-        else:  # 其他字符（如英文和半角符号）
+        else:  # other characters (e.g. English and half-width symbols)
             return 1
 
     return sum(char_weight(char) for char in text)
@@ -43,14 +43,14 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
 def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> Tuple[List[str], List[str]]:
     from config import MAX_SUB_LENGTH, TARGET_SUB_MULTIPLIER, MAX_WORKERS
     for attempt in range(max_retry):
-        print(f"🔄 切割尝试第 {attempt + 1} 次")
+        print(f"🔄 Split attempt {attempt + 1}")
         to_split = []
         
         for i, (src, tr) in enumerate(zip(src_lines, tr_lines)):
             src, tr = str(src), str(tr)
             if len(src) > MAX_SUB_LENGTH or calc_len(tr) * TARGET_SUB_MULTIPLIER > MAX_SUB_LENGTH:
                 to_split.append(i)
-                print(f"📏 第 {i} 行需要切割:")
+                print(f"📏 Line {i} needs to be split:")
                 print(f"Source Line:   {src}")
                 print(f"Target Line:   {tr}")
                 print()
@@ -73,16 +73,16 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> 
 
 def split_for_sub_main():
     if os.path.exists("output/log/translation_results_for_subtitles.xlsx"):
-        print("🚨 文件 `translation_results_for_subtitles.xlsx` 已经存在，跳过此步。")
+        print("🚨 File `translation_results_for_subtitles.xlsx` already exists, skipping this step.")
         return
 
-    print('🚀 开始字幕分割...')
+    print('🚀 Start splitting subtitles...')
     df = pd.read_excel("output/log/translation_results.xlsx")
     src_lines = df['Source'].tolist()
     tr_lines = df['Translation'].tolist()
     src_lines, tr_lines = split_align_subs(src_lines, tr_lines, max_retry=5)
     pd.DataFrame({'Source': src_lines, 'Translation': tr_lines}).to_excel("output/log/translation_results_for_subtitles.xlsx", index=False)
-    print('✅ 字幕分割完成！')
+    print('✅ Subtitles splitting completed!')
 
 if __name__ == '__main__':
     split_for_sub_main()

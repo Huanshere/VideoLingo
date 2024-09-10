@@ -24,13 +24,13 @@ def find_video_files(save_path='output'):
     video_files = [file for file in video_files if not file.startswith("output/output")]
     # if num != 1, raise ValueError
     if len(video_files) != 1:
-        raise ValueError(f"找到的视频数量不唯一，请检查。找到的视频数量: {len(video_files)}")
+        raise ValueError(f"Number of videos found is not unique. Please check. Number of videos found: {len(video_files)}")
     return video_files[0]
 
 if __name__ == '__main__':
-    # 示例用法
-    url = input('请输入您想下载的视频URL: ')
-    resolution = input('请输入所需分辨率 (360/480/1080，默认1080): ')
+    # Example usage
+    url = input('Please enter the URL of the video you want to download: ')
+    resolution = input('Please enter the desired resolution (360/480/1080, default 1080): ')
     resolution = int(resolution) if resolution.isdigit() else 1080
     download_video_ytdlp(url, resolution=resolution)
-    print(f"🎥 视频已下载到 {find_video_files()}")
+    print(f"🎥 Video has been downloaded to {find_video_files()}")

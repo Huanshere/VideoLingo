@@ -26,19 +26,19 @@ def convert_video_to_audio_and_transcribe(input_file: str):
             '-b:a', '64k',
             audio_file
         ]
-        print(f"🎬➡️🎵 正在转换为音频......")
+        print(f"🎬➡️🎵 Converting to audio......")
         subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
-        print(f"🎬➡️🎵 已将 <{input_file}> 转换为 <{audio_file}>\n")
+        print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}>\n")
     
     # Check file size
     if os.path.getsize(audio_file) > 25 * 1024 * 1024:
-        print("⚠️ 文件大小超过25MB。请使用更小的文件。")
+        print("⚠️ Warning: File size exceeds 25MB. Please use a smaller file.")
         return None
     
     # Transcribe audio
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    print(f"🚀 正在启动Whisper...\n🖥️  ASR设备: {device}")
-    print("此步骤会花费很长时间，尤其会在100%后仍然处理很长时间...")
+    print(f"🚀 Starting Whisper...\n🖥️ ASR device: {device}")
+    print("⏳ This step will take a long time, especially after reaching 100%...")
     
     audio = whisper.load_audio(audio_file)
     os.makedirs(MODEL_DIR, exist_ok=True)
@@ -52,7 +52,7 @@ def convert_video_to_audio_and_transcribe(input_file: str):
     os.makedirs('output/log', exist_ok=True)
     with open('output/log/transcript_language.json', 'w', encoding='utf-8') as f:
         json.dump({"language": result['language']}, f, ensure_ascii=False, indent=4)
-    print(f"📝 已将识别到的语言保存到 output/log/transcript_language.json")
+    print(f"📝 Detected language saved to output/log/transcript_language.json")
 
     # Process transcription results
     all_words: List[Dict[str, float]] = [
@@ -69,10 +69,10 @@ def save_results(df: pd.DataFrame):
     os.makedirs('output', exist_ok=True)
     os.makedirs('output/log', exist_ok=True)
     excel_path = os.path.join('output/log', "cleaned_chunks.xlsx")
-    # 给df[text]列都加上""，防止数字被excel自动转换为数字
+    # Add quotes to df[text] column to prevent Excel from auto-converting numbers
     df['text'] = df['text'].apply(lambda x: f'"{x}"')
     df.to_excel(excel_path, index=False)
-    print(f"📊 Excel文件已保存到 {excel_path}")
+    print(f"📊 Excel file saved to {excel_path}")
 
 def transcribe(video_file: StopIteration):
     if not os.path.exists("output/log/cleaned_chunks.xlsx"):
@@ -81,10 +81,10 @@ def transcribe(video_file: StopIteration):
         if df is not None:
             save_results(df)
     else:
-        print("📊 转录结果已存在，跳过转录步骤。")
+        print("📊 Transcription results already exist, skipping transcription step.")
 
 if __name__ == "__main__":
     from core.step1_ytdlp import find_video_files
     video_file = find_video_files()
-    print(f"🎬 找到的视频文件: {video_file}, 开始转录...")
+    print(f"🎬 Found video file: {video_file}, starting transcription...")
     transcribe(video_file)

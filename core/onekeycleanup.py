@@ -19,59 +19,59 @@ def cleanup():
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(gpt_log_dir, exist_ok=True)
 
-    # 移动非日志文件
+    # Move non-log files
     for file in glob.glob("output/*"):
         if not file.endswith(('log', 'gpt_log')):
             move_file(file, history_dir)
 
-    # 移动 log 文件
+    # Move log files
     for file in glob.glob("output/log/*"):
         move_file(file, log_dir)
 
-    # 移动 gpt_log 文件
+    # Move gpt_log files
     for file in glob.glob("output/gpt_log/*"):
         move_file(file, gpt_log_dir)
 
-    # 删除空的 output 目录
+    # Delete empty output directories
     try:
         os.rmdir("output/log")
         os.rmdir("output/gpt_log")
         os.rmdir("output")
     except OSError:
-        pass  # 忽略删除失败的错误
+        pass  # Ignore errors when deleting directories
 
 def move_file(src, dst):
     try:
-        # 获取源文件的文件名
+        # Get the source file name
         src_filename = os.path.basename(src)
-        # 使用 os.path.join 来确保路径的正确性，并包含文件名
+        # Use os.path.join to ensure correct path and include file name
         dst = os.path.join(dst, sanitize_filename(src_filename))
         
         if os.path.exists(dst):
             if os.path.isdir(dst):
-                # 如果目标是文件夹，尝试删除文件夹内容
+                # If destination is a folder, try to delete its contents
                 shutil.rmtree(dst, ignore_errors=True)
             else:
-                # 如果目标是文件，尝试删除文件
+                # If destination is a file, try to delete it
                 os.remove(dst)
         
         shutil.move(src, dst, copy_function=shutil.copy2)
-        print(f"✅ 已移动: {src} -> {dst}")
+        print(f"✅ Moved: {src} -> {dst}")
     except PermissionError:
-        print(f"⚠️ 权限错误: 无法删除 {dst}，尝试直接覆盖")
+        print(f"⚠️ Permission error: Cannot delete {dst}, attempting to overwrite")
         try:
             shutil.copy2(src, dst)
             os.remove(src)
-            print(f"✅ 已复制并删除源文件: {src} -> {dst}")
+            print(f"✅ Copied and deleted source file: {src} -> {dst}")
         except Exception as e:
-            print(f"❌ 移动失败: {src} -> {dst}")
-            print(f"错误信息: {str(e)}")
+            print(f"❌ Move failed: {src} -> {dst}")
+            print(f"Error message: {str(e)}")
     except Exception as e:
-        print(f"❌ 移动失败: {src} -> {dst}")
-        print(f"错误信息: {str(e)}")
+        print(f"❌ Move failed: {src} -> {dst}")
+        print(f"Error message: {str(e)}")
 
 def sanitize_filename(filename):
-    # 移除或替换不允许的字符
+    # Remove or replace disallowed characters
     invalid_chars = '<>:"/\\|?*'
     for char in invalid_chars:
         filename = filename.replace(char, '_')

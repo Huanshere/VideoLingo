@@ -92,7 +92,7 @@ def split_sentences_main(nlp):
     with open("output/log/sentence_splitbyconnector.txt", "w+", encoding="utf-8") as output_file:
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
-        # 最后一行不加换行符
+        # do not add a newline at the end of the file
         output_file.seek(output_file.tell() - 1, os.SEEK_SET)
         output_file.truncate()
 

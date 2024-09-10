@@ -8,9 +8,9 @@ from core.step2_whisper import get_whisper_language
 from config import get_joiner, WHISPER_LANGUAGE
 
 def split_by_mark(nlp):
-    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # 考虑强制英文的情况
+    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
     joiner = get_joiner(language)
-    print(f"🔍 正在使用 {language} 语言的拼接方式: '{joiner}'")
+    print(f"🔍 Using {language} language joiner: '{joiner}'")
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"'))
     

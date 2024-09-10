@@ -9,8 +9,10 @@ from core.ask_gpt import ask_gpt
 import config
 import streamlit as st
 import io, zipfile
+from st_components.i18n import get_localized_string
 
-def download_subtitle_zip_button(text="📥 下载所有字幕文件"):
+def download_subtitle_zip_button():
+    text=f"📥 {get_localized_string('download_all_subtitles')}"
     zip_buffer = io.BytesIO()
     output_dir = "output"
     
@@ -51,10 +53,9 @@ give_star_button = """
         color: #144070;
     }
 </style>
-
 <a href="https://github.com/Huanshere/VideoLingo" target="_blank" style="text-decoration: none;">
     <div class="github-button">
-        去 GitHub 打个星 🌟
+        Star on GitHub 🌟
     </div>
 </a>
 """

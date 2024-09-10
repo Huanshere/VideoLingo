@@ -47,7 +47,7 @@ def merge_subtitles_to_video():
         output_video
     ]
 
-    print("开始压制字幕到视频...")
+    print("🎬 Start merging subtitles to video...")
     start_time = time.time()
     process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -55,7 +55,7 @@ def merge_subtitles_to_video():
         stdout, stderr = process.communicate(timeout=120)
         if process.returncode == 0:
             print(f"Process completed in {time.time() - start_time:.2f} seconds.")
-            print("🎉🎥 压制字幕到视频完成! 在 `output` 文件夹中查看 `output_video_with_subs.mp4` 👀")
+            print("🎉🎥 Subtitles merging to video completed! Please check in the `output` folder 👀")
         else:
             print("Error occurred during FFmpeg execution:")
             print(stderr.decode())

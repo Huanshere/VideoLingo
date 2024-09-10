@@ -8,7 +8,7 @@ from config import SPACY_MODEL_MAP
 def get_spacy_model(language: str):
     model = SPACY_MODEL_MAP.get(language.lower(), "en_core_web_sm")
     if language not in SPACY_MODEL_MAP:
-        print(f"Spacy 模型不支持'{language}'，使用 en_core_web_sm 模型作为后备选项...")
+        print(f"Spacy model does not support '{language}', using en_core_web_sm model as fallback...")
     return model
 
 def init_nlp():
@@ -16,21 +16,21 @@ def init_nlp():
         from config import WHISPER_LANGUAGE
         language = "en" if WHISPER_LANGUAGE == "en" else get_whisper_language()
         model = get_spacy_model(language)
-        print(f"⏳ 正在加载 NLP Spacy 模型: <{model}> ...")
+        print(f"⏳ Loading NLP Spacy model: <{model}> ...")
         try:
             nlp = spacy.load(model)
         except:
-            print(f"正在下载 {model} 模型...")
+            print(f"Downloading {model} model...")
             download(model)
             nlp = spacy.load(model)
     except:
-        print(f"未检测到语言，使用 en_core_web_sm 模型作为后备选项...")
+        print(f"Language not detected, using en_core_web_sm model as fallback...")
         model = "en_core_web_sm"
         try:
             nlp = spacy.load(model)
         except:
-            print(f"正在下载 {model} 模型...")
+            print(f"Downloading {model} model...")
             download(model)
             nlp = spacy.load(model)
-    print(f"✅ NLP Spacy 模型加载成功！")
+    print(f"✅ NLP Spacy model loaded successfully!")
     return nlp

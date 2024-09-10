@@ -8,7 +8,7 @@ def get_whisper_language():
             language = json.load(f)["language"]
         return language
     except:
-        print("无法读取语言信息")
+        print("Unable to read language information")
         return None
 
 def transcribe(video_file: str):
@@ -24,5 +24,5 @@ def transcribe(video_file: str):
 if __name__ == "__main__":
     from core.step1_ytdlp import find_video_files
     video_file = find_video_files()
-    print(f"🎬 找到的视频文件: {video_file}, 开始转录...")
+    print(f"🎬 Found video file: {video_file}, starting transcription...")
     transcribe(video_file)

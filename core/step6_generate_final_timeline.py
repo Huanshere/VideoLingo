@@ -33,7 +33,7 @@ def get_sentence_timestamps(df_words, df_sentences):
         best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0}
         decreasing_count = 0
         current_phrase = ""
-        start_index = word_index  # 记录当前句子开始的词索引
+        start_index = word_index  # record the index of the word where the current sentence starts
 
         while word_index < len(df_words):
             word = remove_punctuation(df_words['text'][word_index].lower())
@@ -53,22 +53,22 @@ def get_sentence_timestamps(df_words, df_sentences):
                 decreasing_count = 0
             else:
                 decreasing_count += 1
-            # 如果连续 5 个词都没有匹配，则跳出循环
+            # if 5 consecutive words don't match, break the loop
             if decreasing_count >= 5:
                 break
             word_index += 1
         
         if best_match['score'] > 0.9:
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
-            word_index = start_index + best_match['word_count']  # 更新word_index到下一个句子的开始
+            word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
         else:
-            print(f"警告：无法为句子找到匹配: {sentence}")
-            print("原句：", sentence)
-            print("匹配：", best_match['phrase'])
-            print("相似度：{:.2f}".format(best_match['score']))
-            print("-" * 50)
+            print(f"⚠️ Warning: No match found for the sentence: {sentence}")
+            print(f"🔍 Original sentence: {sentence}")
+            print(f"🔗 Matched: {best_match['phrase']}")
+            print(f"📊 Similarity: {best_match['score']:.2f}")
+            print("➖" * 25)
         
-        start_index = word_index  # 为下一个句子更新start_index
+        start_index = word_index  # update start_index for the next sentence
     
     return time_stamp_list
 
@@ -85,19 +85,19 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     time_stamp_list = get_sentence_timestamps(df_text, df_translate)
     df_trans_time['timestamp'] = time_stamp_list
 
-    # 移除间隙 🕳️
+    # Remove gaps 🕳️
     for i in range(len(df_trans_time)-1):
         delta_time = df_trans_time.loc[i+1, 'timestamp'][0] - df_trans_time.loc[i, 'timestamp'][1]
         if 0 < delta_time < 1:
             df_trans_time.at[i, 'timestamp'] = (df_trans_time.loc[i, 'timestamp'][0], df_trans_time.loc[i+1, 'timestamp'][0])
 
-    # 将开始和结束时间戳转换为SRT格式
+    # Convert start and end timestamps to SRT format
     df_trans_time['timestamp'] = df_trans_time['timestamp'].apply(lambda x: convert_to_srt_format(x[0], x[1]))
 
-    # 美化字幕：替换Translation中的标点符号
+    # Polish subtitles: replace punctuation in Translation
     df_trans_time['Translation'] = df_trans_time['Translation'].apply(lambda x: re.sub(r'[,，。]', ' ', x).strip())
 
-    # 输出字幕 📜
+    # Output subtitles 📜
     def generate_subtitle_string(df, columns):
         return ''.join([f"{i+1}\n{row['timestamp']}\n{row[columns[0]].strip()}\n{row[columns[1]].strip() if len(columns) > 1 else ''}\n\n" for i, row in df.iterrows()]).strip()
 
@@ -117,7 +117,7 @@ def align_timestamp(df_text, df_translate, for_audio = False):
             f.write(subtitle_str)
 
     if for_audio:
-        # 为音频生成额外的字幕文件
+        # Generate additional subtitle files for audio
         with open('output/audio/src_subs_for_audio.srt', 'w', encoding='utf-8') as f:
             f.write(generate_subtitle_string(df_trans_time, ['Source']))
         with open('output/audio/trans_subs_for_audio.srt', 'w', encoding='utf-8') as f:
@@ -131,17 +131,17 @@ def align_timestamp_main():
     df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，').strip('"') if pd.notna(x) else '')
     # check if there's empty translation
     if (df_translate['Translation'].str.len() == 0).sum() > 0:
-        raise ValueError(r'🚫 检测到空的翻译行！请手动检查 `output\log\translation_results_for_subtitles.xlsx` 中的空行填充内容，然后重新运行。')
+        raise ValueError(r'🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again.')
     align_timestamp(df_text, df_translate)
-    print('🎉📝 字幕生成成功！请在 `output` 文件夹中查看 👀')
+    print('🎉📝 Subtitles generation completed! Please check in the `output` folder 👀')
 
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
     if (df_translate_for_audio['Translation'].str.len() == 0).sum() > 0:
-        raise ValueError(r'🚫 检测到空的翻译行！请手动检查 `output\log\translation_results.xlsx` 中的空行填充内容，然后重新运行。')
+        raise ValueError(r'🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results.xlsx` and fill them with appropriate content, then run again.')
     align_timestamp(df_text, df_translate_for_audio, for_audio=True)
-    print('🎉📝 音频字幕生成成功！请在 `output/audio` 文件夹中查看 👀')
+    print('🎉📝 Audio subtitles generation completed! Please check in the `output/audio` folder 👀')
     
 
 if __name__ == '__main__':
