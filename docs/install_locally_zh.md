@@ -17,7 +17,21 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 2. 若选用 `whisperX_api`，请注册 Replicate 账号并绑定支付方式，获取你的令牌。也可联系我，我可以免费提供给你key测试用。
 
-## 🛠️ 安装流程
+## 💾 一键包下载
+
+如果你不想手动安装,我们也提供了 `whisperX_api` 版本的一键安装包:
+
+1. 下载 `v0.6.0` 一键安装包(600M): [直达链接](https://your-download-link-here.com) | [度盘备用](https://pan.baidu.com/s/16nV3ccnGCjASzYlLnMRP_Q?pwd=6969)
+
+2. 解压下载的压缩文件到想要的位置
+
+3. 双击运行解压后文件夹中的 `一键启动.bat`
+
+4. 在打开的浏览器窗口中,按照界面提示进行配置和使用
+
+> 注意:一键包中已包含所有必要的依赖,无需额外安装。但仍需要准备好API密钥才能使用全部功能,在网页中配置key的过程可参考最底下。
+
+## 🛠️ 手动安装流程
 
 ### 前置依赖
 
@@ -72,3 +86,5 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 6. 在弹出网页的侧边栏中设置key，并注意选择正确使用的whisper方法
 
    ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
+
+
