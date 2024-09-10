@@ -11,8 +11,7 @@ import streamlit as st
 import io, zipfile
 from st_components.i18n import get_localized_string
 
-def download_subtitle_zip_button():
-    text=f"📥 {get_localized_string('download_all_subtitles')}"
+def download_subtitle_zip_button(text: str):
     zip_buffer = io.BytesIO()
     output_dir = "output"
     
