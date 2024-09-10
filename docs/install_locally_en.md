@@ -1,6 +1,6 @@
 # 🏠 VideoLingo Local Deployment Guide (Windows)
 
-VideoLingo offers multiple Whisper solutions for speech recognition text steps (as there's no single perfect choice currently). Choose one based on your personal configuration and needs.
+VideoLingo offers multiple Whisper solutions for speech recognition (as there's no single perfect choice currently). Choose one based on your configuration and needs.
 
 | Solution | Advantages | Disadvantages |
 |:---------|:-----------|:--------------|
@@ -10,35 +10,38 @@ VideoLingo offers multiple Whisper solutions for speech recognition text steps (
 
 ## 📋 Preparation
 
-1. Register an account on [Yunwu API](https://api.wlai.vip/register?aff=TXMB) and recharge to get a token (or use any claude-3.5-sonnet provider)
+1. Register an account on [Yunwu API](https://api.wlai.vip/register?aff=TXMB) and recharge to get a token (or use any claude-3.5-sonnet provider or deepseek-coder)
    
    ![Yunwu API Registration Process](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
 
-2. If using `whisperX_api`, register a Replicate account, link a payment method, and get your token
+2. If choosing `whisperX_api`, register a Replicate account, set up payment method, and get your token
 
 ## 🛠️ Installation Process
 
 ### Prerequisites
 
-Before installing VideoLingo, ensure you complete the following steps:
+> We'll soon move the whisperX model to the cloud to avoid installing too many dependencies locally
 
-1. Install [Visual Studio 2022](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
-   - Select and install the "Desktop development with C++" component package
+Before installing VideoLingo, ensure at least **20GB** of disk space and complete the following steps:
 
-2. Install [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
+1. Install [Anaconda](https://www.anaconda.com/download/success)
+   - Make sure to check "Add to PATH" during installation
 
-3. Install [Anaconda](https://www.anaconda.com/download/success)
+2. Install [Git](https://git-scm.com/download/win)
 
-4. Install [Git](https://git-scm.com/download/win)
-
-5. For users choosing `whisperX`:
+3. For `whisperX` users:
    - Install [Cuda Toolkit](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
    - Install [Cudnn](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
    - Restart your computer after installation
 
-### Installation Steps
+4. For `whisper_timestamped` users:
+   - Install [Visual Studio 2022](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
+     - Check "Desktop development with C++" component in the installation interface
+   - Install [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
-1. Open Anaconda Prompt and switch to the desktop directory:
+### Installation Steps
+> If you encounter any issues, you can ask GPT about the entire process~
+1. Open Anaconda Powershell Prompt and switch to the desktop directory:
    ```bash
    cd desktop
    ```
@@ -59,7 +62,7 @@ Before installing VideoLingo, ensure you complete the following steps:
    ```bash
    python install.py
    ```
-   Choose the desired Whisper project when prompted, and the script will automatically install the corresponding torch and whisper versions.
+   Follow the prompts to select the desired Whisper project. The script will automatically install the corresponding torch and whisper versions.
 
 5. 🎉 Launch the Streamlit application: Double-click `一键启动.bat` or enter
    ```bash
