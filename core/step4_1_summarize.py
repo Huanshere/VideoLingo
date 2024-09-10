@@ -31,7 +31,7 @@ def get_summary():
     from config import step4_1_summarize_model
     src_content = combine_chunks()
     summary_prompt = get_summary_prompt(src_content)
-    summary = ask_gpt(summary_prompt, model=step4_1_summarize_model, response_json=True, log_title='summary')
+    summary = ask_gpt(summary_prompt, model=step4_1_summarize_model, response_json=True, valid_key='terms', log_title='summary')
 
     with open('output/log/terminology.json', 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=4)

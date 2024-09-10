@@ -10,14 +10,14 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
 
     ## Step 1: Faithful to the Original Text
     prompt1 = get_prompt_faithfulness(lines, shared_prompt)
-    faith_result = ask_gpt(prompt1, model=step4_2_translate_direct_model, response_json=True, log_title='translate_faithfulness')
+    faith_result = ask_gpt(prompt1, model=step4_2_translate_direct_model, response_json=True, valid_key='1', log_title='translate_faithfulness')
     for i in faith_result:
         print(f'📄 Original Subtitle:   {faith_result[i]["Original Subtitle"]}')
         print(f'📚 Direct Translation:  {faith_result[i]["Direct Translation"]}')
 
     ## Step 2: Express Smoothly
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)
-    express_result =  ask_gpt(prompt2, model=step4_2_translate_free_model, response_json=True, log_title='translate_expressiveness') 
+    express_result =  ask_gpt(prompt2, model=step4_2_translate_free_model, response_json=True, valid_key='1', log_title='translate_expressiveness') 
     for i in express_result:
         print(f'📄 Original Subtitle:   {express_result[i]["Original Subtitle"]}')
         print(f'🧠 Free Translation:    {express_result[i]["Free Translation"]}')

@@ -58,7 +58,7 @@ def make_api_call(client, model, messages, response_format):
         response_format=response_format
     )
 
-def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
+def ask_gpt(prompt, model, response_json=True, valid_key='', log_title='default'):
     with LOCK:
         if check_ask_gpt_history(prompt, model):
             return check_ask_gpt_history(prompt, model)
@@ -79,6 +79,9 @@ def ask_gpt(prompt, model, response_json = True, log_title = 'default'):
             if response_json:
                 try:
                     response_data = json_repair.loads(response.choices[0].message.content)
+                    if valid_key and valid_key not in response_data:
+                        print(f"❎ API响应错误：缺少'{valid_key}'键。正在重试...")
+                        raise ValueError(f"响应中缺少'{valid_key}'键")
                     break  # 成功访问且成功解析，跳出循环
                 except Exception as e:
                     response_data = response.choices[0].message.content
