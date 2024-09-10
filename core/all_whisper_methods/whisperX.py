@@ -71,18 +71,29 @@ def transcribe_audio(audio_file: str) -> Dict:
 
 def process_transcription(result: Dict) -> pd.DataFrame:
     all_words = []
+    # save to debug as json 
+    with open('output/log/debug.json', 'a', encoding='utf-8') as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
     for segment in result['segments']:
-        for i, word in enumerate(segment['words']):
-            if 'start' not in word and i > 0:
-                all_words[-1]['text'] = f'{all_words[-1]["text"][:-1]}{word["word"]}"'
+        for word in segment['words']:
+            if 'start' not in word and 'end' not in word:
+                if all_words:
+                    # 合并到前一个词
+                    all_words[-1]['text'] = f'{all_words[-1]["text"][:-1]}{word["word"]}"'
+                else:
+                    # 如果是第一个词，暂时保存，等待下一个有时间戳的词
+                    temp_word = word["word"]
             else:
+                # 正常情况，有开始和结束时间
                 word_dict = {
-                    'text': f'{word["word"]}',
+                    'text': f'"{temp_word}{word["word"]}"' if 'temp_word' in locals() else f'"{word["word"]}"',
                     'start': word.get('start', all_words[-1]['end'] if all_words else 0),
                     'end': word['end'],
                     'score': word.get('score', 0)
                 }
                 all_words.append(word_dict)
+                if 'temp_word' in locals():
+                    del temp_word
     
     return pd.DataFrame(all_words)
 
