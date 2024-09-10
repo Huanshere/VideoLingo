@@ -68,3 +68,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
    streamlit run st.py
    ```
    在浏览器中打开 Web 界面，通过侧边栏选择相应的 Whisper 方法并进行配置。
+
+6. 在弹出网页的侧边栏中设置key，并注意选择正确使用的whisper方法
+
+   ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
