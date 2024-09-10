@@ -103,8 +103,8 @@ MAX_SPLIT_LENGTH = 20
 # Spacy model
 # Spacy 模型
 SPACY_MODEL_MAP = {
-    "en": "en_core_web_lg",
-    "zh": "zh_core_web_lg",
+    "en": "en_core_web_sm",
+    "zh": "zh_core_web_sm",
     "es": "es_core_news_lg",
     "fr": "fr_core_news_lg",
     "de": "de_core_news_lg",

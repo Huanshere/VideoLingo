@@ -69,18 +69,25 @@ def transcribe_audio(audio_base64: str) -> Dict:
 def process_transcription(result: Dict) -> pd.DataFrame:
     all_words = []
     for segment in result['segments']:
-        for i, word in enumerate(segment['words']):
-            if 'start' not in word and i > 0:
-                # If the current word has no start, add it to the previous word, usually occurs with special characters
-                all_words[-1]['text'] = f'{all_words[-1]["text"][:-1]}{word["word"]}"'
+        for word in segment['words']:
+            if 'start' not in word and 'end' not in word:
+                if all_words:
+                    # Merge with the previous word
+                    all_words[-1]['text'] = f'{all_words[-1]["text"][:-1]}{word["word"]}"'
+                else:
+                    # If it's the first word, temporarily save it and wait for the next word with a timestamp
+                    temp_word = word["word"]
             else:
+                # Normal case, with start and end times
                 word_dict = {
-                    'text': f'"{word["word"]}"',
+                    'text': f'"{temp_word}{word["word"]}"' if 'temp_word' in locals() else f'"{word["word"]}"',
                     'start': word.get('start', all_words[-1]['end'] if all_words else 0),
                     'end': word['end'],
                     'score': word.get('score', 0)
                 }
                 all_words.append(word_dict)
+                if 'temp_word' in locals():
+                    del temp_word
     
     return pd.DataFrame(all_words)
 
