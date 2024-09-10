@@ -21,7 +21,7 @@ VideoLingo offers multiple Whisper solutions for speech recognition (as there's 
 
 If you don't want to install manually, we also provide a one-click installation package for the `whisperX_api` version:
 
-1. Download the `v0.6.0` one-click installation package (600M): [Direct Link](https://your-download-link-here.com) | [Baidu Pan Backup](https://pan.baidu.com/s/16nV3ccnGCjASzYlLnMRP_Q?pwd=6969)
+1. Download the `v0.6.0` one-click installation package (600M): [Direct Link](https://vip.123pan.cn/1817874751/7960342) | [Baidu Pan Backup](https://pan.baidu.com/s/16nV3ccnGCjASzYlLnMRP_Q?pwd=6969)
 
 2. Extract the downloaded file to your desired location
 
