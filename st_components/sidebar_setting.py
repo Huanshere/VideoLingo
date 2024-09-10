@@ -5,6 +5,7 @@ from st_components.imports_and_utils import ask_gpt
 import config
 import streamlit as st
 from st_components.i18n import get_system_language, get_localized_string
+import time
 
 def update_config(key, value):
     with open('config.py', 'r', encoding='utf-8') as f:
@@ -22,6 +23,8 @@ def init_display_language():
         display_language = get_system_language()
         update_config("DISPLAY_LANGUAGE", display_language)
         config.DISPLAY_LANGUAGE = display_language
+        time.sleep(0.2)
+        st.rerun()
 
 def page_setting():
     init_display_language()
