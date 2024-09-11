@@ -64,7 +64,7 @@ def transcribe_audio(audio_base64: str) -> Dict:
         )
         return output
     except Exception as e:
-        raise Exception(f"Error accessing whisperX API: {e} \n Cuda errors are caused by issues with the official API's server instance. Please wait for five minutes to allow the official server to switch, then try again.")
+        raise Exception(f"Error accessing whisperX API: {e} Please check your Replicate API key and internet connection.\n")
 
 def process_transcription(result: Dict) -> pd.DataFrame:
     all_words = []
