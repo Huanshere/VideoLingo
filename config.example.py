@@ -5,16 +5,15 @@ import os, sys
 ## ======================== 基本设置 ======================== ##
 ## ======================== Basic Settings ======================== ##
 
-# API 设置 建议使用唯一真神 https://api.wlai.vip/register?aff=TXMB, sonnet 价格仅 10r/1M。
-# API Settings. Recommended to use the one true god https://api.wlai.vip/register?aff=TXMB, sonnet price is only 10r/1M.
-# 申请令牌时勾选模型`claude-3-5-sonnet-20240620`，渠道建议选`默认渠道1.0`
-# When applying for a token, check the model `claude-3-5-sonnet-20240620`, recommended to choose `Default Channel 1.0`
+# API Settings
+# 为了最好的效果，请使用 claude-3.5-sonnet. 实测 deepseek-coder 也能有较好的效果且性价比高
+# For best results, please use claude-3.5-sonnet. In practice, deepseek-coder also performs well with lower cost.
 API_KEY = 'sk-xxx'
-BASE_URL = 'https://api2.wlai.vip'
-MODEL = ['claude-3-5-sonnet-20240620']
+BASE_URL = 'https://api.deepseek.com'
+MODEL = ['deepseek-coder']
 
 # Replicate API 设置
-# Replicate API settings
+# Replicate API settings for using whisperX
 REPLICATE_API_TOKEN = "xxx"
 
 # 语言设置，用自然语言描述
@@ -43,7 +42,7 @@ DISPLAY_LANGUAGE = 'auto'
 
 # Whisper 设置 [whisperx, whisperxapi, whisper_timestamped]
 # Whisper settings [whisperx, whisperxapi, whisper_timestamped]
-WHISPER_METHOD = 'whisperx'
+WHISPER_METHOD = 'whisperxapi'
 
 # 预留给 whisper_timestamped 的模型，英语场景下 medium 甚至比 large-v2 的时间轴还准
 # Reserved for whisper_timestamped model, in English scenarios, medium is even more accurate in timeline than large-v2
