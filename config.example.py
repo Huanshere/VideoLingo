@@ -142,8 +142,7 @@ def get_joiner(language):
     elif language in LANGUAGE_SPLIT_WITHOUT_SPACE:
         return ""
     else:
-        raise ValueError(f"不支持的语言代码: {language}")
-        # raise ValueError(f"Unsupported language code: {language}")
+        raise ValueError(f"Unsupported language code: {language}")
     
 
 # 配音设置 暂时弃用
