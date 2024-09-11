@@ -10,12 +10,9 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ## 📋 前期准备
 
-1. 在 [云雾 API](https://api.wlai.vip/register?aff=TXMB) 注册账号并充值以获取令牌（或者换任意的claude-3.5-sonnet提供商）
-   > 为了最佳效果请选择claude-3.5-sonnet, 若测试体验也可选择 deepseek-coder，稍后在侧边栏进行设置
-   
-   ![云雾 API 注册流程](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
+1. 获取 `claude-3-5-sonnet` 或 `deepseek-coder` 的 `API_KEY`，在后续网页的侧边栏中进行设置
 
-2. 若选用 `whisperX_api`，请注册 Replicate 账号并绑定支付方式，获取你的令牌。也可联系我，我可以免费提供给你key测试用。
+2. 若选用 `whisperX_api`，请注册 Replicate 账号并绑定支付方式，获取你的令牌。也可在 QQ 群联系我免费提供测试用。
 
 ## 💾 一键包下载
 
@@ -46,7 +43,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
    - 安装 [Cuda Toolkit](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
    - 安装 [Cudnn](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
    - 完成安装后重启计算机
-
+   > tips: 如果在后续运行中报错 CUDA Memory, 请自行在 ``core/all_whisper_methods/whisperX.py` 中调小 batch size 重试
 4. 对于选择 `whisper_timestamped` 的用户：
    - 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
      - 在安装界面勾选"使用 C++ 的桌面开发"组件包
