@@ -10,9 +10,9 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ## 📋 前期准备
 
-1. 获取 `claude-3-5-sonnet` 或 `deepseek-coder` 的 `API_KEY`，在后续网页的侧边栏中进行设置
+1. 获取 `claude-3-5-sonnet` 或 `deepseek-coder` 的 `API_KEY`，前者效果最好，默认使用后者，可在 [deepseek官网](https://platform.deepseek.com/api_keys) 获得
 
-2. 若选用 `whisperX_api`，请注册 Replicate 账号并绑定支付方式，获取你的令牌。也可在 QQ 群联系我免费提供测试用。
+2. 若选用 `whisperX_api`，请在 [Replicate官网](https://replicate.com/account/api-tokens) 注册并绑定支付方式，获取你的令牌。也可在 QQ 群联系我免费提供测试用。
 
 ## 💾 一键包下载
 
@@ -26,7 +26,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 4. 在打开的浏览器窗口中,按照界面提示进行配置和使用
 
-> 注意:一键包中已包含所有必要的依赖,无需额外安装。但仍需要准备好API密钥才能使用全部功能,在网页中配置key的过程可参考最底下。
+> 提示: 网页中配置 key 的过程参考最下方图片
 
 ## 🛠️ 手动安装流程
 
@@ -72,15 +72,16 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
    ```bash
    python install.py
    ```
-   根据提示选择所需的 Whisper 项目，脚本将自动安装相应的 torch 和 whisper 版本。
+   根据提示选择所需的 Whisper 项目，脚本将自动安装相应的 torch 和 whisper 版本
+
+   请确保网络连接，并检查安装过程是否有报错
 
 5. 🎉 启动 Streamlit 应用：
    ```bash
    streamlit run st.py
    ```
-   在浏览器中打开 Web 界面，通过侧边栏选择相应的 Whisper 方法并进行配置。
 
-6. 在弹出网页的侧边栏中设置key，并注意选择正确使用的whisper方法
+6. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
    ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
 
