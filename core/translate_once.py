@@ -21,7 +21,10 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     ## Step 1: Faithful to the Original Text
     prompt1 = get_prompt_faithfulness(lines, shared_prompt)
     faith_result = retry_translation(prompt1, step4_2_translate_direct_model, 'faithfulness')
-    
+    # ! Replace '\n' with ' ' in faith_result[i]["Direct Translation"],  sometimes gpt will add '\n'
+    for i in faith_result:
+        faith_result[i]["Direct Translation"] = faith_result[i]["Direct Translation"].replace('\n', ' ')
+
     for i in faith_result:
         print(f'📄 Original Subtitle:   {faith_result[i]["Original Subtitle"]}')
         print(f'📚 Direct Translation:  {faith_result[i]["Direct Translation"]}')
@@ -34,11 +37,14 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
         print(f'📄 Original Subtitle:   {express_result[i]["Original Subtitle"]}')
         print(f'🧠 Free Translation:    {express_result[i]["Free Translation"]}')
     
-    translate_result = "\n".join([express_result[i]["Free Translation"].strip() for i in express_result])
+    # ! Replace '\n' with ' ', sometimes gpt will add '\n' in the result and will cause the length of the original text and the translated text to be different
+    translate_result = "\n".join([express_result[i]["Free Translation"].replace('\n', ' ').strip() for i in express_result])
 
     if len(lines.split('\n')) != len(translate_result.split('\n')):
-        print(f'❌ Translation of block {index} failed')
-    print(f'✅ Translation of block {index} completed')
+        print(f'❌ Translation of block {index} failed, Length Mismatch, Please check `output\gpt_log\translate_expressiveness.json`, expected {len(lines.split("\n"))} lines, but got {len(translate_result.split("\n"))} lines.')
+        raise ValueError(f'Original ···{lines}···,\nbut got ···{translate_result}···')
+    else:
+        print(f'✅ Translation of block {index} completed')
     
     return translate_result, lines
 
