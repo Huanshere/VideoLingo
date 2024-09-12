@@ -1,16 +1,15 @@
-import os, sys
 # 建议在 streamlit 页面中调整设置
 # Recommended to adjust settings in the streamlit page
 
 ## ======================== 基本设置 ======================== ##
 ## ======================== Basic Settings ======================== ##
 
-# API Settings
-# 为了最好的效果，请使用 claude-3.5-sonnet. 实测 deepseek-coder 也能有较好的效果且性价比高
-# For best results, please use claude-3.5-sonnet. In practice, deepseek-coder also performs well with lower cost.
+# API Settings：
+# 为了最好的效果，请使用 claude-3-5-sonnet-20240620. 便宜渠道推荐使用 https://api2.wlai.vip/register?aff=TXMB.
+# For best results, please use claude-3-5-sonnet-20240620.
 API_KEY = 'sk-xxx'
-BASE_URL = 'https://api.deepseek.com'
-MODEL = ['deepseek-coder']
+BASE_URL = 'https://api2.wlai.vip'
+MODEL = ['claude-3-5-sonnet-20240620']
 
 # Replicate API 设置
 # Replicate API settings for using whisperX
@@ -71,22 +70,15 @@ step9_trim_model = MODEL[0]
 
 # 支持返回 JSON 格式的 LLM，不重要
 # LLMs that support returning JSON format, not important
-llm_support_json = []
+llm_support_json = ['deepseek-coder']
 
-## 设置趋动云 model dir
-## Set Qudong Cloud model dir
-cloud = 1 if sys.platform.startswith('linux') else 0
-if cloud: # 趋动云 # Qudong Cloud
-    gemini_pretrain = os.getenv('GEMINI_PRETRAIN')
-    cloud_model_dir = os.path.join(gemini_pretrain, "_model_cache") 
-
-# GPT_SoVITS 和 uvr5 模型目录
-# GPT_SoVITS and uvr5 model directory
-MODEL_DIR = "./_model_cache" if not cloud else cloud_model_dir
+# Whisper 模型目录
+# Whisper model directory
+MODEL_DIR = "./_model_cache"
 
 # 音频配置
 # Audio configuration
-MIN_SUBTITLE_DURATION = 8
+MIN_SUBTITLE_DURATION = 6
 
 # 配音视频中原始人声音量 0.1=10%
 # Original voice volume in dubbed video 0.1=10%
@@ -143,7 +135,6 @@ def get_joiner(language):
         return ""
     else:
         raise ValueError(f"Unsupported language code: {language}")
-    
 
 # 配音设置 暂时弃用
 # Dubbing settings (temporarily abandoned)

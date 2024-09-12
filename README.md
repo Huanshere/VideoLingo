@@ -22,8 +22,6 @@
 
 - ✨ 在 streamlit 中点击-完成！
 
-![demo.png](https://files.catbox.moe/clsmt9.png)
-
 > 看看效果吧！💪
 
 <table>
@@ -52,10 +50,7 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
     > 你甚至可以单独运行每一个`core`下的`step__.py`文件！   
 
 
-## 🏠 本地部署（Windows）
-
-本项目需要安装多个依赖项，对用户的动手能力有一定要求。安装指南请 [点击此处](./docs/install_locally_zh.md) 查看
-
+## 🏠 [本地部署教程](./docs/install_locally_zh.md)
 
 ### Docker一键部署
 
@@ -72,23 +67,30 @@ docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx 
 
 其中:
 
- - `API_KEY` 访问token,需要自行申请
- - `BASE_URL` 模型地址，默认"https://api.deepseek.com"
- - `WHISPER_METHOD` Whisper模型，可选项分别为：`whisper_timestamped`、`whisperX`、`whisperX_api`, 默认`whisper_timestamped`
+ - `API_KEY` 访问token,需要自行申请,推荐[云雾API](https://api2.wlai.vip/register?aff=TXMB)
+ - `BASE_URL` 模型地址，默认"https://api2.wlai.vip"
+ - `WHISPER_METHOD` Whisper模型，可选项分别为：`whisper_timestamped`、`whisperX`、`whisperX_api`, 默认`whisperX_api`
  - `DISPLAY_LANGUAGE` 显示语言，可选`zh_CN`, `zh_TW`, `en_US`, `ja_JP`, 默认`auto`
 
-## ⚡️ 快速体验
-
-我们已将项目部署至[趋动云-VideoLingo平台](https://open.virtaicloud.com/web/project/detail/480194078119297024)（请注意：当前仅更新至v0.2版本），可以轻松克隆并启动项目体验，详细的图文教程请 [点击此处](docs/趋动云使用说明.md) 查看。
-
-## 🚧 当前限制和未来改进
+## 🚧 当前限制
 
 我们正在不断改进VideoLingo，但目前仍存在一些限制：
 
-| 限制 | 当前 | 计划 |
-|------|----------|--------------|
-| 音频长度 | 仅支持30分钟以内 | 将很快扩展这一限制 |
-| 多语言支持 | 英语识别效果较好<br>日语识别效果一般<br>中文识别非常不稳定且容易报错 | 引入针对不同语言的专门模型 |
+- 音频长度：目前仅支持30分钟以内的视频，我们计划很快扩展这一限制。
+
+- 输入语言支持：
+
+| 输入语言 | 支持程度 | 示例视频 |
+|---------|---------|---------|
+| 英语 | ⭐⭐⭐ |  |
+| 日语 | ⭐⭐ |  |
+| 俄语 | ⭐⭐ |  |
+| 中文 | ❎ |  |
+| 法语 | ❓ (尚未测试) |  |
+| 德语 | ❓ (尚未测试) |  |
+| 西班牙语 | ❓ (尚未测试) |  |
+
+- 输出语言支持：VideoLingo 支持翻译成所有语言
 
 ## 🙏 致谢
 
