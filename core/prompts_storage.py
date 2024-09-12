@@ -20,9 +20,9 @@ Your task is to split the given subtitle text into **{num_parts}** parts, each s
 
 ### Steps
 1. Analyze the grammar and structure of the given text.
-2. Provide 2 different ways to split the text, each with different split points, output complete sentences (do not change any letters or punctuation), insert [br] tags at the split positions.
-3. Briefly compare and evaluate the above 2 split methods, considering readability, grammatical structure, and contextual coherence, choose the best split method.
-4. Give the best split method number, 1 or 2.
+2. Provide 3 different ways to split the text, each with different split points, output complete sentences (do not change any letters or punctuation), insert [br] tags at the split positions.
+3. Briefly compare and evaluate the above 3 split methods, considering readability, grammatical structure, and contextual coherence, choose the best split method.
+4. Give the best split method number, 1, 2, or 3.
 
 ### Output Format
 Please provide your answer in the following JSON format, <<>> represents placeholders:
@@ -30,8 +30,9 @@ Please provide your answer in the following JSON format, <<>> represents placeho
     "analysis": "Brief analysis of the text structure and split strategy",
     "split_way_1": "<<The first split method, output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>",
     "split_way_2": "<<The second split method>>",
-    "evaluation": "<<Unified brief evaluation of the 2 split methods, written in one sentence, no line breaks>>",
-    "best_way": "<<The best split method number, 1 or 2>>"
+    "split_way_3": "<<The third split method>>",
+    "evaluation": "<<Unified brief evaluation of the 3 split methods, written in one sentence, no line breaks>>",
+    "best_way": "<<The best split method number, 1, 2, or 3>>"
 }}
 
 ### Given Text
