@@ -66,11 +66,11 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 |---------|---------|---------|
 | 英语 | 🤩 | [英转中 demo](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b)  |
 | 俄语 | 😊 | [俄转中 demo](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) |
-| 日语 | 😖 | ❌ |
-| 中文 | 😖 | ❌ |
-| 法语 | ❓ (尚未测试) |  |
+| 法语 | 🤩 | [法转日 demo](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630)|
 | 德语 | ❓ (尚未测试) |  |
 | 西班牙语 | ❓ (尚未测试) |  |
+| 日语 | 😖 | ❌ |
+| 中文 | 😖 | ❌ |
 
 - 输出语言支持：VideoLingo 支持翻译成claude会的所有语言
 
