@@ -1,6 +1,5 @@
 # 建议在 streamlit 页面中调整设置
 # Recommended to adjust settings in the streamlit page
-
 ## ======================== 基本设置 ======================== ##
 ## ======================== Basic Settings ======================== ##
 
@@ -13,7 +12,7 @@ MODEL = ['claude-3-5-sonnet-20240620']
 
 # Replicate API 设置
 # Replicate API settings for using whisperX
-REPLICATE_API_TOKEN = "xxx"
+REPLICATE_API_TOKEN = "r8_xxx"
 
 # 语言设置，用自然语言描述
 # Language settings, described in natural language
@@ -59,8 +58,8 @@ ALLOWED_VIDEO_FORMATS = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm']
 # Number of GPT multi-threads
 MAX_WORKERS = 6
 
-# 每一步的 LLM 模型选择，其中 3_2 和 5 只建议 sonnet，换模型会不稳定报错
-# LLM model selection for each step, only sonnet is recommended for 3_2 and 5, changing models may cause instability and errors
+# 每一步的 LLM 模型选择
+# LLM model selection for each step
 step3_2_split_model = MODEL[0]
 step4_1_summarize_model = MODEL[0]
 step4_2_translate_direct_model = MODEL[0]
@@ -107,7 +106,6 @@ SPACY_MODEL_MAP = {
     # "zh": "zh_core_web_md",
     # "ja": "ja_core_news_md",
 }
-
 
 # 使用空格分割的语言
 # Languages that split with space
