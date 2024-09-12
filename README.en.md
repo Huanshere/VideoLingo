@@ -57,8 +57,6 @@ We are continuously improving VideoLingo, but there are still some limitations:
 
 - Audio Length: Currently only supports videos up to 30 minutes, we plan to extend this limit soon.
 
-- Occasional translation misalignment: For non-English videos, there might be occasional alignment bugs due to Claude's instruction-following capabilities.
-
 - Input Language Support (WhisperX's output of timestamps and punctuation is unstable for some languages):
 
 | Input Language | Support Level | Example Video |
