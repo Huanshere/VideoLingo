@@ -74,16 +74,9 @@ step9_trim_model = MODEL[0]
 # LLMs that support returning JSON format, not important
 llm_support_json = []
 
-## 设置趋动云 model dir
-## Set Qudong Cloud model dir
-cloud = 1 if sys.platform.startswith('linux') else 0
-if cloud: # 趋动云 # Qudong Cloud
-    gemini_pretrain = os.getenv('GEMINI_PRETRAIN')
-    cloud_model_dir = os.path.join(gemini_pretrain, "_model_cache") 
-
-# GPT_SoVITS 和 uvr5 模型目录
-# GPT_SoVITS and uvr5 model directory
-MODEL_DIR = "./_model_cache" if not cloud else cloud_model_dir
+# Whisper 模型目录
+# Whisper model directory
+MODEL_DIR = "./_model_cache"
 
 # 音频配置
 # Audio configuration
