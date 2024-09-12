@@ -153,18 +153,17 @@ def main():
     install_package("requests")
     
     # User selects Whisper model
+    # User selects Whisper model
     # 用户选择 Whisper 模型
     print("\nPlease select the Whisper model to install:")
     print("\n请选择要安装的 Whisper 模型：")
     print("If you're unsure about the differences between models, please see https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md")
     print("若不清楚各模型区别请见 https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md")
     print("1. whisper_timestamped")
-    print("2. whisperX (recommended)")
-    print("2. whisperX (推荐)")
-    print("3. whisperX_api")
+    print("2. whisperX ")
+    print("3. whisperX_api (recommended)")
     choice = input("Please enter the option number (1, 2, or 3): ")
-    choice = input("请输入选项编号 (1, 2 或 3): ")
-    
+
     # Install PyTorch
     # 安装 PyTorch
     if choice in ['1', '2']:

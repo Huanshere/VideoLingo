@@ -32,13 +32,17 @@ def page_setting():
 
     st.header(get_localized_string("llm_config"))
     
-    api_key = st.text_input(get_localized_string("api_key"), value=config.API_KEY, help=get_localized_string("api_key_help"))
+    api_key = st.text_input("API_KEY", value=config.API_KEY, help=get_localized_string("api_key_help"))
     if api_key != config.API_KEY:
         changes["API_KEY"] = api_key
 
-    selected_base_url = st.text_input(get_localized_string("base_url"), value=config.BASE_URL, help=get_localized_string("base_url_help"))
+    selected_base_url = st.text_input("BASE_URL", value=config.BASE_URL, help=get_localized_string("base_url_help"))
     if selected_base_url != config.BASE_URL:
         changes["BASE_URL"] = selected_base_url
+
+    model = st.text_input("MODEL", value=config.MODEL[0] if config.MODEL else "")
+    if model and model != config.MODEL[0]:
+        changes["MODEL"] = [model]
     
     st.header(get_localized_string("subtitle_settings"))
     whisper_method_options = ["whisperx", "whisperxapi", "whisper_timestamped"]
@@ -80,6 +84,11 @@ def page_setting():
     resolution = resolution_options[selected_resolution]
     if resolution != config.RESOLUTIOM:
         changes["RESOLUTIOM"] = resolution
+    
+    display_language_options = ["zh_CN", "en_US", "ja_JP", "auto"]
+    selected_display_language = st.selectbox(get_localized_string("display_language"), options=display_language_options, index=display_language_options.index(config.DISPLAY_LANGUAGE) if config.DISPLAY_LANGUAGE in display_language_options else 0)
+    if selected_display_language != config.DISPLAY_LANGUAGE:
+        changes["DISPLAY_LANGUAGE"] = selected_display_language
 
     if changes:
         st.toast(get_localized_string("remember_save_settings"), icon="🔔")
