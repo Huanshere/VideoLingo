@@ -57,19 +57,21 @@ We are continuously improving VideoLingo, but there are still some limitations:
 
 - Audio Length: Currently only supports videos up to 30 minutes, we plan to extend this limit soon.
 
-- Input Language Support:
+- Occasional translation misalignment: For non-English videos, there might be occasional alignment bugs due to Claude's instruction-following capabilities.
+
+- Input Language Support (WhisperX's output of timestamps and punctuation is unstable for some languages):
 
 | Input Language | Support Level | Example Video |
 |----------------|---------------|----------------|
-| English | ⭐⭐⭐ |  |
-| Japanese | ⭐⭐ |  |
-| Russian | ⭐⭐ |  |
-| Chinese | ❎ |  |
-| French | ❓ (Not tested yet) |  |
+| English | 🤩 | [English to Chinese demo](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) |
+| Russian | 😊 | [Russian to Chinese demo](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) |
+| French | 🤩 | [French to Japanese demo](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) |
 | German | ❓ (Not tested yet) |  |
 | Spanish | ❓ (Not tested yet) |  |
+| Japanese | 😖 | ❌ |
+| Chinese | 😖 | ❌ |
 
-- Output Language Support: VideoLingo supports translation into all languages
+- Output Language Support: VideoLingo supports translation into all languages that Claude can handle
 
 ## 🙏 Acknowledgements
 
