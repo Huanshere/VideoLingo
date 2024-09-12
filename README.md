@@ -52,9 +52,25 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
 ## 🏠 [本地部署教程](./docs/install_locally_zh.md)
 
-<!-- ## ⚡️ 快速体验
+### Docker一键部署
 
-我们已将项目部署至[趋动云-VideoLingo平台](https://open.virtaicloud.com/web/project/detail/480194078119297024)（请注意：当前仅更新至v0.2版本），可以轻松克隆并启动项目体验，详细的图文教程请 [点击此处](docs/趋动云使用说明.md) 查看。 -->
+拉取镜像：
+
+```bash
+docker pull sguann/videolingo_app:latest
+```
+
+运行镜像：
+```bash
+docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx -e DISPLAY_LANGUAGE=xxx sguann/videolingo_app:latest
+```
+
+其中:
+
+ - `API_KEY` 访问token,需要自行申请,推荐[云雾API](https://api2.wlai.vip/register?aff=TXMB)
+ - `BASE_URL` 模型地址，默认"https://api2.wlai.vip"
+ - `WHISPER_METHOD` Whisper模型，可选项分别为：`whisper_timestamped`、`whisperX`、`whisperX_api`, 默认`whisperX_api`
+ - `DISPLAY_LANGUAGE` 显示语言，可选`zh_CN`, `zh_TW`, `en_US`, `ja_JP`, 默认`auto`
 
 ## 🚧 当前限制
 

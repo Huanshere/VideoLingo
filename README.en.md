@@ -55,6 +55,26 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
 This project requires the installation of multiple dependencies and demands some technical skills from users. For installation guide, please [click here](./docs/install_locally_zh.md).
 
+## One-Click Docker Deployment
+
+Pull the image:
+
+```bash
+docker pull sguann/videolingo_app:latest
+```
+
+Run the image:
+```bash
+docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx sguann/videolingo_app:latest
+```
+
+Where:
+
+- `API_KEY`: Access token, which needs to be obtained by yourself.
+- `BASE_URL`: Model URL, default is "https://api.deepseek.com".
+- `WHISPER_METHOD`: Whisper model, options are: `whisper_timestamped`, `whisperX`, `whisperX_api`，default is "whisper_timestamped".
+- `DISPLAY_LANGUAGE`: Display language, options are `zh_CN`, `zh_TW`, `en_US`, `ja_JP`, default is `auto`.
+
 ## ⚡️ Quick Experience
 
 We have deployed the project on [Qudong Cloud-VideoLingo Platform](https://open.virtaicloud.com/web/project/detail/480194078119297024) (Note: Currently only updated to v0.2 version). You can easily clone and start the project to experience it. For detailed instructions with images, please [click here](docs/趋动云使用说明.md).
