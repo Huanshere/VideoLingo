@@ -26,7 +26,7 @@ TARGET_LANGUAGE = '简体中文'
 MAX_SUB_LENGTH = 80
 # 输出字幕字号更大一些
 # Increase the font size of the output subtitles
-TARGET_SUB_MULTIPLIER = 1.5
+TARGET_SUB_MULTIPLIER = 1.2
 
 # 视频分辨率
 # Video resolution
