@@ -10,7 +10,9 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ## 📋 前期准备
 
-1. 获取 `claude-3-5-sonnet` 或 `deepseek-coder` 的 `API_KEY`，前者效果最好，默认使用后者，可在 [deepseek官网](https://platform.deepseek.com/api_keys) 获得
+1. 获取 `claude-3-5-sonnet` 的 `API_KEY`，推荐便宜渠道：[云雾API](https://api2.wlai.vip/register?aff=TXMB)，仅仅 ￥35/1M，官方价格的 1/3。当然这一步你也可以换成别的api提供商，但仅仅建议选用 `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
+ 
+   ![yunwu](https://github.com/user-attachments/assets/7aabfa87-06b5-4004-8d9e-fa4a0743a912)
 
 2. 若选用 `whisperX_api`，请在 [Replicate官网](https://replicate.com/account/api-tokens) 注册并绑定支付方式，获取你的令牌。也可在 QQ 群联系我免费提供测试用。
 

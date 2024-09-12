@@ -22,8 +22,6 @@
 
 - ✨ 在 streamlit 中点击-完成！
 
-![demo.png](https://files.catbox.moe/clsmt9.png)
-
 > 看看效果吧！💪
 
 <table>
