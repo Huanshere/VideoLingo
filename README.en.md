@@ -22,8 +22,6 @@
 
 - ✨ Click-and-done in Streamlit!
 
-![demo.png](https://files.catbox.moe/clsmt9.png)
-
 > Check out the results! 💪
 
 <table>
@@ -51,43 +49,27 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 - Developer-friendly: Step-by-step structured files for easy customization: [Chinese Technical Documentation](./docs/README_guide_zh.md) | [English Technical Documentation](./docs/README_guide_en.md) 
     > You can even run each `step__.py` file under `core` individually!   
 
-## 🏠 Local Deployment (Windows)
+## 🏠 [Local Deployment Guide](./docs/install_locally_en.md)
 
-This project requires the installation of multiple dependencies and demands some technical skills from users. For installation guide, please [click here](./docs/install_locally_zh.md).
-
-## One-Click Docker Deployment
-
-Pull the image:
-
-```bash
-docker pull sguann/videolingo_app:latest
-```
-
-Run the image:
-```bash
-docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx sguann/videolingo_app:latest
-```
-
-Where:
-
-- `API_KEY`: Access token, which needs to be obtained by yourself.
-- `BASE_URL`: Model URL, default is "https://api.deepseek.com".
-- `WHISPER_METHOD`: Whisper model, options are: `whisper_timestamped`, `whisperX`, `whisperX_api`，default is "whisper_timestamped".
-- `DISPLAY_LANGUAGE`: Display language, options are `zh_CN`, `zh_TW`, `en_US`, `ja_JP`, default is `auto`.
-
-## ⚡️ Quick Experience
-
-We have deployed the project on [Qudong Cloud-VideoLingo Platform](https://open.virtaicloud.com/web/project/detail/480194078119297024) (Note: Currently only updated to v0.2 version). You can easily clone and start the project to experience it. For detailed instructions with images, please [click here](docs/趋动云使用说明.md).
-
-## 🚧 Current Limitations and Future Improvements
+## 🚧 Current Limitations
 
 We are continuously improving VideoLingo, but there are still some limitations:
 
-| Limitation | Current | Plan |
-|------------|---------|------|
-| Installation Steps | Requires some coding ability and computational resources | Upload Whisper part to Replicate cloud |
-| Audio Length | Only supports up to 30 minutes | Will extend this limit soon |
-| Multi-language Support | English is more accurate<br>Other languages (e.g., Japanese) need improvement in accuracy | Introduce specialized models for different languages |
+- Audio Length: Currently only supports videos up to 30 minutes, we plan to extend this limit soon.
+
+- Input Language Support:
+
+| Input Language | Support Level | Example Video |
+|----------------|---------------|----------------|
+| English | ⭐⭐⭐ |  |
+| Japanese | ⭐⭐ |  |
+| Russian | ⭐⭐ |  |
+| Chinese | ❎ |  |
+| French | ❓ (Not tested yet) |  |
+| German | ❓ (Not tested yet) |  |
+| Spanish | ❓ (Not tested yet) |  |
+
+- Output Language Support: VideoLingo supports translation into all languages
 
 ## 🙏 Acknowledgements
 
