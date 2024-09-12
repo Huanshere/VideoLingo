@@ -14,7 +14,7 @@ def split_by_mark(nlp):
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"'))
     
-    # 用 joiner 拼接
+    # join with joiner
     input_text = joiner.join(chunks.text.to_list())
 
     doc = nlp(input_text)
@@ -29,15 +29,5 @@ def split_by_mark(nlp):
     print("💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`")
 
 if __name__ == "__main__":
-    # nlp = init_nlp()
-    # split_by_mark(nlp)
-
-    s = """そうで。"""
     nlp = init_nlp()
-    doc = nlp(s)
-    print(doc)
-    assert doc.has_annotation("SENT_START")
-
-    sentences_by_mark = [sent.text for sent in doc.sents]
-    print(sentences_by_mark)
-
+    split_by_mark(nlp)

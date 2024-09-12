@@ -66,10 +66,14 @@ def transcribe_audio(audio_base64: str) -> Dict:
     except Exception as e:
         raise Exception(f"Error accessing whisperX API: {e} Please check your Replicate API key and internet connection.\n")
 
+
 def process_transcription(result: Dict) -> pd.DataFrame:
     all_words = []
     for segment in result['segments']:
         for word in segment['words']:
+            # ! For French, we need to convert guillemets to empty strings
+            word["word"] = word["word"].replace('»', '').replace('«', '')
+            
             if 'start' not in word and 'end' not in word:
                 if all_words:
                     # Merge with the previous word
@@ -80,11 +84,12 @@ def process_transcription(result: Dict) -> pd.DataFrame:
             else:
                 # Normal case, with start and end times
                 word_dict = {
-                    'text': f'"{temp_word}{word["word"]}"' if 'temp_word' in locals() else f'"{word["word"]}"',
+                    'text': f'{temp_word}{word["word"]}' if 'temp_word' in locals() else f'{word["word"]}',
                     'start': word.get('start', all_words[-1]['end'] if all_words else 0),
                     'end': word['end'],
                     'score': word.get('score', 0)
                 }
+                
                 all_words.append(word_dict)
                 if 'temp_word' in locals():
                     del temp_word

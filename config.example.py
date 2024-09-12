@@ -94,32 +94,20 @@ MAX_SPLIT_LENGTH = 20
 # Spacy model
 # Spacy 模型
 SPACY_MODEL_MAP = {
-    "en": "en_core_web_sm",
-    "zh": "zh_core_web_sm",
-    "es": "es_core_news_lg",
-    "fr": "fr_core_news_lg",
-    "de": "de_core_news_lg",
-    "it": "it_core_news_lg",
-    "ja": "ja_core_news_lg",
-    "pt": "pt_core_news_lg",
-    "nl": "nl_core_news_lg",
-    "el": "el_core_news_lg",
-    "ru": "ru_core_news_lg",
-    "ar": "ar_core_news_lg",
-    "hi": "hi_core_news_lg",
-    "ko": "ko_core_news_lg",
-    "pl": "pl_core_news_lg",
-    "uk": "uk_core_news_lg",
-    "vi": "vi_core_news_lg",
-    "tr": "tr_core_news_lg",
-    "th": "th_core_news_lg",
-    "ro": "ro_core_news_lg",
-    "da": "da_core_news_lg",
-    "fi": "fi_core_news_lg",
-    "hu": "hu_core_news_lg",
-    "nb": "nb_core_news_lg",
-    "sv": "sv_core_news_lg"
+    "en": "en_core_web_md",
+    "ru": "ru_core_news_md",
+    "fr": "fr_core_news_md",
+
+    # "es": "es_core_news_md",
+    # "de": "de_core_news_md",
+    # "it": "it_core_news_md",
+    
+
+    # Not supported
+    # "zh": "zh_core_web_md",
+    # "ja": "ja_core_news_md",
 }
+
 
 # 使用空格分割的语言
 # Languages that split with space
