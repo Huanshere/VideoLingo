@@ -62,7 +62,7 @@ https://github.com/user-attachments/assets/0f5d5878-bfa5-41e4-ade1-d2b81d925a7d
 
 | 输入语言 | 支持程度 | 示例视频 |
 |---------|---------|---------|
-| 英语 | ⭐⭐⭐ |  |
+| 英语 | ⭐⭐⭐ | https://github.com/user-attachments/assets/09dc5351-776e-45ab-b902-b0de25a1322e |
 | 日语 | ⭐⭐ |  |
 | 俄语 | ⭐⭐ |  |
 | 中文 | ❎ |  |
