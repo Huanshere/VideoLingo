@@ -1,6 +1,6 @@
-# 🏠 VideoLingo Local Deployment Guide (Windows)
+# 🏠 VideoLingo Local Deployment Guide
 
-VideoLingo offers multiple Whisper solutions for speech recognition (as there's no single perfect choice currently). Choose one based on your personal configuration and needs.
+VideoLingo offers multiple Whisper solutions for the speech recognition text step (as there's no single perfect choice currently). Choose one based on your personal configuration and needs.
 
 | Solution | Advantages | Disadvantages |
 |:---------|:-----------|:--------------|
@@ -10,12 +10,11 @@ VideoLingo offers multiple Whisper solutions for speech recognition (as there's 
 
 ## 📋 Preparation
 
-1. Register an account on [Yunwu API](https://api.wlai.vip/register?aff=TXMB) and recharge to get a token (or use any claude-3.5-sonnet provider)
-   > For best results, choose claude-3.5-sonnet. For testing, you can also select deepseek-coder, configure it later in the sidebar
-   
-   ![Yunwu API Registration Process](https://github.com/user-attachments/assets/762520c6-1283-4ba9-8676-16869fb94700)
+1. Obtain the `API_KEY` for `claude-3-5-sonnet`. Recommended affordable channel: [Yunwu API](https://api2.wlai.vip/register?aff=TXMB), only ¥35/1M, 1/3 of the official price. Of course, you can also use other API providers, but it's recommended to choose `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
+ 
+   ![yunwu](https://github.com/user-attachments/assets/7aabfa87-06b5-4004-8d9e-fa4a0743a912)
 
-2. If using `whisperX_api`, register a Replicate account, set up payment method, and obtain your token. You can also contact me for a free key for testing.
+2. If using `whisperX_api`, please register and set up payment method on the [Replicate official website](https://replicate.com/account/api-tokens) to obtain your token. You can also contact me in the QQ group for free test tokens.
 
 ## 💾 One-Click Package Download
 
@@ -29,9 +28,9 @@ If you don't want to install manually, we also provide a one-click installation 
 
 4. In the opened browser window, follow the interface prompts for configuration and usage
 
-> Note: The one-click package includes all necessary dependencies, no additional installation required. However, you still need to prepare API keys to use all features. Refer to the bottom for the key configuration process in the web interface.
+> Note: Refer to the image at the bottom for the key configuration process in the web interface
 
-## 🛠️ Manual Installation Process
+## 🛠️ Manual Installation Process (Windows)
 
 ### Prerequisites
 
@@ -46,9 +45,10 @@ Before installing VideoLingo, ensure at least **20GB** of free disk space and co
    - Install [Cuda Toolkit](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
    - Install [Cudnn](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
    - Restart your computer after installation
+   > tip: If you encounter CUDA Memory errors during subsequent runs, please manually reduce the batch size in `core/all_whisper_methods/whisperX.py` and try again
 
 4. For `whisper_timestamped` users:
-   - Install [Visual Studio 2022](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
+   - Install [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
      - Check "Desktop development with C++" component package in the installation interface
    - Install [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
@@ -75,14 +75,36 @@ Before installing VideoLingo, ensure at least **20GB** of free disk space and co
    ```bash
    python install.py
    ```
-   Choose the desired Whisper project when prompted, the script will automatically install the corresponding torch and whisper versions.
+   Choose the desired Whisper project when prompted, the script will automatically install the corresponding torch and whisper versions
+
+   Ensure network connection and check for any errors during the installation process
 
 5. 🎉 Launch the Streamlit application:
    ```bash
    streamlit run st.py
    ```
-   Open the Web interface in your browser, select the corresponding Whisper method in the sidebar and configure it.
 
 6. Set the key in the sidebar of the pop-up webpage, and make sure to select the correct Whisper method to use
 
    ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
+
+
+## Docker Deployment
+
+Pull Image
+
+```bash
+docker pull sguann/videolingo_app:latest
+```
+
+Run Image：
+```bash
+docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx -e DISPLAY_LANGUAGE=xxx sguann/videolingo_app:latest
+```
+
+Where:
+
+ - `API_KEY`: Access token, needs to be applied for by yourself. Recommended: [YunWu API](https://api2.wlai.vip/register?aff=TXMB)
+ - `BASE_URL`: API provider interface, no need for v1 suffix
+ - `WHISPER_METHOD`: Whisper model, options are: `whisper_timestamped`, `whisperX`, `whisperX_api`, default is `whisperX_api`
+ - `DISPLAY_LANGUAGE`: Display language, options are `zh_CN`, `zh_TW`, `en_US`, `ja_JP`, default is `auto`
