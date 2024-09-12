@@ -70,27 +70,31 @@ def transcribe_audio(audio_file: str) -> Dict:
         raise Exception(f"WhisperX processing error: {e}")
 
 def process_transcription(result: Dict) -> pd.DataFrame:
+    from config import get_joiner, WHISPER_LANGUAGE
+    language = result['language'] if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
+    joiner = get_joiner(language)
+
     all_words = []
     for segment in result['segments']:
         for word in segment['words']:
+            # ! For French, we need to convert guillemets to empty strings
+            word["word"] = word["word"].replace('»', '').replace('«', '')
+            
             if 'start' not in word and 'end' not in word:
                 if all_words:
                     # Merge with the previous word
-                    all_words[-1]['text'] = f'{all_words[-1]["text"][:-1]}{word["word"]}"'
+                    all_words[-1]['text'] = f'{all_words[-1]["text"]}{joiner}{word["word"]}'
                 else:
                     # If it's the first word, temporarily save it and wait for the next word with a timestamp
                     temp_word = word["word"]
             else:
                 # Normal case, with start and end times
                 word_dict = {
-                    'text': f'"{temp_word}{word["word"]}"' if 'temp_word' in locals() else f'"{word["word"]}"',
+                    'text': f'{temp_word}{word["word"]}' if 'temp_word' in locals() else f'{word["word"]}',
                     'start': word.get('start', all_words[-1]['end'] if all_words else 0),
                     'end': word['end'],
                     'score': word.get('score', 0)
                 }
-                
-                # ! For French, we need to convert guillemets to empty strings
-                word_dict['text'] = word_dict['text'].replace('»', '').replace('«', '')
                 
                 all_words.append(word_dict)
                 if 'temp_word' in locals():
