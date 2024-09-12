@@ -26,19 +26,14 @@
 
 <table>
 <tr>
-<td width="33%">
+<td width="50%">
 
 https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b
 
 </td>
-<td width="33%">
+<td width="50%">
 
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
-
-</td>
-<td width="33%">
-
-https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630
 
 </td>
 </tr>
