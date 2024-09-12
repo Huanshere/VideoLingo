@@ -70,7 +70,7 @@ step9_trim_model = MODEL[0]
 
 # 支持返回 JSON 格式的 LLM，不重要
 # LLMs that support returning JSON format, not important
-llm_support_json = []
+llm_support_json = ['deepseek-coder']
 
 # Whisper 模型目录
 # Whisper model directory
