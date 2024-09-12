@@ -41,8 +41,7 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     translate_result = "\n".join([express_result[i]["Free Translation"].replace('\n', ' ').strip() for i in express_result])
 
     if len(lines.split('\n')) != len(translate_result.split('\n')):
-        print_msg = f'❌ Translation of block {index} failed, Length Mismatch, Please check `output/gpt_log/translate_expressiveness.json`, expected {len(lines.split("\n"))} lines, but got {len(translate_result.split("\n"))} lines.'
-        print(print_msg)
+        print(f'❌ Translation of block {index} failed, Length Mismatch, Please check `output/gpt_log/translate_expressiveness.json`')
         raise ValueError(f'Original ···{lines}···,\nbut got ···{translate_result}···')
     else:
         print(f'✅ Translation of block {index} completed')
