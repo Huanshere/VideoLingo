@@ -15,14 +15,13 @@ VideoLingo offers multiple Whisper solutions for the speech recognition text ste
    ![yunwu](https://github.com/user-attachments/assets/7aabfa87-06b5-4004-8d9e-fa4a0743a912)
 
 2. If using `whisperX_api`, please register and set up payment method on the [Replicate official website](https://replicate.com/account/api-tokens) to obtain your token. You can also contact me in the QQ group for free test tokens.
-
 ## 💾 One-Click Package Download
 
-If you don't want to install manually, we also provide a one-click installation package for the `whisperX_api` version:
+If you don't want to install manually, we also provide a `whisperX_api` version of the Windows one-click integrated package:
 
-1. Download the `v0.6.0` one-click installation package (600M): [Direct Link](https://vip.123pan.cn/1817874751/7960342) | [Baidu Pan Backup](https://pan.baidu.com/s/16nV3ccnGCjASzYlLnMRP_Q?pwd=6969)
+1. Download the `v0.6.1` one-click integrated package (600M): [Direct Link](https://vip.123pan.cn/1817874751/7989695) | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
-2. Extract the downloaded file to your desired location
+2. Extract the downloaded compressed file to your desired location
 
 3. Double-click `一键启动.bat` in the extracted folder
 
