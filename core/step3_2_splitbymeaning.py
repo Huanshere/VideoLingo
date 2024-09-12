@@ -79,7 +79,7 @@ def parallel_split_sentences(sentences, max_length, max_workers, nlp, retry_atte
         for index, sentence in enumerate(sentences):
             # Use tokenizer to split the sentence
             tokens = tokenize_sentence(sentence, nlp)
-            print("Tokenization result:", tokens)
+            # print("Tokenization result:", tokens)
             num_parts = math.ceil(len(tokens) / max_length)
             if len(tokens) > max_length:
                 future = executor.submit(split_sentence, sentence, num_parts, max_length, index=index, retry_attempt=retry_attempt)
