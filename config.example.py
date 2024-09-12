@@ -1,16 +1,15 @@
-import os, sys
 # 建议在 streamlit 页面中调整设置
 # Recommended to adjust settings in the streamlit page
 
 ## ======================== 基本设置 ======================== ##
 ## ======================== Basic Settings ======================== ##
 
-# API Settings
-# 为了最好的效果，请使用 claude-3.5-sonnet. 实测 deepseek-coder 也能有较好的效果且性价比高
-# For best results, please use claude-3.5-sonnet. In practice, deepseek-coder also performs well with lower cost.
+# API Settings：
+# 为了最好的效果，请使用 claude-3-5-sonnet-20240620. 便宜渠道推荐使用 https://api2.wlai.vip/register?aff=TXMB.
+# For best results, please use claude-3-5-sonnet-20240620.
 API_KEY = 'sk-xxx'
-BASE_URL = 'https://api.deepseek.com'
-MODEL = ['deepseek-coder']
+BASE_URL = 'https://api2.wlai.vip'
+MODEL = ['claude-3-5-sonnet-20240620']
 
 # Replicate API 设置
 # Replicate API settings for using whisperX
@@ -79,7 +78,7 @@ MODEL_DIR = "./_model_cache"
 
 # 音频配置
 # Audio configuration
-MIN_SUBTITLE_DURATION = 8
+MIN_SUBTITLE_DURATION = 6
 
 # 配音视频中原始人声音量 0.1=10%
 # Original voice volume in dubbed video 0.1=10%
@@ -136,7 +135,6 @@ def get_joiner(language):
         return ""
     else:
         raise ValueError(f"Unsupported language code: {language}")
-    
 
 # 配音设置 暂时弃用
 # Dubbing settings (temporarily abandoned)
