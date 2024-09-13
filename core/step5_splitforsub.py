@@ -11,6 +11,7 @@ from core.prompts_storage import get_align_prompt
 # ! You can modify your own weights here
 # Chinese and Japanese 2.5 characters, Korean 2 characters, Thai 1.5 characters, full-width symbols 2 characters, other English-based and half-width symbols 1 character
 def calc_len(text: str) -> float:
+    text = str(text) # force convert
     def char_weight(char):
         code = ord(char)
         if 0x4E00 <= code <= 0x9FFF or 0x3040 <= code <= 0x30FF:  # Chinese and Japanese
