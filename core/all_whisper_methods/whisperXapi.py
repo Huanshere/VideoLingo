@@ -66,8 +66,11 @@ def transcribe_audio(audio_base64: str) -> Dict:
     except Exception as e:
         raise Exception(f"Error accessing whisperX API: {e} Please check your Replicate API key and internet connection.\n")
 
-
 def process_transcription(result: Dict) -> pd.DataFrame:
+    from config import get_joiner, WHISPER_LANGUAGE
+    language = result['detected_language'] if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
+    joiner = get_joiner(language)
+
     all_words = []
     for segment in result['segments']:
         for word in segment['words']:
@@ -77,7 +80,7 @@ def process_transcription(result: Dict) -> pd.DataFrame:
             if 'start' not in word and 'end' not in word:
                 if all_words:
                     # Merge with the previous word
-                    all_words[-1]['text'] = f'{all_words[-1]["text"][:-1]}{word["word"]}"'
+                    all_words[-1]['text'] = f'{all_words[-1]["text"]}{joiner}{word["word"]}'
                 else:
                     # If it's the first word, temporarily save it and wait for the next word with a timestamp
                     temp_word = word["word"]
