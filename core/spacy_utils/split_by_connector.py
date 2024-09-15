@@ -22,14 +22,8 @@ def analyze_connectors(doc, token):
         det_pron_deps = ["det", "pron"]
         verb_pos = "VERB"
         noun_pos = ["NOUN", "PROPN"]
-    elif lang == "zh":
-        connectors = ["的", "地", "得", "而", "和", "或者"]
-        mark_dep = "mark"
-        det_pron_deps = ["det"]
-        verb_pos = "VERB"
-        noun_pos = ["NOUN", "PROPN"]
     elif lang == "ja":
-        connectors = ["こと", "ところ", "の", "が", "を", "に", "へ", "と", "や", "か"]
+        connectors = ["けれども", "しかし", "だから", "それで", "ので", "のに", "ため"]
         mark_dep = "mark"
         det_pron_deps = ["case"]
         verb_pos = "VERB"
@@ -44,6 +38,24 @@ def analyze_connectors(doc, token):
         connectors = ["что", "который", "где", "когда", "потому что", "но", "и", "или"] 
         mark_dep = "mark"
         det_pron_deps = ["det"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    elif lang == "es":
+        connectors = ["que", "cual", "donde", "cuando", "porque", "pero", "y", "o"]
+        mark_dep = "mark"
+        det_pron_deps = ["det", "pron"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    elif lang == "de":
+        connectors = ["dass", "welche", "wo", "wann", "weil", "aber", "und", "oder"]
+        mark_dep = "mark"
+        det_pron_deps = ["det", "pron"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    elif lang == "it":
+        connectors = ["che", "quale", "dove", "quando", "perché", "ma", "e", "o"]
+        mark_dep = "mark"
+        det_pron_deps = ["det", "pron"]
         verb_pos = "VERB"
         noun_pos = ["NOUN", "PROPN"]
     else:
