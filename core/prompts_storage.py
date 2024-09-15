@@ -182,6 +182,72 @@ Please complete the following JSON data, where << >> represents placeholders tha
 
 def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
     from config import TARGET_LANGUAGE
+    # JSON content format
+    json_content_format = {}
+    for key, value in faithfulness_result.items():
+        json_content_format[key] = {
+            "Original Subtitle": value['Original Subtitle'],
+            "Direct Translation": value['Direct Translation']
+        }
+    
+    # JSON output format
+    json_output_format = {}
+    for key, value in faithfulness_result.items():
+        json_output_format[key] = {
+            "Translation Reflection": "<<reflection on the direct translation version>>",
+            "Free Translation": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
+        }
+
+    src_language = get_whisper_language()
+    prompt_expressiveness = f'''
+### Role Definition
+You are a professional Netflix subtitle translator and language consultant. Your expertise lies not only in accurately understanding the original {src_language} but also in optimizing the {TARGET_LANGUAGE} translation to better suit the target language's expression habits and cultural background.
+
+### Task Background
+We already have a direct translation version of the original {src_language} subtitles. Now we need you to reflect on and improve these direct translations to create more natural and fluent {TARGET_LANGUAGE} subtitles.
+
+### Task Description
+Based on the provided original {src_language} text and {TARGET_LANGUAGE} direct translation, you need to:
+1. Analyze the direct translation results line by line, pointing out existing issues
+2. Provide detailed modification suggestions
+3. Perform free translation based on your analysis
+
+{shared_prompt}
+
+### Translation Analysis Steps
+Please use a two-step thinking process to handle the text line by line:
+
+1. Direct Translation Reflection:
+   - Evaluate language fluency
+   - Check if the language style is consistent with the original text
+   - Check the conciseness of the subtitles, point out where the translation is too wordy, the translation should be close to the original text in length
+
+2. {TARGET_LANGUAGE} Free Translation:
+   - Based on the reflection in step 1, perform free translation
+   - Aim for contextual smoothness and naturalness, conforming to {TARGET_LANGUAGE} expression habits
+   - Ensure it's easy for {TARGET_LANGUAGE} audience to understand and accept
+   - Keep the subtitles concise, with a plain and natural language style, and maintain consistency in structure between the free translation and the {src_language} original
+
+### Subtitle Data
+<subtitles>
+{lines}
+</subtitles>
+
+### Translation Content
+<translation_content>
+{json.dumps(json_content_format, ensure_ascii=False, indent=4)}
+</translation_content>
+
+### Output Format
+Make sure to generate the correct Json format, don't output " in the value.
+Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
+{json.dumps(json_output_format, ensure_ascii=False, indent=4)}
+'''
+    return prompt_expressiveness.strip()
+
+
+def _get_prompt_expressiveness_backup(faithfulness_result, lines, shared_prompt):
+    from config import TARGET_LANGUAGE
     json_format = {}
     for key, value in faithfulness_result.items():
         json_format[key] = {
@@ -227,6 +293,7 @@ Please use a two-step thinking process to handle the text line by line:
 </subtitles>
 
 ### Output Format
+Make sure to generate the correct Json format, don't output " in the value.
 Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
