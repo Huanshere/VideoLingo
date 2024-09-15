@@ -14,13 +14,13 @@
 
 </div>
 
-## 🌟 What Can It Do
+## 🌟 Our Vision
 
-- 🍖 Fully automated video translation, generating Netflix-quality subtitles!
+VideoLingo is an all-in-one video translation and localization tool designed to generate Netflix-quality subtitles. It aims to eliminate stiff machine translations and multi-line subtitles, enabling knowledge sharing across language barriers worldwide.
 
-- 🎤 Clone your own voice for dubbing! (🚧 Still in development)
+VideoLingo automates the entire process of video downloading, audio extraction, high-precision speech recognition, subtitle generation, high-quality text translation, subtitle alignment, and seamless integration of translated subtitles into the original video. With an intuitive Streamlit web interface, you can complete the entire workflow with just a few clicks, easily creating localized videos with Netflix-quality subtitles.
 
-- ✨ Click-and-done in Streamlit!
+VideoLingo is also actively developing voice cloning technology, which will soon support video dubbing, further enhancing the localization experience. Whether you're a content creator, educator, or someone with multilingual communication needs, VideoLingo can be a powerful assistant, helping you overcome language barriers and connect with global audiences.
 
 > Check out the results! 💪
 
@@ -41,20 +41,22 @@ https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 ## ✨ Features
 
-- Subtitle segmentation using NLP and LLM
+- Word-level timeline subtitle recognition using WhisperX
 
-- Intelligent terminology knowledge base for context-aware translation
+- Subtitle segmentation based on sentence meaning using NLP and GPT
 
-- Three-step translation process: Direct Translation - Reflection - Improvement
+- GPT-summarized intelligent terminology knowledge base for context-aware translation
 
-- Precise word-level subtitle alignment
+- Three-step translation process: Direct Translation, Reflection, and Paraphrasing to eliminate awkward machine translations
 
-- Create 5 minutes of Netflix-quality bilingual subtitles for just 1 yuan
+- Netflix-level single-line subtitle length and translation quality
+
+- One-click integrated package launch, one-click video production in Streamlit!
 
 - Developer-friendly: Step-by-step structured files for easy customization: [Chinese Technical Documentation](./docs/README_guide_zh.md) | [English Technical Documentation](./docs/README_guide_en.md) 
     > You can even run each `step__.py` file under `core` individually!   
 
-## 🏠 [Local Deployment Guide](./docs/install_locally_en.md)
+## 🏠 [Local Installation Guide](./docs/install_locally_en.md)
 
 ## 🚧 Current Limitations
 
@@ -83,13 +85,9 @@ We are continuously improving VideoLingo, but there are still some limitations:
 
 Thanks to the following open-source projects for their contributions:
 
-- [whisper](https://github.com/openai/whisper): OpenAI's open-source automatic speech recognition system
 - [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped): Extension adding timestamp functionality to Whisper
 - [whisperX](https://github.com/m-bain/whisperX): Extension adding timestamp functionality to Whisper
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp): Command-line tool for downloading YouTube videos and content from other websites
-- [GPT-SoVITS](https://github.com/RVC-Project/GPT-SoVITS) & [GPT-SoVITS-Inference](https://github.com/X-T-E-R/GPT-SoVITS-Inference): Speech synthesis system and inference library based on GPT and SoVITS
-- [FFmpeg](https://github.com/FFmpeg/FFmpeg): Complete, cross-platform solution for handling multimedia content
-- [Ultimate Vocal Remover GUI v5 (UVR5)](https://github.com/Anjok07/ultimatevocalremovergui): Tool for separating vocals and instrumentals in music
 - [json_repair](https://github.com/mangiucugna/json_repair): Super powerful library for repairing and parsing GPT's JSON output, seamlessly replacing json.loads
 
 ## 🤝 Contributions Welcome
