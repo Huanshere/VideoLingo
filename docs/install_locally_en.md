@@ -19,7 +19,7 @@ VideoLingo offers multiple Whisper solutions for the speech recognition text ste
 
 If you don't want to install manually, we also provide a `whisperX_api` version of the Windows one-click integrated package:
 
-1. Download the `v0.6.2` one-click integrated package (600M): [Direct Link](https://vip.123pan.cn/1817874751/7990151) | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v0.7.0` one-click integrated package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8026614) | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. Extract the downloaded compressed file to your desired location
 

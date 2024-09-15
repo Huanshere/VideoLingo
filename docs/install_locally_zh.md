@@ -20,7 +20,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 如果你不想手动安装,我们也提供了 `whisperX_api` 版本的 Windows 一键整合包:
 
-1. 下载 `v0.6.2` 一键整合包(600M): [直达链接](https://vip.123pan.cn/1817874751/7990151) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v0.7.0` 一键整合包(700M): [直达链接](https://vip.123pan.cn/1817874751/8026614) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压下载的压缩文件到想要的位置
 
