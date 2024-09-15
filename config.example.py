@@ -33,7 +33,7 @@ RESOLUTIOM = '854x480'
 
 # 显示语言
 # Display language
-DISPLAY_LANGUAGE = 'zh_CN'
+DISPLAY_LANGUAGE = 'auto'
 
 ## ======================== 进阶设置设置 ======================== ##
 ## ======================== Advanced Settings ======================== ##
