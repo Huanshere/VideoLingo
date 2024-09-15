@@ -6,31 +6,29 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 |:-----|:-----|:-----|
 | **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想<br>• 需要8G以上显存的显卡 |
 | **whisperX**  | • 本地运行<br>• 基于 faster-whisper，性能卓越<br>• 多语言支持好 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
-| **whisperX_api** (🌟推荐) | • 利用 Replicate API，无需本地算力 | • Replicate 服务可能不稳定 偶发 CUDA 错误<br>• 使用的large-v3 标点效果可能不如v2 |
+| **whisperX_api** (🌟推荐) | • 利用 Replicate API，无需本地算力 | • 使用的large-v3 标点效果可能不如v2 |
 
 ## 📋 前期准备
 
-1. 获取 `claude-3-5-sonnet` 的 `API_KEY`，推荐便宜渠道：[云雾API](https://api2.wlai.vip/register?aff=TXMB)，仅仅 ￥35/1M，官方价格的 1/3。当然这一步你也可以换成别的api提供商，但仅仅建议选用 `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
+1. 获取 `claude-3-5-sonnet` 的 `API_KEY`，推荐便宜渠道：[云雾API](https://api2.wlai.vip/register?aff=TXMB)，仅仅 ￥ 15/1M，官方价格的 1/8。当然这一步你也可以换成别的api提供商，但仅仅建议选用 `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
  
    ![yunwu](https://github.com/user-attachments/assets/7aabfa87-06b5-4004-8d9e-fa4a0743a912)
 
 2. 若选用 `whisperX_api`，请在 [Replicate官网](https://replicate.com/account/api-tokens) 注册并绑定支付方式，获取你的令牌。也可在 QQ 群联系我免费提供测试用。
 
-## 💾 一键包下载
+## 💾 一键整合包
 
-如果你不想手动安装,我们也提供了 `whisperX_api` 版本的 Windows 一键整合包:
+我们提供了使用 `whisperX_api` 的 Windows 一键整合包:
 
 1. 下载 `v0.7.0` 一键整合包(700M): [直达链接](https://vip.123pan.cn/1817874751/8026614) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
-2. 解压下载的压缩文件到想要的位置
+2. 解压后双击运行文件夹中的 `一键启动.bat`
 
-3. 双击运行解压后文件夹中的 `一键启动.bat`
+3. 在打开的浏览器窗口中，在侧边栏进行必要配置，然后一键出片！
 
-4. 在打开的浏览器窗口中,按照界面提示进行配置和使用
+> 提示: 侧边栏配置 key 的说明可以参考最下方图片
 
-> 提示: 网页中配置 key 的过程参考最下方图片
-
-## 🛠️ 手动安装流程 (Windows)
+## 🛠️ 源码安装流程 (Windows)
 
 ### 前置依赖
 

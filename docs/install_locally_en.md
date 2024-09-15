@@ -6,30 +6,29 @@ VideoLingo offers multiple Whisper solutions for the speech recognition text ste
 |:---------|:-----------|:--------------|
 | **whisper_timestamped** | • Runs locally<br>• Easy installation<br>• Uses native Whisper model | • Ideal for English only<br>• Requires GPU with 8GB+ VRAM |
 | **whisperX**  | • Runs locally<br>• Based on faster-whisper, excellent performance<br>• Good multi-language support | • Requires CUDA and cuDNN installation<br>• Separate wav2vec model download for each language<br>• Requires GPU with 8GB+ VRAM |
-| **whisperX_api** (🌟Recommended) | • Uses Replicate API, no local computing power needed | • Replicate service may be unstable, occasional CUDA errors<br>• large-v3 model used may have inferior punctuation compared to v2 |
+| **whisperX_api** (🌟Recommended) | • Uses Replicate API, no local computing power needed | • The large-v3 model used may have inferior punctuation compared to v2 |
 
 ## 📋 Preparation
 
-1. Obtain the `API_KEY` for `claude-3-5-sonnet`. Recommended affordable channel: [Yunwu API](https://api2.wlai.vip/register?aff=TXMB), only ¥35/1M, 1/3 of the official price. Of course, you can also use other API providers, but it's recommended to choose `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
+1. Obtain the `API_KEY` for `claude-3-5-sonnet`. Recommended affordable channel: [Yunwu API](https://api2.wlai.vip/register?aff=TXMB), only ¥15/1M, 1/8 of the official price. Of course, you can also use other API providers, but it's recommended to choose `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
  
    ![yunwu](https://github.com/user-attachments/assets/7aabfa87-06b5-4004-8d9e-fa4a0743a912)
 
 2. If using `whisperX_api`, please register and set up payment method on the [Replicate official website](https://replicate.com/account/api-tokens) to obtain your token. You can also contact me in the QQ group for free test tokens.
-## 💾 One-Click Package Download
 
-If you don't want to install manually, we also provide a `whisperX_api` version of the Windows one-click integrated package:
+## 💾 One-Click Package
 
-1. Download the `v0.7.0` one-click integrated package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8026614) | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+We provide a Windows one-click integrated package using `whisperX_api`:
 
-2. Extract the downloaded compressed file to your desired location
+1. Download the `v0.7.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8026614) | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
-3. Double-click `一键启动.bat` in the extracted folder
+2. After extracting, double-click `OneKey.bat` in the folder
 
-4. In the opened browser window, follow the interface prompts for configuration and usage
+3. In the opened browser window, make necessary configurations in the sidebar, then create your video with one click!
 
-> Note: Refer to the image at the bottom for the key configuration process in the web interface
+> Note: Refer to the image at the bottom for the key configuration in the sidebar
 
-## 🛠️ Manual Installation Process (Windows)
+## 🛠️ Source Code Installation Process (Windows)
 
 ### Prerequisites
 
