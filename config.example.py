@@ -7,12 +7,12 @@
 # 为了最好的效果，请使用 claude-3-5-sonnet-20240620. 便宜渠道推荐使用 https://api2.wlai.vip/register?aff=TXMB.
 # For best results, please use claude-3-5-sonnet-20240620.
 API_KEY = 'sk-xxx'
-BASE_URL = 'https://api2.wlai.vip'
+BASE_URL = 'https://api.wlai.vip'
 MODEL = ['claude-3-5-sonnet-20240620']
 
 # Replicate API 设置
 # Replicate API settings for using whisperX
-REPLICATE_API_TOKEN = "r8_xxx"
+REPLICATE_API_TOKEN = 'r8_xxx'
 
 # 语言设置，用自然语言描述
 # Language settings, described in natural language
@@ -33,7 +33,7 @@ RESOLUTIOM = '854x480'
 
 # 显示语言
 # Display language
-DISPLAY_LANGUAGE = 'auto'
+DISPLAY_LANGUAGE = 'zh_CN'
 
 ## ======================== 进阶设置设置 ======================== ##
 ## ======================== Advanced Settings ======================== ##
@@ -96,15 +96,14 @@ SPACY_MODEL_MAP = {
     "en": "en_core_web_md",
     "ru": "ru_core_news_md",
     "fr": "fr_core_news_md",
-
-    # "es": "es_core_news_md",
-    # "de": "de_core_news_md",
-    # "it": "it_core_news_md",
+    "ja": "ja_core_news_md",
+    "es": "es_core_news_md",
+    "de": "de_core_news_md",
+    "it": "it_core_news_md",
     
-
     # Not supported
     # "zh": "zh_core_web_md",
-    # "ja": "ja_core_news_md",
+    
 }
 
 # 使用空格分割的语言
