@@ -24,13 +24,6 @@ def init_nlp():
             download(model)
             nlp = spacy.load(model)
     except:
-        print(f"Language not detected, using en_core_web_sm model as fallback...")
-        model = "en_core_web_sm"
-        try:
-            nlp = spacy.load(model)
-        except:
-            print(f"Downloading {model} model...")
-            download(model)
-            nlp = spacy.load(model)
+        raise ValueError(f"❌ Failed to load NLP Spacy model: {model}")
     print(f"✅ NLP Spacy model loaded successfully!")
     return nlp

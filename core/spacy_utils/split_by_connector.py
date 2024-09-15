@@ -9,27 +9,55 @@ def analyze_connectors(doc, token):
     Analyze whether a token is a connector that should trigger a sentence split.
     
     Processing logic and order:
-    1. Check if the token is one of the target connectors (that, which, where, when).
-    2. For 'that', check if it's part of a contraction (e.g., that's, that'll).
-    3. For all connectors, check if they function as a 'mark' dependent of a verb.
-    4. For 'which', 'where', 'when', check if they function as determiners or pronouns 
-    for nouns or proper nouns.
-    5. Default to splitting for 'which', 'where', 'when' if no other conditions are met.
-    6. For 'and', 'or', 'but', check if they connect two independent clauses.
+    1. Check if the token is one of the target connectors based on the language.
+    2. For 'that' (English), check if it's part of a contraction (e.g., that's, that'll).
+    3. For all connectors, check if they function as a specific dependency of a verb or noun.
+    4. Default to splitting for certain connectors if no other conditions are met.
+    5. For coordinating conjunctions, check if they connect two independent clauses.
     """
-    # Check if the token is one of the target connectors
-    if token.text.lower() not in ["that", "which", "where", "when", "because", "but", "and", "or"]:
+    lang = doc.lang_
+    if lang == "en":
+        connectors = ["that", "which", "where", "when", "because", "but", "and", "or"]
+        mark_dep = "mark"
+        det_pron_deps = ["det", "pron"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    elif lang == "zh":
+        connectors = ["的", "地", "得", "而", "和", "或者"]
+        mark_dep = "mark"
+        det_pron_deps = ["det"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    elif lang == "ja":
+        connectors = ["こと", "ところ", "の", "が", "を", "に", "へ", "と", "や", "か"]
+        mark_dep = "mark"
+        det_pron_deps = ["case"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    elif lang == "fr":
+        connectors = ["que", "qui", "où", "quand", "parce que", "mais", "et", "ou"]
+        mark_dep = "mark"
+        det_pron_deps = ["det", "pron"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    elif lang == "ru":
+        connectors = ["что", "который", "где", "когда", "потому что", "но", "и", "или"] 
+        mark_dep = "mark"
+        det_pron_deps = ["det"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
+    else:
         return False, False
     
-    if token.text.lower() == "that":
-        if token.dep_ == "mark" and token.head.pos_ == "VERB":
-            # Split if 'that' is a 'mark' dependent of a verb
+    if token.text.lower() not in connectors:
+        return False, False
+    
+    if lang == "en" and token.text.lower() == "that":
+        if token.dep_ == mark_dep and token.head.pos_ == verb_pos:
             return True, False
         else:
-            # Don't split for other uses of 'that'
             return False, False
-    elif token.text.lower() != "that" and token.dep_ in ["det", "pron"] and token.head.pos_ in ["NOUN", "PROPN"]:
-        # Don't split if 'which', 'where', 'when' are determiners or pronouns for nouns
+    elif token.dep_ in det_pron_deps and token.head.pos_ in noun_pos:
         return False, False
     else:
         return True, False
