@@ -67,10 +67,6 @@ def transcribe_audio(audio_base64: str) -> Dict:
         raise Exception(f"Error accessing whisperX API: {e} Please check your Replicate API key and internet connection.\n")
 
 def process_transcription(result: Dict) -> pd.DataFrame:
-    from config import get_joiner, WHISPER_LANGUAGE
-    language = result['detected_language'] if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
-    joiner = get_joiner(language)
-
     all_words = []
     for segment in result['segments']:
         for word in segment['words']:
@@ -79,23 +75,34 @@ def process_transcription(result: Dict) -> pd.DataFrame:
             
             if 'start' not in word and 'end' not in word:
                 if all_words:
-                    # Merge with the previous word
-                    all_words[-1]['text'] = f'{all_words[-1]["text"]}{joiner}{word["word"]}'
+                    # Assign the end time of the previous word as the start and end time of the current word
+                    word_dict = {
+                        'text': word["word"],
+                        'start': all_words[-1]['end'],
+                        'end': all_words[-1]['end'],
+                    }
+                    all_words.append(word_dict)
                 else:
-                    # If it's the first word, temporarily save it and wait for the next word with a timestamp
-                    temp_word = word["word"]
+                    # If it’s the first word, look next for a timestamp then assign it to the current word
+                    next_word = next((w for w in segment['words'] if 'start' in w and 'end' in w), None)
+                    if next_word:
+                        word_dict = {
+                            'text': word["word"],
+                            'start': next_word["start"],
+                            'end': next_word["end"],
+                        }
+                        all_words.append(word_dict)
+                    else:
+                        raise Exception(f"No next word with timestamp found for the current word : {word}")
             else:
                 # Normal case, with start and end times
                 word_dict = {
-                    'text': f'{temp_word}{word["word"]}' if 'temp_word' in locals() else f'{word["word"]}',
+                    'text': f'{word["word"]}',
                     'start': word.get('start', all_words[-1]['end'] if all_words else 0),
                     'end': word['end'],
-                    'score': word.get('score', 0)
                 }
                 
                 all_words.append(word_dict)
-                if 'temp_word' in locals():
-                    del temp_word
     
     return pd.DataFrame(all_words)
 
