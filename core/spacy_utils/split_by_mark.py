@@ -23,8 +23,13 @@ def split_by_mark(nlp):
     sentences_by_mark = [sent.text for sent in doc.sents]
 
     with open("output/log/sentence_by_mark.txt", "w", encoding="utf-8") as output_file:
-        for sentence in sentences_by_mark:
-            output_file.write(sentence + "\n")
+        for i, sentence in enumerate(sentences_by_mark):
+            if i > 0 and sentence.strip() in [',', '.', '，', '。', '？', '！']:
+                # ! If the current line contains only punctuation, merge it with the previous line, this happens in Chinese, Japanese, etc.
+                output_file.seek(output_file.tell() - 1, os.SEEK_SET)  # Move to the end of the previous line
+                output_file.write(sentence)  # Add the punctuation
+            else:
+                output_file.write(sentence + "\n")
 
     print("💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`")
 

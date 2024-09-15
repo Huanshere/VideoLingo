@@ -5,38 +5,10 @@ import torch
 import pandas as pd
 import json
 from typing import Dict
-import subprocess
-import base64
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from config import MODEL_DIR
-
-def convert_video_to_audio(input_file: str) -> str:
-    os.makedirs('output/audio', exist_ok=True)
-    audio_file = 'output/audio/raw_full_audio.wav'
-    
-    if not os.path.exists(audio_file):
-        ffmpeg_cmd = [
-            'ffmpeg',
-            '-i', input_file,
-            '-vn',
-            '-acodec', 'libmp3lame',
-            '-ar', '16000',
-            '-b:a', '64k',
-            audio_file
-        ]
-        print(f"🎬➡️🎵 Converting to audio......")
-        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
-        print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}>\n")
-    
-    return audio_file
-
-def encode_file_to_base64(file_path: str) -> str:
-    print("🔄 Encoding audio file to base64...")
-    with open(file_path, 'rb') as file:
-        encoded = base64.b64encode(file.read()).decode('utf-8')
-        print("✅ File successfully encoded to base64")
-        return encoded
+from core.all_whisper_methods.whisperXapi import process_transcription, convert_video_to_audio
 
 def transcribe_audio(audio_file: str) -> Dict:
     from config import WHISPER_LANGUAGE
@@ -68,39 +40,6 @@ def transcribe_audio(audio_file: str) -> Dict:
         return result
     except Exception as e:
         raise Exception(f"WhisperX processing error: {e}")
-
-def process_transcription(result: Dict) -> pd.DataFrame:
-    from config import get_joiner, WHISPER_LANGUAGE
-    language = result['language'] if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
-    joiner = get_joiner(language)
-
-    all_words = []
-    for segment in result['segments']:
-        for word in segment['words']:
-            # ! For French, we need to convert guillemets to empty strings
-            word["word"] = word["word"].replace('»', '').replace('«', '')
-            
-            if 'start' not in word and 'end' not in word:
-                if all_words:
-                    # Merge with the previous word
-                    all_words[-1]['text'] = f'{all_words[-1]["text"]}{joiner}{word["word"]}'
-                else:
-                    # If it's the first word, temporarily save it and wait for the next word with a timestamp
-                    temp_word = word["word"]
-            else:
-                # Normal case, with start and end times
-                word_dict = {
-                    'text': f'{temp_word}{word["word"]}' if 'temp_word' in locals() else f'{word["word"]}',
-                    'start': word.get('start', all_words[-1]['end'] if all_words else 0),
-                    'end': word['end'],
-                    'score': word.get('score', 0)
-                }
-                
-                all_words.append(word_dict)
-                if 'temp_word' in locals():
-                    del temp_word
-    
-    return pd.DataFrame(all_words)
 
 def save_results(df: pd.DataFrame):
     os.makedirs('output/log', exist_ok=True)

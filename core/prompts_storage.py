@@ -179,7 +179,6 @@ Please complete the following JSON data, where << >> represents placeholders tha
     return prompt_faithfulness.strip()
 
 
-
 def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
     from config import TARGET_LANGUAGE
     json_format = {}
@@ -227,6 +226,7 @@ Please use a two-step thinking process to handle the text line by line:
 </subtitles>
 
 ### Output Format
+Make sure to generate the correct Json format, don't output " in the value.
 Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''

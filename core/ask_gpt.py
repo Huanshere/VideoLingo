@@ -58,7 +58,7 @@ def make_api_call(client, model, messages, response_format):
         response_format=response_format
     )
 
-def ask_gpt(prompt, model, response_json=True, valid_key='', log_title='default'):
+def ask_gpt(prompt, model, response_json=True, valid_key='', valid_sub_key='', log_title='default'):
     with LOCK:
         if check_ask_gpt_history(prompt, model):
             return check_ask_gpt_history(prompt, model)
@@ -82,6 +82,10 @@ def ask_gpt(prompt, model, response_json=True, valid_key='', log_title='default'
                     if valid_key and valid_key not in response_data:
                         print(f"❎ API response error: Missing '{valid_key}' key. Retrying...")
                         raise ValueError(f"Response missing '{valid_key}' key")
+                    if valid_sub_key:
+                        if not all(valid_sub_key in item for item in response_data.values()):
+                            print(f"❎ API response error: Missing '{valid_sub_key}' sub-key in some items. Retrying...")
+                            raise ValueError(f"Response missing '{valid_sub_key}' sub-key in some items")
                     break  # Successfully accessed and parsed, break the loop
                 except Exception as e:
                     response_data = response.choices[0].message.content
