@@ -22,14 +22,14 @@ TARGET_LANGUAGE = '简体中文'
 # Subtitle settings
 # 每行字幕的最大长度字母数量
 # Maximum number of characters per line of subtitle
-MAX_SUB_LENGTH = 80
+MAX_SUB_LENGTH = 75
 # 输出字幕字号更大一些
 # Increase the font size of the output subtitles
 TARGET_SUB_MULTIPLIER = 1.2
 
 # 视频分辨率
 # Video resolution
-RESOLUTIOM = '854x480'
+RESOLUTIOM = '640x360'
 
 # 显示语言
 # Display language
@@ -101,6 +101,7 @@ SPACY_MODEL_MAP = {
     "de": "de_core_news_md",
     "it": "it_core_news_md",
     
+
     # Not supported
     # "zh": "zh_core_web_md",
     

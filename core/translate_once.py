@@ -2,6 +2,12 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import generate_shared_prompt, get_prompt_faithfulness, get_prompt_expressiveness
+from rich import print
+from rich.panel import Panel
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
 
 def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_to_note_prompt, summary_prompt, index = 0):
     from config import step4_2_translate_direct_model, step4_2_translate_free_model
@@ -15,8 +21,8 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
             if len(lines.split('\n')) == len(result):
                 return result
             if retry != 2:
-                print(f'⚠️ {step_name.capitalize()} translation of block {index} failed, Retry...')
-        raise ValueError(f'❌ {step_name.capitalize()} translation of block {index} failed after 3 retries. Please check your input text.')
+                console.print(f'[yellow]⚠️ {step_name.capitalize()} translation of block {index} failed, Retry...[/yellow]')
+        raise ValueError(f'[red]❌ {step_name.capitalize()} translation of block {index} failed after 3 retries. Please check your input text.[/red]')
 
     ## Step 1: Faithful to the Original Text
     prompt1 = get_prompt_faithfulness(lines, shared_prompt)
@@ -29,18 +35,25 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)
     express_result = retry_translation(prompt2, step4_2_translate_free_model, 'expressiveness', valide_key="1", valid_sub_key="Free Translation")
 
-    for i in express_result:
-        print(f'📄 Original Subtitle:   {faith_result[i]["Original Subtitle"]}')
-        print(f'📚 Direct Translation:  {faith_result[i]["Direct Translation"]}')
-        print(f'🧠 Free Translation:    {express_result[i]["Free Translation"]}')
+    table = Table(title="Translation Results")
+    table.add_column("Translations", style="cyan")
+
+    for i, key in enumerate(express_result):
+        table.add_row(f"[cyan]Original: {faith_result[key]['Original Subtitle']}[/cyan]")
+        table.add_row(f"[magenta]Direct:   {faith_result[key]['Direct Translation']}[/magenta]")
+        table.add_row(f"[green]Free:     {express_result[key]['Free Translation']}[/green]")
+        if i < len(express_result) - 1:
+            table.add_row("[yellow]" + "-" * 50 + "[/yellow]")
+
+    console.print(table)
 
     translate_result = "\n".join([express_result[i]["Free Translation"].replace('\n', ' ').strip() for i in express_result])
 
     if len(lines.split('\n')) != len(translate_result.split('\n')):
-        print(f'❌ Translation of block {index} failed, Length Mismatch, Please check `output/gpt_log/translate_expressiveness.json`')
+        console.print(Panel(f'[red]❌ Translation of block {index} failed, Length Mismatch, Please check `output/gpt_log/translate_expressiveness.json`[/red]'))
         raise ValueError(f'Original ···{lines}···,\nbut got ···{translate_result}···')
     else:
-        print(f'✅ Translation of block {index} completed')
+        console.print(Panel(f'[green]✅ Translation of block {index} completed[/green]'))
 
     return translate_result, lines
 
