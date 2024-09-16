@@ -28,9 +28,9 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 > 提示: 侧边栏配置 key 的说明可以参考最下方图片
 
-## 🛠️ 源码安装流程 (Windows)
+## 🛠️ 源码安装流程
 
-### 前置依赖
+### Windows 前置依赖
 
 在开始安装 VideoLingo 之前，注意预留至少 **20G** 硬盘空间，并请确保完成以下步骤：
 
@@ -50,7 +50,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
    - 安装 [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
 ### 安装步骤
-> 遇到问题可以把整个步骤丢给 GPT 问问~
+> 支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
 1. 打开 Anaconda Powershell Prompt 并切换到桌面目录：
    ```bash
    cd desktop

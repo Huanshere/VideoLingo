@@ -158,6 +158,8 @@ _model_cache/
 # large files
 /ffmpeg.exe
 /ffmpeg
+/ffprobe.exe
+/ffprobe
 .DS_Store
 _config.py
 config.py
