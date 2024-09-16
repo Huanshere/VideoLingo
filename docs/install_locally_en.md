@@ -85,24 +85,3 @@ Before installing VideoLingo, ensure at least **20GB** of free disk space and co
 6. Set the key in the sidebar of the pop-up webpage, and make sure to select the correct Whisper method to use
 
    ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
-
-
-## Docker Deployment
-
-Pull Image
-
-```bash
-docker pull sguann/videolingo_app:latest
-```
-
-Run Image：
-```bash
-docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx -e DISPLAY_LANGUAGE=xxx sguann/videolingo_app:latest
-```
-
-Where:
-
- - `API_KEY`: Access token, needs to be applied for by yourself. Recommended: [YunWu API](https://api2.wlai.vip/register?aff=TXMB)
- - `BASE_URL`: API provider interface, no need for v1 suffix
- - `WHISPER_METHOD`: Whisper model, options are: `whisper_timestamped`, `whisperX`, `whisperX_api`, default is `whisperX_api`
- - `DISPLAY_LANGUAGE`: Display language, options are `zh_CN`, `zh_TW`, `en_US`, `ja_JP`, default is `auto`

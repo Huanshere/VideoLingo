@@ -6,11 +6,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from core.spacy_utils.load_nlp_model import init_nlp
 from core.step2_whisper import get_whisper_language
 from config import get_joiner, WHISPER_LANGUAGE
+from rich import print
 
 def split_by_mark(nlp):
     language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
     joiner = get_joiner(language)
-    print(f"🔍 Using {language} language joiner: '{joiner}'")
+    print(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"'))
     
@@ -31,7 +32,7 @@ def split_by_mark(nlp):
             else:
                 output_file.write(sentence + "\n")
 
-    print("💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`")
+    print("[green]💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

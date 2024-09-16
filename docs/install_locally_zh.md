@@ -84,24 +84,3 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 6. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
    ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
-
-
-## Docker一键部署
-
-拉取镜像：
-
-```bash
-docker pull sguann/videolingo_app:latest
-```
-
-运行镜像：
-```bash
-docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx -e DISPLAY_LANGUAGE=xxx sguann/videolingo_app:latest
-```
-
-其中:
-
- - `API_KEY` 访问token,需要自行申请,推荐[云雾API](https://api2.wlai.vip/register?aff=TXMB)
- - `BASE_URL` API提供商接口，不需要v1后缀
- - `WHISPER_METHOD` Whisper模型，可选项分别为：`whisper_timestamped`、`whisperX`、`whisperX_api`, 默认`whisperX_api`
- - `DISPLAY_LANGUAGE` 显示语言，可选`zh_CN`, `zh_TW`, `en_US`, `ja_JP`, 默认`auto`

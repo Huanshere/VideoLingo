@@ -3,17 +3,18 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 import os,sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from load_nlp_model import init_nlp
+from rich import print
 
 def analyze_connectors(doc, token):
     """
     Analyze whether a token is a connector that should trigger a sentence split.
     
     Processing logic and order:
-    1. Check if the token is one of the target connectors based on the language.
-    2. For 'that' (English), check if it's part of a contraction (e.g., that's, that'll).
-    3. For all connectors, check if they function as a specific dependency of a verb or noun.
-    4. Default to splitting for certain connectors if no other conditions are met.
-    5. For coordinating conjunctions, check if they connect two independent clauses.
+     1. Check if the token is one of the target connectors based on the language.
+     2. For 'that' (English), check if it's part of a contraction (e.g., that's, that'll).
+     3. For all connectors, check if they function as a specific dependency of a verb or noun.
+     4. Default to splitting for certain connectors if no other conditions are met.
+     5. For coordinating conjunctions, check if they connect two independent clauses.
     """
     lang = doc.lang_
     if lang == "en":
@@ -101,7 +102,7 @@ def split_by_connectors(text, context_words=5, nlp=None):
                 right_words = [word.text for word in right_words if not word.is_punct]
                 
                 if len(left_words) >= context_words and len(right_words) >= context_words and split_before:
-                    print(f"✂️  Split before '{token.text}': {' '.join(left_words)}| {token.text} {' '.join(right_words)}")
+                    print(f"[yellow]✂️  Split before '{token.text}': {' '.join(left_words)}| {token.text} {' '.join(right_words)}[/yellow]")
                     new_sentences.append(doc[start:token.i].text.strip())
                     start = token.i
                     split_occurred = True
@@ -136,7 +137,7 @@ def split_sentences_main(nlp):
         output_file.seek(output_file.tell() - 1, os.SEEK_SET)
         output_file.truncate()
 
-    print("💾 Sentences split by connectors saved to →  `sentence_splitbyconnector.txt`")
+    print("[green]💾 Sentences split by connectors saved to →  `sentence_splitbyconnector.txt`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()
