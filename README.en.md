@@ -66,7 +66,7 @@ Output language supports all languages that Claude can handle.
 
 ### One-Click Package Installation
 
-1. Download the `v0.8.0` one-click package (700M): [Direct Link]() | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v0.8.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8050534)
 2. After extracting, double-click `OneKey.bat` in the folder
 3. In the opened browser window, make necessary configurations in the sidebar, then create your video with one click!
 
