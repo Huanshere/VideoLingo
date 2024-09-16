@@ -8,6 +8,12 @@ import math
 from core.spacy_utils.load_nlp_model import init_nlp
 from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
+from rich import print
+from rich.panel import Panel
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
 
 def tokenize_sentence(sentence, nlp):
     # tokenizer counts the number of words in the sentence
@@ -36,12 +42,12 @@ def find_split_positions(original, modified):
                 best_split = j
 
         if max_similarity < 0.9:
-            print(f"Warning: low similarity found at the best split point: {max_similarity}")
+            console.print(f"[yellow]Warning: low similarity found at the best split point: {max_similarity}[/yellow]")
         if best_split is not None:
             split_positions.append(best_split)
             start = best_split
         else:
-            print(f"Warning: Unable to find a suitable split point for the {i+1}th part.")
+            console.print(f"[yellow]Warning: Unable to find a suitable split point for the {i+1}th part.[/yellow]")
 
     return split_positions
 
@@ -62,11 +68,13 @@ def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0
             parts[-1] = last_part[:split_point - split_points[i-1]] + '\n' + last_part[split_point - split_points[i-1]:]
             best_split = '\n'.join(parts)
     if index != -1:
-        print(f'✅ Sentence {index} has been successfully split')
-    print("best_split:",best_split)
-    print(f'📄 Original Sentence:   {sentence}')
-    print_split = best_split.replace('\n',' [br] ')
-    print(f"📚 Split Sentence:      {print_split}")
+        console.print(f'[green]✅ Sentence {index} has been successfully split[/green]')
+    table = Table(title="")
+    table.add_column("Type", style="cyan")
+    table.add_column("Sentence")
+    table.add_row("Original", sentence, style="yellow")
+    table.add_row("Split", best_split.replace('\n', ' ||'), style="yellow")
+    console.print(table)
     
     return best_split
 
@@ -106,13 +114,13 @@ def split_sentences_by_meaning():
     nlp = init_nlp()
     # 🔄 process sentences multiple times to ensure all are split
     from config import MAX_WORKERS, MAX_SPLIT_LENGTH
-    for retry_attempt in range(5):
+    for retry_attempt in range(3):
         sentences = parallel_split_sentences(sentences, max_length=MAX_SPLIT_LENGTH, max_workers=MAX_WORKERS, nlp=nlp, retry_attempt=retry_attempt)
 
     # 💾 save results
     with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:
         f.write('\n'.join(sentences))
-    print('✅ All sentences have been successfully split!')
+    console.print('[green]✅ All sentences have been successfully split![/green]')
 
 if __name__ == '__main__':
     # print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))

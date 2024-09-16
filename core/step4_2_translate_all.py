@@ -47,6 +47,7 @@ def translate_all():
         print("🚨 File `translation_results.xlsx` already exists, skipping TRANSLATE ALL.")
         return
     
+    print("Start Translate All...")
     chunks = split_chunks_by_chars()
     with open('output/log/terminology.json', 'r', encoding='utf-8') as file:
         theme_prompt = json.load(file).get('theme')

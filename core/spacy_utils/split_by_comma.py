@@ -4,6 +4,7 @@ import itertools
 import os,sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from load_nlp_model import init_nlp
+from rich import print
 
 def is_valid_phrase(phrase):
     # 🔍 Check for subject and verb
@@ -37,13 +38,13 @@ def split_by_comma(text, nlp):
             
             if suitable_for_splitting :
                 sentences.append(doc[start:token.i].text.strip())
-                print(f"✂️  Split at comma: {doc[start:token.i][-4:]},| {doc[token.i + 1:][:4]}")
+                print(f"[yellow]✂️  Split at comma: {doc[start:token.i][-4:]},| {doc[token.i + 1:][:4]}[/yellow]")
                 start = token.i + 1
     
     for i, token in enumerate(doc):
         if token.text == ":": # Split at colon
             sentences.append(doc[start:token.i].text.strip())
-            print(f"✂️  Split at colon: {doc[start:token.i][-4:]}:| {doc[token.i + 1:][:4]}")
+            print(f"[yellow]✂️  Split at colon: {doc[start:token.i][-4:]}:| {doc[token.i + 1:][:4]}[/yellow]")
                 
     
     sentences.append(doc[start:].text.strip())
@@ -63,7 +64,7 @@ def split_by_comma_main(nlp):
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
 
-    print("💾 Sentences split by commas saved to →  `sentences_by_comma.txt`")
+    print("[green]💾 Sentences split by commas saved to →  `sentences_by_comma.txt`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from core.spacy_utils.load_nlp_model import init_nlp
 from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
+from rich import print
 
 def split_long_sentence(doc):
     tokens = [token.text for token in doc]
@@ -70,7 +71,7 @@ def split_long_by_root_main(nlp):
             if any(len(nlp(sent)) > 60 for sent in split_sentences):
                 split_sentences = [subsent for sent in split_sentences for subsent in split_extremely_long_sentence(nlp(sent))]
             all_split_sentences.extend(split_sentences)
-            print(f"✂️  Splitting long sentences by root: {sentence[:30]}...")
+            print(f"[yellow]✂️  Splitting long sentences by root: {sentence[:30]}...[/yellow]")
         else:
             all_split_sentences.append(sentence.strip())
 
@@ -78,7 +79,7 @@ def split_long_by_root_main(nlp):
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
 
-    print("💾 Long sentences split by root saved to →  `sentence_splitbynlp.txt`")
+    print("[green]💾 Long sentences split by root saved to →  `sentence_splitbynlp.txt`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

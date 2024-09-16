@@ -16,11 +16,9 @@ VideoLingo offers multiple Whisper solutions for the speech recognition text ste
 
 2. If using `whisperX_api`, please register and set up payment method on the [Replicate official website](https://replicate.com/account/api-tokens) to obtain your token. You can also contact me in the QQ group for free test tokens.
 
-## 💾 One-Click Package
+## 💾 One-Click Package Tutorial
 
-We provide a Windows one-click integrated package using `whisperX_api`:
-
-1. Download the `v0.7.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8026614) | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v0.8.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8050534) | [Baidu Pan Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. After extracting, double-click `OneKey.bat` in the folder
 
@@ -28,9 +26,9 @@ We provide a Windows one-click integrated package using `whisperX_api`:
 
 > Note: Refer to the image at the bottom for the key configuration in the sidebar
 
-## 🛠️ Source Code Installation Process (Windows)
+## 🛠️ Source Code Installation Process
 
-### Prerequisites
+### Windows Prerequisites
 
 Before installing VideoLingo, ensure at least **20GB** of free disk space and complete the following steps:
 
@@ -51,7 +49,7 @@ Before installing VideoLingo, ensure at least **20GB** of free disk space and co
    - Install [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
 
 ### Installation Steps
-> If you encounter any issues, you can ask GPT about the entire process~
+> Supports Win, Mac, Linux. If you encounter any issues, you can ask GPT about the entire process~
 1. Open Anaconda Powershell Prompt and switch to the desktop directory:
    ```bash
    cd desktop
@@ -85,24 +83,3 @@ Before installing VideoLingo, ensure at least **20GB** of free disk space and co
 6. Set the key in the sidebar of the pop-up webpage, and make sure to select the correct Whisper method to use
 
    ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
-
-
-## Docker Deployment
-
-Pull Image
-
-```bash
-docker pull sguann/videolingo_app:latest
-```
-
-Run Image：
-```bash
-docker run -d -p 8501:8501 -e API_KEY=xxx -e BASE_URL=xxx -e WHISPER_METHOD=xxx -e DISPLAY_LANGUAGE=xxx sguann/videolingo_app:latest
-```
-
-Where:
-
- - `API_KEY`: Access token, needs to be applied for by yourself. Recommended: [YunWu API](https://api2.wlai.vip/register?aff=TXMB)
- - `BASE_URL`: API provider interface, no need for v1 suffix
- - `WHISPER_METHOD`: Whisper model, options are: `whisper_timestamped`, `whisperX`, `whisperX_api`, default is `whisperX_api`
- - `DISPLAY_LANGUAGE`: Display language, options are `zh_CN`, `zh_TW`, `en_US`, `ja_JP`, default is `auto`
