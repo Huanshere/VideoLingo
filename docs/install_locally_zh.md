@@ -10,7 +10,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ## 📋 前期准备
 
-1. 获取 `claude-3-5-sonnet` 的 `API_KEY`，推荐便宜渠道：[云雾API](https://api2.wlai.vip/register?aff=TXMB)，仅仅 ￥ 15/1M，官方价格的 1/8。当然这一步你也可以换成别的api提供商，但仅仅建议选用 `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
+1. 获取 `claude-3-5-sonnet` 的 `API_KEY`，推荐便宜渠道：[云雾API](https://api.wlai.vip/register?aff=TXMB)，仅仅 ￥ 15/1M，官方价格的 1/8。当然这一步你也可以换成别的api提供商，但仅仅建议选用 `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
  
    ![yunwu](https://github.com/user-attachments/assets/7aabfa87-06b5-4004-8d9e-fa4a0743a912)
 
