@@ -78,7 +78,7 @@ def page_setting():
 
     resolution_options = {
         "1080p": "1920x1080",
-        "480p": "854x480"
+        "360p": "640x360"
     }
     selected_resolution = st.selectbox(get_localized_string("video_resolution"), options=list(resolution_options.keys()), index=list(resolution_options.values()).index(config.RESOLUTIOM))
     resolution = resolution_options[selected_resolution]
