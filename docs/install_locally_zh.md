@@ -1,12 +1,12 @@
 # 🏠 VideoLingo 安装指南
 
-VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，根据个人配置和需求选择其一即可。
+VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议使用whisperX_api版的一键整合包。
 
 | 方案 | 优势 | 劣势 |
 |:-----|:-----|:-----|
 | **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想<br>• 需要8G以上显存的显卡 |
 | **whisperX**  | • 本地运行<br>• 基于 faster-whisper，性能卓越<br>• 多语言支持好 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
-| **whisperX_api** (🌟推荐) | • 利用 Replicate 云算力，无需本地算力 | • 需绑定 Visa 卡支付（一次转录约¥0.1） |
+| **whisperX_api** <br> (🌟推荐 有一键整合包) | • 利用 Replicate 云算力，无需本地算力 | • 需绑定 Visa 卡支付（一次转录约¥0.1） |
 
 ## 📋 API 准备
 
@@ -24,15 +24,14 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，根据
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
    - 或加入 QQ 群联系作者免费获取测试令牌
 
-## 💾 一键整合包教程
+## 💾  whisperx_api版 一键整合包教程
 
 1. 下载 `v0.8.0` 一键整合包(700M): [直达链接](https://vip.123pan.cn/1817874751/8050534) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
 3. 在打开的浏览器窗口中，在侧边栏进行必要配置，然后一键出片！
-
-> 提示: 侧边栏配置 key 的说明可以参考最下方图片
+  ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
 
 ## 🛠️ 源码安装流程
 

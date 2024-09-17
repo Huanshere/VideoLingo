@@ -69,7 +69,7 @@ https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 3. 在打开的浏览器窗口中，在侧边栏进行必要配置，然后一键出片！
 
-> 💡 提示: 本项目需要大模型的 API 以及 WhisperX 云算力 Replicate 的 API 🌩️ 申请及配置 api_key 请阅读 [本地安装教程](./docs/install_locally_zh.md)
+> 💡 提示: 本项目需要大模型的 API 以及 WhisperX 云算力 Replicate 的 API 🌩️ <br> 申请及配置 api_key 请阅读 [本地安装教程](./docs/install_locally_zh.md)
 
 ### 源码安装方法
 
