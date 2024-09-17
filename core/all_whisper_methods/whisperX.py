@@ -30,9 +30,14 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         del model
         torch.cuda.empty_cache()
 
+        # Save language
+        save_language(result['language'])
+
         # Align whisper output
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
         result = whisperx.align(result["segments"], model_a, metadata, audio_segment, device, return_char_alignments=False)
+
+        
 
         # Free GPU resources again
         del model_a
@@ -43,9 +48,10 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             segment['start'] += start
             segment['end'] += start
             for word in segment['words']:
-                word['start'] += start
-                word['end'] += start
-
+                if 'start' in word:
+                    word['start'] += start
+                if 'end' in word:
+                    word['end'] += start
         return result
     except Exception as e:
         raise Exception(f"WhisperX processing error: {e}")
@@ -62,14 +68,9 @@ def transcribe(video_file: str):
             all_results.append(result)
         
         # Combine results
-        combined_result = {
-            'segments': [],
-            'language': all_results[0]['language']
-        }
+        combined_result = {'segments': []}
         for result in all_results:
             combined_result['segments'].extend(result['segments'])
-        
-        save_language(combined_result['language'])
         
         df = process_transcription(combined_result)
         save_results(df)
