@@ -15,20 +15,19 @@
 
 ## 🌟 Project Introduction
 
-VideoLingo is an all-in-one video translation and localization tool designed to generate Netflix-quality subtitles, eliminating stiff machine translations and multi-line subtitles, enabling knowledge sharing across language barriers worldwide.
+VideoLingo is an all-in-one video translation and localization tool designed to generate Netflix-quality subtitles, eliminating stiff machine translations and multi-line subtitles, enabling knowledge sharing across language barriers worldwide. Through an intuitive Streamlit web interface, you can complete the entire process from video link to embedded high-quality bilingual subtitles with just a few clicks, easily creating localized videos with Netflix-quality subtitles.
 
 Key features and functionalities:
+- Uses yt-dlp to download videos from YouTube links
+
 - Uses WhisperX for word-level timeline subtitle recognition
 - Uses NLP and GPT for subtitle segmentation based on sentence meaning
 - GPT summarizes intelligent terminology knowledge base for context-aware translation
 - Three-step direct translation, reflection, and paraphrasing to eliminate awkward machine translations
-- Netflix-level single-line subtitle length and translation quality
+- Netflix-standard single-line subtitle length and translation quality checks
 - One-click integrated package launch, one-click video production in Streamlit
-- Developer-friendly: Step-by-step structured files for easy customization
 
-VideoLingo automates video downloading, audio extraction, high-precision speech recognition, subtitle generation, high-quality text translation and alignment, and seamless integration of translated subtitles into the original video. With an intuitive Streamlit web interface, you can complete the entire workflow with just a few clicks, easily creating localized videos with Netflix-quality subtitles.
-
-VideoLingo is also actively developing voice cloning technology, which will soon support video dubbing, further enhancing the localization experience. Whether you're a content creator, educator, or someone with multilingual communication needs, VideoLingo can be a powerful assistant, helping you overcome language barriers and connect with global audiences.
+🚧 VideoLingo is also actively developing voice cloning technology, which will soon support video dubbing, further enhancing the localization experience.
 
 ## 🎥 Demo
 
@@ -66,11 +65,11 @@ Output language supports all languages that Claude can handle.
 
 ### One-Click Package Installation
 
-1. Download the `v0.8.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8050534)
+1. Download the `v0.8.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8050534) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 2. After extracting, double-click `OneKey.bat` in the folder
 3. In the opened browser window, make necessary configurations in the sidebar, then create your video with one click!
 
-> Note: Refer to the image at the bottom of the [Local Installation Guide](./docs/install_locally_en.md) for the key configuration in the sidebar
+> 💡 Note: This project requires API keys for large language models and Replicate's API for WhisperX cloud computing 🌩️ For application and configuration of api_keys, please read the [Local Installation Guide](./docs/install_locally_en.md)
 
 ### Source Code Installation Method
 
@@ -78,16 +77,11 @@ For detailed installation guide, including source code installation and developm
 
 ## 📚 Documentation
 
-- [Chinese Technical Documentation](./docs/README_guide_zh.md)
-- [English Technical Documentation](./docs/README_guide_en.md)
+- This project uses structured module development, you can run `core\step__.py` in sequence. Technical documentation: [Chinese](./docs/README_guide_zh.md) | [English](./docs/README_guide_en.md)
 
 ## 🙏 Acknowledgements
 
-Thanks to the following open-source projects for their contributions:
-- [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped)
-- [whisperX](https://github.com/m-bain/whisperX)
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- [json_repair](https://github.com/mangiucugna/json_repair)
+- [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped), [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair)
 
 ## 📄 License
 

@@ -1,20 +1,28 @@
-# 🏠 VideoLingo 本地部署指南
+# 🏠 VideoLingo 安装指南
 
-VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为目前为止没有唯一完美的选择），根据个人配置和需求选择一个即可。
+VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，根据个人配置和需求选择其一即可。
 
 | 方案 | 优势 | 劣势 |
 |:-----|:-----|:-----|
 | **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想<br>• 需要8G以上显存的显卡 |
 | **whisperX**  | • 本地运行<br>• 基于 faster-whisper，性能卓越<br>• 多语言支持好 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
-| **whisperX_api** (🌟推荐) | • 利用 Replicate API，无需本地算力 | • 使用的large-v3 标点效果可能不如v2 |
+| **whisperX_api** (🌟推荐) | • 利用 Replicate 云算力，无需本地算力 | • 需绑定 Visa 卡支付（一次转录约¥0.1） |
 
-## 📋 前期准备
+## 📋 API 准备
 
-1. 获取 `claude-3-5-sonnet` 的 `API_KEY`，推荐便宜渠道：[云雾API](https://api.wlai.vip/register?aff=TXMB)，仅仅 ￥ 15/1M，官方价格的 1/8。当然这一步你也可以换成别的api提供商，但仅仅建议选用 `claude-3-5-sonnet` > `Qwen 1.5 72B Chat` > `deepseek-coder`
- 
-   ![yunwu](https://github.com/user-attachments/assets/7aabfa87-06b5-4004-8d9e-fa4a0743a912)
+1. 获取大模型的 API_KEY：
 
-2. 若选用 `whisperX_api`，请在 [Replicate官网](https://replicate.com/account/api-tokens) 注册并绑定支付方式，获取你的令牌。也可在 QQ 群联系我免费提供测试用。
+| 模型 | 推荐渠道 | 价格 | 效果 |
+|:-----|:---------|:-----|:---------|
+| claude-3-5-sonnet | [Deepbricks](https://deepbricks.ai/api-key) | ￥50 / 1M (官方的1/2) | 🤩 |
+| TA/Qwen/Qwen1.5-72B-Chat | [OHMYGPT](https://www.ohmygpt.com?aff=u20olROA) | ￥3 / 1M | 😲 |
+| deepseek-coder | [OHMYGPT](https://www.ohmygpt.com?aff=u20olROA) | ￥2 / 1M | 😲 |
+
+   注：默认使用 3.5sonnet，10分钟视频翻译约花费￥3。兼容任何 OpenAI-Like 模型，但只建议这三种，其余容易出错。
+
+2. 若选用 `whisperX_api`，需准备 Replicate 的 Token：
+   - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
+   - 或加入 QQ 群联系作者免费获取测试令牌
 
 ## 💾 一键整合包教程
 
@@ -30,25 +38,23 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 ### Windows 前置依赖
 
-在开始安装 VideoLingo 之前，注意预留至少 **20G** 硬盘空间，并请确保完成以下步骤：
+在开始安装本地 Whisper 版的 VideoLingo 之前，注意预留至少 **20G** 硬盘空间，并请确保完成以下步骤：
 
-1. 安装 [Anaconda](https://www.anaconda.com/download/success)
-   - 一定要在安装过程中勾选 添加到环境变量
+| 依赖 | whisperX | whisper_timestamped | whisperX_api |
+|:-----|:--------------|:-------------------------|:-------------------|
+| [Anaconda](https://www.anaconda.com/download/success)<br>*勾选"添加到环境变量"* | ✅ | ✅ | ✅ |
+| [Git](https://git-scm.com/download/win) | ✅ | ✅ | ✅ |
+| [Cuda Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | ✅ | | |
+| [Cudnn 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | ✅ | | |
+| [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)<br>*勾选"使用 C++ 的桌面开发"* | | ✅ | |
+| [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi) | | ✅ | |
 
-2. 安装 [Git](https://git-scm.com/download/win)
-
-3. 对于选择 `whisperX` 的用户：
-   - 安装 [Cuda Toolkit](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-   - 安装 [Cudnn](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-   - 完成安装后重启计算机
-   > tips: 如果在后续运行中报错 CUDA Memory, 请自行在 ``core/all_whisper_methods/whisperX.py` 中调小 batch size 重试
-4. 对于选择 `whisper_timestamped` 的用户：
-   - 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
-     - 在安装界面勾选"使用 C++ 的桌面开发"组件包
-   - 安装 [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi)
+> 注意：
+> - 安装后需要重启计算机
+> - 如果在运行 whisperX 时报错 CUDA Memory，请自行在 `core/all_whisper_methods/whisperX.py` 中调小 batch size 重试
 
 ### 安装步骤
-> 支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
+支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
 1. 打开 Anaconda Powershell Prompt 并切换到桌面目录：
    ```bash
    cd desktop
@@ -72,7 +78,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
    ```
    根据提示选择所需的 Whisper 项目，脚本将自动安装相应的 torch 和 whisper 版本
 
-   请确保网络连接，并检查安装过程是否有报错
+   注意：Mac 用户需根据提示手动安装 ffmpeg
 
 5. 🎉 启动 Streamlit 应用：
    ```bash
@@ -81,4 +87,4 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择（因为
 
 6. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
-   ![2](https://github.com/user-attachments/assets/ba5621f0-8320-4a45-8da8-9ea574b5c7cc)
+   ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
