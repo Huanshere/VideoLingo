@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌉 VideoLingo: 连接世界的每一帧
+# VideoLingo: 连接世界的每一帧
 <p align="center">
   <a href="https://www.python.org" target="_blank"><img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python"></a>
   <a href="https://github.com/Huanshere/VideoLingo/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/Huanshere/VideoLingo.svg" alt="License"></a>
@@ -21,10 +21,15 @@ VideoLingo 是一站式视频翻译本地化工具，旨在生成 Netflix 级别
 - 使用 yt-dlp 从 Youtube 链接下载视频
 
 - 使用 WhisperX 进行单词级时间轴字幕识别
+
 - 使用 NLP 和 GPT 根据句意进行字幕分割
+
 - GPT 总结智能术语知识库，实现上下文感知翻译
+
 - 三步直译、反思、意译，告别诡异机翻
+
 - 按照 Netflix 标准检查单行字幕长度与翻译质量
+
 - 一键整合包启动，在 streamlit 中一键出片
 
 🚧 VideoLingo 还在积极开发声音克隆技术，很快将支持视频配音，进一步提升视频的本地化体验。

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌉 VideoLingo: Connecting the World, Frame by Frame
+# VideoLingo: Connecting the World, Frame by Frame
 <p align="center">
   <a href="https://www.python.org" target="_blank"><img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python"></a>
   <a href="https://github.com/Huanshere/VideoLingo/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/Huanshere/VideoLingo.svg" alt="License"></a>
@@ -21,10 +21,15 @@ Key features and functionalities:
 - Uses yt-dlp to download videos from YouTube links
 
 - Uses WhisperX for word-level timeline subtitle recognition
+
 - Uses NLP and GPT for subtitle segmentation based on sentence meaning
+
 - GPT summarizes intelligent terminology knowledge base for context-aware translation
+
 - Three-step direct translation, reflection, and paraphrasing to eliminate awkward machine translations
+
 - Netflix-standard single-line subtitle length and translation quality checks
+
 - One-click integrated package launch, one-click video production in Streamlit
 
 🚧 VideoLingo is also actively developing voice cloning technology, which will soon support video dubbing, further enhancing the localization experience.
@@ -66,10 +71,10 @@ Output language supports all languages that Claude can handle.
 ### One-Click Package Installation
 
 1. Download the `v0.8.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8050534) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
-2. After extracting, double-click `OneKey.bat` in the folder
+2. After extracting, double-click `OneKeyStart.bat` in the folder
 3. In the opened browser window, make necessary configurations in the sidebar, then create your video with one click!
 
-> 💡 Note: This project requires API keys for large language models and Replicate's API for WhisperX cloud computing 🌩️ For application and configuration of api_keys, please read the [Local Installation Guide](./docs/install_locally_en.md)
+> 💡 Note: This project requires API keys for large language models and Replicate's API for WhisperX cloud computing 🌩️ <br> For application and configuration of api_keys, please read the [Local Installation Guide](./docs/install_locally_en.md)
 
 ### Source Code Installation Method
 
