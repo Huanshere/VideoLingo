@@ -4,11 +4,9 @@
 ## ======================== Basic Settings ======================== ##
 
 # API Settings：
-# 为了最好的效果，请使用 claude-3-5-sonnet-20240620. 便宜渠道推荐使用 https://api2.wlai.vip/register?aff=TXMB.
-# For best results, please use claude-3-5-sonnet-20240620.
 API_KEY = 'sk-xxx'
-BASE_URL = 'https://api.wlai.vip'
-MODEL = ['claude-3-5-sonnet-20240620']
+BASE_URL = 'https://api.deepbricks.ai'
+MODEL = ['claude-3-5-sonnet']
 
 # Replicate API 设置
 # Replicate API settings for using whisperX
@@ -25,7 +23,7 @@ TARGET_LANGUAGE = '简体中文'
 MAX_SUB_LENGTH = 75
 # 输出字幕字号更大一些
 # Increase the font size of the output subtitles
-TARGET_SUB_MULTIPLIER = 1.2
+TARGET_SUB_MULTIPLIER = 1.3
 
 # 视频分辨率
 # Video resolution
