@@ -70,11 +70,13 @@ Output language supports all languages that Claude can handle.
 
 ### One-Click Package Installation
 
-1. Download the `v0.8.0` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8050534) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v0.8.1` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8078280) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+
 2. After extracting, double-click `OneKeyStart.bat` in the folder
+
 3. In the opened browser window, make necessary configurations in the sidebar, then create your video with one click!
 
-> 💡 Note: This project requires API keys for large language models and Replicate's API for WhisperX cloud computing 🌩️ <br> For application and configuration of api_keys, please read the [Local Installation Guide](./docs/install_locally_en.md)
+> 💡 Note: This project requires API keys for large language models and Replicate's API for transcription 🌩️ <br> For application and configuration of api_keys, please read the [Local Installation Guide](./docs/install_locally_en.md)
 
 ### Source Code Installation Method
 
