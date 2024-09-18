@@ -1,4 +1,7 @@
 import os,sys
+
+from core.all_whisper_methods.whisperXapi import convert_video_to_audio
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import subprocess
 import whisper_timestamped as whisper
@@ -12,24 +15,8 @@ import json
 def convert_video_to_audio_and_transcribe(input_file: str):
     from config import WHISPER_MODEL, MODEL_DIR, WHISPER_LANGUAGE
     # 🎬➡️🎵➡️📊 Convert video to audio and transcribe
-    os.makedirs('output/audio', exist_ok=True)
-    audio_file = 'output/audio/raw_full_audio.wav'
-    
-    if not os.path.exists(audio_file):
-        # Convert video to audio
-        ffmpeg_cmd = [
-            'ffmpeg',
-            '-i', input_file,
-            '-vn',
-            '-acodec', 'libmp3lame',
-            '-ar', '16000',
-            '-b:a', '64k',
-            audio_file
-        ]
-        print(f"🎬➡️🎵 Converting to audio......")
-        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
-        print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}>\n")
-    
+    audio_file = convert_video_to_audio(input_file)
+
     # Check file size
     if os.path.getsize(audio_file) > 25 * 1024 * 1024:
         print("⚠️ Warning: File size exceeds 25MB. Please use a smaller file.")
