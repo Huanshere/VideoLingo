@@ -55,13 +55,13 @@ https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 | 输入语言 | 支持程度 | 示例视频 |
 |---------|---------|---------|
-| 🇬🇧🇺🇸 英语 | 🤩 | [英转中 demo](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) |
-| 🇷🇺 俄语 | 😊 | [俄转中 demo](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) |
-| 🇫🇷 法语 | 🤩 | [法转日 demo](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) |
-| 🇩🇪 德语 | 🤩 | [德转中 demo](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) |
-| 🇮🇹 意大利语 | 🤩 | [意转中 demo](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) |
-| 🇪🇸 西班牙语 | 🤩 | [西转中 demo](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) |
-| 🇯🇵 日语 | 😐 | [日转中 demo](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) |
+| 🇬🇧🇺🇸 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) |
+| 🇷🇺 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) |
+| 🇫🇷 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) |
+| 🇩🇪 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) |
+| 🇮🇹 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) |
+| 🇪🇸 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) |
+| 🇯🇵 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) |
 | 🇨🇳 中文 | 😖 | ❌ |
 
 输出语言支持 Claude 能处理的所有语言。
