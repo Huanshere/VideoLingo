@@ -113,7 +113,7 @@ def main():
     with st.sidebar:
         page_setting()
         st.markdown(give_star_button, unsafe_allow_html=True)
-    download_video_section(cloud)
+    download_video_section()
     text_processing_section()
     st.warning(gls("dubbing_feature_warning"))
     # if not cloud:

@@ -5,8 +5,8 @@ from core.step1_ytdlp import download_video_ytdlp, find_video_files
 from st_components.i18n import get_localized_string
 from time import sleep
 
-def download_video_section(cloud):
-    title1 = get_localized_string("upload_video") if cloud else get_localized_string("download_or_upload_video")
+def download_video_section():
+    title1 = get_localized_string("download_or_upload_video")
     st.header(title1)
     with st.container(border=True):
         try:
@@ -20,13 +20,12 @@ def download_video_section(cloud):
                 st.rerun()
             return True
         except:
-            if not cloud:
-                url = st.text_input(get_localized_string("enter_youtube_link"))
-                if st.button(get_localized_string("download_video"), key="download_button", use_container_width=True):
-                    if url:
-                        with st.spinner(get_localized_string("downloading_video")):
-                            download_video_ytdlp(url)
-                        st.rerun()
+            url = st.text_input(get_localized_string("enter_youtube_link"))
+            if st.button(get_localized_string("download_video"), key="download_button", use_container_width=True):
+                if url:
+                    with st.spinner(get_localized_string("downloading_video")):
+                        download_video_ytdlp(url)
+                    st.rerun()
             from config import ALLOWED_VIDEO_FORMATS
             uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=ALLOWED_VIDEO_FORMATS)
             if uploaded_file:
