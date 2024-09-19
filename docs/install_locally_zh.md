@@ -19,7 +19,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议
 
 <details>
 <summary><strong>我该如何选择模型？</strong></summary>
-<p>默认使用Qwen2.5, 花费约 1h 视频翻译约 ￥1，Claude 3.5 效果更好，但价格更贵。</p>
+<p>默认使用Qwen2.5,  1h 视频翻译花费约 ￥2，Claude 3.5 效果更好，但价格更贵。</p>
 </details>
 
 2. 若选用 `whisperX_api`，需准备 Replicate 的 Token：
