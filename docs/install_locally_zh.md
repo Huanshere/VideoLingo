@@ -6,7 +6,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议
 |:-----|:-----|:-----|
 | **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想<br>• 需要8G以上显存的显卡 |
 | **whisperX**  | • 本地运行<br>• 基于 faster-whisper，性能卓越<br>• 多语言支持好 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
-| **whisperX_api** <br> (🌟推荐 有一键整合包) | • 利用 Replicate 云算力，无需本地算力 | • 需绑定 Visa 卡支付（一次转录约¥0.1） |
+| **whisperX_api** <br> (🌟推荐 有一键整合包) | • 利用 Replicate 云算力，无需本地算力 | • 需稳定的梯子(最好美国) |
 
 ## 📋 API 准备
 
@@ -17,10 +17,10 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议
 | claude-3-5-sonnet-20240620 | [ 云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
 | Qwen/Qwen2.5-72B-Instruct | [Deepinfra](https://deepinfra.com/api-key)(需信用卡，等两天国内厂商跟进) | https://api.deepinfra.com/v1/openai | ￥3 / 1M | 😲 |
 
-   <details style="border: 1px solid #ccc; border-radius: 8px; padding: 10px;">
-   <summary style="font-weight: bold;">我该如何选择模型？</summary>
-   <p>默认使用第一个最稳定，10分钟视频翻译约花费￥1。兼容任何 OpenAI-Like 模型，但只建议这2种。</p>
-   </details>
+<details>
+<summary><strong>我该如何选择模型？</strong></summary>
+<p>默认使用Qwen2.5, 花费约 1h 视频翻译约 ￥1，Claude 3.5 效果更好，但价格更贵。</p>
+</details>
 
 2. 若选用 `whisperX_api`，需准备 Replicate 的 Token：
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
