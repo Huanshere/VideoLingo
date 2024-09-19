@@ -11,12 +11,13 @@ from requests.exceptions import RequestException
 LOG_FOLDER = 'output/gpt_log'
 LOCK = Lock()
 
-def save_log(model, prompt, response, log_title = 'default'):
+def save_log(model, prompt, response, log_title = 'default', message = None):
     os.makedirs(LOG_FOLDER, exist_ok=True)
     log_data = {
         "model": model,
         "prompt": prompt,
-        "response": response
+        "response": response,
+        "message": message
     }
     log_file = os.path.join(LOG_FOLDER, f"{log_title}.json")
     
@@ -34,7 +35,8 @@ def check_ask_gpt_history(prompt, model):
     if not os.path.exists(LOG_FOLDER):
         return False
     for file_name in os.listdir(LOG_FOLDER):
-        if file_name.endswith('.json'):
+        # check all files in the folder except error.json
+        if file_name.endswith('.json') and "error" not in file_name:
             file_path = os.path.join(LOG_FOLDER, file_name)
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -58,7 +60,7 @@ def make_api_call(client, model, messages, response_format):
         response_format=response_format
     )
 
-def ask_gpt(prompt, model, response_json=True, valid_key='', valid_sub_key='', log_title='default'):
+def ask_gpt(prompt, model, response_json=True ,valid_def=None, log_title='default'):
     with LOCK:
         if check_ask_gpt_history(prompt, model):
             return check_ask_gpt_history(prompt, model)
@@ -67,7 +69,8 @@ def ask_gpt(prompt, model, response_json=True, valid_key='', valid_sub_key='', l
         {"role": "user", "content": prompt},
     ]
     
-    client = OpenAI(api_key=llm['api_key'], base_url=llm['base_url']+ '/v1')
+    base_url = llm['base_url'].strip('/') + '/v1' if 'v1' not in llm['base_url'] else llm['base_url']
+    client = OpenAI(api_key=llm['api_key'], base_url=base_url)
     from config import llm_support_json
     response_format = {"type": "json_object"} if response_json and model in llm_support_json else None
     
@@ -79,17 +82,19 @@ def ask_gpt(prompt, model, response_json=True, valid_key='', valid_sub_key='', l
             if response_json:
                 try:
                     response_data = json_repair.loads(response.choices[0].message.content)
-                    if valid_key and valid_key not in response_data:
-                        print(f"❎ API response error: Missing '{valid_key}' key. Retrying...")
-                        raise ValueError(f"Response missing '{valid_key}' key")
-                    if valid_sub_key:
-                        if not all(valid_sub_key in item for item in response_data.values()):
-                            print(f"❎ API response error: Missing '{valid_sub_key}' sub-key in some items. Retrying...")
-                            raise ValueError(f"Response missing '{valid_sub_key}' sub-key in some items")
+                    
+                    # check if the response is valid, otherwise save the log and raise error and retry
+                    if valid_def:
+                        valid_response = valid_def(response_data)
+                        if valid_response['status'] != 'success':
+                            save_log(model, prompt, response_data, log_title="error", message=valid_response['message'])
+                            raise ValueError(f"❎ API response error: {valid_response['message']}")
+                        
                     break  # Successfully accessed and parsed, break the loop
                 except Exception as e:
                     response_data = response.choices[0].message.content
                     print(f"❎ json_repair parsing failed. Retrying: '''{response_data}'''")
+                    save_log(model, prompt, response_data, log_title="error", message=f"json_repair parsing failed.")
                     if attempt == max_retries - 1:
                         raise Exception(f"JSON parsing still failed after {max_retries} attempts: {e}")
             else:

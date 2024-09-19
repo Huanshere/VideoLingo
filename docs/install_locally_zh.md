@@ -12,13 +12,15 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议
 
 1. 获取大模型的 API_KEY：
 
-| 模型 | 推荐渠道 | 价格 | 效果 |
-|:-----|:---------|:-----|:---------|
-| claude-3-5-sonnet | [Deepbricks](https://deepbricks.ai/api-key) | ￥50 / 1M (官方的1/2) | 🤩 |
-| TA/Qwen/Qwen1.5-72B-Chat | [OHMYGPT](https://www.ohmygpt.com?aff=u20olROA) | ￥3 / 1M | 😲 |
-| deepseek-coder | [OHMYGPT](https://www.ohmygpt.com?aff=u20olROA) | ￥2 / 1M | 😲 |
+| 模型 | 推荐提供商 | base_url | 价格 | 效果 |
+|:-----|:---------|:---------|:-----|:---------|
+| claude-3-5-sonnet-20240620 | [ 云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
+| Qwen/Qwen2.5-72B-Instruct | [Deepinfra](https://deepinfra.com/api-key)(需信用卡，等两天国内厂商跟进) | https://api.deepinfra.com/v1/openai | ￥3 / 1M | 😲 |
 
-   注：默认使用 3.5sonnet，10分钟视频翻译约花费￥3。兼容任何 OpenAI-Like 模型，但只建议这三种，其余容易出错。
+   <details style="border: 1px solid #ccc; border-radius: 8px; padding: 10px;">
+   <summary style="font-weight: bold;">我该如何选择模型？</summary>
+   <p>默认使用第一个最稳定，10分钟视频翻译约花费￥1。兼容任何 OpenAI-Like 模型，但只建议这2种。</p>
+   </details>
 
 2. 若选用 `whisperX_api`，需准备 Replicate 的 Token：
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
@@ -65,7 +67,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议
    cd VideoLingo
    ```
 
-3. 配置虚拟环境：
+3. 配置虚拟环境（必须 3.10.0）：
    ```bash
    conda create -n videolingo python=3.10.0
    conda activate videolingo

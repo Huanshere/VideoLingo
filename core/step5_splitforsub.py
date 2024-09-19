@@ -36,7 +36,12 @@ def calc_len(text: str) -> float:
 def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], List[str]]:
     align_prompt = get_align_prompt(src_sub, tr_sub, src_part)
     
-    parsed = ask_gpt(align_prompt, model=step5_align_model, response_json=True, valid_key='best_way', log_title='align_subs')
+    def valid_align(response_data):
+        # check if the best_way is in the response_data
+        if 'best_way' not in response_data:
+            return {"status": "error", "message": "Missing required key: best_way"}
+        return {"status": "success", "message": "Align completed"}
+    parsed = ask_gpt(align_prompt, model=step5_align_model, response_json=True, valid_def=valid_align, log_title='align_subs')
 
     best = int(parsed['best_way'])
     align_data = parsed[f'align_way_{best}']

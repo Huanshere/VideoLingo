@@ -9,15 +9,43 @@ from rich.table import Table
 
 console = Console()
 
+def valid_translate_result(result: dict, required_keys: list, required_sub_keys: list):
+    if not isinstance(result, dict):
+        return {"status": "error", "message": "Result is not a dictionary"}
+    
+    # Check for the required key
+    if not all(key in result for key in required_keys):
+        return {"status": "error", "message": f"Missing required key(s): {', '.join(set(required_keys) - set(result.keys()))}"}
+    
+    # Check for required sub-keys in all items
+    for key in result:
+        if not all(sub_key in result[key] for sub_key in required_sub_keys):
+            return {"status": "error", "message": f"Missing required sub-key(s) in item {key}: {', '.join(set(required_sub_keys) - set(result[key].keys()))}"}
+    
+    # Check if all sub-keys values are not empty
+    for key in result:
+        for sub_key in required_sub_keys:
+            if not result[key][sub_key].strip():
+                return {"status": "error", "message": f"Empty value for sub-key '{sub_key}' in item {key}"}
+    
+    return {"status": "success", "message": "Translation completed"}
+
 def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_to_note_prompt, summary_prompt, index = 0):
     from config import step4_2_translate_direct_model, step4_2_translate_free_model
     
     shared_prompt = generate_shared_prompt(previous_content_prompt, after_cotent_prompt, summary_prompt, things_to_note_prompt)
 
     # Retry translation if the length of the original text and the translated text are not the same, or if the specified key is missing
-    def retry_translation(prompt, model, step_name, valide_key=None, valid_sub_key=None):
+    def retry_translation(prompt, model, step_name):
+        def valid_faith(response_data):
+            return valid_translate_result(response_data, ['1'], ['Direct Translation'])
+        def valid_express(response_data):
+            return valid_translate_result(response_data, ['1'], ['Free Translation'])
         for retry in range(3):
-            result = ask_gpt(prompt + retry*" ", model=model, response_json=True, valid_key=valide_key, valid_sub_key=valid_sub_key, log_title=f'translate_{step_name}')
+            if step_name == 'faithfulness':
+                result = ask_gpt(prompt, model=model, response_json=True, valid_def=valid_faith, log_title=f'translate_{step_name}')
+            elif step_name == 'expressiveness':
+                result = ask_gpt(prompt, model=model, response_json=True, valid_def=valid_express, log_title=f'translate_{step_name}')
             if len(lines.split('\n')) == len(result):
                 return result
             if retry != 2:
@@ -26,14 +54,14 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
 
     ## Step 1: Faithful to the Original Text
     prompt1 = get_prompt_faithfulness(lines, shared_prompt)
-    faith_result = retry_translation(prompt1, step4_2_translate_direct_model, 'faithfulness', valide_key="1", valid_sub_key="Direct Translation")
+    faith_result = retry_translation(prompt1, step4_2_translate_direct_model, 'faithfulness')
 
     for i in faith_result:
         faith_result[i]["Direct Translation"] = faith_result[i]["Direct Translation"].replace('\n', ' ')
 
     ## Step 2: Express Smoothly  
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)
-    express_result = retry_translation(prompt2, step4_2_translate_free_model, 'expressiveness', valide_key="1", valid_sub_key="Free Translation")
+    express_result = retry_translation(prompt2, step4_2_translate_free_model, 'expressiveness')
 
     table = Table(title="Translation Results")
     table.add_column("Translations", style="cyan")
