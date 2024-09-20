@@ -86,7 +86,7 @@ def page_setting():
     if resolution != config.RESOLUTION:
         changes["RESOLUTION"] = resolution
     
-    display_language_options = ["zh_CN", "en_US", "ja_JP", "auto"]
+    display_language_options = ["zh_CN", "en_US", "auto"]
     selected_display_language = st.selectbox(get_localized_string("display_language"), options=display_language_options, index=display_language_options.index(config.DISPLAY_LANGUAGE) if config.DISPLAY_LANGUAGE in display_language_options else 0)
     if selected_display_language != config.DISPLAY_LANGUAGE:
         changes["DISPLAY_LANGUAGE"] = selected_display_language

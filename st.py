@@ -9,7 +9,6 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-if_linux = 1 if sys.platform.startswith('linux') else 0
 st.set_page_config(page_title="VideoLingo", page_icon="🌉")
 
 def text_processing_section():
@@ -32,7 +31,8 @@ def text_processing_section():
                 process_text()
                 st.rerun()
         else:
-            if if_linux:
+            #! ffmpeg has problems merging subtitles on linux
+            if sys.platform.startswith('linux'):
                 st.warning(gls("linux_warning"))
             else:
                 st.success(gls("subtitle_translation_complete"))
@@ -97,7 +97,7 @@ def process_audio():
         step8_extract_refer_audio.step8_main(input_video)
     with st.spinner("生成音频任务..."):
         step9_generate_audio_task.step9_main()
-    with st.spinner("使用SoVITS生成音频...\n⚠️ 如果这一步因字幕出错，请根据cmd提示修改对应字幕后重新运行"):
+    with st.spinner("使用SoVITS生成音频..."):
         step10_generate_audio.process_sovits_tasks()
     with st.spinner("合并音频到视频..."):
         step11_merge_audio_to_vid.merge_main()
@@ -117,9 +117,7 @@ def main():
         st.markdown(give_star_button, unsafe_allow_html=True)
     download_video_section()
     text_processing_section()
-    st.warning(gls("dubbing_feature_warning"))
-    # if not if_linux:
-    #     audio_processing_section()
+    audio_processing_section()
 
 if __name__ == "__main__":
     main()

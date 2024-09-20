@@ -30,7 +30,7 @@ def merge_all_audio():
         for index, row in df.iterrows():
             number = row['number']
             start_time = row['start_time']
-            input_audio = f'output/audio/{number}.wav'
+            input_audio = f'output/audio/segs/{number}.wav'
             
             if not os.path.exists(input_audio):
                 print(f"警告: 文件 {input_audio} 不存在,跳过此文件。")

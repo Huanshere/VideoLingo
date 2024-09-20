@@ -304,7 +304,6 @@ Please complete the following JSON data, where << >> represents placeholders, an
 ## ================================================================
 # @ step9_generate_audio_task.py @ step10_generate_audio.py
 def get_subtitle_trim_prompt(trans_text, duration, fierce_mode = False):
-    src_language = get_whisper_language()
     if not fierce_mode:
         rule = 'Only consider a. Replacing commas with spaces to reduce pause time. b. Reducing filler words without modifying meaningful content. c. Omitting unnecessary modifiers or pronouns, for example "Please explain your thought process" can be shortened to "Please explain thought process"'
     else:
@@ -312,7 +311,7 @@ def get_subtitle_trim_prompt(trans_text, duration, fierce_mode = False):
 
     trim_prompt = '''
 ### Role Definition
-You are a professional {src_language} subtitle editor, editing and optimizing subtitles before handing them over to voice actors. Your expertise lies in cleverly condensing subtitles while ensuring the original meaning remains intact.
+You are a professional subtitle editor, editing and optimizing subtitles before handing them over to voice actors. Your expertise lies in cleverly condensing subtitles while ensuring the original meaning remains intact.
 
 ### Subtitle Data
 <subtitles>
@@ -332,11 +331,10 @@ Please follow these steps and provide the results in the JSON output:
 Please complete the following JSON data, where << >> represents content you need to fill in:
 {{
     "analysis": "<<Brief analysis of the subtitle, including structure, key information, and potential processing locations>>",
-    "trans_text_processed": "<<Optimized and shortened subtitle>>"
+    "trans_text_processed": "<<Optimized and shortened subtitle in the original subtitle language>>"
 }}
 '''
     return trim_prompt.format(
-        src_language=src_language,
         trans_text=trans_text,
         duration=duration,
         rule=rule
