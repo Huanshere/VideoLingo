@@ -10,7 +10,7 @@ MODEL = ['Qwen/Qwen2.5-72B-Instruct']
 
 # Replicate API 设置
 # Replicate API settings for using whisperX
-REPLICATE_API_TOKEN = 'r8_xxx'
+REPLICATE_API_TOKEN = 'xxx'
 
 # 语言设置，用自然语言描述
 # Language settings, described in natural language
@@ -23,7 +23,7 @@ TARGET_LANGUAGE = '简体中文'
 MAX_SUB_LENGTH = 75
 # 输出字幕字号更大一些
 # Increase the font size of the output subtitles
-TARGET_SUB_MULTIPLIER = 1.3
+TARGET_SUB_MULTIPLIER = 1.2
 
 # 视频分辨率
 # Video resolution
@@ -31,7 +31,7 @@ RESOLUTION = '640x360'
 
 # 显示语言
 # Display language
-DISPLAY_LANGUAGE = 'auto'
+DISPLAY_LANGUAGE = 'zh_CN'
 
 ## ======================== 进阶设置设置 ======================== ##
 ## ======================== Advanced Settings ======================== ##
@@ -73,17 +73,26 @@ llm_support_json = ['deepseek-coder']
 # Whisper model directory
 MODEL_DIR = "./_model_cache"
 
+# 第一次粗切单词数，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
+# Number of words for initial rough cut, below 18 will cut too finely affecting translation, above 22 will be too long making it difficult to align for subtitle splitting
+MAX_SPLIT_LENGTH = 20
+
+# 配音设置
+# Dubbing settings
+# SoVITS角色配置
+# SoVITS character configuration
+DUBBING_CHARACTER = 'Huanyuv2'
+
+MIN_SPEED_FACTOR = 0.9
+MAX_SPEED_FACTOR = 1.8
+
 # 音频配置
 # Audio configuration
-MIN_SUBTITLE_DURATION = 6
+MIN_SUBTITLE_DURATION = 5
 
 # 配音视频中原始人声音量 0.1=10%
 # Original voice volume in dubbed video 0.1=10%
 ORIGINAL_VOLUME = 0.1
-
-# 第一次粗切单词数，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
-# Number of words for initial rough cut, below 18 will cut too finely affecting translation, above 22 will be too long making it difficult to align for subtitle splitting
-MAX_SPLIT_LENGTH = 20
 
 ## ======================== 语言模型 ======================== ##
 ## ======================== Language Models ======================== ##
@@ -99,10 +108,8 @@ SPACY_MODEL_MAP = {
     "de": "de_core_news_md",
     "it": "it_core_news_md",
     
-
     # Not supported
     # "zh": "zh_core_web_md",
-    
 }
 
 # 使用空格分割的语言
@@ -119,9 +126,3 @@ def get_joiner(language):
         return ""
     else:
         raise ValueError(f"Unsupported language code: {language}")
-
-# 配音设置 暂时弃用
-# Dubbing settings (temporarily abandoned)
-# *SoVITS角色配置
-# *SoVITS character configuration
-DUBBING_CHARACTER = 'Huanyu'
