@@ -2,7 +2,6 @@ import os, subprocess, time, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step1_ytdlp import find_video_files
 from rich import print as rprint
-import librosa
 from rich.panel import Panel
 
 SRC_FONT_SIZE = 15
@@ -25,32 +24,16 @@ def merge_subtitles_to_video():
     output_video = "output/output_video_with_subs.mp4"
     os.makedirs(os.path.dirname(output_video), exist_ok=True)
 
-    # Use librosa to check video duration
-    try:
-        duration = librosa.get_duration(filename=video_file)
-    except Exception as e:
-        rprint(f"[red]Unable to read video duration: {e}[/red]")
-        duration = 0
-
     # Check resolution and video duration
-    if RESOLUTIOM == "0x0" or duration > 40 * 60:
-        warning_message = "Warning: A 0-second black video will be generated as a placeholder."
-        if RESOLUTIOM == "0x0":
-            warning_message += "\nReason: Resolution is set to 0x0."
-        else:
-            warning_message += f"\nReason: Video duration exceeds 40 minutes (Actual duration: {duration/60:.2f} minutes)."
-        
-        rprint(Panel(warning_message, title="Warning", border_style="yellow"))
-        
+    if RESOLUTIOM == "0x0":
+        rprint(Panel("Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.", title="Warning", border_style="yellow"))
         # Suppress detailed output of ffmpeg command
         subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
                         '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_video],
                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        
         print("Placeholder video has been generated.")
         return
 
-    # Original subtitle merging logic
     en_srt = "output/src_subtitles.srt"
     trans_srt = "output/trans_subtitles.srt"
 

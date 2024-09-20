@@ -1,6 +1,5 @@
 import streamlit as st
 import os, sys
-import pandas as pd
 from st_components.imports_and_utils import *
 from st_components.download_video_section import download_video_section
 from st_components.sidebar_setting import page_setting
@@ -8,8 +7,9 @@ from st_components.i18n import get_localized_string as gls
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-cloud = 1 if sys.platform.startswith('linux') else 0
+if_linux = 1 if sys.platform.startswith('linux') else 0
 st.set_page_config(page_title="VideoLingo", page_icon="🌉")
 
 def text_processing_section():
@@ -32,11 +32,13 @@ def text_processing_section():
                 process_text()
                 st.rerun()
         else:
-            if cloud:
+            if if_linux:
                 st.warning(gls("linux_warning"))
             else:
                 st.success(gls("subtitle_translation_complete"))
-            st.video("output/output_video_with_subs.mp4")
+            from config import RESOLUTION
+            if RESOLUTION != "0x0":
+                st.video("output/output_video_with_subs.mp4")
             download_subtitle_zip_button(text=gls("download_all_subtitles"))
             
             if st.button(gls("archive_to_history"), key="cleanup_in_text_processing"):
@@ -116,7 +118,7 @@ def main():
     download_video_section()
     text_processing_section()
     st.warning(gls("dubbing_feature_warning"))
-    # if not cloud:
+    # if not if_linux:
     #     audio_processing_section()
 
 if __name__ == "__main__":

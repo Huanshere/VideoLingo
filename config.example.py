@@ -27,7 +27,7 @@ TARGET_SUB_MULTIPLIER = 1.3
 
 # 视频分辨率
 # Video resolution
-RESOLUTIOM = '640x360'
+RESOLUTION = '640x360'
 
 # 显示语言
 # Display language
