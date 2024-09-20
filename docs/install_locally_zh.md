@@ -1,12 +1,13 @@
 # 🏠 VideoLingo 安装指南
 
+## Whisper 模型选择
 VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议使用whisperX_api版的一键整合包。
 
 | 方案 | 优势 | 劣势 |
 |:-----|:-----|:-----|
 | **whisper_timestamped** | • 本地运行<br>• 安装简便<br>• 使用原生 Whisper 模型 | • 仅英文效果理想<br>• 需要8G以上显存的显卡 |
 | **whisperX**  | • 本地运行<br>• 基于 faster-whisper，性能卓越<br>• 多语言支持好 | • 需安装 CUDA 和 cuDNN<br>• 各语言需单独下载 wav2vec 模型<br>• 需要8G以上显存的显卡 |
-| **whisperX_api** <br> (🌟推荐 有一键整合包) | • 利用 Replicate 云算力，无需本地算力 | • 需稳定的梯子(最好美国) |
+| **whisperX_api** <br> (🌟推荐 有一键整合包) | • 利用 Replicate 云算力，无需本地算力 | • 需稳定的梯子(最好美国节点) |
 
 ## 📋 API 准备
 
@@ -15,16 +16,25 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议
 | 模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 | [ 云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
-| Qwen/Qwen2.5-72B-Instruct | [Deepinfra](https://deepinfra.com/api-key)(需信用卡，等两天国内厂商跟进) | https://api.deepinfra.com/v1/openai | ￥3 / 1M | 😲 |
+| Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M | 😲 |
 
 <details>
-<summary><strong>我该如何选择模型？</strong></summary>
-<p>默认使用Qwen2.5,  1h 视频翻译花费约 ￥2，Claude 3.5 效果更好，但价格更贵。</p>
+<summary><strong>如何选择模型？</strong></summary>
+<p>默认使用Qwen2.5,  1h 视频翻译花费约 ￥3。Claude 3.5 效果更好，翻译的连贯性非常好，且没有 ai 味，但价格更贵。</p>
+</details>
+<details>
+<summary><strong>如何获取 api key？</strong></summary>
+<p>在任何一家大模型提供商进行注册、充值，在 api key 页面新建一个即可</p>
+</details>
+<details>
+<summary><strong>能用别的模型吗？</strong></summary>
+<p>支持 OAI-Like 的 API 接口，需要自行在 streamlit 侧边栏更换。但其余模型遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐。</p>
 </details>
 
-2. 若选用 `whisperX_api`，需准备 Replicate 的 Token：
+
+2. 若使用 `whisperX_api`，需准备 Replicate 的 Token：
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
-   - 或加入 QQ 群联系作者免费获取测试令牌
+   - 或加入 QQ 群在群公告中免费获取测试令牌
 
 ## 💾  whisperx_api版 一键整合包教程
 
@@ -50,9 +60,7 @@ VideoLingo 语音识别文本步骤提供多种 Whisper 方案的选择，建议
 | [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)<br>*勾选"使用 C++ 的桌面开发"* | | ✅ | |
 | [CMake](https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2-windows-x86_64.msi) | | ✅ | |
 
-> 注意：
-> - 安装后需要重启计算机
-> - 如果在运行 whisperX 时报错 CUDA Memory，请自行在 `core/all_whisper_methods/whisperX.py` 中调小 batch size 重试
+> 注意：安装后需要重启计算机
 
 ### 安装步骤
 支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~

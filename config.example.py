@@ -5,8 +5,8 @@
 
 # API Settings：
 API_KEY = 'sk-xxx'
-BASE_URL = 'https://yunwu.zeabur.app'
-MODEL = ['claude-3-5-sonnet-20240620']
+BASE_URL = 'https://api.siliconflow.cn'
+MODEL = ['Qwen/Qwen2.5-72B-Instruct']
 
 # Replicate API 设置
 # Replicate API settings for using whisperX

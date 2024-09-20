@@ -105,8 +105,9 @@ def page_setting():
         if st.button(get_localized_string("verify"),use_container_width = True):
             st.toast(get_localized_string("attempting_access"), icon="🔄")
             try:
-                response = ask_gpt("this is a test, response 'code':'200' in json format.", model=config.MODEL[0], response_json=True, log_title='None')
-                if response.get('code') == '200':
+                response = ask_gpt("This is a test, response 'message':'success' in json format.", model=config.MODEL[0], response_json=True, log_title='None')
+                print(response)
+                if response.get('message') == 'success':
                     st.toast(get_localized_string("verification_successful"), icon="✅")
                 else:
                     st.toast(get_localized_string("verification_failed"), icon="❌")
