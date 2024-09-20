@@ -70,7 +70,7 @@ https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 ### 一键整合包安装
 
-1. 下载 `v0.8.1` 一键整合包(700M): [直达链接](https://vip.123pan.cn/1817874751/8078280) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v0.8.2` 一键整合包(650M): [直达链接](https://vip.123pan.cn/1817874751/8099913) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
