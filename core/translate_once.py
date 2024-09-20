@@ -2,10 +2,10 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import generate_shared_prompt, get_prompt_faithfulness, get_prompt_expressiveness
-from rich import print
 from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
+import re
 
 console = Console()
 
@@ -23,9 +23,12 @@ def valid_translate_result(result: dict, required_keys: list, required_sub_keys:
             return {"status": "error", "message": f"Missing required sub-key(s) in item {key}: {', '.join(set(required_sub_keys) - set(result[key].keys()))}"}
     
     # Check if all sub-keys values are not empty
+    def remove_punctuation(text):
+        return re.sub(r'[^\w\s]', '', text)
     for key in result:
         for sub_key in required_sub_keys:
-            if not result[key][sub_key].strip():
+            translate_result = remove_punctuation(result[key][sub_key]).strip()
+            if not translate_result:
                 return {"status": "error", "message": f"Empty value for sub-key '{sub_key}' in item {key}"}
     
     return {"status": "success", "message": "Translation completed"}
