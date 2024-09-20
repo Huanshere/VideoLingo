@@ -70,7 +70,7 @@ Output language supports all languages that Claude can handle.
 
 ### One-Click Package Installation
 
-1. Download the `v0.8.2` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8099913) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v0.8.2` one-click package (700M): [Direct Link](https://vip.123pan.cn/1817874751/8101255) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. After extracting, double-click `OneKeyStart.bat` in the folder
 
