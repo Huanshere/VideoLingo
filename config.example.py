@@ -40,7 +40,7 @@ MAX_SPLIT_LENGTH = 20
 
 ## ======================== 配音设置 ======================== ##
 # tts 选择 [openai, gpt_sovits, edge_tts, azure_tts]
-TTS_METHOD = 'gpt_sovits'
+TTS_METHOD = 'edge_tts'
 
 # openai tts-1 接口配置
 OAI_VOICE = 'alloy'
