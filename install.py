@@ -17,7 +17,6 @@ def main():
     from rich.console import Console
     from rich.table import Table
     from rich.panel import Panel
-    from rich.progress import Progress
 
     console = Console()
     console.print(Panel.fit("Starting installation...", style="bold magenta"))
@@ -128,9 +127,6 @@ def main():
 
     def install_whisper_model(choice):
         if choice == '1':
-            print("Installing whisper_timestamped...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "whisper-timestamped"])
-        elif choice == '2':
             print("Installing whisperX...")
             current_dir = os.getcwd()
             whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
@@ -150,18 +146,18 @@ def main():
     table.add_column("Option", style="cyan", no_wrap=True)
     table.add_column("Model", style="magenta")
     table.add_column("Description", style="green")
-    table.add_row("1", "whisper_timestamped", "")
-    table.add_row("2", "whisperX", "")
-    table.add_row("3", "whisperX_api", "(recommended)")
+    table.add_row("1", "whisperX 💻")
+    table.add_row("2", "whisperX ☁️")
     console.print(table)
+
     console.print("If you're unsure about the differences between models, please see https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md")
-    choice = console.input("Please enter the option number (1, 2, or 3): ")
+    choice = console.input("Please enter the option number (1 or 2): ")
 
     # Install PyTorch
-    if choice in ['1', '2']:
+    if choice == '1':
         console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
         subprocess.check_call(["conda", "install", "pytorch==2.0.0", "torchaudio==2.0.0", "pytorch-cuda=11.8", "-c", "pytorch", "-c", "nvidia", "-y"])
-    elif choice == '3':
+    elif choice == '2':
         console.print(Panel("Installing CPU version of PyTorch...", style="cyan"))
         subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
     

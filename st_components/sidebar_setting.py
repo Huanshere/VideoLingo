@@ -45,7 +45,7 @@ def page_setting():
         changes["MODEL"] = [model]
     
     st.header(get_localized_string("subtitle_settings"))
-    whisper_method_options = ["whisperx", "whisperxapi", "whisper_timestamped"]
+    whisper_method_options = ["whisperx", "whisperxapi"]
     selected_whisper_method = st.selectbox(get_localized_string("whisper_method"), options=whisper_method_options, index=whisper_method_options.index(config.WHISPER_METHOD) if config.WHISPER_METHOD in whisper_method_options else 0)
     if selected_whisper_method != config.WHISPER_METHOD:
         changes["WHISPER_METHOD"] = selected_whisper_method
