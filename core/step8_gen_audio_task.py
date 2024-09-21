@@ -11,6 +11,7 @@ from rich.console import Console
 
 console = Console()
 
+# TODO: 需要优化，目前只考虑了中英文标点符号，没有考虑其他语言的标点符号
 def check(text, duration, max_chars_per_second=8):
     # 定义标点符号列表
     punctuations = ',，。！？：；"（）《》【】'
@@ -41,11 +42,31 @@ def check(text, duration, max_chars_per_second=8):
     else:
         return text
 
-def process_srt(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
+def process_srt():
+    """处理 srt 文件，生成音频任务"""
+    output_dir = 'output/audio'
+    trans_subs = os.path.join(output_dir, 'trans_subs_for_audio.srt')
+
+    src_file_path = os.path.join(output_dir, 'src_subs_for_audio.srt')
+    
+    with open(trans_subs, 'r', encoding='utf-8') as file:
         content = file.read()
     
+    with open(src_file_path, 'r', encoding='utf-8') as src_file:
+        src_content = src_file.read()
+    
     subtitles = []
+    src_subtitles = {}
+    
+    for block in src_content.strip().split('\n\n'):
+        lines = [line.strip() for line in block.split('\n') if line.strip()]
+        if len(lines) < 3:
+            continue
+        
+        number = int(lines[0])
+        src_text = ' '.join(lines[2:])
+        src_subtitles[number] = src_text
+    
     for block in content.strip().split('\n\n'):
         lines = [line.strip() for line in block.split('\n') if line.strip()]
         if len(lines) < 3:
@@ -65,6 +86,9 @@ def process_srt(file_path):
             # 删掉 - 字符，可继续补充会导致错误的非法字符
             text = text.replace('-', '')
 
+            # Add the original text from src_subs_for_audio.srt
+            origin = src_subtitles.get(number, '')
+
         except ValueError as e:
             rprint(Panel(f"无法解析字幕块 '{block}'，错误: {str(e)}，跳过此字幕块。", title="错误", border_style="red"))
             continue
@@ -74,7 +98,8 @@ def process_srt(file_path):
             'start_time': start_time,
             'end_time': end_time,
             'duration': duration,
-            'text': text
+            'text': text,
+            'origin': origin
         })
     
     df = pd.DataFrame(subtitles)
@@ -86,16 +111,20 @@ def process_srt(file_path):
             if i < len(df) - 1 and (datetime.datetime.combine(datetime.date.today(), df.loc[i+1, 'start_time']) - 
                                     datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time'])).total_seconds() < MIN_SUBTITLE_DURATION:
                 rprint(f"[bold yellow]合并字幕 {i+1} 和 {i+2}[/bold yellow]")
-                df.loc[i, 'text'] += ', ' + df.loc[i+1, 'text']
+                df.loc[i, 'text'] += ' ' + df.loc[i+1, 'text']
+                df.loc[i, 'origin'] += ' ' + df.loc[i+1, 'origin']
                 df.loc[i, 'end_time'] = df.loc[i+1, 'end_time']
                 df.loc[i, 'duration'] = (datetime.datetime.combine(datetime.date.today(), df.loc[i, 'end_time']) - 
                                         datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time'])).total_seconds()
                 df = df.drop(i+1).reset_index(drop=True)
             else:
-                rprint(f"[bold blue]延长字幕 {i+1} 的持续时间到{MIN_SUBTITLE_DURATION}秒[/bold blue]")
-                df.loc[i, 'end_time'] = (datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time']) + 
-                                        datetime.timedelta(seconds=MIN_SUBTITLE_DURATION)).time()
-                df.loc[i, 'duration'] = MIN_SUBTITLE_DURATION
+                if i < len(df) - 1:  # 不是最后一条音频
+                    rprint(f"[bold blue]延长字幕 {i+1} 的持续时间到{MIN_SUBTITLE_DURATION}秒[/bold blue]")
+                    df.loc[i, 'end_time'] = (datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time']) + 
+                                            datetime.timedelta(seconds=MIN_SUBTITLE_DURATION)).time()
+                    df.loc[i, 'duration'] = MIN_SUBTITLE_DURATION
+                else:
+                    rprint(f"[bold red]最后一条字幕 {i+1} 的持续时间小于{MIN_SUBTITLE_DURATION}秒，但不进行延长[/bold red]")
                 i += 1
         else:
             i += 1
@@ -109,15 +138,18 @@ def process_srt(file_path):
 
     return df
 
-def step9_main():
-    # skip if the file
-    if os.path.exists('output/audio/sovits_tasks.xlsx'):
-        rprint(Panel("output/audio/sovits_tasks.xlsx already exists, skip.", title="信息", border_style="blue"))
+def gen_audio_task_main():
+    output_dir = 'output/audio'
+    tasks_file = os.path.join(output_dir, 'sovits_tasks.xlsx')
+    
+    if os.path.exists(tasks_file):
+        rprint(Panel(f"{tasks_file} already exists, skip.", title="信息", border_style="blue"))
     else:
-        df = process_srt('output/audio/trans_subs_for_audio.srt')
+        df = process_srt()
         console.print(df)
-        df.to_excel('output/audio/sovits_tasks.xlsx', index=False)
-        rprint(Panel("Successfully generated sovits_tasks.xlsx", title="成功", border_style="green"))
+        df.to_excel(tasks_file, index=False)
+
+        rprint(Panel(f"Successfully generated {tasks_file}", title="成功", border_style="green"))
 
 if __name__ == '__main__':
-    step9_main()
+    gen_audio_task_main()

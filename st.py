@@ -1,9 +1,6 @@
 import streamlit as st
 import os, sys
 from st_components.imports_and_utils import *
-from st_components.download_video_section import download_video_section
-from st_components.sidebar_setting import page_setting
-from st_components.i18n import get_localized_string as gls
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
@@ -93,12 +90,13 @@ def audio_processing_section():
 def process_audio():
     input_video = step1_ytdlp.find_video_files()
     
-    with st.spinner("提取音频..."): 
-        step8_extract_refer_audio.step8_main(input_video)
-    with st.spinner("生成音频任务..."):
-        step9_generate_audio_task.step9_main()
+    with st.spinner("生成音频任务..."): 
+        step8_gen_audio_task.gen_audio_task_main()
+    with st.spinner("UVR降噪处理..."):
+        step9_uvr_audio.uvr_audio_main(input_video)
     with st.spinner("使用SoVITS生成音频..."):
-        step10_generate_audio.process_sovits_tasks()
+        step10_gen_audio.process_sovits_tasks()
+
     with st.spinner("合并音频到视频..."):
         step11_merge_audio_to_vid.merge_main()
     
