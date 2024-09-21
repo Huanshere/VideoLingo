@@ -45,39 +45,31 @@ def check_ask_gpt_history(prompt, model):
                         return item["response"]
     return False
 
-def select_llm(model):
-    from config import MODEL, API_KEY, BASE_URL
-    if model in MODEL and API_KEY:
-        return {'api_key': API_KEY, 'base_url': BASE_URL, 'model': MODEL}
-    else:
-        print(f"{model} {MODEL}")
-        raise ValueError(f"⚠️Model <{model}> not found in MODEL or API_KEY is missing")
-
-def make_api_call(client, model, messages, response_format):
-    return client.chat.completions.create(
-        model=model,
-        messages=messages,
-        response_format=response_format
-    )
-
-def ask_gpt(prompt, model, response_json=True ,valid_def=None, log_title='default'):
+def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
+    from config import MODEL, API_KEY, BASE_URL, llm_support_json
     with LOCK:
-        if check_ask_gpt_history(prompt, model):
-            return check_ask_gpt_history(prompt, model)
-    llm = select_llm(model)
+        if check_ask_gpt_history(prompt, MODEL):
+            return check_ask_gpt_history(prompt, MODEL)
+    
+    if not API_KEY:
+        raise ValueError(f"⚠️API_KEY is missing")
+    
     messages = [
         {"role": "user", "content": prompt},
     ]
     
-    base_url = llm['base_url'].strip('/') + '/v1' if 'v1' not in llm['base_url'] else llm['base_url']
-    client = OpenAI(api_key=llm['api_key'], base_url=base_url)
-    from config import llm_support_json
-    response_format = {"type": "json_object"} if response_json and model in llm_support_json else None
-    
+    base_url = BASE_URL.strip('/') + '/v1' if 'v1' not in BASE_URL else BASE_URL
+    client = OpenAI(api_key=API_KEY, base_url=base_url)
+    response_format = {"type": "json_object"} if response_json and MODEL in llm_support_json else None
+
     max_retries = 5
     for attempt in range(max_retries):
         try:
-            response = make_api_call(client, model, messages, response_format)
+            response = client.chat.completions.create(
+                model=MODEL,
+                messages=messages,
+                response_format=response_format
+            )
             
             if response_json:
                 try:
@@ -87,39 +79,35 @@ def ask_gpt(prompt, model, response_json=True ,valid_def=None, log_title='defaul
                     if valid_def:
                         valid_response = valid_def(response_data)
                         if valid_response['status'] != 'success':
-                            save_log(model, prompt, response_data, log_title="error", message=valid_response['message'])
+                            save_log(MODEL, prompt, response_data, log_title="error", message=valid_response['message'])
                             raise ValueError(f"❎ API response error: {valid_response['message']}")
                         
                     break  # Successfully accessed and parsed, break the loop
                 except Exception as e:
                     response_data = response.choices[0].message.content
                     print(f"❎ json_repair parsing failed. Retrying: '''{response_data}'''")
-                    save_log(model, prompt, response_data, log_title="error", message=f"json_repair parsing failed.")
+                    save_log(MODEL, prompt, response_data, log_title="error", message=f"json_repair parsing failed.")
                     if attempt == max_retries - 1:
                         raise Exception(f"JSON parsing still failed after {max_retries} attempts: {e}")
             else:
                 response_data = response.choices[0].message.content
                 break  # Non-JSON format, break the loop directly
                 
-        except RequestException as e:
-            if attempt < max_retries - 1:
-                print(f"Request error: {e}. Retrying ({attempt + 1}/{max_retries})...")
-                time.sleep(2)
-            else:
-                raise Exception(f"Still failed after {max_retries} attempts: {e}")
         except Exception as e:
             if attempt < max_retries - 1:
-                print(f"Unexpected error occurred: {e}\nRetrying...")
+                if isinstance(e, RequestException):
+                    print(f"Request error: {e}. Retrying ({attempt + 1}/{max_retries})...")
+                else:
+                    print(f"Unexpected error occurred: {e}\nRetrying...")
                 time.sleep(2)
             else:
                 raise Exception(f"Still failed after {max_retries} attempts: {e}")
     with LOCK:
         if log_title != 'None':
-            save_log(model, prompt, response_data, log_title=log_title)
+            save_log(MODEL, prompt, response_data, log_title=log_title)
 
     return response_data
 
 # test
 if __name__ == '__main__':
-    from config import step3_2_split_model
-    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , model=step3_2_split_model, response_json=True))
+    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , response_json=True))

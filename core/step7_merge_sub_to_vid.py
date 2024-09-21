@@ -18,14 +18,14 @@ TRANS_OUTLINE_WIDTH = 1
 TRANS_BACK_COLOR = '&H33000000'
 
 def merge_subtitles_to_video():
-    from config import RESOLUTIOM
-    TARGET_WIDTH, TARGET_HEIGHT = RESOLUTIOM.split('x')
+    from config import RESOLUTION
+    TARGET_WIDTH, TARGET_HEIGHT = RESOLUTION.split('x')
     video_file = find_video_files()
     output_video = "output/output_video_with_subs.mp4"
     os.makedirs(os.path.dirname(output_video), exist_ok=True)
 
     # Check resolution and video duration
-    if RESOLUTIOM == "0x0":
+    if RESOLUTION == "0x0":
         rprint(Panel("Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.", title="Warning", border_style="yellow"))
         # Suppress detailed output of ffmpeg command
         subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',

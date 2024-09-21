@@ -28,7 +28,6 @@ def search_things_to_note_in_prompt(sentence):
         return None
 
 def get_summary():
-    from config import step4_1_summarize_model
     src_content = combine_chunks()
     summary_prompt = get_summary_prompt(src_content)
     print("📝 Summarizing... Please wait a moment...")
@@ -37,7 +36,7 @@ def get_summary():
         if 'terms' not in response_data:
             return {"status": "error", "message": "Missing required key: terms"}
         return {"status": "success", "message": "Summary completed"}
-    summary = ask_gpt(summary_prompt, model=step4_1_summarize_model, response_json=True, valid_def=valid_summary, log_title='summary')
+    summary = ask_gpt(summary_prompt, response_json=True, valid_def=valid_summary, log_title='summary')
 
     with open('output/log/terminology.json', 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=4)

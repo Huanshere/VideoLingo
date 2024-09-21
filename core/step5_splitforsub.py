@@ -5,7 +5,7 @@ import concurrent.futures
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.step3_2_splitbymeaning import split_sentence
-from core.ask_gpt import ask_gpt, step5_align_model
+from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_align_prompt
 from rich import print
 from rich.panel import Panel
@@ -41,7 +41,7 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
         if 'best_way' not in response_data:
             return {"status": "error", "message": "Missing required key: best_way"}
         return {"status": "success", "message": "Align completed"}
-    parsed = ask_gpt(align_prompt, model=step5_align_model, response_json=True, valid_def=valid_align, log_title='align_subs')
+    parsed = ask_gpt(align_prompt, response_json=True, valid_def=valid_align, log_title='align_subs')
 
     best = int(parsed['best_way'])
     align_data = parsed[f'align_way_{best}']

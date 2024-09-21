@@ -55,19 +55,19 @@ You are a professional video translation expert and terminology consultant. Your
 ### Task Description 
 For the provided original {src_language} video text, you need to:
 1. Summarize the video's main topic in one sentence
-2. Extract professional terms that appear in the video, and provide {TARGET_LANGUAGE} translations or suggest keeping the original language terms. Avoid extracting simple, common words.
-3. For each translated term, provide a brief explanation
+2. Extract professional terms and names that appear in the video, and provide {TARGET_LANGUAGE} translations or suggest keeping the original language terms. Avoid extracting simple, common words.
+3. For each translated term or name, provide a brief explanation
 
 ### Analysis and Summary Steps
 Please think in two steps, processing the text line by line:  
 1. Topic summarization:
    - Quickly skim through the entire text to understand the general idea
    - Summarize the topic in one concise sentence
-2. Term extraction:
-   - Carefully read the entire text, marking professional terms
-   - For each term, provide a {TARGET_LANGUAGE} translation or suggest keeping the original, only the word itself is needed, not the pronunciation
-   - Add a brief explanation for each term to help the translator understand
-   - If the word is a fixed abbreviation, please keep the original.
+2. Term and name extraction:
+   - Carefully read the entire text, marking professional terms and names
+   - For each term or name, provide a {TARGET_LANGUAGE} translation or suggest keeping the original, only the word itself is needed, not the pronunciation
+   - Add a brief explanation for each term or name to help the translator understand
+   - If the word is a fixed abbreviation or a proper name, please keep the original.
 
 ### Output Format
 Please output your analysis results in the following JSON format, where <> represents placeholders:
@@ -75,14 +75,14 @@ Please output your analysis results in the following JSON format, where <> repre
     "theme": "<Briefly summarize the theme of this video in 1 sentence>",
     "terms": [
         {{
-            "original": "<Term 1 in the {src_language}>",
+            "original": "<Term or name 1 in the {src_language}>",
             "translation": "<{TARGET_LANGUAGE} translation or keep original>",
-            "explanation": "<Brief explanation of the term>"
+            "explanation": "<Brief explanation of the term or name>"
         }},
         {{
-            "original": "<Term 2 in the {src_language}>",
+            "original": "<Term or name 2 in the {src_language}>",
             "translation": "<{TARGET_LANGUAGE} translation or keep original>",
-            "explanation": "<Brief explanation of the term>"
+            "explanation": "<Brief explanation of the term or name>"
         }},
         ...
     ]
@@ -102,6 +102,11 @@ Please output your analysis results in the following JSON format, where <> repre
             "original": "pyramid",
             "translation": "la pyramide",
             "explanation": "Une grande structure en verre et métal en forme de pyramide située à l'entrée principale du Louvre"
+        }},
+        {{
+            "original": "I.M. Pei",
+            "translation": "I.M. Pei",
+            "explanation": "L'architecte américain d'origine chinoise qui a conçu la pyramide du Louvre"
         }},
         ...
     ]
@@ -304,7 +309,6 @@ Please complete the following JSON data, where << >> represents placeholders, an
 ## ================================================================
 # @ step9_generate_audio_task.py @ step10_generate_audio.py
 def get_subtitle_trim_prompt(trans_text, duration, fierce_mode = False):
-    src_language = get_whisper_language()
     if not fierce_mode:
         rule = 'Only consider a. Replacing commas with spaces to reduce pause time. b. Reducing filler words without modifying meaningful content. c. Omitting unnecessary modifiers or pronouns, for example "Please explain your thought process" can be shortened to "Please explain thought process"'
     else:
@@ -312,7 +316,7 @@ def get_subtitle_trim_prompt(trans_text, duration, fierce_mode = False):
 
     trim_prompt = '''
 ### Role Definition
-You are a professional {src_language} subtitle editor, editing and optimizing subtitles before handing them over to voice actors. Your expertise lies in cleverly condensing subtitles while ensuring the original meaning remains intact.
+You are a professional subtitle editor, editing and optimizing subtitles before handing them over to voice actors. Your expertise lies in cleverly condensing subtitles while ensuring the original meaning remains intact.
 
 ### Subtitle Data
 <subtitles>
@@ -332,11 +336,10 @@ Please follow these steps and provide the results in the JSON output:
 Please complete the following JSON data, where << >> represents content you need to fill in:
 {{
     "analysis": "<<Brief analysis of the subtitle, including structure, key information, and potential processing locations>>",
-    "trans_text_processed": "<<Optimized and shortened subtitle>>"
+    "trans_text_processed": "<<Optimized and shortened subtitle in the original subtitle language>>"
 }}
 '''
     return trim_prompt.format(
-        src_language=src_language,
         trans_text=trans_text,
         duration=duration,
         rule=rule
