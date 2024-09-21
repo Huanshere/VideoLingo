@@ -3,7 +3,10 @@ import json
 import requests
 from rich import print as rprint
 import os, sys
+import subprocess
+import socket
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 def check_lang(text_lang, prompt_lang):
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文']):
@@ -50,7 +53,10 @@ def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prom
         rprint(f"[bold red]TTS请求失败，状态码:[/bold red] {response.status_code}")
         return False
         
+
+
 def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
+    start_gpt_sovits_server()
     from config import TARGET_LANGUAGE, WHISPER_LANGUAGE, REFER_MODE, DUBBING_CHARACTER
     from core.step2_whisper import get_whisper_language
 
@@ -83,3 +89,60 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         rprint(f"[bold red]TTS请求失败，切换回模式2重试[/bold red]")
         ref_audio_path = current_dir / "output/audio/refers/1.wav"
         gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
+
+
+def start_gpt_sovits_server():
+    from config import DUBBING_CHARACTER
+    import time
+    import requests
+
+    # Check if port 9880 is already in use
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1', 9880))
+    if result == 0:
+        sock.close()
+        return None
+
+    sock.close()
+
+    # Find the root directory of the current Python script
+    current_dir = Path(__file__).resolve().parent.parent.parent
+    parent_dir = current_dir.parent
+
+    # Find the GPT-SoVITS-v2 directory
+    gpt_sovits_dir = next((d for d in parent_dir.iterdir() if d.is_dir() and d.name.startswith('GPT-SoVITS-v2')), None)
+
+    if gpt_sovits_dir is None:
+        raise FileNotFoundError("GPT-SoVITS-v2 directory not found in the parent directory.")
+
+    # Change to the GPT-SoVITS-v2 directory
+    os.chdir(gpt_sovits_dir)
+
+    # Start the GPT-SoVITS server
+    cmd = [
+        "runtime\\python.exe",
+        "api_v2.py",
+        "-a", "127.0.0.1",
+        "-p", "9880",
+        "-c", f"GPT_SoVITS/configs/{DUBBING_CHARACTER}.yaml"
+    ]
+    
+    # Open the command in a new window
+    process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
+
+    # Change back to the original directory
+    os.chdir(current_dir)
+
+    # Wait for the server to start (max 20 seconds)
+    start_time = time.time()
+    while time.time() - start_time < 20:
+        try:
+            response = requests.get('http://127.0.0.1:9880/ping')
+            if response.status_code == 200:
+                print("GPT-SoVITS server is ready.")
+                return process
+        except requests.exceptions.RequestException:
+            time.sleep(1)
+
+    print("GPT-SoVITS server failed to start within 20 seconds.")
+    return process
