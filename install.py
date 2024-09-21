@@ -167,6 +167,9 @@ def main():
     # Install selected Whisper model
     install_whisper_model(choice)
 
+    # Download UVR model
+    dowanload_uvr_model()
+    
     # Download and extract FFmpeg
     download_and_extract_ffmpeg()
     

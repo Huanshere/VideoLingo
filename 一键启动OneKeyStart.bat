@@ -1,5 +1,13 @@
 @echo off
 cd /d %~dp0
-echo Warning: This batch file is only for one-click package, not for local installation.
-runtime\python.exe -m streamlit run st.py
+if exist runtime (
+    echo Using runtime folder...
+    runtime\python.exe -m streamlit run st.py
+) else (
+    echo Runtime folder not found. Using conda environment...
+    call conda activate videolingo
+    python -m streamlit run st.py
+    call conda deactivate
+)
+
 pause
