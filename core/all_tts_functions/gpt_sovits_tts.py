@@ -117,6 +117,10 @@ def start_gpt_sovits_server():
 
     # Change to the GPT-SoVITS-v2 directory
     os.chdir(gpt_sovits_dir)
+    # check f"GPT_SoVITS/configs/{DUBBING_CHARACTER}.yaml"
+    config_path = gpt_sovits_dir / "GPT_SoVITS" / "configs" / f"{DUBBING_CHARACTER}.yaml"   
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file not found at {config_path}")
 
     # Start the GPT-SoVITS server
     cmd = [
@@ -124,9 +128,9 @@ def start_gpt_sovits_server():
         "api_v2.py",
         "-a", "127.0.0.1",
         "-p", "9880",
-        "-c", f"GPT_SoVITS/configs/{DUBBING_CHARACTER}.yaml"
+        "-c", str(config_path)
     ]
-    
+
     # Open the command in a new window
     process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
 
