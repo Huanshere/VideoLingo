@@ -34,8 +34,7 @@ def check(text, duration, max_chars_per_second=8):
         rprint(Panel(f"字幕长度超过{max_chars}，正在缩短...", title="正在处理", border_style="yellow"))
         original_text = text
         prompt = get_subtitle_trim_prompt(text, duration)
-        from config import step9_trim_model
-        response = ask_gpt(prompt, model = step9_trim_model,response_json=True, log_title='subtitle_trim')
+        response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
         shortened_text = response['trans_text_processed']
         rprint(Panel(f"缩短前的字幕：{original_text}\n缩短后的字幕: {shortened_text}", title="字幕缩短结果", border_style="green"))
         return shortened_text

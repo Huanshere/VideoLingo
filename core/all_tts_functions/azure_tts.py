@@ -25,4 +25,4 @@ def azure_tts(text, savepath):
 def azure_tts_for_videolingo(text, save_as, number, task_df):
     azure_tts(text, save_as)
 
-azure_tts("你好，世界！", "output/audio/azure_tts.wav")
+# azure_tts("你好，世界！", "output/audio/azure_tts.wav")

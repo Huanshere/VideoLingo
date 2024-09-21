@@ -52,13 +52,12 @@ def find_split_positions(original, modified):
 def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0):
     """Split a long sentence using GPT and return the result as a string."""
     split_prompt = get_split_prompt(sentence, num_parts, word_limit)
-    from config import step3_2_split_model
     def valid_split(response_data):
         # check if the best_way is in the response_data
         if 'best_way' not in response_data:
             return {"status": "error", "message": "Missing required key: best_way"}
         return {"status": "success", "message": "Split completed"}
-    response_data = ask_gpt(split_prompt + ' ' * retry_attempt, model=step3_2_split_model, response_json=True, valid_def=valid_split, log_title='sentence_splitbymeaning')
+    response_data = ask_gpt(split_prompt + ' ' * retry_attempt, response_json=True, valid_def=valid_split, log_title='sentence_splitbymeaning')
     best_split_way = response_data[f"split_way_{response_data['best_way']}"]
     split_points = find_split_positions(sentence, best_split_way)
     # split the sentence based on the split points
