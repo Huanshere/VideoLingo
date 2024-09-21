@@ -6,7 +6,7 @@ import subprocess
 from rich import print as rprint
 from rich.panel import Panel
 from rich.console import Console
-
+import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
