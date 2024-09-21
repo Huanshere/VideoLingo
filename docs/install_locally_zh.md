@@ -104,7 +104,7 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
 
 | 依赖 | whisperX 🖥️ | whisperX ☁️ |
 |:-----|:-------------------|:----------------|
-| Anaconda 🐍 | [下载](https://www.anaconda.com/download/success) | [下载](https://www.anaconda.com/download/success) |
+| Miniconda 🐍 | [下载](https://docs.conda.io/en/latest/miniconda.html) | [下载](https://docs.conda.io/en/latest/miniconda.html) |
 | Git 🌿 | [下载](https://git-scm.com/download/win) | [下载](https://git-scm.com/download/win) |
 | Cuda Toolkit 12.6 🚀 | [下载](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
 | Cudnn 9.3.0 🧠 | [下载](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
