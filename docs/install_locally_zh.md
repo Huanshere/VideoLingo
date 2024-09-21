@@ -1,23 +1,16 @@
 # 🏠 VideoLingo 安装指南
 
-## Whisper 模型选择
-VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api
-
-| 方案 | 缺点 |
-|:-----|:-----|
-| **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 下载模型 📥<br>• 高显存 💾 |
-| **whisperX ☁️** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳 |
-
 ## 📋 API 准备
 
-1. **获取大模型的 API_KEY**：
+### 1. **获取大模型的 API_KEY**：
 
 | 模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 | [ 云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
+| claude-3-5-sonnet-20240620 | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
 | Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M | 😲 |
+> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用
 
-### 常见问题
+#### 常见问题
 
 <details>
 <summary>如何选择模型？</summary>
@@ -29,8 +22,8 @@ VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api
 <details>
 <summary>如何获取 api key？</summary>
 
-1. 在任何一家大模型提供商进行注册
-2. 充值账户
+1. 点击上面 推荐提供商 的链接
+2. 注册账户并充值
 3. 在 api key 页面新建一个即可
 </details>
 
@@ -41,9 +34,56 @@ VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api
 - ⚠️ 但其余模型遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐。
 </details>
 
-2. **准备 Replicate 的 Token** （仅当使用 whisperX ☁️ 时）
+### 2. **准备 Replicate 的 Token** （仅当使用 replicate 的 whisperX ☁️ 时）
+
+VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api，推荐使用api，下面有api版本的整合包。
+#### 方案对比：
+| 方案 | 缺点 |
+|:-----|:-----|
+| **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 下载模型 📥<br>• 高显存 💾 |
+| **whisperX ☁️ (推荐)** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳 |
+
+#### 获取令牌
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
    - 或加入 QQ 群在群公告中免费获取测试令牌
+
+### 3. **TTS 的 API**
+VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音仅翻译请跳过）
+
+| TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
+|:---------|:-----|:-----|:---------|:-----------|
+| 🎙️ OpenAI TTS | 质量高情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
+| 🎤 Edge TTS | 免费 | 烂大街 | 😊 | 😊 |
+| 🔊 Azure TTS | 中文效果自然 | 充值不方便 | 🤩 | 😃 |
+| 🗣️ GPT-SoVITS | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要显卡训练模型 | 😱 | 🚫 |
+
+对于OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)。
+Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在 VideoLingo运行网页 的侧边栏进行配置。
+
+<details>
+<summary>GPT-SoVITS 的使用（仅支持 v2 新版本）</summary>
+
+1. 请前往 [官方的语雀文档](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) 查看配置要求并下载整合包。
+
+2. 将 `GPT-SoVITS-v2-xxx` 放置在与 `VideoLingo` 同级目录下。
+
+3. 选择以下任一方式配置模型：
+
+   a. 使用自训练模型：
+   - 将 `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 复制并重命名为 `你喜欢的角色名.yaml`。
+   - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的角色名`。
+
+   b. 使用预训练模型：
+   - 从 [这里下载](https://vip.123pan.cn/1817874751/8117662) 我的模型，解压后覆盖到 `GPT-SoVITS-v2-xxx`。
+   - 在 `GPT-SoVITS 角色` 配置为 `Huanyuv2`。
+
+   c. 使用其他训练好的模型：
+   - 将模型文件分别放在 `GPT_weights_v2` 和 `SoVITS_weights_v2` 下。
+   - 参考方法 a，重命名并修改 `tts_infer.yaml` 中的路径指向你的两个模型。
+
+配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。
+</details>
+
 
 ## 🚀 whisperX ☁️ 整合包
 
@@ -67,9 +107,10 @@ VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api
 | Cuda Toolkit 12.6 🚀 | [下载](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
 | Cudnn 9.3.0 🧠 | [下载](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
 
-> 注意：安装Anaconda时必须勾选"使用桌面开发的C++"，安装完成后需要重启计算机。🔄
+> 注意：安装Anaconda时必须勾选 `添加到系统Path`，安装完成后重启计算机 🔄
 
 ### 安装步骤
+
 
 支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
 1. 打开 Anaconda Powershell Prompt 并切换到桌面目录：

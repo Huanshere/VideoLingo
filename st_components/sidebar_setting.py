@@ -125,7 +125,7 @@ def page_setting():
             if azure_voice != config.AZURE_VOICE:
                 changes["AZURE_VOICE"] = azure_voice
         elif selected_tts_method == "gpt_sovits":
-            st.warning("需要额外下载gpt_sovits,具体配置方法见文档")
+            st.warning("配置GPT_SoVITS，参考[安装指南](https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md)")
             sovits_character = st.text_input(gls("sovits_character"), value=config.DUBBING_CHARACTER)
             if sovits_character != config.DUBBING_CHARACTER:
                 changes["DUBBING_CHARACTER"] = sovits_character

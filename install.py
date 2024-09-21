@@ -125,15 +125,6 @@ def main():
         else:
             print("config.py file already exists.")
 
-    def install_whisper_model(choice):
-        if choice == '1':
-            print("Installing whisperX...")
-            current_dir = os.getcwd()
-            whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
-            os.chdir(whisperx_dir)
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
-            os.chdir(current_dir)
-
     # Initialize config.py file
     init_config()
 
@@ -153,19 +144,38 @@ def main():
     console.print("If you're unsure about the differences between models, please see https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md")
     choice = console.input("Please enter the option number (1 or 2): ")
 
-    # Install PyTorch
+    # Install PyTorch and WhisperX
     if choice == '1':
         console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
         subprocess.check_call(["conda", "install", "pytorch==2.0.0", "torchaudio==2.0.0", "pytorch-cuda=11.8", "-c", "pytorch", "-c", "nvidia", "-y"])
+        
+        print("Installing whisperX...")
+        current_dir = os.getcwd()
+        whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
+        os.chdir(whisperx_dir)
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
+        os.chdir(current_dir)
     elif choice == '2':
-        console.print(Panel("Installing CPU version of PyTorch...", style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-    
+        table = Table(title="PyTorch Version Selection")
+        table.add_column("Option", style="cyan", no_wrap=True)
+        table.add_column("Version", style="magenta")
+        table.add_column("Description", style="green")
+        table.add_row("1", "CPU", "Choose this if you're using Mac, non-NVIDIA GPU, or don't need GPU acceleration")
+        table.add_row("2", "GPU", "Significantly speeds up UVR5 voice separation. Strongly recommended if you need dubbing functionality and have an NVIDIA GPU.")
+        console.print(table)
+        
+        torch_choice = console.input("Please enter the option number (1 for CPU or 2 for GPU): ")
+        if torch_choice == '1':
+            console.print(Panel("Installing CPU version of PyTorch...", style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+        elif torch_choice == '2':
+            console.print(Panel("Installing GPU version of PyTorch with CUDA 11.8...", style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
+        else:
+            console.print("Invalid choice. Defaulting to CPU version.")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
     # Install other dependencies
     install_requirements()
-
-    # Install selected Whisper model
-    install_whisper_model(choice)
 
     # Download UVR model
     dowanload_uvr_model()
