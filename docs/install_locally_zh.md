@@ -67,7 +67,7 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
 
 1. 请前往 [官方的语雀文档](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) 查看配置要求并下载整合包。
 
-2. 将 `GPT-SoVITS-v2-xxx` 放置在与 `VideoLingo` 同级目录下。
+2. 将 `GPT-SoVITS-v2-xxx` 放置在与 `VideoLingo` 同级目录下。注意是并列而不是包含。
 
 3. 选择以下任一方式配置模型：
 
