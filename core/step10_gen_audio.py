@@ -35,12 +35,13 @@ def tts_main(text, save_as, number, task_df):
         #! 注意 gpt_sovits_tts 只支持输出中文，输入中文或英文
         gpt_sovits_tts_for_videolingo(text, save_as, number, task_df)
     elif TTS_METHOD == 'edge_tts':
-        (text, save_as)
+        edge_tts(text, save_as)
     elif TTS_METHOD == 'azure_tts':
         azure_tts(text, save_as)
 
 def generate_audio(text, target_duration, save_as, number, task_df):
     from config import MIN_SPEED_FACTOR, MAX_SPEED_FACTOR
+    os.makedirs('output/audio/tmp', exist_ok=True)
     temp_filename = f"output/audio/tmp/{number}_temp.wav"
 
     tts_main(text, temp_filename, number, task_df)

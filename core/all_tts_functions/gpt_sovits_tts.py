@@ -137,16 +137,16 @@ def start_gpt_sovits_server():
     # Change back to the original directory
     os.chdir(current_dir)
 
-    # Wait for the server to start (max 20 seconds)
+    # Wait for the server to start (max 30 seconds)
     start_time = time.time()
-    while time.time() - start_time < 20:
+    while time.time() - start_time < 30:
         try:
             response = requests.get('http://127.0.0.1:9880/ping')
             if response.status_code == 200:
                 print("GPT-SoVITS server is ready.")
                 return process
         except requests.exceptions.RequestException:
-            time.sleep(1)
+            time.sleep(4)
 
-    print("GPT-SoVITS server failed to start within 20 seconds.")
+    print("GPT-SoVITS server failed to start within 30 seconds.")
     return process
