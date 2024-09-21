@@ -1,6 +1,6 @@
 # 🏠 VideoLingo 安装指南
 
-本项目需使用大语言模型、WhisperX 和 TTS ，每个环节都提供了多种选择，请仔细阅读安装指南😊
+本项目需使用大语言模型、WhisperX 和 TTS ，每个环节都提供了多种选择，**请仔细阅读安装指南😊**
 
 ## 📋 API 准备
 
@@ -56,8 +56,8 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 |:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | 质量高情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
 | 🎤 Edge TTS | 免费 | 烂大街 | 😊 | 😊 |
-| 🔊 Azure TTS | 中文效果自然 | 充值不方便 | 🤩 | 😃 |
-| 🗣️ GPT-SoVITS | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要显卡训练模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😱 | 🚫 |
+| 🔊 Azure TTS (推荐) | 中文效果自然 | 充值不方便 | 🤩 | 😃 |
+| 🗣️ GPT-SoVITS (beta) | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要显卡训练模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😱 | 🚫 |
 
 对于OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)。
 Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在 VideoLingo运行网页 的侧边栏进行配置。
@@ -88,9 +88,9 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
 
 
 ## 🚀 whisperX ☁️ 整合包
-> 注意，由于技术原因，整合包无法在配音时使用 edge-tts
+> 注意，由于技术原因，整合包无法在配音时使用 edge-tts。CPU版torch在配音步骤使用UVR5降噪时较慢，如需使用GPU版torch请从源码安装。
 
-1. 下载 `v0.8.2` 一键整合包(700M): [直达链接](https://vip.123pan.cn/1817874751/8101255) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v1.0.0` 一键整合包(750M): [CPU版下载](https://vip.123pan.cn/1817874751/8117948) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
@@ -101,7 +101,7 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
 
 ### Windows 前置依赖
 
-在开始安装 VideoLingo 之前，注意预留至少 **20G** 硬盘空间，并请确保完成以下步骤：
+在开始安装 VideoLingo 之前，注意预留 **20G** 硬盘空间，并请确保完成以下步骤：
 
 | 依赖 | whisperX 🖥️ | whisperX ☁️ |
 |:-----|:-------------------|:----------------|
