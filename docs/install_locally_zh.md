@@ -109,7 +109,7 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
 | Cuda Toolkit 12.6 🚀 | [下载](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
 | Cudnn 9.3.0 🧠 | [下载](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
 
-> 注意：安装Anaconda时必须勾选 `添加到系统Path`，安装完成后重启计算机 🔄
+> 注意：安装 Miniconda 时勾选 `添加到系统Path`，安装完成后重启计算机 🔄
 
 ### 安装步骤
 
@@ -140,7 +140,7 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
 
    注意：Mac 用户需根据提示手动安装 ffmpeg
 
-5. 🎉 启动 Streamlit 应用：
+5. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
    streamlit run st.py
    ```

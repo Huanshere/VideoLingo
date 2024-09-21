@@ -64,7 +64,7 @@ https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 | 🇯🇵 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) |
 | 🇨🇳 中文 | 😖 | ❌ |
 
-输出语言支持 Claude 能处理的所有语言。
+输出语言支持大模型能处理的所有语言。
 
 ## 🚀 快速开始
 
@@ -74,7 +74,7 @@ https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
-3. 在打开的浏览器窗口中，在侧边栏进行必要配置，然后一键出片！
+3. 在弹出的 web 中，在侧边栏配置 api，然后一键出片！
 
 > 💡 提示: 本项目需要大模型的 API 以及 Replicate转录 的 API 🌩️ <br> 申请及配置 api_key 请阅读 [本地安装教程](./docs/install_locally_zh.md)
 
@@ -88,7 +88,7 @@ https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 ## 🙏 致谢
 
-- [whisper-timestamped](https://github.com/linto-ai/whisper-timestamped), [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair)
+- [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
 
 ## 📄 许可证
 
