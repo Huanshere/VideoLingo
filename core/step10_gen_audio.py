@@ -80,7 +80,19 @@ def generate_audio(text, target_duration, save_as, number, task_df):
 def change_audio_speed(input_file, output_file, speed_factor):
     atempo = speed_factor
     cmd = ['ffmpeg', '-i', input_file, '-filter:a', f'atempo={atempo}', '-y', output_file]
-    subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
+            return  # Success, exit the function
+        except subprocess.CalledProcessError as e:
+            if attempt < max_retries - 1:  # If it's not the last attempt
+                rprint(f"[yellow]Warning: Failed to change audio speed, retrying in 1 second (Attempt {attempt + 1}/{max_retries})[/yellow]")
+                time.sleep(1)
+            else:
+                rprint(f"[red]Error: Failed to change audio speed, maximum retry attempts reached ({max_retries})[/red]")
+                raise e  # Re-raise the exception if all retries failed
 
 def process_sovits_tasks():
     # TODO 多线程，但是很容易文件冲突出错？

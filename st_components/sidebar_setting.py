@@ -99,7 +99,7 @@ def page_setting():
             if oai_voice != config.OAI_VOICE:
                 changes["OAI_VOICE"] = oai_voice
 
-            oai_tts_api_key = st.text_input(gls("openai_tts_api_key"), value=config.OAI_TTS_API_KEY, type="password")
+            oai_tts_api_key = st.text_input(gls("openai_tts_api_key"), value=config.OAI_TTS_API_KEY)
             if oai_tts_api_key != config.OAI_TTS_API_KEY:
                 changes["OAI_TTS_API_KEY"] = oai_tts_api_key
 
@@ -108,12 +108,14 @@ def page_setting():
                 changes["OAI_TTS_API_BASE_URL"] = oai_tts_api_base_url
 
         elif selected_tts_method == "edge_tts":
+            if os.path.exists('runtime'):
+                st.error("由于技术原因，一键包暂不支持Edge TTS")
             edge_voice = st.text_input(gls("edge_tts_voice"), value=config.EDGE_VOICE)
             if edge_voice != config.EDGE_VOICE:
                 changes["EDGE_VOICE"] = edge_voice
 
         elif selected_tts_method == "azure_tts":
-            azure_key = st.text_input(gls("azure_key"), value=config.AZURE_KEY, type="password")
+            azure_key = st.text_input(gls("azure_key"), value=config.AZURE_KEY)
             if azure_key != config.AZURE_KEY:
                 changes["AZURE_KEY"] = azure_key
 
@@ -125,10 +127,22 @@ def page_setting():
             if azure_voice != config.AZURE_VOICE:
                 changes["AZURE_VOICE"] = azure_voice
         elif selected_tts_method == "gpt_sovits":
-            st.warning("配置GPT_SoVITS，参考[安装指南](https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md)")
-            sovits_character = st.text_input(gls("sovits_character"), value=config.DUBBING_CHARACTER)
+            st.info("配置GPT_SoVITS，参考[安装指南](https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md)")
+            st.warning("注意：GPT_SoVITS 只支持输出中文，输入中文或英文，对于嘈杂音频可能效果不佳，且偶尔会发生吞字现象。")
+            sovits_character = st.text_input(gls("sovits_character"), value=config.DUBBING_CHARACTER, help="配置GPT-SoVITS的角色名称")
             if sovits_character != config.DUBBING_CHARACTER:
                 changes["DUBBING_CHARACTER"] = sovits_character
+            
+            refer_mode_options = {2: "使用第一条做参考", 3: "使用每一条做参考"}
+            selected_refer_mode = st.selectbox(
+                gls("refer_mode"),
+                options=list(refer_mode_options.keys()),
+                format_func=lambda x: refer_mode_options[x],
+                index=list(refer_mode_options.keys()).index(config.REFER_MODE),
+                help="配置GPT-SoVITS的参考音频模式"
+            )
+            if selected_refer_mode != config.REFER_MODE:
+                changes["REFER_MODE"] = selected_refer_mode
 
         original_volume_options = {gls("mute"): 0, "10%": 0.1}
 

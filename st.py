@@ -78,11 +78,13 @@ def audio_processing_section():
         if not os.path.exists("output/output_video_with_audio.mp4"):
             if st.button(gls("start_audio_processing"), key="audio_processing_button"):
                 process_audio()
-                st.video("output/output_video_with_audio.mp4")
-                return True
+                st.rerun()
         else:
             st.success(gls("audio_processing_complete"))
             st.video("output/output_video_with_audio.mp4") 
+            if st.button(gls("delete_dubbing_files"), key="delete_dubbing_files"):
+                delete_dubbing_files()
+                st.rerun()
             if st.button(gls("archive_to_history"), key="cleanup_in_audio_processing"):
                 cleanup()
                 st.rerun()
@@ -90,17 +92,17 @@ def audio_processing_section():
 def process_audio():
     input_video = step1_ytdlp.find_video_files()
     
-    with st.spinner("生成音频任务..."): 
+    with st.spinner(gls("audio_step1").split(".")[1]): 
         step8_gen_audio_task.gen_audio_task_main()
-    with st.spinner("UVR降噪处理..."):
+    with st.spinner(gls("audio_step2").split(".")[1]):
         step9_uvr_audio.uvr_audio_main(input_video)
-    with st.spinner("使用SoVITS生成音频..."):
+    with st.spinner(gls("audio_step3").split(".")[1]):
         step10_gen_audio.process_sovits_tasks()
 
-    with st.spinner("合并音频到视频..."):
+    with st.spinner(gls("audio_step4").split(".")[1]):
         step11_merge_audio_to_vid.merge_main()
     
-    st.success("音频处理完成! 🎉")
+    st.success(gls("audio_processing_complete_emoji"))
     st.balloons()
 
 def main():
