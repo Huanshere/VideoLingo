@@ -63,28 +63,46 @@ For OpenAI TTS, [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) is recom
 Edge TTS requires no configuration, for Azure TTS please register on the official website to get the key. Configure these in the sidebar of the VideoLingo running webpage later.
 
 <details>
-<summary>Using GPT-SoVITS (only supports v2 new version)</summary>
+<summary>GPT-SoVITS Usage Tutorial (only supports v2 new version)</summary>
 
-1. Please refer to the [official Yuque document](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) for configuration requirements and to download the integrated package.
+1. Go to the [official Yuque document](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) to check configuration requirements and download the integrated package.
 
-2. Place `GPT-SoVITS-v2-xxx` in the same directory level as `VideoLingo`.
+2. Place `GPT-SoVITS-v2-xxx` in the same directory level as `VideoLingo`. **Note that they should be parallel, not contained.**
 
 3. Choose one of the following methods to configure the model:
 
    a. Using a self-trained model:
-   - Copy `tts_infer.yaml` from `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` and rename it to `your_preferred_character_name.yaml`.
-   - In the sidebar of the VideoLingo webpage, set `GPT-SoVITS Character` to `your_preferred_character_name`.
+   - After training your model, `tts_infer.yaml` under `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` will automatically be filled with your model address. Copy it and rename it to `CharacterName.yaml`
+   - In the same directory as the `yaml` file, place the reference audio to be used later, named `CharacterName_ContentofAudio.wav` or `.mp3`, for example `Huanyuv2_Hello, this is a test audio.wav`
+   - In the sidebar of the VideoLingo webpage, set `GPT-SoVITS Character` to `CharacterName`.
 
    b. Using a pre-trained model:
-   - Download my model from [here](https://vip.123pan.cn/1817874751/8117662), extract and overwrite to `GPT-SoVITS-v2-xxx`.
+   - Download my model from [here](https://vip.123pan.cn/1817874751/8137723), extract and overwrite to `GPT-SoVITS-v2-xxx`.
    - Set `GPT-SoVITS Character` to `Huanyuv2`.
 
    c. Using other trained models:
    - Place the model files in `GPT_weights_v2` and `SoVITS_weights_v2` respectively.
    - Refer to method a, rename and modify the paths in `tts_infer.yaml` to point to your two models.
+   - Refer to method a, place the reference audio to be used later in the same directory as the `yaml` file, named `CharacterName_ContentofAudio.wav` or `.mp3`
 
-After configuration, VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line during the dubbing step. You can manually close it after dubbing is complete.
-</details>
+   ```
+   # Directory structure example
+   .
+   ├── VideoLingo
+   │   └── ...
+   └── GPT-SoVITS-v2-xxx
+       ├── GPT_SoVITS
+       │   └── configs
+       │       ├── tts_infer.yaml
+       │       ├── CharacterName.yaml
+       │       └── CharacterName_ContentofAudio.wav
+       ├── GPT_weights_v2
+       │   └── [Your GPT model file]
+       └── SoVITS_weights_v2
+           └── [Your SoVITS model file]
+   ```
+        
+After configuration, VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line during the dubbing step. You can manually close it after dubbing is complete.</details>
 
 
 ## 🚀 whisperX ☁️ Integrated Package

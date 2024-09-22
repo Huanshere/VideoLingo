@@ -77,7 +77,7 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
    - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的角色名`。
 
    b. 使用预训练模型：
-   - 从 [这里下载](https://vip.123pan.cn/1817874751/8117662) 我的模型，解压后覆盖到 `GPT-SoVITS-v2-xxx`。
+   - 从 [这里](https://vip.123pan.cn/1817874751/8137723) 下载我的模型，解压后覆盖到 `GPT-SoVITS-v2-xxx`。
    - 在 `GPT-SoVITS 角色` 配置为 `Huanyuv2`。
 
    c. 使用其他训练好的模型：
