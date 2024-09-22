@@ -81,7 +81,9 @@ def audio_processing_section():
                 st.rerun()
         else:
             st.success(gls("audio_processing_complete"))
-            st.video("output/output_video_with_audio.mp4") 
+            from config import RESOLUTION
+            if RESOLUTION != "0x0": 
+                st.video("output/output_video_with_audio.mp4") 
             if st.button(gls("delete_dubbing_files"), key="delete_dubbing_files"):
                 delete_dubbing_files()
                 st.rerun()

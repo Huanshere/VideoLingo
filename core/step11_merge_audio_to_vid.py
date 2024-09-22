@@ -70,6 +70,15 @@ def merge_video_audio():
     if os.path.exists(output_file):
         print(f"{output_file} 文件已存在,跳过处理。")
         return
+    
+    from config import RESOLUTION
+    if RESOLUTION == '0x0':
+        print("Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.")
+        subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
+                        '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_file],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print("Placeholder video has been generated.")
+        return
 
     # 合并视频和音频
     from config import ORIGINAL_VOLUME
