@@ -12,6 +12,8 @@ from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.edge_tts import edge_tts
 from core.all_tts_functions.azure_tts import azure_tts
+from core.prompts_storage import get_subtitle_trim_prompt
+from core.ask_gpt import ask_gpt
 
 console = Console()
 
@@ -61,18 +63,26 @@ def generate_audio(text, target_duration, save_as, number, task_df):
     else:  # speed_factor > MAX_SPEED_FACTOR
         rprint(f"⚠️ {number} Speed factor out of range: {speed_factor:.2f}, attempting to simplify subtitle...")
         
-        punctuation = ',.!?;:，。！？；：'
-        trimmed_text = ''.join([char if char not in punctuation else ' ' for char in text]).replace('  ', ' ')
+        original_text = text
+        prompt = get_subtitle_trim_prompt(text, target_duration)
+        response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
+        shortened_text = response['trans_text_processed']
+
+        rprint(f"Original subtitle: {original_text} | Simplified subtitle: {shortened_text}")
         
-        rprint(f"Original subtitle: {text} | Simplified subtitle: {trimmed_text}")
-        
-        tts_main(trimmed_text, temp_filename, number, task_df)
+        tts_main(shortened_text, temp_filename, number, task_df)
         new_original_duration = check_wav_duration(temp_filename)
         new_speed_factor = new_original_duration / target_duration
 
-        change_audio_speed(temp_filename, save_as, new_speed_factor)
-        final_duration = check_wav_duration(save_as)
-        rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor:.2f}")
+        if MIN_SPEED_FACTOR <= new_speed_factor <= MAX_SPEED_FACTOR:
+            change_audio_speed(temp_filename, save_as, new_speed_factor)
+            final_duration = check_wav_duration(save_as)
+            rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor:.2f}")
+        else:
+            rprint(f"⚠️ {number} Speed factor still out of range after simplification: {new_speed_factor:.2f}")
+            change_audio_speed(temp_filename, save_as, MAX_SPEED_FACTOR)
+            final_duration = check_wav_duration(save_as)
+            rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MAX_SPEED_FACTOR}")
 
     if os.path.exists(temp_filename):
         os.remove(temp_filename)

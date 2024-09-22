@@ -5,6 +5,8 @@ import json
 import concurrent.futures
 from core.translate_once import translate_lines
 from core.step4_1_summarize import search_things_to_note_in_prompt
+from core.step8_gen_audio_task import check_len_then_trim
+from core.step6_generate_final_timeline import align_timestamp
 
 # Function to split text into chunks
 def split_chunks_by_chars(chunk_size=600, max_i=12): 
@@ -71,8 +73,20 @@ def translate_all():
     for _, chunk, translation in results:
         src_text.extend(chunk.split('\n'))
         trans_text.extend(translation.split('\n'))
-    pd.DataFrame({'Source': src_text, 'Translation': trans_text}).to_excel("output/log/translation_results.xlsx", index=False)
-
+    
+    # Trim long translation text
+    df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
+    df_text['text'] = df_text['text'].str.strip('"').str.strip()
+    df_translate = pd.DataFrame({'Source': src_text, 'Translation': trans_text})
+    subtitle_output_configs = [('trans_subs_for_audio.srt', ['Translation'])]
+    df_time = align_timestamp(df_text, df_translate, subtitle_output_configs, output_dir=None, for_display=False)
+    print(df_time)
+    # apply check_len_then_trim to df_time['Translation']
+    df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']), axis=1)
+    print(df_time)
+    
+    df_translate.to_excel("output/log/translation_results_before_trim.xlsx", index=False)
+    df_time.to_excel("output/log/translation_results.xlsx", index=False)
 
 if __name__ == '__main__':
     translate_all()

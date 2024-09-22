@@ -5,6 +5,12 @@ from difflib import SequenceMatcher
 import re
 from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
+from rich import print as rprint
+from rich.panel import Panel
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
 
 def convert_to_srt_format(start_time, end_time):
     """Convert time (in seconds) to the format: hours:minutes:seconds,milliseconds"""
@@ -38,7 +44,6 @@ def get_sentence_timestamps(df_words, df_sentences):
         while word_index < len(df_words):
             word = remove_punctuation(df_words['text'][word_index].lower())
 
-            #! user joiner to join the sentence
             current_phrase += word + joiner
 
             similarity = SequenceMatcher(None, sentence, current_phrase.strip()).ratio()
@@ -62,17 +67,21 @@ def get_sentence_timestamps(df_words, df_sentences):
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
             word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
         else:
-            print(f"⚠️ Warning: No match found for the sentence: {sentence}")
-            print(f"🔍 Original sentence: {sentence}")
-            print(f"🔗 Matched: {best_match['phrase']}")
-            print(f"📊 Similarity: {best_match['score']:.2f}")
-            print("➖" * 25)
+            console.print(Panel(f"[yellow]⚠️ Warning: No match found for the sentence: {sentence}[/yellow]"))
+            table = Table(title="Match Details")
+            table.add_column("Item", style="cyan")
+            table.add_column("Value", style="magenta")
+            table.add_row("🔍 Original sentence", sentence)
+            table.add_row("🔗 Matched", best_match['phrase'])
+            table.add_row("📊 Similarity", f"{best_match['score']:.2f}")
+            console.print(table)
+            console.print("➖" * 25)
         
         start_index = word_index  # update start_index for the next sentence
     
     return time_stamp_list
 
-def align_timestamp(df_text, df_translate, for_audio = False):
+def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output_dir: str, for_display: bool = True):
     """Align timestamps and add a new timestamp column to df_translate"""
     df_trans_time = df_translate.copy()
 
@@ -84,6 +93,7 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     # Process timestamps ⏰
     time_stamp_list = get_sentence_timestamps(df_text, df_translate)
     df_trans_time['timestamp'] = time_stamp_list
+    df_trans_time['duration'] = df_trans_time['timestamp'].apply(lambda x: x[1] - x[0])
 
     # Remove gaps 🕳️
     for i in range(len(df_trans_time)-1):
@@ -94,54 +104,53 @@ def align_timestamp(df_text, df_translate, for_audio = False):
     # Convert start and end timestamps to SRT format
     df_trans_time['timestamp'] = df_trans_time['timestamp'].apply(lambda x: convert_to_srt_format(x[0], x[1]))
 
-    # Polish subtitles: replace punctuation in Translation
-    df_trans_time['Translation'] = df_trans_time['Translation'].apply(lambda x: re.sub(r'[,，。]', ' ', x).strip())
+    # Polish subtitles: replace punctuation in Translation if for_display
+    if for_display:
+        df_trans_time['Translation'] = df_trans_time['Translation'].apply(lambda x: re.sub(r'[,，。]', ' ', x).strip())
 
     # Output subtitles 📜
     def generate_subtitle_string(df, columns):
         return ''.join([f"{i+1}\n{row['timestamp']}\n{row[columns[0]].strip()}\n{row[columns[1]].strip() if len(columns) > 1 else ''}\n\n" for i, row in df.iterrows()]).strip()
 
-    subtitle_configs = [
-        ('src_subtitles.srt', ['Source']),
-        ('trans_subtitles.srt', ['Translation']),
-        ('bilingual_src_trans_subtitles.srt', ['Source', 'Translation']),
-        ('bilingual_trans_src_subtitles.srt', ['Translation', 'Source'])
-    ]
-
-    output_dir = 'output/audio' if for_audio else 'output'
-    os.makedirs(output_dir, exist_ok=True)
-
-    for filename, columns in subtitle_configs:
-        subtitle_str = generate_subtitle_string(df_trans_time, columns)
-        with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
-            f.write(subtitle_str)
-
-    if for_audio:
-        # Generate additional subtitle files for audio
-        with open('output/audio/src_subs_for_audio.srt', 'w', encoding='utf-8') as f:
-            f.write(generate_subtitle_string(df_trans_time, ['Source']))
-        with open('output/audio/trans_subs_for_audio.srt', 'w', encoding='utf-8') as f:
-            f.write(generate_subtitle_string(df_trans_time, ['Translation']))
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        for filename, columns in subtitle_output_configs:
+            subtitle_str = generate_subtitle_string(df_trans_time, columns)
+            with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
+                f.write(subtitle_str)
+    
     return df_trans_time
 
 def align_timestamp_main():
     df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
-    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，').strip('"') if pd.notna(x) else '')
+    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
     # check if there's empty translation
     if (df_translate['Translation'].str.len() == 0).sum() > 0:
-        raise ValueError(r'🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again.')
-    align_timestamp(df_text, df_translate)
-    print('🎉📝 Subtitles generation completed! Please check in the `output` folder 👀')
+        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
+        raise ValueError("Empty translation rows detected")
+    subtitle_output_configs = [ 
+        ('src_subtitles.srt', ['Source']),
+        ('trans_subtitles.srt', ['Translation']),
+        ('bilingual_src_trans_subtitles.srt', ['Source', 'Translation']),
+        ('bilingual_trans_src_subtitles.srt', ['Translation', 'Source'])
+    ]
+    align_timestamp(df_text, df_translate, subtitle_output_configs, 'output')
+    console.print(Panel("[bold green]🎉📝 Subtitles generation completed! Please check in the `output` folder 👀[/bold green]"))
 
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
     if (df_translate_for_audio['Translation'].str.len() == 0).sum() > 0:
-        raise ValueError(r'🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results.xlsx` and fill them with appropriate content, then run again.')
-    align_timestamp(df_text, df_translate_for_audio, for_audio=True)
-    print('🎉📝 Audio subtitles generation completed! Please check in the `output/audio` folder 👀')
+        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
+        raise ValueError("Empty translation rows detected")
+    subtitle_output_configs = [
+        ('src_subs_for_audio.srt', ['Source']),
+        ('trans_subs_for_audio.srt', ['Translation'])
+    ]
+    align_timestamp(df_text, df_translate_for_audio, subtitle_output_configs, 'output/audio')
+    console.print(Panel("[bold green]🎉📝 Audio subtitles generation completed! Please check in the `output/audio` folder 👀[/bold green]"))
     
 
 if __name__ == '__main__':
