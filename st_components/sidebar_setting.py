@@ -7,6 +7,7 @@ import streamlit as st
 from st_components.i18n import get_system_language
 from st_components.i18n import get_localized_string as gls
 import time
+import requests
 
 def update_config(key, value):
     with open('config.py', 'r', encoding='utf-8') as f:
@@ -31,7 +32,8 @@ def page_setting():
     init_display_language()
     changes = {}  # save changes
 
-    with st.expander(gls("llm_config"), expanded='API' in config.API_KEY):
+    with st.expander(gls("llm_config"), expanded=True):
+
         api_key = st.text_input("API_KEY", value=config.API_KEY)
         if api_key != config.API_KEY:
             changes["API_KEY"] = api_key
@@ -56,27 +58,9 @@ def page_setting():
             if replicate_api_token != config.REPLICATE_API_TOKEN:
                 changes["REPLICATE_API_TOKEN"] = replicate_api_token
             
-        lang_cols = st.columns(2)
-        with lang_cols[0]:
-            whisper_language_options = ["auto", "en"]
-            selected_whisper_language = st.selectbox(gls("whisper_recognition_language"), options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE) if config.WHISPER_LANGUAGE in whisper_language_options else 0, help=gls("whisper_recognition_language_help"))
-            if selected_whisper_language != config.WHISPER_LANGUAGE:
-                changes["WHISPER_LANGUAGE"] = selected_whisper_language
-        with lang_cols[1]:
-            target_language = st.text_input(gls("translation_target_language"), value=config.TARGET_LANGUAGE, help=gls("translation_target_language_help"))
-            if target_language != config.TARGET_LANGUAGE:
-                changes["TARGET_LANGUAGE"] = target_language
-
-        st.write(gls("subtitle_line_length_settings"))
-        max_length_cols = st.columns(2)
-        with max_length_cols[0]:
-            max_src_length = st.number_input(gls("max_characters_per_line"), value=config.MAX_SUB_LENGTH, help=gls("max_characters_per_line_help"))
-            if max_src_length != config.MAX_SUB_LENGTH:
-                changes["MAX_SUB_LENGTH"] = int(max_src_length)
-        with max_length_cols[1]:
-            target_sub_multiplier = st.number_input(gls("translation_length_multiplier"), value=config.TARGET_SUB_MULTIPLIER, help=gls("translation_length_multiplier_help"))
-            if target_sub_multiplier != config.TARGET_SUB_MULTIPLIER:
-                changes["TARGET_SUB_MULTIPLIER"] = int(target_sub_multiplier)
+        target_language = st.text_input(gls("translation_target_language"), value=config.TARGET_LANGUAGE, help=gls("translation_target_language_help"))
+        if target_language != config.TARGET_LANGUAGE:
+            changes["TARGET_LANGUAGE"] = target_language
 
         resolution_options = {
             "1080p": "1920x1080",
@@ -133,7 +117,7 @@ def page_setting():
             if sovits_character != config.DUBBING_CHARACTER:
                 changes["DUBBING_CHARACTER"] = sovits_character
             
-            refer_mode_options = {1: "仅用提供的参考音频", 2: "仅用视频第1条语音做参考", 3: "使用视频每一条语音做参考"}
+            refer_mode_options = {1: "模式1：仅用提供的参考音频", 2: "模式2：仅用视频第1条语音做参考", 3: "模式3：使用视频每一条语音做参考"}
             selected_refer_mode = st.selectbox(
                 gls("refer_mode"),
                 options=list(refer_mode_options.keys()),
@@ -173,14 +157,29 @@ def page_setting():
             st.toast(gls("settings_updated"), icon="✅")
             changes.clear()  # clear changes
     with cols_save[1]:
-        if st.button(gls("verify"),use_container_width = True):
+        if st.button(gls("verify"), use_container_width=True):
             st.toast(gls("attempting_access"), icon="🔄")
-            try:
-                response = ask_gpt("This is a test, response 'message':'success' in json format.", response_json=True, log_title='None')
-                print(response)
-                if response.get('message') == 'success':
-                    st.toast(gls("verification_successful"), icon="✅")
+            if valid_llm_api():
+                st.toast(f"LLM API 验证成功", icon="✅")
+            else:
+                st.toast(f"LLM API 验证失败", icon="❌")
+            
+            if config.WHISPER_METHOD == "whisperxapi":
+                if valid_replicate_token(config.REPLICATE_API_TOKEN):
+                    st.toast(f"Replicate Token 验证成功", icon="✅")
                 else:
-                    st.toast(gls("verification_failed"), icon="❌")
-            except Exception as e:
-                st.toast(f"{gls('access_failed')} {e}", icon="❌")
+                    st.toast(f"Replicate Token 验证失败", icon="❌")
+            
+
+def valid_llm_api():
+    try:
+        response = ask_gpt("This is a test, response 'message':'success' in json format.", response_json=True, log_title='None')
+        return response.get('message') == 'success'
+    except Exception:
+        return False
+
+def valid_replicate_token(token):
+    url = "https://api.replicate.com/v1/predictions"
+    headers = {"Authorization": f"Token {token}"}
+    response = requests.get(url, headers=headers)
+    return response.status_code == 200
