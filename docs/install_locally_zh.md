@@ -63,28 +63,46 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在 VideoLingo运行网页 的侧边栏进行配置。
 
 <details>
-<summary>GPT-SoVITS 的使用（仅支持 v2 新版本）</summary>
+<summary>GPT-SoVITS 的使用教程（仅支持 v2 新版本）</summary>
 
-1. 请前往 [官方的语雀文档](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) 查看配置要求并下载整合包。
+1. 前往 [官方的语雀文档](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) 查看配置要求并下载整合包。
 
-2. 将 `GPT-SoVITS-v2-xxx` 放置在与 `VideoLingo` 同级目录下。注意是并列而不是包含。
+2. 将 `GPT-SoVITS-v2-xxx` 放置在与 `VideoLingo` 同级目录下。**注意是并列而不是包含。**
 
 3. 选择以下任一方式配置模型：
 
-   a. 使用自训练模型：
-   - 将 `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 复制并重命名为 `你喜欢的角色名.yaml`。
+   a. 自训练模型：
+   - 训练好模型后， `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 已自动填写好你的模型地址，将其复制并重命名为 `你喜欢的角色名.yaml`
+   - 在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`
    - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的角色名`。
 
    b. 使用预训练模型：
-   - 从 [这里下载](https://vip.123pan.cn/1817874751/8117662) 我的模型，解压后覆盖到 `GPT-SoVITS-v2-xxx`。
+   - 从 [这里](https://vip.123pan.cn/1817874751/8137723) 下载我的模型，解压后覆盖到 `GPT-SoVITS-v2-xxx`。
    - 在 `GPT-SoVITS 角色` 配置为 `Huanyuv2`。
 
    c. 使用其他训练好的模型：
    - 将模型文件分别放在 `GPT_weights_v2` 和 `SoVITS_weights_v2` 下。
    - 参考方法 a，重命名并修改 `tts_infer.yaml` 中的路径指向你的两个模型。
+   - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`
 
-配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。
-</details>
+   ```
+   # 目录结构示意
+   .
+   ├── VideoLingo
+   │   └── ...
+   └── GPT-SoVITS-v2-xxx
+       ├── GPT_SoVITS
+       │   └── configs
+       │       ├── tts_infer.yaml
+       │       ├── 你喜欢的角色名.yaml
+       │       └── 你喜欢的角色名_参考音频的文字内容.wav
+       ├── GPT_weights_v2
+       │   └── [你的GPT模型文件]
+       └── SoVITS_weights_v2
+           └── [你的SoVITS模型文件]
+   ```
+        
+配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。</details>
 
 
 ## 🚀 whisperX ☁️ 整合包

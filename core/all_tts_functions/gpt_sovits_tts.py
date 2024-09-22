@@ -7,7 +7,6 @@ import subprocess
 import socket
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-
 def check_lang(text_lang, prompt_lang):
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文']):
         text_lang = 'zh'
@@ -52,8 +51,6 @@ def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prom
     else:
         rprint(f"[bold red]TTS请求失败，状态码:[/bold red] {response.status_code}")
         return False
-        
-
 
 def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     start_gpt_sovits_server()
@@ -66,14 +63,21 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
 
     if REFER_MODE == 1:
         # Use the default reference audio from config
-        model_path = current_dir / "_model_cache" / "GPT_SoVITS" / "trained" / DUBBING_CHARACTER
-        config_path = model_path / "infer_config.json"
-        config = json.loads(config_path.read_text(encoding='utf-8'))
+        _, config_path = find_and_check_config_path(DUBBING_CHARACTER)
+        config_dir = config_path.parent
+
+        # Find reference audio file
+        ref_audio_files = list(config_dir.glob(f"{DUBBING_CHARACTER}_*.wav")) + list(config_dir.glob(f"{DUBBING_CHARACTER}_*.mp3"))
+        if not ref_audio_files:
+            raise FileNotFoundError(f"No reference audio file found for {DUBBING_CHARACTER}")
+        ref_audio_path = ref_audio_files[0]
+
+        # Extract content from filename
+        content = ref_audio_path.stem.split('_', 1)[1]
         
-        default_emotion = config['emotion_list']['default']
-        ref_audio_path = model_path / default_emotion['ref_wav_path']
-        prompt_lang = default_emotion['prompt_language']
-        prompt_text = default_emotion['prompt_text']
+        # ! 固定为 zh
+        prompt_lang = 'zh' 
+        prompt_text = content
     elif REFER_MODE == 2:
         # Use only the reference audio path
         ref_audio_path = current_dir / "output/audio/refers/1.wav"
@@ -91,21 +95,7 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
 
 
-def start_gpt_sovits_server():
-    from config import DUBBING_CHARACTER
-    import time
-    import requests
-
-    # Check if port 9880 is already in use
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(('127.0.0.1', 9880))
-    if result == 0:
-        sock.close()
-        return None
-
-    sock.close()
-
-    # Find the root directory of the current Python script
+def find_and_check_config_path(dubbing_character):
     current_dir = Path(__file__).resolve().parent.parent.parent
     parent_dir = current_dir.parent
 
@@ -115,12 +105,31 @@ def start_gpt_sovits_server():
     if gpt_sovits_dir is None:
         raise FileNotFoundError("GPT-SoVITS-v2 directory not found in the parent directory.")
 
-    # Change to the GPT-SoVITS-v2 directory
-    os.chdir(gpt_sovits_dir)
-    # check f"GPT_SoVITS/configs/{DUBBING_CHARACTER}.yaml"
-    config_path = gpt_sovits_dir / "GPT_SoVITS" / "configs" / f"{DUBBING_CHARACTER}.yaml"   
+    config_path = gpt_sovits_dir / "GPT_SoVITS" / "configs" / f"{dubbing_character}.yaml"   
     if not config_path.exists():
         raise FileNotFoundError(f"Config file not found at {config_path}")
+
+    return gpt_sovits_dir, config_path
+
+def start_gpt_sovits_server():
+    from config import DUBBING_CHARACTER
+    import time
+    import requests
+    current_dir = Path(__file__).resolve().parent.parent.parent
+    # Check if port 9880 is already in use
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1', 9880))
+    if result == 0:
+        sock.close()
+        return None
+
+    sock.close()
+
+    # Find and check config path
+    gpt_sovits_dir, config_path = find_and_check_config_path(DUBBING_CHARACTER)
+
+    # Change to the GPT-SoVITS-v2 directory
+    os.chdir(gpt_sovits_dir)
 
     # Start the GPT-SoVITS server
     cmd = [

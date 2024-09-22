@@ -95,29 +95,42 @@ def change_audio_speed(input_file, output_file, speed_factor):
                 raise e  # Re-raise the exception if all retries failed
 
 def process_sovits_tasks():
-    # TODO 多线程，但是很容易文件冲突出错？
     tasks_df = pd.read_excel("output/audio/sovits_tasks.xlsx")
     error_tasks = []
     os.makedirs('output/audio/segs', exist_ok=True)
 
-    with console.status("[bold green]处理任务中...") as status:
+    with console.status("[bold green]Processing tasks...") as status:
         for _, row in tqdm(tasks_df.iterrows(), total=len(tasks_df)):
             output_file = f'output/audio/segs/{row["number"]}.wav'
             if os.path.exists(output_file):
-                rprint(f"[yellow]文件 {output_file} 已存在,跳过处理[/yellow]")
+                rprint(f"[yellow]File {output_file} already exists, skipping processing[/yellow]")
                 continue
             try:
                 generate_audio(row['text'], float(row['duration']), output_file, row['number'], tasks_df)
             except Exception as e:
                 error_tasks.append(row['number'])
-                rprint(Panel(f"任务 {row['number']} 处理出错: {str(e)}", title="错误", border_style="red"))
+                rprint(Panel(f"Error processing task {row['number']}: {str(e)}", title="Error", border_style="red"))
 
     if error_tasks:
-        error_msg = f"以下任务处理出错: {', '.join(map(str, error_tasks))}"
-        rprint(Panel(error_msg, title="处理失败的任务", border_style="red"))
+        # Retry once, sometimes there might be network issues or file I/O errors
+        rprint(Panel(f"The following tasks encountered errors, retrying: {', '.join(map(str, error_tasks))}", title="Retry", border_style="yellow"))
+        retry_tasks = error_tasks.copy()
+        error_tasks.clear()
+        for task_number in retry_tasks:
+            row = tasks_df[tasks_df['number'] == task_number].iloc[0]
+            output_file = f'output/audio/segs/{row["number"]}.wav'
+            try:
+                generate_audio(row['text'], float(row['duration']), output_file, row['number'], tasks_df)
+            except Exception as e:
+                error_tasks.append(row['number'])
+                rprint(Panel(f"Error retrying task {row['number']}: {str(e)}", title="Error", border_style="red"))
+
+    if error_tasks:
+        error_msg = f"The following tasks failed to process: {', '.join(map(str, error_tasks))}"
+        rprint(Panel(error_msg, title="Failed Tasks", border_style="red"))
         raise Exception()
     
-    rprint(Panel("任务处理完成", title="成功", border_style="green"))
+    rprint(Panel("Task processing completed", title="Success", border_style="green"))
 
 if __name__ == "__main__":
     process_sovits_tasks()
