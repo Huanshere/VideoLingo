@@ -109,7 +109,7 @@ def page_setting():
 
         elif selected_tts_method == "edge_tts":
             if os.path.exists('runtime'):
-                st.error("由于技术原因，一键包暂不支持Edge TTS")
+                st.error("注意：一键包使用 Edge TTS 会报错")
             edge_voice = st.text_input(gls("edge_tts_voice"), value=config.EDGE_VOICE)
             if edge_voice != config.EDGE_VOICE:
                 changes["EDGE_VOICE"] = edge_voice
@@ -128,12 +128,12 @@ def page_setting():
                 changes["AZURE_VOICE"] = azure_voice
         elif selected_tts_method == "gpt_sovits":
             st.info("配置GPT_SoVITS，参考[安装指南](https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md)")
-            st.warning("注意：GPT_SoVITS 只支持输出中文，输入中文或英文，对于嘈杂音频可能效果不佳，且偶尔会发生吞字现象。")
-            sovits_character = st.text_input(gls("sovits_character"), value=config.DUBBING_CHARACTER, help="配置GPT-SoVITS的角色名称")
+            st.warning("注意：当前适配只支持输出为中文，输入参考为英文。对于嘈杂音频效果不佳，且偶尔会发生吞字现象。如使用参考视频语音的模式，建议选用和视频原声音色相近的底模")
+            sovits_character = st.text_input(gls("sovits_character"), value=config.DUBBING_CHARACTER, help="需在 GPT-SoVITS 的 config 目录下配置有 `xxx.yaml` 文件")
             if sovits_character != config.DUBBING_CHARACTER:
                 changes["DUBBING_CHARACTER"] = sovits_character
             
-            refer_mode_options = {2: "使用第一条做参考", 3: "使用每一条做参考"}
+            refer_mode_options = {1: "仅用提供的参考音频", 2: "仅用视频第1条语音做参考", 3: "使用视频每一条语音做参考"}
             selected_refer_mode = st.selectbox(
                 gls("refer_mode"),
                 options=list(refer_mode_options.keys()),

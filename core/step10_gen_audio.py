@@ -95,7 +95,6 @@ def change_audio_speed(input_file, output_file, speed_factor):
                 raise e  # Re-raise the exception if all retries failed
 
 def process_sovits_tasks():
-    # TODO 多线程，但是很容易文件冲突出错？
     tasks_df = pd.read_excel("output/audio/sovits_tasks.xlsx")
     error_tasks = []
     os.makedirs('output/audio/segs', exist_ok=True)
@@ -111,6 +110,20 @@ def process_sovits_tasks():
             except Exception as e:
                 error_tasks.append(row['number'])
                 rprint(Panel(f"任务 {row['number']} 处理出错: {str(e)}", title="错误", border_style="red"))
+
+    if error_tasks:
+        # 重试一次，有时候会遇到网络问题或文件读写错误
+        rprint(Panel(f"以下任务处理出错，正在重试: {', '.join(map(str, error_tasks))}", title="重试", border_style="yellow"))
+        retry_tasks = error_tasks.copy()
+        error_tasks.clear()
+        for task_number in retry_tasks:
+            row = tasks_df[tasks_df['number'] == task_number].iloc[0]
+            output_file = f'output/audio/segs/{row["number"]}.wav'
+            try:
+                generate_audio(row['text'], float(row['duration']), output_file, row['number'], tasks_df)
+            except Exception as e:
+                error_tasks.append(row['number'])
+                rprint(Panel(f"重试任务 {row['number']} 处理出错: {str(e)}", title="错误", border_style="red"))
 
     if error_tasks:
         error_msg = f"以下任务处理出错: {', '.join(map(str, error_tasks))}"
