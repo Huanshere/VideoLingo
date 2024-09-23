@@ -168,5 +168,4 @@ def start_gpt_sovits_server():
         except requests.exceptions.RequestException:
             pass
 
-    print("GPT-SoVITS server failed to start within 50 seconds.")
-    return process
+    raise Exception("GPT-SoVITS server failed to start within 50 seconds. Please check if GPT-SoVITS-v2-xxx folder is set correctly.")

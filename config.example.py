@@ -55,6 +55,7 @@ AZURE_KEY = 'YOUR_API_KEY'
 AZURE_REGION = 'eastasia'
 AZURE_VOICE = 'zh-CN-XiaoxiaoMultilingualNeural' # 推荐女声 'zh-CN-XiaoxiaoMultilingualNeural' 男声 "zh-CN-YunyiMultilingualNeural"
 
+
 # SoVITS角色配置
 DUBBING_CHARACTER = 'Huanyuv2'
 # SoVits的参考音频模式
