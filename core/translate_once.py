@@ -10,9 +10,6 @@ import re
 console = Console()
 
 def valid_translate_result(result: dict, required_keys: list, required_sub_keys: list):
-    if not isinstance(result, dict):
-        return {"status": "error", "message": "Result is not a dictionary"}
-    
     # Check for the required key
     if not all(key in result for key in required_keys):
         return {"status": "error", "message": f"Missing required key(s): {', '.join(set(required_keys) - set(result.keys()))}"}
@@ -66,7 +63,6 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
 
     table = Table(title="Translation Results")
     table.add_column("Translations", style="cyan")
-
     for i, key in enumerate(express_result):
         table.add_row(f"[cyan]Original: {faith_result[key]['Original Subtitle']}[/cyan]")
         table.add_row(f"[magenta]Direct:   {faith_result[key]['Direct Translation']}[/magenta]")
@@ -81,8 +77,6 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     if len(lines.split('\n')) != len(translate_result.split('\n')):
         console.print(Panel(f'[red]❌ Translation of block {index} failed, Length Mismatch, Please check `output/gpt_log/translate_expressiveness.json`[/red]'))
         raise ValueError(f'Original ···{lines}···,\nbut got ···{translate_result}···')
-    else:
-        console.print(Panel(f'[green]✅ Translation of block {index} completed[/green]'))
 
     return translate_result, lines
 

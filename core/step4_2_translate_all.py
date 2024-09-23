@@ -5,6 +5,13 @@ import json
 import concurrent.futures
 from core.translate_once import translate_lines
 from core.step4_1_summarize import search_things_to_note_in_prompt
+from core.step8_gen_audio_task import check_len_then_trim
+from core.step6_generate_final_timeline import align_timestamp
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+
+console = Console()
 
 # Function to split text into chunks
 def split_chunks_by_chars(chunk_size=600, max_i=12): 
@@ -44,25 +51,37 @@ def translate_chunk(chunk, chunks, theme_prompt, i):
 def translate_all():
     # Check if the file exists
     if os.path.exists("output/log/translation_results.xlsx"):
-        print("🚨 File `translation_results.xlsx` already exists, skipping TRANSLATE ALL.")
+        console.print(Panel("🚨 File `translation_results.xlsx` already exists, skipping TRANSLATE ALL.", title="Warning", border_style="yellow"))
         return
     
-    print("Start Translate All...")
-    chunks = split_chunks_by_chars()
+    console.print("[bold green]Start Translate All...[/bold green]")
+    from config import MODEL
+    if 'sonnet' in MODEL:
+        chunks = split_chunks_by_chars()
+    else:
+        console.print("[yellow]🚨 Not using sonnet, using smaller chunk size and max_i to avoid OOM[/yellow]")
+        chunks = split_chunks_by_chars(chunk_size=500, max_i=10)
     with open('output/log/terminology.json', 'r', encoding='utf-8') as file:
         theme_prompt = json.load(file).get('theme')
 
     # 🔄 Use concurrent execution for translation
     from config import MAX_WORKERS
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = []
-        for i, chunk in enumerate(chunks):
-            future = executor.submit(translate_chunk, chunk, chunks, theme_prompt, i)
-            futures.append(future)
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        transient=True,
+    ) as progress:
+        task = progress.add_task("[cyan]Translating chunks...", total=len(chunks))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            futures = []
+            for i, chunk in enumerate(chunks):
+                future = executor.submit(translate_chunk, chunk, chunks, theme_prompt, i)
+                futures.append(future)
 
-        results = []
-        for future in concurrent.futures.as_completed(futures):
-            results.append(future.result())
+            results = []
+            for future in concurrent.futures.as_completed(futures):
+                results.append(future.result())
+                progress.update(task, advance=1)
 
     results.sort(key=lambda x: x[0])  # Sort results based on original order
     
@@ -71,8 +90,22 @@ def translate_all():
     for _, chunk, translation in results:
         src_text.extend(chunk.split('\n'))
         trans_text.extend(translation.split('\n'))
-    pd.DataFrame({'Source': src_text, 'Translation': trans_text}).to_excel("output/log/translation_results.xlsx", index=False)
-
+    
+    # Trim long translation text
+    df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
+    df_text['text'] = df_text['text'].str.strip('"').str.strip()
+    df_translate = pd.DataFrame({'Source': src_text, 'Translation': trans_text})
+    subtitle_output_configs = [('trans_subs_for_audio.srt', ['Translation'])]
+    df_time = align_timestamp(df_text, df_translate, subtitle_output_configs, output_dir=None, for_display=False)
+    console.print(df_time)
+    # apply check_len_then_trim to df_time['Translation'], only when duration > MIN_TRIM_DURATION.
+    from config import MIN_TRIM_DURATION
+    df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']) if x['duration'] > MIN_TRIM_DURATION else x['Translation'], axis=1)
+    console.print(df_time)
+    
+    df_translate.to_excel("output/log/translation_results_before_trim.xlsx", index=False)
+    df_time.to_excel("output/log/translation_results.xlsx", index=False)
+    console.print("[bold green]✅ Translation completed and results saved.[/bold green]")
 
 if __name__ == '__main__':
     translate_all()

@@ -307,16 +307,18 @@ Please complete the following JSON data, where << >> represents placeholders, an
     )
 
 ## ================================================================
-# @ step9_generate_audio_task.py @ step10_generate_audio.py
-def get_subtitle_trim_prompt(trans_text, duration, fierce_mode = False):
-    if not fierce_mode:
-        rule = 'Only consider a. Replacing commas with spaces to reduce pause time. b. Reducing filler words without modifying meaningful content. c. Omitting unnecessary modifiers or pronouns, for example "Please explain your thought process" can be shortened to "Please explain thought process"'
-    else:
-        rule = 'Consider a. Replacing commas with spaces, reducing filler words to decrease pause time. b. Streamlining unimportant conjunctions, modifiers, and pronouns in the subtitle while preserving all sentence structures. For example: "Suppose we are overly idealistic physicists, assume there is no friction, all collisions are perfectly elastic" can be changed to: "Suppose we are idealistic physicists no friction all collisions are elastic"'
+# @ step8_gen_audio_task.py @ step10_gen_audio.py
+def get_subtitle_trim_prompt(trans_text, duration):
+ 
+    rule = '''Consider a. Reducing filler words without modifying meaningful content. b. Omitting unnecessary modifiers or pronouns, for example:
+    - "Please explain your thought process" can be shortened to "Please explain thought process"
+    - "We need to carefully analyze this complex problem" can be shortened to "We need to analyze this problem"
+    - "Let's discuss the various different perspectives on this topic" can be shortened to "Let's discuss different perspectives on this topic"
+    - "Can you describe in detail your experience from yesterday" can be shortened to "Can you describe yesterday's experience" '''
 
     trim_prompt = '''
-### Role Definition
-You are a professional subtitle editor, editing and optimizing subtitles before handing them over to voice actors. Your expertise lies in cleverly condensing subtitles while ensuring the original meaning remains intact.
+### Role
+You are a professional subtitle editor, editing and optimizing lengthy subtitles that exceed voiceover time before handing them to voice actors. Your expertise lies in cleverly shortening subtitles slightly while ensuring the original meaning and structure remain unchanged.
 
 ### Subtitle Data
 <subtitles>
@@ -329,8 +331,8 @@ Duration: {duration} seconds
 
 ### Processing Steps
 Please follow these steps and provide the results in the JSON output:
-1. Analysis: Briefly analyze the subtitle's structure, key information, potential locations for replacing commas with spaces, and filler words that can be omitted.
-2. Trimming: Based on the rules and analysis, optimize the subtitle by shortening it according to the processing rules.
+1. Analysis: Briefly analyze the subtitle's structure, key information, and filler words that can be omitted.
+2. Trimming: Based on the rules and analysis, optimize the subtitle by making it more concise according to the processing rules.
 
 ### Output Format
 Please complete the following JSON data, where << >> represents content you need to fill in:

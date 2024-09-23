@@ -100,11 +100,16 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
         start += target_duration
     
     print(f"🔪 Split audio into {len(segments)} segments")
+    #! Occasionally, the process may pause here. Warning the user to skip the pause.
+    print(f"!!! YOU SHOULD SEE [🚀 Starting WhisperX API...] in the next step in 3 secs, otherwise hit ENTER to skip the pause.")
     return segments
 
+import time
 def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     print(f"🎙️ Transcribing segment from {start:.2f}s to {end:.2f}s")
     
+    #! Occasionally, the process may pause here. Adding a short delay to ensure stability.
+    time.sleep(1)
     segment_file = f'output/audio/segment_{start:.2f}_{end:.2f}.wav'
     ffmpeg_cmd = [
         'ffmpeg',
@@ -115,7 +120,8 @@ def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
         segment_file
     ]
     subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
-    
+    time.sleep(1)
+
     # Encode to base64
     with open(segment_file, 'rb') as file:
         audio_base64 = base64.b64encode(file.read()).decode('utf-8')

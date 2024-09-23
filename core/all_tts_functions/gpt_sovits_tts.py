@@ -6,7 +6,7 @@ import os, sys
 import subprocess
 import socket
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
+import time
 def check_lang(text_lang, prompt_lang):
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文']):
         text_lang = 'zh'
@@ -88,7 +88,6 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         raise ValueError("Invalid REFER_MODE. Choose 1, 2, or 3.")
 
     success = gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
-
     if not success and REFER_MODE == 3:
         rprint(f"[bold red]TTS请求失败，切换回模式2重试[/bold red]")
         ref_audio_path = current_dir / "output/audio/refers/1.wav"
@@ -132,29 +131,41 @@ def start_gpt_sovits_server():
     os.chdir(gpt_sovits_dir)
 
     # Start the GPT-SoVITS server
-    cmd = [
-        "runtime\\python.exe",
-        "api_v2.py",
-        "-a", "127.0.0.1",
-        "-p", "9880",
-        "-c", str(config_path)
-    ]
-
-    # Open the command in a new window
-    process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
+    if sys.platform == "win32":
+        cmd = [
+            "runtime\\python.exe",
+            "api_v2.py",
+            "-a", "127.0.0.1",
+            "-p", "9880",
+            "-c", str(config_path)
+        ]
+        # Open the command in a new window on Windows
+        process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
+    elif sys.platform == "darwin":  # macOS
+        print("Please manually start the GPT-SoVITS server at http://127.0.0.1:9880, refer to api_v2.py.")
+        while True:
+            user_input = input("Have you started the server? (y/n): ").lower()
+            if user_input == 'y':
+                process = None
+                break
+            elif user_input == 'n':
+                raise Exception("Please start the server before continuing.")
+    else:
+        raise OSError("Unsupported operating system. Only Windows and macOS are supported.")
 
     # Change back to the original directory
     os.chdir(current_dir)
 
     # Wait for the server to start (max 30 seconds)
     start_time = time.time()
-    while time.time() - start_time < 30:
+    while time.time() - start_time < 50:
         try:
+            time.sleep(15)
             response = requests.get('http://127.0.0.1:9880/ping')
             if response.status_code == 200:
                 print("GPT-SoVITS server is ready.")
                 return process
         except requests.exceptions.RequestException:
-            time.sleep(4)
+            pass
 
-    raise Exception("GPT-SoVITS server failed to start within 30 seconds. Please check if GPT-SoVITS-v2-xxx folder is set correctly.")
+    raise Exception("GPT-SoVITS server failed to start within 50 seconds. Please check if GPT-SoVITS-v2-xxx folder is set correctly.")

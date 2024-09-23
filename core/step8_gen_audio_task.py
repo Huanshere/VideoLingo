@@ -10,39 +10,58 @@ from rich.panel import Panel
 from rich.console import Console
 
 console = Console()
-
+from config import MAX_SPEED_FACTOR, NORMAL_SPEED_FACTOR
 # TODO: 需要优化，目前只考虑了中英文标点符号，没有考虑其他语言的标点符号
-def check(text, duration, max_chars_per_second=8):
-    # 定义标点符号列表
-    punctuations = ',，。！？：；"（）《》【】'
+def check_len_then_trim(text, duration):
+    # Define speech speed: characters/second or words/second, punctuation/second
+    speed_zh_ja = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR  # Chinese and Japanese characters per second
+    speed_en = speed_ru = speed_fr = speed_es = speed_it = speed_de = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Words per second for English, Russian, French, Spanish, Italian, German
+    speed_punctuation = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Punctuation marks per second
     
-    # 分别计算汉字、英文单词、数字和标点符号的数量
-    chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', text))
+    # Count characters, words, and punctuation for each language
+    chinese_japanese_chars = len(re.findall(r'[\u4e00-\u9fff\u3040-\u30ff\u3400-\u4dbf\uf900-\ufaff\uff66-\uff9f]', text))
     english_words = len(re.findall(r'\b[a-zA-Z]+\b', text))
-    numbers = len(re.findall(r'\d+', text))
-    punct_count = sum(text.count(p) for p in punctuations)
+    russian_words = len(re.findall(r'\b[а-яА-Я]+\b', text))
+    french_words = len(re.findall(r'\b[a-zA-Zàâçéèêëîïôûùüÿñæœ]+\b', text))
+    spanish_words = len(re.findall(r'\b[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+\b', text))
+    italian_words = len(re.findall(r'\b[a-zA-ZàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚ]+\b', text))
+    german_words = len(re.findall(r'\b[a-zA-ZäöüßÄÖÜ]+\b', text))
+    punctuation_count = len(re.findall(r'[,.!?;:，。！？；：](?=.)', text))
     
-    # 计算总长度：汉字1个长度，英文单词2个长度，数字1个长度，标点符号4个长度
-    total_length = chinese_chars + english_words * 2 + numbers + punct_count * 4
+    # Estimate duration for each language part and punctuation
+    chinese_japanese_duration = chinese_japanese_chars / speed_zh_ja
+    english_duration = english_words / speed_en
+    russian_duration = russian_words / speed_ru
+    french_duration = french_words / speed_fr
+    spanish_duration = spanish_words / speed_es
+    italian_duration = italian_words / speed_it
+    german_duration = german_words / speed_de
+    punctuation_duration = punctuation_count / speed_punctuation
     
-    # 计算最大允许字符数
-    max_chars = int(duration * max_chars_per_second)
+    # Total estimated duration
+    estimated_duration = (chinese_japanese_duration + english_duration + russian_duration + 
+                          french_duration + spanish_duration + italian_duration + 
+                          german_duration + punctuation_duration)
     
-    console.print(f"字幕信息: 汉字: {chinese_chars}, 英文单词: {english_words}, 数字: {numbers}, 标点符号: {punct_count}, 总长度: {total_length}  [bold green]最大允许长度：{max_chars}[/bold green]")
+    console.print(f"Subtitle info: Chinese/Japanese chars: {chinese_japanese_chars}, English words: {english_words}, "
+                  f"Russian words: {russian_words}, French words: {french_words}, "
+                  f"Spanish words: {spanish_words}, Italian words: {italian_words}, "
+                  f"German words: {german_words}, Punctuation marks: {punctuation_count}, "
+                  f"[bold green]Estimated reading duration: {estimated_duration:.2f} seconds[/bold green]")
     
-    if total_length > max_chars:
-        rprint(Panel(f"字幕长度超过{max_chars}，正在缩短...", title="正在处理", border_style="yellow"))
+    if estimated_duration > duration:
+        rprint(Panel(f"Estimated reading duration {estimated_duration:.2f} seconds exceeds given duration {duration:.2f} seconds, shortening...", title="Processing", border_style="yellow"))
         original_text = text
         prompt = get_subtitle_trim_prompt(text, duration)
         response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
         shortened_text = response['trans_text_processed']
-        rprint(Panel(f"缩短前的字幕：{original_text}\n缩短后的字幕: {shortened_text}", title="字幕缩短结果", border_style="green"))
+        rprint(Panel(f"Subtitle before shortening: {original_text}\nSubtitle after shortening: {shortened_text}", title="Subtitle Shortening Result", border_style="green"))
         return shortened_text
     else:
         return text
 
 def process_srt():
-    """处理 srt 文件，生成音频任务"""
+    """Process srt file, generate audio tasks"""
     output_dir = 'output/audio'
     trans_subs = os.path.join(output_dir, 'trans_subs_for_audio.srt')
 
@@ -79,17 +98,17 @@ def process_srt():
             duration = (datetime.datetime.combine(datetime.date.today(), end_time) - 
                         datetime.datetime.combine(datetime.date.today(), start_time)).total_seconds()
             text = ' '.join(lines[2:])
-            # 删除括号内的内容（包括英文和中文括号）
+            # Remove content within parentheses (including English and Chinese parentheses)
             text = re.sub(r'\([^)]*\)', '', text).strip()
             text = re.sub(r'（[^）]*）', '', text).strip()
-            # 删掉 - 字符，可继续补充会导致错误的非法字符
+            # Remove '-' character, can continue to add illegal characters that cause errors
             text = text.replace('-', '')
 
             # Add the original text from src_subs_for_audio.srt
             origin = src_subtitles.get(number, '')
 
         except ValueError as e:
-            rprint(Panel(f"无法解析字幕块 '{block}'，错误: {str(e)}，跳过此字幕块。", title="错误", border_style="red"))
+            rprint(Panel(f"Unable to parse subtitle block '{block}', error: {str(e)}, skipping this subtitle block.", title="Error", border_style="red"))
             continue
         
         subtitles.append({
@@ -109,7 +128,7 @@ def process_srt():
         if df.loc[i, 'duration'] < MIN_SUBTITLE_DURATION:
             if i < len(df) - 1 and (datetime.datetime.combine(datetime.date.today(), df.loc[i+1, 'start_time']) - 
                                     datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time'])).total_seconds() < MIN_SUBTITLE_DURATION:
-                rprint(f"[bold yellow]合并字幕 {i+1} 和 {i+2}[/bold yellow]")
+                rprint(f"[bold yellow]Merging subtitles {i+1} and {i+2}[/bold yellow]")
                 df.loc[i, 'text'] += ' ' + df.loc[i+1, 'text']
                 df.loc[i, 'origin'] += ' ' + df.loc[i+1, 'origin']
                 df.loc[i, 'end_time'] = df.loc[i+1, 'end_time']
@@ -117,13 +136,13 @@ def process_srt():
                                         datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time'])).total_seconds()
                 df = df.drop(i+1).reset_index(drop=True)
             else:
-                if i < len(df) - 1:  # 不是最后一条音频
-                    rprint(f"[bold blue]延长字幕 {i+1} 的持续时间到{MIN_SUBTITLE_DURATION}秒[/bold blue]")
+                if i < len(df) - 1:  # Not the last audio
+                    rprint(f"[bold blue]Extending subtitle {i+1} duration to {MIN_SUBTITLE_DURATION} seconds[/bold blue]")
                     df.loc[i, 'end_time'] = (datetime.datetime.combine(datetime.date.today(), df.loc[i, 'start_time']) + 
                                             datetime.timedelta(seconds=MIN_SUBTITLE_DURATION)).time()
                     df.loc[i, 'duration'] = MIN_SUBTITLE_DURATION
                 else:
-                    rprint(f"[bold red]最后一条字幕 {i+1} 的持续时间小于{MIN_SUBTITLE_DURATION}秒，但不进行延长[/bold red]")
+                    rprint(f"[bold red]The last subtitle {i+1} duration is less than {MIN_SUBTITLE_DURATION} seconds, but not extending[/bold red]")
                 i += 1
         else:
             i += 1
@@ -131,9 +150,9 @@ def process_srt():
     df['start_time'] = df['start_time'].apply(lambda x: x.strftime('%H:%M:%S.%f')[:-3])
     df['end_time'] = df['end_time'].apply(lambda x: x.strftime('%H:%M:%S.%f')[:-3])
     
-    # 检查字幕长度 # 处理两次以确保字幕长度不超过限制
-    df['text'] = df.apply(lambda x: check(x['text'], x['duration']), axis=1)
-    df['text'] = df.apply(lambda x: check(x['text'], x['duration']), axis=1)
+    # check and trim subtitle length, for twice to ensure the subtitle length is within the limit
+    for _ in range(2):
+        df['text'] = df.apply(lambda x: check_len_then_trim(x['text'], x['duration']), axis=1)
 
     return df
 
@@ -142,13 +161,13 @@ def gen_audio_task_main():
     tasks_file = os.path.join(output_dir, 'sovits_tasks.xlsx')
     
     if os.path.exists(tasks_file):
-        rprint(Panel(f"{tasks_file} already exists, skip.", title="信息", border_style="blue"))
+        rprint(Panel(f"{tasks_file} already exists, skip.", title="Info", border_style="blue"))
     else:
         df = process_srt()
         console.print(df)
         df.to_excel(tasks_file, index=False)
 
-        rprint(Panel(f"Successfully generated {tasks_file}", title="成功", border_style="green"))
+        rprint(Panel(f"Successfully generated {tasks_file}", title="Success", border_style="green"))
 
 if __name__ == '__main__':
     gen_audio_task_main()

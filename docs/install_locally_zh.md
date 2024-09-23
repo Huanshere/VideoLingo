@@ -60,7 +60,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | 🗣️ GPT-SoVITS (beta) | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要显卡训练模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😱 | 🚫 |
 
 对于OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)。
-Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在 VideoLingo运行网页 的侧边栏进行配置。
+Edge TTS 免配置，Azure TTS 可在QQ群获取免费 key或自行注册。后续在 VideoLingo运行网页 的侧边栏进行配置。
 
 <details>
 <summary>GPT-SoVITS 的使用教程（仅支持 v2 新版本）</summary>
@@ -102,11 +102,23 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
            └── [你的SoVITS模型文件]
    ```
         
-配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。</details>
+配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。注意，此方法仍然不够稳定，容易出现漏字漏句，请谨慎使用。</details>
 
 
-## 🚀 whisperX ☁️ 整合包
-> 注意，由于技术原因，整合包无法在配音时使用 edge-tts。CPU版torch在配音步骤使用UVR5降噪时较慢，如需使用GPU版torch请从源码安装。
+## 🚀 一键整合包
+
+### 注意事项：
+
+1. 整合包使用的是 CPU 版本的 torch，大小约 **2.5G**。
+2. 在配音步骤使用 UVR5 降噪时，CPU 版本会显著慢于 GPU 加速的 torch。
+3. 整合包**仅支持通过 API 调用 whisperX ☁️**，不支持本地运行 whisperX 💻。
+4. 由于技术原因，整合包**无法在配音时使用 edge-tts**，除此之外功能完整。
+
+如果需要以下功能，请从源码安装（需要Nvidia显卡以及至少 **20G** 硬盘空间）：
+- 本地运行 whisperX 💻
+- 使用 GPU 加速的 UVR5 降噪
+
+### 使用说明
 
 1. 下载 `v1.0.0` 一键整合包(750M): [CPU版下载](https://vip.123pan.cn/1817874751/8117948) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
