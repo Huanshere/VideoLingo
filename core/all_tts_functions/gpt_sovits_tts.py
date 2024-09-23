@@ -132,16 +132,27 @@ def start_gpt_sovits_server():
     os.chdir(gpt_sovits_dir)
 
     # Start the GPT-SoVITS server
-    cmd = [
-        "runtime\\python.exe",
-        "api_v2.py",
-        "-a", "127.0.0.1",
-        "-p", "9880",
-        "-c", str(config_path)
-    ]
-
-    # Open the command in a new window
-    process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
+    if sys.platform == "win32":
+        cmd = [
+            "runtime\\python.exe",
+            "api_v2.py",
+            "-a", "127.0.0.1",
+            "-p", "9880",
+            "-c", str(config_path)
+        ]
+        # Open the command in a new window on Windows
+        process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
+    elif sys.platform == "darwin":  # macOS
+        print("Please manually start the GPT-SoVITS server at http://127.0.0.1:9880, refer to api_v2.py.")
+        while True:
+            user_input = input("Have you started the server? (y/n): ").lower()
+            if user_input == 'y':
+                process = None
+                break
+            elif user_input == 'n':
+                raise Exception("Please start the server before continuing.")
+    else:
+        raise OSError("Unsupported operating system. Only Windows and macOS are supported.")
 
     # Change back to the original directory
     os.chdir(current_dir)
