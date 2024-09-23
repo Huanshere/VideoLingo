@@ -6,7 +6,7 @@ import os, sys
 import subprocess
 import socket
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
+import time
 def check_lang(text_lang, prompt_lang):
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文']):
         text_lang = 'zh'
@@ -88,7 +88,6 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         raise ValueError("Invalid REFER_MODE. Choose 1, 2, or 3.")
 
     success = gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
-
     if not success and REFER_MODE == 3:
         rprint(f"[bold red]TTS请求失败，切换回模式2重试[/bold red]")
         ref_audio_path = current_dir / "output/audio/refers/1.wav"
@@ -159,14 +158,15 @@ def start_gpt_sovits_server():
 
     # Wait for the server to start (max 30 seconds)
     start_time = time.time()
-    while time.time() - start_time < 30:
+    while time.time() - start_time < 50:
         try:
+            time.sleep(15)
             response = requests.get('http://127.0.0.1:9880/ping')
             if response.status_code == 200:
                 print("GPT-SoVITS server is ready.")
                 return process
         except requests.exceptions.RequestException:
-            time.sleep(4)
+            pass
 
-    print("GPT-SoVITS server failed to start within 30 seconds.")
+    print("GPT-SoVITS server failed to start within 50 seconds.")
     return process

@@ -42,7 +42,7 @@ TTS_METHOD = 'azure_tts'
 
 # openai tts-1 接口配置
 OAI_VOICE = 'alloy'
-OAI_TTS_API_KEY = 'YOUR_OAI_TTS_API_KEY'
+OAI_TTS_API_KEY = 'YOUR_API_KEY'
 OAI_TTS_API_BASE_URL = 'https://yunwu.zeabur.app'
 
 # edge_tts voice
@@ -51,22 +51,22 @@ EDGE_VOICE = 'zh-CN-XiaoxiaoNeural'
 # Azure 配置
 # voice列表见：https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/language-support?tabs=tts#prebuilt-neural-voices
 # 在线体验voice：https://speech.microsoft.com/portal/voicegallery
-AZURE_KEY = 'YOUR_AZURE_KEY'
+AZURE_KEY = 'YOUR_API_KEY'
 AZURE_REGION = 'eastasia'
-AZURE_VOICE = 'zh-CN-XiaoxiaoMultilingualNeural'
+AZURE_VOICE = "zh-CN-YunyiMultilingualNeural" # 推荐女声 'zh-CN-XiaoxiaoMultilingualNeural' 男声 "zh-CN-YunyiMultilingualNeural"
 
 # SoVITS角色配置
 DUBBING_CHARACTER = 'Huanyuv2'
 # SoVits的参考音频模式
 REFER_MODE = 3
 
-# *音频的速度范围 建议1~1.35避免感觉奇怪
+# *音频的速度范围
 MIN_SPEED_FACTOR = 1
 MAX_SPEED_FACTOR = 1.35
 NORMAL_SPEED_FACTOR = 1.2 # 认为的正常语速
 
-# *生成配音任务时合并音频配置
-MIN_SUBTITLE_DURATION = 4
+# *生成配音任务时合并音频配置，建议略大于下面的数
+MIN_SUBTITLE_DURATION = 3
 # * 翻译后裁切仅仅对时长大于X的进行
 MIN_TRIM_DURATION = 2
 

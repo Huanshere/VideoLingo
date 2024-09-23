@@ -112,7 +112,7 @@ def page_setting():
                 changes["AZURE_VOICE"] = azure_voice
         elif selected_tts_method == "gpt_sovits":
             st.info("配置GPT_SoVITS，参考[安装指南](https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md)")
-            st.warning("注意：当前适配只支持输出为中文，输入参考为英文。对于嘈杂音频效果不佳，且偶尔会发生吞字现象。如使用参考视频语音的模式，建议选用和视频原声音色相近的底模")
+            st.warning("注意：当前适配只支持输出为中文，输入参考为英文。对于嘈杂音频效果不佳，且偶尔会发生漏句漏字现象。如使用参考视频语音的模式，建议选用和视频原声音色相近的底模")
             sovits_character = st.text_input(gls("sovits_character"), value=config.DUBBING_CHARACTER, help="需在 GPT-SoVITS 的 config 目录下配置有 `xxx.yaml` 文件")
             if sovits_character != config.DUBBING_CHARACTER:
                 changes["DUBBING_CHARACTER"] = sovits_character
