@@ -111,7 +111,9 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 （推荐） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
 | Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M | 😲 |
-> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用
+> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用；
+
+> 提醒：Qwen2.5在翻译过程有极低的概率错误，若出错请更换sonnet...
 
 #### 常见问题
 
