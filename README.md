@@ -238,7 +238,7 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
 3. 配置虚拟环境（必须 3.10.0）：
    ```bash
-   conda create -n videolingo python=3.10.0
+   conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
    ```
 

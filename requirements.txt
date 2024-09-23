@@ -1,4 +1,3 @@
-icecream
 requests
 pandas
 jupyter
