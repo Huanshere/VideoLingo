@@ -214,12 +214,12 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
 | 依赖 | whisperX 🖥️ | whisperX ☁️ |
 |:-----|:-------------------|:----------------|
-| Miniconda 🐍 | [下载](https://docs.conda.io/en/latest/miniconda.html) | [下载](https://docs.conda.io/en/latest/miniconda.html) |
+| Anaconda 🐍 | [下载](https://www.anaconda.com/products/distribution#download-section) | [下载](https://www.anaconda.com/products/distribution#download-section) |
 | Git 🌿 | [下载](https://git-scm.com/download/win) | [下载](https://git-scm.com/download/win) |
 | Cuda Toolkit 12.6 🚀 | [下载](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
 | Cudnn 9.3.0 🧠 | [下载](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
 
-> 注意：安装 Miniconda 时勾选 `添加到系统Path`，安装完成后重启计算机 🔄
+> 注意：安装 Anaconda 时勾选 `添加到系统Path`，安装完 Cuda 和 Cudnn 后需要重启计算机 🔄
 
 ### 安装步骤
 
