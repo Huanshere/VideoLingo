@@ -7,9 +7,9 @@ from core.step2_whisper import get_whisper_language
 from config import SPACY_MODEL_MAP
 
 def get_spacy_model(language: str):
-    model = SPACY_MODEL_MAP.get(language.lower(), "en_core_web_sm")
+    model = SPACY_MODEL_MAP.get(language.lower(), "en_core_web_md")
     if language not in SPACY_MODEL_MAP:
-        print(f"[yellow]Spacy model does not support '{language}', using en_core_web_sm model as fallback...[/yellow]")
+        print(f"[yellow]Spacy model does not support '{language}', using en_core_web_md model as fallback...[/yellow]")
     return model
 
 def init_nlp():
