@@ -127,7 +127,7 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 
 1. 点击上面 推荐提供商 的链接
 2. 注册账户并充值
-3. 在 api key 页面新建一个即可
+3. 在 api key 页面新建一个即可（云雾api要注意选择模型，渠道建议选 纯AZ 1.5倍）
 </details>
 
 <details>
