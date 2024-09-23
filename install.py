@@ -141,7 +141,7 @@ def main():
     table.add_row("2", "whisperXapi ☁️")
     console.print(table)
 
-    console.print("If you're unsure about the differences between models, please see https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md")
+    console.print("If you're unsure about the differences between models, please see https://github.com/Huanshere/VideoLingo/")
     choice = console.input("Please enter the option number (1 or 2): ")
 
     # Install PyTorch and WhisperX
