@@ -174,6 +174,8 @@ def main():
         else:
             console.print("Invalid choice. Defaulting to CPU version.")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+    else:
+        raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
     # Install other dependencies
     install_requirements()
 
