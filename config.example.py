@@ -36,6 +36,9 @@ MAX_WORKERS = 6
 # *第一次粗切最大单词数量，18以下会切太碎影响翻译，22 以上太长会导致后续为字幕切分难以对齐
 MAX_SPLIT_LENGTH = 20
 
+# *是否在提取专业名词后，翻译之前暂停，给用户手动调整术语表 output\log\terminology.json
+PAUSE_BEFORE_TRANSLATE = False
+
 ## ======================== 配音设置 ======================== ##
 # tts 选择 [openai, gpt_sovits, edge_tts, azure_tts]
 TTS_METHOD = 'azure_tts'
