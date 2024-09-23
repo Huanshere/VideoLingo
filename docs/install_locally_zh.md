@@ -60,7 +60,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | 🗣️ GPT-SoVITS (beta) | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要显卡训练模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😱 | 🚫 |
 
 对于OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)。
-Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在 VideoLingo运行网页 的侧边栏进行配置。
+Edge TTS 免配置，Azure TTS 可在QQ群获取免费 key或自行注册。后续在 VideoLingo运行网页 的侧边栏进行配置。
 
 <details>
 <summary>GPT-SoVITS 的使用教程（仅支持 v2 新版本）</summary>
@@ -102,7 +102,7 @@ Edge TTS 免配置，Azure TTS 请自行前往官网注册获取 key。后续在
            └── [你的SoVITS模型文件]
    ```
         
-配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。</details>
+配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。注意，此方法仍然不够稳定，容易出现漏字漏句，请谨慎使用。</details>
 
 
 ## 🚀 一键整合包

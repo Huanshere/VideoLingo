@@ -8,8 +8,8 @@ This project requires the use of large language models, WhisperX, and TTS. Multi
 
 | Model | Recommended Provider | base_url | Price | Effect |
 |:------|:---------------------|:---------|:------|:-------|
-| claude-3-5-sonnet-20240620 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $2.14 / 1M | 🤩 |
-| Qwen/Qwen2.5-72B-Instruct | [Silicon Flow](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | $0.57 / 1M | 😲 |
+| claude-3-5-sonnet-20240620 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M | 🤩 |
+| Qwen/Qwen2.5-72B-Instruct | [Silicon Flow](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ¥4 / 1M | 😲 |
 > Note: Yunwu API also supports OpenAI's tts-1 interface, which can be used in the dubbing step
 
 #### Common Questions
@@ -17,7 +17,7 @@ This project requires the use of large language models, WhisperX, and TTS. Multi
 <details>
 <summary>How to choose a model?</summary>
 
-- 🚀 By default, Qwen2.5 is used, costing about $0.43 for 1h video translation.
+- 🚀 By default, Qwen2.5 is used, costing about ¥3 for 1h video translation.
 - 🌟 Claude 3.5 has better results, with excellent translation coherence and no AI flavor, but it's more expensive.
 </details>
 
@@ -60,7 +60,7 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🗣️ GPT-SoVITS (beta) | Local, cloning, unbeatable in Chinese | Currently only supports English input Chinese output, requires GPU for model training, best for single-person videos without obvious BGM, and the base model should be close to the original voice | 😱 | 🚫 |
 
 For OpenAI TTS, [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) is recommended.
-Edge TTS requires no configuration, for Azure TTS please register on the official website to get the key. Configure these in the sidebar of the VideoLingo running webpage later.
+Edge TTS requires no configuration, Azure TTS can be obtained free key from QQ group or register yourself. Configure these in the sidebar of the VideoLingo running webpage later.
 
 <details>
 <summary>GPT-SoVITS Usage Tutorial (only supports v2 new version)</summary>
@@ -72,9 +72,9 @@ Edge TTS requires no configuration, for Azure TTS please register on the officia
 3. Choose one of the following methods to configure the model:
 
    a. Using a self-trained model:
-   - After training your model, `tts_infer.yaml` under `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` will automatically be filled with your model address. Copy it and rename it to `CharacterName.yaml`
-   - In the same directory as the `yaml` file, place the reference audio to be used later, named `CharacterName_ContentofAudio.wav` or `.mp3`, for example `Huanyuv2_Hello, this is a test audio.wav`
-   - In the sidebar of the VideoLingo webpage, set `GPT-SoVITS Character` to `CharacterName`.
+   - After training your model, `tts_infer.yaml` under `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` will automatically be filled with your model address. Copy it and rename it to `YourFavoriteCharacterName.yaml`
+   - In the same directory as the `yaml` file, place the reference audio to be used later, named `YourFavoriteCharacterName_ContentofAudio.wav` or `.mp3`, for example `Huanyuv2_Hello, this is a test audio.wav`
+   - In the sidebar of the VideoLingo webpage, set `GPT-SoVITS Character` to `YourFavoriteCharacterName`.
 
    b. Using a pre-trained model:
    - Download my model from [here](https://vip.123pan.cn/1817874751/8137723), extract and overwrite to `GPT-SoVITS-v2-xxx`.
@@ -83,7 +83,7 @@ Edge TTS requires no configuration, for Azure TTS please register on the officia
    c. Using other trained models:
    - Place the model files in `GPT_weights_v2` and `SoVITS_weights_v2` respectively.
    - Refer to method a, rename and modify the paths in `tts_infer.yaml` to point to your two models.
-   - Refer to method a, place the reference audio to be used later in the same directory as the `yaml` file, named `CharacterName_ContentofAudio.wav` or `.mp3`
+   - Refer to method a, place the reference audio to be used later in the same directory as the `yaml` file, named `YourFavoriteCharacterName_ContentofAudio.wav` or `.mp3`
 
    ```
    # Directory structure example
@@ -94,19 +94,31 @@ Edge TTS requires no configuration, for Azure TTS please register on the officia
        ├── GPT_SoVITS
        │   └── configs
        │       ├── tts_infer.yaml
-       │       ├── CharacterName.yaml
-       │       └── CharacterName_ContentofAudio.wav
+       │       ├── YourFavoriteCharacterName.yaml
+       │       └── YourFavoriteCharacterName_ContentofAudio.wav
        ├── GPT_weights_v2
        │   └── [Your GPT model file]
        └── SoVITS_weights_v2
            └── [Your SoVITS model file]
    ```
         
-After configuration, VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line during the dubbing step. You can manually close it after dubbing is complete.</details>
+After configuration, VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line during the dubbing step. You can manually close it after dubbing is complete. Note that this method is still not stable enough and is prone to missing words and sentences, please use with caution.</details>
 
 
-## 🚀 whisperX ☁️ Integrated Package
-> Note: Due to technical reasons, the integrated package cannot use edge-tts for dubbing. The CPU version of torch is slow when using UVR5 denoising in the dubbing step. If you need to use the GPU version of torch, please install from source code.
+## 🚀 One-Click Integrated Package
+
+### Notes:
+
+1. The integrated package uses the CPU version of torch, about **2.5G** in size.
+2. When using UVR5 denoising in the dubbing step, the CPU version will be significantly slower than GPU-accelerated torch.
+3. The integrated package **only supports calling whisperX ☁️ via API**, and does not support running whisperX 💻 locally.
+4. Due to technical reasons, the integrated package **cannot use edge-tts for dubbing**, but all other functions are complete.
+
+If you need the following features, please install from source code (requires Nvidia GPU and at least **20G** disk space):
+- Run whisperX 💻 locally
+- Use GPU-accelerated UVR5 denoising
+
+### Usage Instructions
 
 1. Download the `v1.0.0` one-click package (750M): [CPU Version Download](https://vip.123pan.cn/1817874751/8117948) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 

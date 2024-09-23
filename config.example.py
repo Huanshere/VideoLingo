@@ -53,7 +53,7 @@ EDGE_VOICE = 'zh-CN-XiaoxiaoNeural'
 # 在线体验voice：https://speech.microsoft.com/portal/voicegallery
 AZURE_KEY = 'YOUR_API_KEY'
 AZURE_REGION = 'eastasia'
-AZURE_VOICE = "zh-CN-YunyiMultilingualNeural" # 推荐女声 'zh-CN-XiaoxiaoMultilingualNeural' 男声 "zh-CN-YunyiMultilingualNeural"
+AZURE_VOICE = 'zh-CN-XiaoxiaoMultilingualNeural' # 推荐女声 'zh-CN-XiaoxiaoMultilingualNeural' 男声 "zh-CN-YunyiMultilingualNeural"
 
 # SoVITS角色配置
 DUBBING_CHARACTER = 'Huanyuv2'
