@@ -61,7 +61,7 @@ def generate_audio(text, target_duration, save_as, number, task_df):
         final_duration = check_wav_duration(save_as)
         rprint(f"⚠️ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED_FACTOR}")
     else:  # speed_factor > MAX_SPEED_FACTOR
-        rprint(f"⚠️ {number} Speed factor out of range: {speed_factor:.2f}, attempting to simplify subtitle...")
+        rprint(f"🚨 {number} Speed factor out of range: {speed_factor:.2f}, attempting to simplify subtitle...")
         
         original_text = text
         prompt = get_subtitle_trim_prompt(text, target_duration)

@@ -81,8 +81,9 @@ def translate_all():
     subtitle_output_configs = [('trans_subs_for_audio.srt', ['Translation'])]
     df_time = align_timestamp(df_text, df_translate, subtitle_output_configs, output_dir=None, for_display=False)
     print(df_time)
-    # apply check_len_then_trim to df_time['Translation']
-    df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']), axis=1)
+    # apply check_len_then_trim to df_time['Translation'], only when duration > MIN_TRIM_DURATION.
+    from config import MIN_TRIM_DURATION
+    df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']) if x['duration'] > MIN_TRIM_DURATION else x['Translation'], axis=1)
     print(df_time)
     
     df_translate.to_excel("output/log/translation_results_before_trim.xlsx", index=False)
