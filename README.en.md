@@ -70,7 +70,7 @@ Translation languages support all languages that the large language model can ha
 
 ### One-Click Package Installation
 
-1. Download the `v1.0.0` one-click package (750M): [CPU Version Download](https://vip.123pan.cn/1817874751/8117948) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v1.1.0` one-click package (750M): [CPU Version Download](https://vip.123pan.cn/1817874751/8147218) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. After extracting, double-click `OneKeyStart.bat` in the folder
 
