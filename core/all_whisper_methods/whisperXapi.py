@@ -108,8 +108,6 @@ import time
 def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     print(f"🎙️ Transcribing segment from {start:.2f}s to {end:.2f}s")
     
-    #! Occasionally, the process may pause here. Adding a short delay to ensure stability.
-    time.sleep(1)
     segment_file = f'output/audio/segment_{start:.2f}_{end:.2f}.wav'
     ffmpeg_cmd = [
         'ffmpeg',
@@ -119,8 +117,21 @@ def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
         '-c', 'copy',
         segment_file
     ]
-    subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
+    
+    try:
+        # Run ffmpeg command with timeout
+        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, timeout=30)
+    except subprocess.TimeoutExpired:
+        print("⚠️ ffmpeg command timed out, retrying...")
+        # If timeout occurs, try with a different encoding method
+        ffmpeg_cmd[6] = 'pcm_s16le'
+        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
+    
+    # Short wait to ensure file is written
     time.sleep(1)
+
+    if not os.path.exists(segment_file):
+        raise FileNotFoundError(f"Failed to create segment file: {segment_file}")
 
     # Encode to base64
     with open(segment_file, 'rb') as file:
@@ -130,9 +141,10 @@ def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     segment_size = len(audio_base64) / (1024 * 1024)  # Size in MB
     print(f"📊 Segment size: {segment_size:.2f} MB")
 
+    print("🚀 Starting WhisperX API...")
     result = transcribe_audio(audio_base64)
     
-    # delete the segment file
+    # Delete segment file
     os.remove(segment_file)
     
     return result
