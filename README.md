@@ -22,15 +22,15 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 - 🎙️ 使用 WhisperX 进行单词级时间轴字幕识别
 
-- 📝 使用 NLP 和 GPT 根据句意进行字幕分割
+- **📝 使用 NLP 和 GPT 根据句意进行字幕分割**
 
-- 📚 GPT 总结智能术语知识库，上下文感知翻译
+- **📚 GPT 总结智能术语知识库，上下文感知翻译**
 
-- 🔄 三步直译、反思、意译，告别诡异机翻
+- **🔄 三步直译、反思、意译，告别诡异机翻**
 
-- ✅ 按照 Netflix 标准检查单行字幕长度与翻译质量
+- **✅ 按照 Netflix 标准检查单行字幕长度与翻译质量**
 
-- 🗣️ 使用 GPT-SoVITS 进行高质量的对齐配音
+- 🗣️ 使用 GPT-SoVITS 等方法进行高质量的对齐配音
 
 - 🚀 整合包一键启动，在 streamlit 中一键出片
 
@@ -105,9 +105,9 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 本项目需使用大语言模型、WhisperX 和 TTS ，每个环节都提供了多种选择，**请仔细阅读配置指南😊**
 ### 1. **获取大模型的 API_KEY**：
 
-| 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
+| 模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
+| claude-3-5-sonnet-20240620 （推荐） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
 | Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M | 😲 |
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用
 
@@ -116,8 +116,8 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 <details>
 <summary>如何选择模型？</summary>
 
-- 🚀 默认使用Qwen2.5, 1h 视频翻译花费约 ￥3。
-- 🌟 Claude 3.5 效果更好，翻译的连贯性非常好，且没有 ai 味，但价格更贵。
+- 🚀 使用Qwen2.5, 1h 视频翻译花费约 ￥3。
+- 🌟 默认使用 Claude 3.5 效果无敌，翻译的连贯性非常好，且没有 ai 味，但价格更贵。
 </details>
 
 <details>
@@ -132,7 +132,7 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 <summary>能用别的模型吗？</summary>
 
 - ✅ 支持 OAI-Like 的 API 接口，需要自行在 streamlit 侧边栏更换。
-- ⚠️ 但其余模型遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐。
+- ⚠️ 但其他模型（尤其是小模型）遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐。
 </details>
 
 ### 2. **准备 Replicate 的 Token** （仅当使用 replicate 的 whisperX ☁️ 时）
@@ -154,9 +154,9 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | 质量高情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🎤 Edge TTS | 免费 | 烂大街 | 😊 | 😊 |
+| 🎤 Edge TTS | 免费 | 烂大街，不推荐... | 😊 | 😊 |
 | 🔊 Azure TTS (推荐) | 中文效果自然 | 充值不方便 | 🤩 | 😃 |
-| 🗣️ GPT-SoVITS (beta) | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要显卡训练模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😱 | 🚫 |
+| 🗣️ GPT-SoVITS (beta) | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😱 | 🚫 |
 
 对于OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)。
 Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册充值。后续在 VideoLingo运行网页 的侧边栏进行配置。
@@ -256,7 +256,7 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
    ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
 
-本项目采用结构化模块开发，可按顺序逐个运行 `core\step__.py`，技术文档: [中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（待更新）
+<!-- 本项目采用结构化模块开发，可按顺序逐个运行 `core\step__.py`，技术文档: [中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（待更新） -->
 
 ## 📄 许可证
 
