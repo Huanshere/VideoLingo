@@ -138,7 +138,7 @@ def main():
     table.add_column("Model", style="magenta")
     table.add_column("Description", style="green")
     table.add_row("1", "whisperX 💻")
-    table.add_row("2", "whisperX ☁️")
+    table.add_row("2", "whisperXapi ☁️")
     console.print(table)
 
     console.print("If you're unsure about the differences between models, please see https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md")
