@@ -111,7 +111,9 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 （推荐） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M | 🤩 |
 | Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M | 😲 |
-> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用
+> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用；
+
+> 提醒：Qwen2.5在翻译过程有极低的概率错误，若出错请更换sonnet...
 
 #### 常见问题
 
@@ -214,12 +216,12 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
 | 依赖 | whisperX 🖥️ | whisperX ☁️ |
 |:-----|:-------------------|:----------------|
-| Miniconda 🐍 | [下载](https://docs.conda.io/en/latest/miniconda.html) | [下载](https://docs.conda.io/en/latest/miniconda.html) |
+| Anaconda 🐍 | [下载](https://www.anaconda.com/products/distribution#download-section) | [下载](https://www.anaconda.com/products/distribution#download-section) |
 | Git 🌿 | [下载](https://git-scm.com/download/win) | [下载](https://git-scm.com/download/win) |
 | Cuda Toolkit 12.6 🚀 | [下载](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
 | Cudnn 9.3.0 🧠 | [下载](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
 
-> 注意：安装 Miniconda 时勾选 `添加到系统Path`，安装完成后重启计算机 🔄
+> 注意：安装 Anaconda 时勾选 `添加到系统Path`，安装完 Cuda 和 Cudnn 后需要重启计算机 🔄
 
 ### 安装步骤
 
@@ -238,7 +240,7 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
 3. 配置虚拟环境（必须 3.10.0）：
    ```bash
-   conda create -n videolingo python=3.10.0
+   conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
    ```
 
