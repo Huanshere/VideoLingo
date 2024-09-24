@@ -186,9 +186,9 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 3. 选择以下任一方式配置模型：
 
    a. 自训练模型：
-   - 训练好模型后， `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 已自动填写好你的模型地址，将其复制并重命名为 `你喜欢的角色名.yaml`
-   - 在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`
-   - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的角色名`。
+   - 训练好模型后， `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 已自动填写好你的模型地址，将其复制并重命名为 `你喜欢的英文角色名.yaml`
+   - 在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`
+   - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的英文角色名`。
 
    b. 使用预训练模型：
    - 从 [这里](https://vip.123pan.cn/1817874751/8137723) 下载我的模型，解压后覆盖到 `GPT-SoVITS-v2-xxx`。
@@ -204,7 +204,8 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
       version: v2
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
       ```
-   - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
+   - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
+   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。
 
 
    ```
@@ -216,8 +217,8 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
        ├── GPT_SoVITS
        │   └── configs
        │       ├── tts_infer.yaml
-       │       ├── 你喜欢的角色名.yaml
-       │       └── 你喜欢的角色名_参考音频的文字内容.wav
+       │       ├── 你喜欢的英文角色名.yaml
+       │       └── 你喜欢的英文角色名_参考音频的文字内容.wav
        ├── GPT_weights_v2
        │   └── [你的GPT模型文件]
        └── SoVITS_weights_v2
