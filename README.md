@@ -38,24 +38,34 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 <table>
 <tr>
-<th width="25%">视频类型</th>
-<th width="25%">视频链接</th>
-</tr>
-<tr>
-<td width="25%">俄语翻译</td>
-<td width="25%"><a href="https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7">https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7</a></td>
-</tr>
-<tr>
-<td width="25%">GPT-SoVITS</td>
-<td width="25%"><a href="https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c">https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c</a></td>
-</tr>
-<tr>
-<td width="25%">Azure TTS</td>
-<td width="25%"><a href="https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8">https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8</a></td>
-</tr>
-<tr>
-<td width="25%">Fish TTS 丁真</td>
-<td width="25%"><a href="https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d">https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d</a></td>
+<td width="25%">
+
+### 俄语翻译
+---
+https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
+
+</td>
+<td width="25%">
+
+### GPT-SoVITS
+---
+https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
+
+</td>
+<td width="25%">
+
+### Azure TTS
+---
+https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
+
+</td>
+<td width="25%">
+
+### Fish TTS 丁真
+---
+https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
+
+</td>
 </tr>
 </table>
 
