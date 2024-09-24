@@ -20,11 +20,24 @@ def download_video_section():
                 st.rerun()
             return True
         except:
-            url = st.text_input(get_localized_string("enter_youtube_link"))
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                url = st.text_input(get_localized_string("enter_youtube_link"))
+            with col2:
+                resolution_dict = {
+                    "360p": "360",
+                    "1080p": "1080",
+                    "最佳质量": "best"
+                }
+                from config import YTB_RESOLUTION
+                resolution_options = list(resolution_dict.keys())
+                default_index = list(resolution_dict.values()).index(YTB_RESOLUTION) if YTB_RESOLUTION in resolution_dict.values() else 0
+                resolution_display = st.selectbox("分辨率", options=resolution_options, index=default_index)
+                resolution = resolution_dict[resolution_display]
             if st.button(get_localized_string("download_video"), key="download_button", use_container_width=True):
                 if url:
                     with st.spinner(get_localized_string("downloading_video")):
-                        download_video_ytdlp(url)
+                        download_video_ytdlp(url, resolution=resolution)
                     st.rerun()
             from config import ALLOWED_VIDEO_FORMATS
             uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=ALLOWED_VIDEO_FORMATS)

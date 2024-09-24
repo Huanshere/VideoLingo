@@ -12,15 +12,21 @@ def sanitize_filename(filename):
     # Use default name if filename is empty
     return filename if filename else 'video'
 
-def download_video_ytdlp(url, save_path='output', resolution=1080):
-    allowed_resolutions = [360, 1080]
+def download_video_ytdlp(url, save_path='output', resolution='1080'):
+    allowed_resolutions = ['360', '1080', 'best']
     if resolution not in allowed_resolutions:
-        resolution = 1080
+        resolution = '1080'
     
     os.makedirs(save_path, exist_ok=True)
     ydl_opts = {
-        'format': f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]',
-        'outtmpl': f'{save_path}/%(title)s.%(ext)s'
+        'format': 'bestvideo+bestaudio/best' if resolution == 'best' else f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]',
+        'outtmpl': f'{save_path}/%(title)s.%(ext)s',
+        'noplaylist': True,
+        'writethumbnail': True,
+        'postprocessors': [{
+            'key': 'FFmpegThumbnailsConvertor',
+            'format': 'jpg',
+        }],
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])

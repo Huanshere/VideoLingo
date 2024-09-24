@@ -24,6 +24,9 @@ RESOLUTION = '640x360'
 DISPLAY_LANGUAGE = 'zh_CN'
 
 ## ======================== 进阶设置设置 ======================== ##
+# *下载youtube默认分辨率 [360, 1080, best]
+YTB_RESOLUTION = '1080'
+
 # Whisper 设置 [whisperx, whisperxapi]
 WHISPER_METHOD = 'whisperxapi'
 

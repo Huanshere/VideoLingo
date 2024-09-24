@@ -196,7 +196,7 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
    c. 使用其他训练好的模型：
    - 将模型文件分别放在 `GPT_weights_v2` 和 `SoVITS_weights_v2` 下。
-   - 参考方法 a，重命名并修改 `tts_infer.yaml` 中的 `custom` 下的两个模型路径指向你的两个模型。
+   - 参考方法 a，重命名并修改 `tts_infer.yaml` 中的 `custom` 下的 t2s 和 vits 路径指向你的两个模型。
    - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`
 
    ```
