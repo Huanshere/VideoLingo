@@ -89,7 +89,12 @@ def generate_audio(text, target_duration, save_as, number, task_df):
             change_audio_speed(temp_filename, save_as, MIN_SPEED_FACTOR)
             final_duration = check_wav_duration(save_as)
             rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED_FACTOR}")
-
+    
+    #! check duration for safety
+    if final_duration > target_duration:
+        rprint(f"❎ {number} Final duration is longer than target duration: {final_duration:.2f}s | Required: {target_duration:.2f}s. This is a bug, please report it.")
+        raise Exception()
+    
     if os.path.exists(temp_filename):
         os.remove(temp_filename)
 
