@@ -85,7 +85,7 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 
 1. 整合包使用的是 CPU 版本的 torch，大小约 **2.5G**。
 2. 在配音步骤使用 UVR5 降噪时，CPU 版本会显著慢于 GPU 加速的 torch。
-3. 整合包**仅支持通过 API 调用 whisperX ☁️**，不支持本地运行 whisperX 💻。
+3. 整合包**仅支持通过 API 调用 whisperXapi ☁️**，不支持本地运行 whisperX 💻。
 4. 由于技术原因，整合包**无法在配音时使用 edge-tts**，除此之外功能完整。
 
 如果需要以下功能，请从源码安装（需要Nvidia显卡以及至少 **20G** 硬盘空间）：
@@ -140,7 +140,7 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 - ⚠️ 但其他模型（尤其是小模型）遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐。
 </details>
 
-### 2. **准备 Replicate 的 Token** （仅当使用 replicate 的 whisperX ☁️ 时）
+### 2. **准备 Replicate 的 Token** （仅当选用 whisperXapi ☁️ 时）
 
 VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api。
 #### 方案对比：
