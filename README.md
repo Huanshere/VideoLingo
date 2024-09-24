@@ -93,7 +93,7 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 
 ### 下载和使用说明
 
-1. 下载 `v1.1.0` 一键整合包(750M): [CPU版下载](https://vip.123pan.cn/1817874751/8147218) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v1.2.0` 一键整合包(750M): [直接下载](https://vip.123pan.cn/1817874751/8158115) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
