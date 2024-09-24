@@ -41,22 +41,22 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 <td width="33%">
 
 ### 俄语翻译
-
+---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
 <td width="33%">
 
 ### GPT-SoVITS
-
+---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 </td>
 <td width="33%">
 
-### Azure TTS
-
-https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
+### Fish TTS 丁真
+---
+https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 
 </td>
 </tr>
@@ -86,7 +86,6 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 1. 整合包使用的是 CPU 版本的 torch，大小约 **2.5G**。
 2. 在配音步骤使用 UVR5 降噪时，CPU 版本会显著慢于 GPU 加速的 torch。
 3. 整合包**仅支持通过 API 调用 whisperXapi ☁️**，不支持本地运行 whisperX 💻。
-4. 由于技术原因，整合包**无法在配音时使用 edge-tts**，除此之外功能完整。
 
 如果需要以下功能，请从源码安装（需要Nvidia显卡以及至少 **20G** 硬盘空间）：
 - 本地运行 whisperX 💻
@@ -94,7 +93,7 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 
 ### 下载和使用说明
 
-1. 下载 `v1.1.0` 一键整合包(750M): [CPU版下载](https://vip.123pan.cn/1817874751/8147218) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v1.2.0` 一键整合包(750M): [直接下载](https://vip.123pan.cn/1817874751/8158115) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
@@ -158,21 +157,26 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 | TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ OpenAI TTS | 质量高情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🎤 Edge TTS | 免费 | 烂大街，不推荐... | 😊 | 😊 |
-| 🔊 Azure TTS (推荐) | 中文效果自然 | 充值不方便 | 🤩 | 😃 |
-| 🗣️ GPT-SoVITS (beta) | 本地，克隆，中文无敌 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😱 | 🚫 |
+| 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
+| 🔊 Azure TTS  | 效果自然 | 充值不方便 | 🤩 | 😃 |
+| 🎤 Fish TTS (推荐) | 绝 | 需充值 | 😱 | 😱 |
+| 🗣️ GPT-SoVITS (beta) | 本地运行语音克隆 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😂 | 🚫 |
 
-对于OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)。
-Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册充值。后续在 VideoLingo运行网页 的侧边栏进行配置。
+- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)；
+- **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
+- **Fish TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册充值
 
 <details>
-<summary>Azure 声音列表及 API 申请</summary>
+<summary>Azure 声音怎么选？</summary>
 
-- API文档及申请：[Azure TTS 快速入门](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python)
-- 声音列表在线体验：[Azure 语音库](https://speech.microsoft.com/portal/voicegallery)
+建议在 [在线体验](https://speech.microsoft.com/portal/voicegallery) 中试听选择你想要的声音，在右边的代码中可以找到该声音对应的代号，例如 `zh-CN-XiaoxiaoMultilingualNeural`
 
-建议在 `在线体验` 中试听选择你想要的声音，在右边的代码中可以找到该声音对应的代号，例如 `zh-CN-XiaoxiaoMultilingualNeural`
+</details>
+
+<details>
+<summary>Fish TTS 声音怎么选？</summary>
+
+前往 [官网](https://fish.audio/zh-CN/) 中试听选择你想要的声音，在 URL 中可以找到该声音对应的代号，例如丁真是 `54a5170264694bfc8e9ad98df7bd89c3`，热门的几种声音已添加在 `config.py` 中，直接修改 `FISH_TTS_CHARACTER` 即可。如需使用其他声音，请在 `config.py` 中修改 `FISH_TTS_CHARACTER_ID_DICT` 字典。
 
 </details>
 
@@ -186,18 +190,27 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 3. 选择以下任一方式配置模型：
 
    a. 自训练模型：
-   - 训练好模型后， `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 已自动填写好你的模型地址，将其复制并重命名为 `你喜欢的角色名.yaml`
-   - 在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`
-   - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的角色名`。
+   - 训练好模型后， `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 已自动填写好你的模型地址，将其复制并重命名为 `你喜欢的英文角色名.yaml`
+   - 在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`
+   - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的英文角色名`。
 
    b. 使用预训练模型：
    - 从 [这里](https://vip.123pan.cn/1817874751/8137723) 下载我的模型，解压后覆盖到 `GPT-SoVITS-v2-xxx`。
    - 在 `GPT-SoVITS 角色` 配置为 `Huanyuv2`。
 
    c. 使用其他训练好的模型：
-   - 将模型文件分别放在 `GPT_weights_v2` 和 `SoVITS_weights_v2` 下。
-   - 参考方法 a，重命名并修改 `tts_infer.yaml` 中的 `custom` 下的两个模型路径指向你的两个模型。
-   - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`
+   - 将 `xxx.ckpt` 模型文件放在 `GPT_weights_v2` 文件夹下，将 `xxx.pth` 模型文件放在 `SoVITS_weights_v2` 文件夹下。
+   - 参考方法 a，重命名 `tts_infer.yaml` 文件，并修改文件中的 `custom` 部分的 `t2s_weights_path` 和 `vits_weights_path` 指向你的模型，例如：
+  
+      ```yaml
+      # 示例 方法 b 的配置：
+      t2s_weights_path: GPT_weights_v2/Huanyu_v2-e10.ckpt
+      version: v2
+      vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
+      ```
+   - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
+   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。
+
 
    ```
    # 期望的目录结构：
@@ -208,8 +221,8 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
        ├── GPT_SoVITS
        │   └── configs
        │       ├── tts_infer.yaml
-       │       ├── 你喜欢的角色名.yaml
-       │       └── 你喜欢的角色名_参考音频的文字内容.wav
+       │       ├── 你喜欢的英文角色名.yaml
+       │       └── 你喜欢的英文角色名_参考音频的文字内容.wav
        ├── GPT_weights_v2
        │   └── [你的GPT模型文件]
        └── SoVITS_weights_v2
@@ -292,6 +305,11 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
 - 加入我们的 QQ 群：875297969
 - 在 GitHub 上提交 [Issues](https://github.com/Huanshere/VideoLingo/issues) 或 [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls)
+
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
 
 ---
 

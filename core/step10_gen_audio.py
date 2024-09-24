@@ -10,7 +10,7 @@ import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
-from core.all_tts_functions.edge_tts import edge_tts
+from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
 from core.prompts_storage import get_subtitle_trim_prompt
 from core.ask_gpt import ask_gpt
@@ -36,8 +36,8 @@ def tts_main(text, save_as, number, task_df):
     elif TTS_METHOD == 'gpt_sovits':
         #! 注意 gpt_sovits_tts 只支持输出中文，输入中文或英文
         gpt_sovits_tts_for_videolingo(text, save_as, number, task_df)
-    elif TTS_METHOD == 'edge_tts':
-        edge_tts(text, save_as)
+    elif TTS_METHOD == 'fish_tts':
+        fish_tts(text, save_as)
     elif TTS_METHOD == 'azure_tts':
         azure_tts(text, save_as)
 
