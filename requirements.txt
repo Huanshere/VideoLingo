@@ -15,7 +15,5 @@ streamlit
 # for whisperX api
 replicate
 
-# for edge tts
-edge-tts
 # for azure tts
 azure-cognitiveservices-speech

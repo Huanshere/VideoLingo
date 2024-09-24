@@ -73,7 +73,7 @@ def page_setting():
             changes["RESOLUTION"] = resolution
         
     with st.expander(gls("dubbing_settings"), expanded=True):
-        tts_methods = ["openai", "edge_tts", "azure_tts", "gpt_sovits"]
+        tts_methods = ["openai", "azure_tts", "gpt_sovits", "fish_tts"]
         selected_tts_method = st.selectbox(gls("tts_method"), options=tts_methods, index=tts_methods.index(config.TTS_METHOD))
         if selected_tts_method != config.TTS_METHOD:
             changes["TTS_METHOD"] = selected_tts_method
@@ -91,12 +91,14 @@ def page_setting():
             if oai_tts_api_base_url != config.OAI_TTS_API_BASE_URL:
                 changes["OAI_TTS_API_BASE_URL"] = oai_tts_api_base_url
 
-        elif selected_tts_method == "edge_tts":
-            if os.path.exists('runtime'):
-                st.error("注意：一键包使用 Edge TTS 会报错")
-            edge_voice = st.text_input(gls("edge_tts_voice"), value=config.EDGE_VOICE)
-            if edge_voice != config.EDGE_VOICE:
-                changes["EDGE_VOICE"] = edge_voice
+        elif selected_tts_method == "fish_tts":
+            fish_tts_api_key = st.text_input(gls("fish_tts_api_key"), value=config.FISH_TTS_API_KEY)
+            if fish_tts_api_key != config.FISH_TTS_API_KEY:
+                changes["FISH_TTS_API_KEY"] = fish_tts_api_key
+
+            fish_tts_character = st.selectbox(gls("fish_tts_character"), options=list(config.FISH_TTS_CHARACTER_ID_DICT.keys()), index=list(config.FISH_TTS_CHARACTER_ID_DICT.keys()).index(config.FISH_TTS_CHARACTER))
+            if fish_tts_character != config.FISH_TTS_CHARACTER:
+                changes["FISH_TTS_CHARACTER"] = fish_tts_character
 
         elif selected_tts_method == "azure_tts":
             azure_key = st.text_input(gls("azure_key"), value=config.AZURE_KEY)

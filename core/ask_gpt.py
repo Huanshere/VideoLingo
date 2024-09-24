@@ -110,4 +110,4 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
 
 # test
 if __name__ == '__main__':
-    print(ask_gpt('hi there hey response in json format, just simply say 你好.' , response_json=True))
+    print(ask_gpt('hi there hey response in json format, just return 200.' , response_json=True, log_title=None))
