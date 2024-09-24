@@ -172,7 +172,7 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 - API文档及申请：[Azure TTS 快速入门](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python)
 - 声音列表在线体验：[Azure 语音库](https://speech.microsoft.com/portal/voicegallery)
 
-建议在`在线体验声音`中试听你想要的声音，在右边的代码中可以找到该声音对应的代号，例如 `zh-CN-XiaoxiaoMultilingualNeural`
+建议在 `在线体验` 中试听选择你想要的声音，在右边的代码中可以找到该声音对应的代号，例如 `zh-CN-XiaoxiaoMultilingualNeural`
 
 </details>
 
@@ -235,8 +235,8 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
 
 ### 安装步骤
 
-
 支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
+
 1. 打开 Anaconda Powershell Prompt 并切换到桌面目录：
    ```bash
    cd desktop
