@@ -107,9 +107,9 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 本项目需使用大语言模型、WhisperX 和 TTS ，每个环节都提供了多种选择，**请仔细阅读配置指南😊**
 ### 1. **获取大模型的 API_KEY**：
 
-| 模型 | 推荐提供商 | base_url | 价格 | 效果 |
+| 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 （推荐） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens | 🤩 |
+| claude-3-5-sonnet-20240620 （默认） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens | 🤩 |
 | deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ￥2 / 1M tokens | 😲 |
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用；
 
@@ -118,10 +118,10 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 #### 常见问题
 
 <details>
-<summary>如何选择模型？</summary>
+<summary>选择哪一个模型好？</summary>
 
-- 🚀 使用deepseek, 1h 视频翻译花费约 ￥2。
-- 🌟 默认使用 Claude 3.5 效果无敌，翻译的连贯性非常好，且没有 ai 味。
+- 🌟 默认使用 Claude 3.5 ，翻译质量极佳，翻译的连贯性非常好，没有 ai 味。
+- 🚀 若使用deepseek, 1h 视频翻译花费约 ￥1，效果一般。
 </details>
 
 <details>
