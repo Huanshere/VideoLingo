@@ -79,10 +79,10 @@ def generate_audio(text, target_duration, save_as, number, task_df):
             final_duration = check_wav_duration(save_as)
             rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor:.2f}")
         else:
-            rprint(f"⚠️ {number} Speed factor still out of range after simplification: {new_speed_factor:.2f}")
-            change_audio_speed(temp_filename, save_as, MAX_SPEED_FACTOR)
+            rprint(f"🚔 {number} Speed factor still out of range after simplification: {new_speed_factor:.2f}")
+            change_audio_speed(temp_filename, save_as, new_speed_factor)
             final_duration = check_wav_duration(save_as)
-            rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MAX_SPEED_FACTOR}")
+            rprint(f"🚔 {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor}")
 
     if os.path.exists(temp_filename):
         os.remove(temp_filename)
