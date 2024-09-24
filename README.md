@@ -111,7 +111,7 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 （默认） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens | 🤩 |
 | deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ￥2 / 1M tokens | 😲 |
-> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用；
+> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤选用。
 
 > 提醒：deepseek在翻译过程有极低的概率错误，若出错请更换sonnet...
 
@@ -130,7 +130,7 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 1. 点击上面 推荐提供商 的链接
 2. 注册账户并充值
 3. 在 api key 页面新建一个即可
-4. 云雾api要注意勾选 `无限额度` 模型处选择 `claude-3-5-sonnet-20240620` 模型，渠道建议选 `纯AZ 1.5倍`
+4. 云雾api要注意勾选 `无限额度` ，模型处选择 `claude-3-5-sonnet-20240620` 模型，渠道建议选 `纯AZ 1.5倍`
 </details>
 
 <details>
