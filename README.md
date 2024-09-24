@@ -38,28 +38,21 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 <table>
 <tr>
-<td width="25%">
+<td width="33%">
 
 ### 俄语翻译
 ---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
-<td width="25%">
+<td width="33%">
 
 ### GPT-SoVITS
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 </td>
-<td width="25%">
-
-### Azure TTS
----
-https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
-
-</td>
-<td width="25%">
+<td width="33%">
 
 ### Fish TTS 丁真
 ---
