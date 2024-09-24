@@ -49,7 +49,8 @@ def generate_audio(text, target_duration, save_as, number, task_df):
     tts_main(text, temp_filename, number, task_df)
 
     original_duration = check_wav_duration(temp_filename)
-    speed_factor = original_duration / target_duration
+    # -0.03 to avoid the duration is too close to the target_duration
+    speed_factor = original_duration / (target_duration-0.03)
 
     # Check speed factor and adjust audio speed
     if MIN_SPEED_FACTOR <= speed_factor <= MAX_SPEED_FACTOR:
@@ -72,7 +73,7 @@ def generate_audio(text, target_duration, save_as, number, task_df):
         
         tts_main(shortened_text, temp_filename, number, task_df)
         new_original_duration = check_wav_duration(temp_filename)
-        new_speed_factor = new_original_duration / target_duration
+        new_speed_factor = new_original_duration / (target_duration-0.03)
 
         if MIN_SPEED_FACTOR <= new_speed_factor <= MAX_SPEED_FACTOR:
             change_audio_speed(temp_filename, save_as, new_speed_factor)
