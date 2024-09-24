@@ -110,18 +110,18 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 | 模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 （推荐） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens | 🤩 |
-| Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M tokens | 😲 |
+| deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ￥2 / 1M tokens | 😲 |
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤使用；
 
-> 提醒：Qwen2.5在翻译过程有极低的概率错误，若出错请更换sonnet...
+> 提醒：deepseek在翻译过程有极低的概率错误，若出错请更换sonnet...
 
 #### 常见问题
 
 <details>
 <summary>如何选择模型？</summary>
 
-- 🚀 使用Qwen2.5, 1h 视频翻译花费约 ￥3。
-- 🌟 默认使用 Claude 3.5 效果无敌，翻译的连贯性非常好，且没有 ai 味，但价格更贵。
+- 🚀 使用deepseek, 1h 视频翻译花费约 ￥2。
+- 🌟 默认使用 Claude 3.5 效果无敌，翻译的连贯性非常好，且没有 ai 味。
 </details>
 
 <details>
@@ -147,7 +147,7 @@ VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api�
 | 方案 | 缺点 |
 |:-----|:-----|
 | **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 下载模型 📥<br>• 高显存 💾 |
-| **whisperX ☁️ (推荐)** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳 |
+| **whisperXapi ☁️ (推荐)** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳 |
 
 #### 获取令牌
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
