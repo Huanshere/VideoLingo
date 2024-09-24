@@ -167,11 +167,21 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册充值。后续在 VideoLingo运行网页 的侧边栏进行配置。
 
 <details>
-<summary>GPT-SoVITS 的使用教程（仅支持 v2 新版本）</summary>
+<summary>Azure 声音列表及 API 申请</summary>
+
+- API文档及申请：[Azure TTS 快速入门](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python)
+- 声音列表在线体验：[Azure 语音库](https://speech.microsoft.com/portal/voicegallery)
+
+建议在`在线体验声音`中试听你想要的声音，在右边的代码中可以找到该声音对应的代号，例如 `zh-CN-XiaoxiaoMultilingualNeural`
+
+</details>
+
+<details>
+<summary>GPT-SoVITS-v2 使用教程</summary>
 
 1. 前往 [官方的语雀文档](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) 查看配置要求并下载整合包。
 
-2. 将 `GPT-SoVITS-v2-xxx` 放置在与 `VideoLingo` 同级目录下。**注意是并列而不是包含。**
+2. 将 `GPT-SoVITS-v2-xxx` 与 `VideoLingo` 放在同一个目录下。**注意是两文件夹并列。**
 
 3. 选择以下任一方式配置模型：
 

@@ -85,7 +85,7 @@ MODEL_DIR = "./_model_cache"
 ALLOWED_VIDEO_FORMATS = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm']
 
 # 支持返回 JSON 格式的 LLM，不重要
-llm_support_json = []
+llm_support_json = ['deepseek-coder']
 
 # Spacy 模型
 SPACY_MODEL_MAP = {
