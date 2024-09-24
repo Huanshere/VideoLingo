@@ -195,9 +195,15 @@ Edge TTS 免配置，**Azure TTS 可在QQ群获取免费 key** 或自行注册�
    - 在 `GPT-SoVITS 角色` 配置为 `Huanyuv2`。
 
    c. 使用其他训练好的模型：
-   - 将模型文件分别放在 `GPT_weights_v2` 和 `SoVITS_weights_v2` 下。
-   - 参考方法 a，重命名并修改 `tts_infer.yaml` 中的 `custom` 下的 t2s 和 vits 路径指向你的两个模型。
-   - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`
+   - 将 `xxx.ckpt` 模型文件放在 `GPT_weights_v2` 文件夹下，将 `xxx.pth` 模型文件放在 `SoVITS_weights_v2` 文件夹下。
+   - 参考方法 a，重命名 `tts_infer.yaml` 文件，并修改文件中的 `custom` 部分的 `t2s_weights_path` 和 `vits_weights_path` ，例如：
+      ```yaml
+      # 示例 方法 b 的配置：
+      t2s_weights_path: GPT_weights_v2/Huanyu_v2-e10.ckpt
+      version: v2
+      vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
+      ```
+   - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
 
    ```
    # 期望的目录结构：
