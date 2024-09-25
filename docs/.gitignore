@@ -1,0 +1,21 @@
+.DS_Store
+.next/
+node_modules/
+*.log
+dist/
+.turbo/
+out/
+# Theme styles
+packages/nextra-theme-*/style.css
+
+# Stork related
+*/**/public/*.st
+*/**/public/*.toml
+
+.vercel
+.idea/
+.eslintcache
+.env
+
+tsup.config.bundled*
+tsconfig.tsbuildinfo
