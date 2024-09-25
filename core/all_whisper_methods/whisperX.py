@@ -21,11 +21,12 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     if device == "cuda":
         gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)  # convert to GB
         batch_size = 4 if gpu_mem <= 8 else 16
+        compute_type = "float16"  # Change to "int8" if GPU memory is still insufficient (may reduce accuracy)
         rprint(f"[cyan]GPU memory:[/cyan] {gpu_mem:.2f} GB, [cyan]Batch size:[/cyan] {batch_size}")
     else:
         batch_size = 4
+        compute_type = "int8"
     
-    compute_type = "float16"  # Change to "int8" if GPU memory is still insufficient (may reduce accuracy)
     rprint(f"[green]Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
     
     try:

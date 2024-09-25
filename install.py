@@ -137,8 +137,8 @@ def main():
     table.add_column("Option", style="cyan", no_wrap=True)
     table.add_column("Model", style="magenta")
     table.add_column("Description", style="green")
-    table.add_row("1", "whisperX 💻")
-    table.add_row("2", "whisperXapi ☁️")
+    table.add_row("1", "whisperX 💻", "local model (can also use online model api)")
+    table.add_row("2", "whisperXapi ☁️", "online model through api only")
     console.print(table)
 
     console.print("If you're unsure about the differences between models, please see https://github.com/Huanshere/VideoLingo/")
