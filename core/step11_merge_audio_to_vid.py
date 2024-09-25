@@ -75,16 +75,25 @@ def merge_video_audio():
     from config import RESOLUTION
     if RESOLUTION == '0x0':
         rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
-        subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
-                        '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_file],
-                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # 确定是否是macOS
+        macOS = os.name == 'posix' and os.uname().sysname == 'Darwin'
+
+        if macOS:
+            subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
+                            '-c:v', 'libx264', '-t', '0', '-y', output_file],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
+                            '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_file],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         rprint("[bold green]Placeholder video has been generated.[/bold green]")
         return
 
     # Merge video and audio
     from config import ORIGINAL_VOLUME
     volumn = ORIGINAL_VOLUME
-    cmd = ['ffmpeg', '-i', video_file, '-i', background_file, '-i', original_vocal, '-i', audio_file, '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={volumn}[a2];[3:a]volume=1[a3];[a1][a2][a3]amix=inputs=3:duration=first:dropout_transition=3[a]', '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', output_file]
+    cmd = ['ffmpeg', '-y', '-i', video_file, '-i', background_file, '-i', original_vocal, '-i', audio_file, '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={volumn}[a2];[3:a]volume=1[a3];[a1][a2][a3]amix=inputs=3:duration=first:dropout_transition=3[a]', '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', output_file]
 
     try:
         subprocess.run(cmd, check=True)
