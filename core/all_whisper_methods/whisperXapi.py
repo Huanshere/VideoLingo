@@ -16,6 +16,7 @@ def convert_video_to_audio(input_file: str) -> str:
     if not os.path.exists(f'{audio_file}.wav'):
         ffmpeg_cmd = [
             'ffmpeg',
+            '-y', # 默认覆盖已有文件
             '-i', input_file,
             '-vn',
             '-acodec', 'libmp3lame',
@@ -30,12 +31,13 @@ def convert_video_to_audio(input_file: str) -> str:
             audio_file_with_format = f'{audio_file}.wav'
 
         except subprocess.CalledProcessError as e:
-            print("❌ libmp3lame failed. Retrying with aac ......")
             print(f"Error output: {e.stderr.decode()}")
+            print("❌ libmp3lame failed. Retrying with aac ......")
 
             # 有时候会遇到ffmpeg不含libmp3lame解码器的错误，使用内置 flac无损编码 兜底进行音频转换的 fallback ffmpeg 命令
             ffmpeg_cmd = [
                 'ffmpeg',
+                '-y', # 默认覆盖已有文件
                 '-i', input_file,
                 '-vn',
                 '-acodec', 'flac',
@@ -74,6 +76,7 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
         
         ffmpeg_cmd = [
             'ffmpeg',
+            '-y',
             '-i', audio_file,
             '-ss', str(window_start),
             '-to', str(window_end),
@@ -111,6 +114,7 @@ def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     segment_file = f'output/audio/segment_{start:.2f}_{end:.2f}.wav'
     ffmpeg_cmd = [
         'ffmpeg',
+        '-y',
         '-i', audio_file,
         '-ss', str(start),
         '-to', str(end),
@@ -120,7 +124,7 @@ def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     
     try:
         # Run ffmpeg command with timeout
-        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, timeout=30)
+        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, timeout=300)
     except subprocess.TimeoutExpired:
         print("⚠️ ffmpeg command timed out, retrying...")
         # If timeout occurs, try with a different encoding method

@@ -30,7 +30,7 @@ def extract_audio(input_video, start_time, end_time, output_file):
     
     temp_audio = 'temp_audio.wav'
     with console.status("[bold green]Extracting audio..."):
-        subprocess.run(['ffmpeg', '-i', input_video, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', temp_audio], check=True)
+        subprocess.run(['ffmpeg', '-y', '-i', input_video, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', temp_audio], check=True)
     
     audio = AudioSegment.from_wav(temp_audio)
     extract = audio[start_ms:end_ms]
@@ -47,7 +47,7 @@ def uvr_audio_main(input_video):
     # step1 uvr5 降噪完整音频
     full_audio_path = os.path.join(output_dir, 'full_audio.wav')
     
-    subprocess.run(['ffmpeg', '-i', input_video, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', full_audio_path], check=True)
+    subprocess.run(['ffmpeg', '-y', '-i', input_video, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', full_audio_path], check=True)
     with console.status("[bold green]UVR5 processing full audio, Might take a while to save audio after 100% ..."):
         uvr5_for_videolingo(full_audio_path, output_dir)
     
@@ -91,6 +91,7 @@ def uvr_audio_main(input_video):
             
             ffmpeg_command = [
                 'ffmpeg',
+                '-y',
                 '-i', original_vocal_path,
                 '-ss', start_time,
                 '-to', end_time,

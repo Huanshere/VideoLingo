@@ -41,6 +41,9 @@ def merge_subtitles_to_video():
         print("Subtitle files not found in the 'output' directory.")
         exit(1)
 
+    # 确定是否是macOS
+    macOS = os.name == 'posix' and os.uname().sysname == 'Darwin'
+
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (
@@ -53,10 +56,14 @@ def merge_subtitles_to_video():
             f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
             f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=25,BorderStyle=4'"
         ),
-        '-preset', 'veryfast', 
         '-y',
         output_video
     ]
+
+    # 根据是否是macOS添加不同的参数, macOS的ffmpeg不包含preset
+    if not macOS:
+        ffmpeg_cmd.insert(-2, '-preset')
+        ffmpeg_cmd.insert(-2, 'veryfast')
 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
