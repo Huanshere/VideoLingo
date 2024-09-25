@@ -148,12 +148,13 @@ def main():
     if platform.system() == 'Darwin':  # macOS do not support Nvidia CUDA
         console.print(Panel("For MacOS, installing CPU version of PyTorch...", style="cyan"))
         subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-        print("Installing whisperX...")
-        current_dir = os.getcwd()
-        whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
-        os.chdir(whisperx_dir)
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
-        os.chdir(current_dir)
+        if choice == '1':
+            print("Installing whisperX...")
+            current_dir = os.getcwd()
+            whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
+            os.chdir(whisperx_dir)
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
+            os.chdir(current_dir)
     else:  # Linux/Windows
         if choice == '1':
             console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
