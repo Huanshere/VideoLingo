@@ -160,7 +160,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
 | 🔊 Azure TTS  | 效果自然 | 充值不方便 | 🤩 | 😃 |
 | 🎤 Fish TTS (推荐) | 绝 | 需充值 | 😱 | 😱 |
-| 🗣️ GPT-SoVITS (beta) | 本地运行语音克隆 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😂 | 🚫 |
+| 🗣️ GPT-SoVITS (测试) | 本地运行语音克隆 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😂 | 🚫 |
 
 - OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)；
 - **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
@@ -229,7 +229,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
            └── [你的SoVITS模型文件]
    ```
         
-配置完成后，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口。配音完成后可手动关闭。注意，此方法仍然不够稳定，容易出现漏字漏句，请谨慎使用。</details>
+配置完成后，注意在网页侧边栏选择 `参考音频模式`，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口，配音完成后可手动关闭。注意，此方法仍然不够稳定，容易出现漏字漏句或其他bug，请谨慎使用。</details>
 
 ## 🛠️ 源码安装流程
 
