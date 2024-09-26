@@ -1,11 +1,9 @@
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
 import { Github, Star, Youtube, CheckCircle, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { RainbowButton } from "@/components/magicui/rainbow-button";
+import { RainbowButton } from '@/components/magicui/rainbow-button'
 
 export default function Component() {
 	return (
@@ -24,10 +22,21 @@ export default function Component() {
 							</div>
 							<div className="space-x-4">
 								<Link href="https://github.com/your-username/VideoLingo" passHref>
-									<RainbowButton>
-										GitHub
-									</RainbowButton>
+									<RainbowButton>GitHub</RainbowButton>
 								</Link>
+							</div>
+							{/* 新增视频演示组件 */}
+							<div className="w-full max-w-5xl mt-8 mb-8">
+								<video
+									className="w-full rounded-lg shadow-lg"
+									controls
+								>
+									<source
+										src="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+										type="video/mp4"
+									/>
+									您的浏览器不支持视频标签。
+								</video>
 							</div>
 						</div>
 					</div>
@@ -123,100 +132,6 @@ export default function Component() {
 					</div>
 				</section>
 
-				<section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-					<div className="container mx-auto px-4 md:px-6">
-						<h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8">
-							简单定价，助力创作
-						</h2>
-						<div className="grid gap-6 lg:grid-cols-3">
-							<Card>
-								<CardHeader>
-									<CardTitle>即用即付</CardTitle>
-									<CardDescription>适合偶尔使用的用户</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<p className="text-4xl font-bold">
-										¥1<span className="text-sm font-normal">/分钟</span>
-									</p>
-									<ul className="mt-4 space-y-2">
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 按需付费
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 基础字幕翻译
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 标准配音选项
-										</li>
-									</ul>
-								</CardContent>
-								<CardFooter>
-									<Button className="w-full">选择方案</Button>
-								</CardFooter>
-							</Card>
-							<Card className="border-primary">
-								<CardHeader>
-									<CardTitle>专业版</CardTitle>
-									<CardDescription>适合经常创作的用户</CardDescription>
-									<Badge variant="secondary">推荐</Badge>
-								</CardHeader>
-								<CardContent>
-									<p className="text-4xl font-bold">
-										¥299<span className="text-sm font-normal">/月</span>
-									</p>
-									<ul className="mt-4 space-y-2">
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" />{' '}
-											20小时视频处理
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 高级字幕翻译
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 个性化配音
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 优先客户支持
-										</li>
-									</ul>
-								</CardContent>
-								<CardFooter>
-									<Button className="w-full">选择方案</Button>
-								</CardFooter>
-							</Card>
-							<Card>
-								<CardHeader>
-									<CardTitle>企业版</CardTitle>
-									<CardDescription>适合大规模使用的企业</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<p className="text-4xl font-bold">联系我们</p>
-									<ul className="mt-4 space-y-2">
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 无限视频处理
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> AI增强翻译
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 多语言配音
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> 专属客户经理
-										</li>
-										<li className="flex items-center">
-											<CheckCircle className="mr-2 h-4 w-4 text-primary" /> API集成
-										</li>
-									</ul>
-								</CardContent>
-								<CardFooter>
-									<Button className="w-full">联系销售</Button>
-								</CardFooter>
-							</Card>
-						</div>
-					</div>
-				</section>
-
 				<section className="w-full py-12 md:py-24 lg:py-32">
 					<div className="container mx-auto px-4 md:px-6">
 						<h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8">
@@ -300,10 +215,6 @@ export default function Component() {
 						<p className="mx-auto max-w-[700px] mb-8 text-lg">
 							加入 VideoLingo，让您的视频内容跨越语言的界限，触达全球观众。
 						</p>
-						<Button variant="secondary" size="lg">
-							立即开始 14 天免费试用
-							<ArrowRight className="ml-2 h-4 w-4" />
-						</Button>
 					</div>
 				</section>
 			</main>

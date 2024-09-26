@@ -6,4 +6,8 @@ export default {
 	footer: {
 		text: <span>{new Date().getFullYear()} © VideoLingo.</span>,
 	},
+	i18n: [
+		{ locale: 'en-US', text: 'English' },
+		{ locale: 'zh-CN', text: '中文' },
+	],
 }
