@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { RainbowButton } from '@/components/magicui/rainbow-button'
 import { Button } from '@/components/ui/button'
 
 interface HeroProps {

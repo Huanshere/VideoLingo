@@ -1,17 +1,7 @@
-<div align="center">
 
 # VideoLingo: Connecting the World, Frame by Frame
-<p align="center">
-  <a href="https://www.python.org" target="_blank"><img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python"></a>
-  <a href="https://github.com/Huanshere/VideoLingo/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/Huanshere/VideoLingo.svg" alt="License"></a>
-  <a href="https://github.com/Huanshere/VideoLingo/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/Huanshere/VideoLingo.svg" alt="GitHub stars"></a>
-</p>
-
-[**中文**](README.md) | [**English**](README.en.md)
 
 **QQ Group: 875297969**
-
-</div>
 
 ## 🌟 Project Introduction
 
@@ -144,8 +134,8 @@ VideoLingo uses WhisperX for speech recognition, supporting both local deploymen
 #### Comparison of options:
 | Option | Disadvantages |
 |:-----|:-----|
-| **whisperX 🖥️** | • Install CUDA 🛠️<br>• Download model 📥<br>• High VRAM requirement 💾 |
-| **whisperXapi ☁️ (Recommended)** | • Requires VPN 🕵️‍♂️<br>• Visa card 💳 |
+| **whisperX 🖥️** | • Install CUDA 🛠️<br/>• Download model 📥<br/>• High VRAM requirement 💾 |
+| **whisperXapi ☁️ (Recommended)** | • Requires VPN 🕵️‍♂️<br/>• Visa card 💳 |
 
 #### Obtaining the token
    - Register at [Replicate](https://replicate.com/account/api-tokens), bind a Visa card payment method, and obtain the token
