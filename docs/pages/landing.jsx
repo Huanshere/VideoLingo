@@ -5,7 +5,7 @@ import Hero from '@/components/landing/hero'
 export default function Component() {
 	return (
 		<div className="flex flex-col min-h-screen">
-			<main className="flex-1  bg-[#F5F4EF] text-[#3D3929]">
+			<main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
 				<Hero
 					title="VideoLingo: 连接世界的每一帧"
 					description="全自动视频搬运工，生成 Netflix 品质的字幕！克隆自己的声音进行配音！"
