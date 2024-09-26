@@ -72,3 +72,7 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+.n-card {
+	@apply bg-[#F8F8F7] border-[#706b5740] rounded-2xl shadow-none;
+}
