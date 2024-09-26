@@ -13,10 +13,10 @@ export default function Component() {
 					<div className="container mx-auto px-4 md:px-6">
 						<div className="flex flex-col items-center space-y-4 text-center">
 							<div className="space-y-2">
-								<h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+								<h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl/none">
 									VideoLingo: 连接世界的每一帧
 								</h1>
-								<p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+								<p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl lg:text-2xl">
 									全自动视频搬运工，生成 Netflix 品质的字幕！克隆自己的声音进行配音！
 								</p>
 							</div>
@@ -26,28 +26,30 @@ export default function Component() {
 								</Link>
 							</div>
 							{/* 新增视频演示组件 */}
-							<div className="w-full max-w-5xl mt-8 mb-8">
-								<video
-									className="w-full rounded-lg shadow-lg"
-									controls
-								>
-									<source
-										src="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
-										type="video/mp4"
-									/>
-									您的浏览器不支持视频标签。
-								</video>
+							<div className="w-full max-w-5xl mt-16 mb-16">
+								<div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
+									<video
+										className="w-full h-full object-cover"
+										controls
+									>
+										<source
+											src="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+											type="video/mp4"
+										/>
+										您的浏览器不支持视频标签。
+									</video>
+								</div>
 							</div>
 						</div>
 					</div>
 				</section>
 
-				<section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+				<section id="features" className="w-full py-24 md:py-32 lg:py-40 bg-secondary">
 					<div className="container mx-auto px-4 md:px-6">
-						<h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8">
+						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl text-center mb-16">
 							强大功能，释放创意
 						</h2>
-						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+						<div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
 							<Card>
 								<CardHeader>
 									<CardTitle>智能字幕分割</CardTitle>
@@ -142,7 +144,7 @@ export default function Component() {
 								<CardContent className="p-6">
 									<p className="text-lg mb-4">
 										"VideoLingo
-										彻底改变了我们的视频本地化流程。现在我们可以以前所未有的速度和质量制作多语言内容。"
+										彻底改变了我们的视频本地化流程。现在我们可以以前所未有的速度和质量制作多语言内容"
 									</p>
 									<p className="font-semibold">张三, CEO @ TechStart</p>
 								</CardContent>
