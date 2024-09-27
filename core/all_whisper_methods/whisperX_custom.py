@@ -4,12 +4,9 @@ import whisperx
 import torch
 from typing import Dict
 from rich import print as rprint
-from transformers import WhisperForConditionalGeneration, WhisperProcessor
-
-HF_MODEL_NAME = "BELLE-2/Belle-whisper-large-v3-zh-punct"
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from config import MODEL_DIR, WHISPER_LANGUAGE
+from config import MODEL_DIR
 from core.all_whisper_methods.whisperXapi import (
     process_transcription, convert_video_to_audio, split_audio,
     save_results, save_language
@@ -18,7 +15,7 @@ from core.all_whisper_methods.whisperXapi import (
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     from config import WHISPER_LANGUAGE
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    rprint(f"[green]🚀 Starting Hugging Face Whisper...[/green]")
+    rprint(f"[green]🚀 Starting WhisperX...[/green]")
     rprint(f"[cyan]Device:[/cyan] {device}")
     
     # Adjust batch size based on GPU memory
@@ -31,33 +28,17 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         batch_size = 4
         compute_type = "int8"
     
-    rprint(f"[green]Starting Hugging Face Whisper for segment {start:.2f}s to {end:.2f}s...[/green]")
+    rprint(f"[green]Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
     
     try:
-        # Load Hugging Face model
-        model = WhisperForConditionalGeneration.from_pretrained(HF_MODEL_NAME).to(device)
-        processor = WhisperProcessor.from_pretrained(HF_MODEL_NAME)
+        whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
+        model = whisperx.load_model("BELLE-2/Belle-whisper-large-v3-zh-punct", device, compute_type=compute_type, download_root=whisperx_model_dir)
 
         # Load audio segment
         audio = whisperx.load_audio(audio_file)
         audio_segment = audio[int(start * 16000):int(end * 16000)]  # Assuming 16kHz sample rate
 
-        # Process audio
-        input_features = processor(audio_segment, sampling_rate=16000, return_tensors="pt").input_features.to(device)
-
-        # Generate tokens
-        forced_decoder_ids = processor.get_decoder_prompt_ids(language=WHISPER_LANGUAGE, task="transcribe")
-        generated_ids = model.generate(input_features, forced_decoder_ids=forced_decoder_ids)
-
-        # Decode output
-        transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-
-        # Create a compatible result format
-        result = {
-            "segments": [{"text": transcription, "start": start, "end": end}],
-            "language": WHISPER_LANGUAGE
-        }
-
+        result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE))
         # Free GPU resources
         del model
         torch.cuda.empty_cache()
@@ -65,12 +46,26 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         # Save language
         save_language(result['language'])
 
-        # Note: Skipping WhisperX alignment step as it might be incompatible with Hugging Face models
-        # If alignment is needed, consider implementing or using other tools
+        # Align whisper output
+        model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
+        result = whisperx.align(result["segments"], model_a, metadata, audio_segment, device, return_char_alignments=False)
 
+        # Free GPU resources again
+        del model_a
+        torch.cuda.empty_cache()
+
+        # Adjust timestamps
+        for segment in result['segments']:
+            segment['start'] += start
+            segment['end'] += start
+            for word in segment['words']:
+                if 'start' in word:
+                    word['start'] += start
+                if 'end' in word:
+                    word['end'] += start
         return result
     except Exception as e:
-        rprint(f"[red]Hugging Face Whisper processing error:[/red] {e}")
+        rprint(f"[red]WhisperX processing error:[/red] {e}")
         raise
 
 def transcribe(video_file: str):
