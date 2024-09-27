@@ -127,8 +127,10 @@ def align_timestamp_main():
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
     df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
     # check if there's empty translation
-    if (df_translate['Translation'].str.len() == 0).sum() > 0:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
+    empty_rows = df_translate[df_translate['Translation'].str.len() == 0]
+    if not empty_rows.empty:
+        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
+        console.print(empty_rows.index.tolist())
         raise ValueError("Empty translation rows detected")
     subtitle_output_configs = [ 
         ('src_subtitles.srt', ['Source']),
