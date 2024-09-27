@@ -68,7 +68,8 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
-                response_format=response_format
+                response_format=response_format,
+                timeout=150 #! set timeout
             )
             
             if response_json:
