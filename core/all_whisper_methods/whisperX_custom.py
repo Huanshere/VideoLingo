@@ -32,6 +32,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
+        #! run this for the first time to download config, then convert model manually and place model.bin and vocabulary.json into modelxxx/snapshots/xxx/
+        #CONVERT MODEL MANUALLY: https://github.com/SYSTRAN/faster-whisper?tab=readme-ov-file#model-conversion
         model = whisperx.load_model("BELLE-2/Belle-whisper-large-v3-zh-punct", device, compute_type=compute_type, download_root=whisperx_model_dir)
 
         # Load audio segment
