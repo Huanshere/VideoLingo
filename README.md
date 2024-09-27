@@ -261,7 +261,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    cd VideoLingo
    ```
 
-3. 配置虚拟环境（必须 3.10.0）：
+3. 配置虚拟环境（**必须 3.10.0**）：
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
