@@ -30,7 +30,7 @@ def merge_subtitles_to_video():
         # Suppress detailed output of ffmpeg command
         subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
                         '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_video],
-                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         print("Placeholder video has been generated.")
         return
 
