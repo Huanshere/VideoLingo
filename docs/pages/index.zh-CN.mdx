@@ -2,6 +2,98 @@
 title: VideoLingo
 ---
 
-import Landing from './landing'
+import Hero from '@/components/landing/hero'
+import Features from '@/components/landing/features'
+import Comments from '@/components/landing/comments'
+import FAQ from '@/components/landing/faq'
 
-<Landing />
+export default function Component() {
+    const features = [
+        {
+            title: '智能字幕分割',
+            description: '使用 NLP 和 LLM 技术，精确分割字幕，确保每一句话都恰到好处。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '上下文感知翻译',
+            description: '智能术语知识库，实现上下文感知翻译，让每一句翻译都自然流畅。',
+            icon: 'ArrowRight',
+        },
+        {
+            title: '三步翻译过程',
+            description: '直接翻译 - 反思 - 改进，多重保障，确保翻译质量。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '精确字幕对齐',
+            description: '单词级字幕对齐，让每一个字都准确同步。',
+            icon: 'ArrowRight',
+        },
+        {
+            title: '高质量配音',
+            description: 'GPT-SoVits 技术支持的高质量个性化配音，让视频更具魅力。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '开发者友好',
+            description: '结构化文件设计，方便开发者自定义和扩展功能。',
+            icon: 'ArrowRight',
+        },
+    ]
+
+    const comments = [
+
+        {
+            content: "VideoLingo 彻底改变了我们的视频本地化流程。现在我们可以以前所未有的速度和质量制作多语言内容",
+            author: "张三",
+            title: "CEO @ TechStart"
+        },
+        {
+            content: "作为一个独立创作者，VideoLingo 让我能够轻松地将我的内容推广到全球观众。简直是游戏规则的改变者！",
+            author: "李四",
+            title: "YouTuber"
+        },
+        {
+            content: "VideoLingo 的 AI 配音功能令人惊叹。它为我们的教育视频增添了一个全新的维度。",
+            author: "王五",
+            title: "在线教育平台创始人"
+        }
+    ];
+
+    const faqItems = [
+        {
+            question: "VideoLingo 支持哪些视频格式？",
+            answer: "VideoLingo 支持大多数常见的视频格式，包括 MP4, AVI, MOV, WMV 等。如果您有特殊格式需求，请联系我们的支持团队。"
+        },
+        {
+            question: "翻译和配音的质量如何保证？",
+            answer: "我们使用先进的 AI 技术结合人工审核来确保翻译的准确性。对于配音，我们的 GP-SoVits 技术可以生成自然流畅的语音。"
+        },
+        {
+            question: "处理一个视频需要多长时间？",
+            answer: "处理时间取决于视频的长度和所需的服务。通常，一个 5 分钟的视频完成翻译和配音大约需要 30 分钟。"
+        },
+        {
+            question: "可以自定义 VideoLingo 的功能吗？",
+            answer: "是的，VideoLingo 提供了灵活的 API 和开发者文档，允许您根据需求进行自定义和集成。"
+        }
+    ]
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
+                <Hero
+                    title="VideoLingo: 连接世界的每一帧"
+                    description="全自动视频搬运工，生成 Netflix 品质的字幕！克隆自己的声音进行配音！"
+                    githubLink="https://github.com/Huanshere/VideoLingo"
+                    videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+                />
+
+                <Features title="强大功能，释放创意" features={features} />
+                <Comments title="他们都在用 VideoLingo" comments={comments} />
+                <FAQ title="常见问题" faqItems={faqItems} />
+            </main>
+        </div>
+    )
+
+}
