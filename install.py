@@ -158,7 +158,7 @@ def main():
     else:  # Linux/Windows
         if choice == '1':
             console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
-            subprocess.check_call(["conda", "install", "pytorch==2.0.0", "torchaudio==2.0.0", "pytorch-cuda=11.8", "-c", "pytorch", "-c", "nvidia", "-y"])
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
 
             print("Installing whisperX...")
             current_dir = os.getcwd()

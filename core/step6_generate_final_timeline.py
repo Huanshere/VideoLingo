@@ -5,7 +5,6 @@ from difflib import SequenceMatcher
 import re
 from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
-from rich import print as rprint
 from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table

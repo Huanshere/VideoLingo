@@ -15,6 +15,7 @@ from core.all_whisper_methods.whisperXapi import (
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     from config import WHISPER_LANGUAGE
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    rprint(f"[green]🚀 Starting WhisperX...[/green]")
     rprint(f"[cyan]Device:[/cyan] {device}")
     
     # Adjust batch size based on GPU memory
