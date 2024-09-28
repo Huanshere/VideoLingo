@@ -13,7 +13,7 @@ TARGET_LANGUAGE = '简体中文'
 
 ## 字幕设置
 # *每行字幕的最大长度 字母数量
-MAX_SUB_LENGTH = 75
+MAX_SUB_LENGTH = 70
 # *翻译字幕比源字幕字号更大一些，会影响切割字幕的参考长度
 TARGET_SUB_MULTIPLIER = 1.2
 

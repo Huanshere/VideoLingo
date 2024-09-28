@@ -4,8 +4,8 @@ from core.step1_ytdlp import find_video_files
 from rich import print as rprint
 from rich.panel import Panel
 
-SRC_FONT_SIZE = 15
-TRANS_FONT_SIZE = 19
+SRC_FONT_SIZE = 16
+TRANS_FONT_SIZE = 18
 FONT_NAME = 'Arial'
 TRANS_FONT_NAME = 'Arial'
 SRC_FONT_COLOR = '&HFFFFFF' 
