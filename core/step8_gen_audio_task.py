@@ -53,7 +53,12 @@ def check_len_then_trim(text, duration):
         rprint(Panel(f"Estimated reading duration {estimated_duration:.2f} seconds exceeds given duration {duration:.2f} seconds, shortening...", title="Processing", border_style="yellow"))
         original_text = text
         prompt = get_subtitle_trim_prompt(text, duration)
-        response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
+        def valid_trim(response):
+            # check eky trans_text_processed
+            if 'trans_text_processed' not in response:
+                return {'status': 'error', 'message': 'No trans_text_processed in response'}
+            return {'status': 'success', 'message': ''}
+        response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim', valid_def=valid_trim)
         shortened_text = response['trans_text_processed']
         rprint(Panel(f"Subtitle before shortening: {original_text}\nSubtitle after shortening: {shortened_text}", title="Subtitle Shortening Result", border_style="green"))
         return shortened_text
