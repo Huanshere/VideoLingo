@@ -65,7 +65,7 @@ REFER_MODE = 3
 # FishTTS API
 FISH_TTS_API_KEY = 'YOUR_FISH_TTS_API_KEY'
 # FishTTS 角色 确保在下方存在
-FISH_TTS_CHARACTER = '丁真'
+FISH_TTS_CHARACTER = 'AD学姐'
 # *FishTTS角色列表 "角色名" : "角色ID"
 FISH_TTS_CHARACTER_ID_DICT = {
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1',

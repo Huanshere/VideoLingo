@@ -32,7 +32,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
-        model = whisperx.load_model("large-v2", device, compute_type=compute_type, download_root=whisperx_model_dir)
+        model_name = "large-v3" if WHISPER_LANGUAGE not in ["zh"] else "BELLE-2/Belle-whisper-large-v3-zh-punct"
+        model = whisperx.load_model(model_name, device, compute_type=compute_type, download_root=whisperx_model_dir)
 
         # Load audio segment
         audio = whisperx.load_audio(audio_file)

@@ -15,7 +15,7 @@ from config import MAX_SPEED_FACTOR, NORMAL_SPEED_FACTOR
 def check_len_then_trim(text, duration):
     # Define speech speed: characters/second or words/second, punctuation/second
     speed_zh_ja = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR  # Chinese and Japanese characters per second
-    speed_en = speed_ru = speed_fr = speed_es = speed_it = speed_de = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Words per second for English, Russian, French, Spanish, Italian, German
+    speed_en = speed_ru = speed_fr = speed_es = speed_it = speed_de = 6 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Words per second for English, Russian, French, Spanish, Italian, German
     speed_punctuation = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Punctuation marks per second
     
     # Count characters, words, and punctuation for each language

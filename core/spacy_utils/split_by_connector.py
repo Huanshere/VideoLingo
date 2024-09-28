@@ -23,6 +23,12 @@ def analyze_connectors(doc, token):
         det_pron_deps = ["det", "pron"]
         verb_pos = "VERB"
         noun_pos = ["NOUN", "PROPN"]
+    elif lang == "zh":
+        connectors = ["因为", "所以", "但是", "而且", "虽然", "如果", "即使", "尽管"]
+        mark_dep = "mark"
+        det_pron_deps = ["det", "pron"]
+        verb_pos = "VERB"
+        noun_pos = ["NOUN", "PROPN"]
     elif lang == "ja":
         connectors = ["けれども", "しかし", "だから", "それで", "ので", "のに", "ため"]
         mark_dep = "mark"
