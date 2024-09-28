@@ -60,7 +60,7 @@ def page_setting():
             
         col1, col2 = st.columns(2)
         with col1:
-            whisper_language_options = ["en", "zh", "auto (except zh)"]
+            whisper_language_options = ["en", "zh", "auto"]
             selected_whisper_language = st.selectbox(gls("whisper_language"), options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE))
             if selected_whisper_language != config.WHISPER_LANGUAGE:
                 changes["WHISPER_LANGUAGE"] = selected_whisper_language
