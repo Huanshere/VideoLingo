@@ -224,7 +224,7 @@ def save_language(language: str):
 def transcribe(video_file: str):
     if not os.path.exists("output/log/cleaned_chunks.xlsx"):
         audio_file = convert_video_to_audio(video_file)
-        print("! Warning: This method does not apply UVR5 processing to the audio. Not recommended for videos with loud BGM.")
+        print("!  Warning: This method does not apply UVR5 processing to the audio. Not recommended for videos with loud BGM.")
         # step2 Extract audio
         segments = split_audio(audio_file)
         
