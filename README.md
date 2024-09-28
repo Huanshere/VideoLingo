@@ -38,25 +38,32 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 <table>
 <tr>
-<td width="33%">
+<td width="25%">
 
 ### 俄语翻译
 ---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
-<td width="33%">
+<td width="25%">
 
 ### GPT-SoVITS
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 </td>
-<td width="33%">
+<td width="25%">
 
 ### Fish TTS 丁真
 ---
 https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
+
+</td>
+<td width="25%">
+
+### OAITTS
+---
+https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 </td>
 </tr>
@@ -75,7 +82,7 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 | 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
 | 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
 | 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
-| 中文* | 🤩 | TODO | TODO |
+| 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [罗翔老师脱口秀](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
 > *中文需单独配置whisperX模型，见源码安装
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
