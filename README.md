@@ -277,7 +277,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 5. 仅对于需要使用中文转录的用户：
    
-   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n) | [HF链接](https://huggingface.co/Huan69/Belle-whisper-large-v3-zh-punct-for-whisperX)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下
+   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下
 
 6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash

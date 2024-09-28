@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple
 import subprocess
 import base64
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from moviepy.editor import AudioFileClip
 
 def convert_video_to_audio(input_file: str) -> str:
     os.makedirs('output/audio', exist_ok=True)
@@ -60,7 +61,10 @@ def convert_video_to_audio(input_file: str) -> str:
 
 def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60) -> List[Tuple[float, float]]:
     print("🔪 Splitting audio into segments...")
-    duration = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', audio_file]).decode('utf-8').strip())
+    
+    # Use moviepy to get audio duration
+    with AudioFileClip(audio_file) as audio:
+        duration = audio.duration
     
     segments = []
     start = 0
