@@ -30,7 +30,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 - **✅ 按照 Netflix 标准检查单行长度，绝无双行字幕**
 
-- 🗣️ 使用 GPT-SoVITS 等方法进行高质量的对齐配音
+- **🗣️ 使用 GPT-SoVITS 等方法进行高质量的对齐配音**
 
 - 🚀 整合包一键启动，在 streamlit 中一键出片
 
@@ -38,25 +38,32 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 <table>
 <tr>
-<td width="33%">
+<td width="25%">
 
 ### 俄语翻译
 ---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
-<td width="33%">
+<td width="25%">
 
 ### GPT-SoVITS
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 </td>
-<td width="33%">
+<td width="25%">
 
 ### Fish TTS 丁真
 ---
 https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
+
+</td>
+<td width="25%">
+
+### OAITTS
+---
+https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 </td>
 </tr>
@@ -64,18 +71,19 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 
 ### 语言支持：
 
-当前输入语言支持和示例（暂不支持中文输入）：
+当前输入语言支持和示例：
 
 | 输入语言 | 支持程度 | 翻译demo | 配音demo |
 |---------|---------|---------|----------|
-| 🇬🇧🇺🇸 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
-| 🇷🇺 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
-| 🇫🇷 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
-| 🇩🇪 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
-| 🇮🇹 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
-| 🇪🇸 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
-| 🇯🇵 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
-| 🇨🇳 中文 | 😖 | ❌ | TODO |
+| 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
+| 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
+| 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
+| 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
+| 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
+| 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
+| 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
+| 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [罗翔老师脱口秀](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
+> *中文需单独配置whisperX模型，见源码安装
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 
@@ -83,17 +91,21 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 
 ### 注意事项：
 
-1. 整合包使用的是 CPU 版本的 torch，大小约 **2.5G**。
-2. 在配音步骤使用 UVR5 降噪时，CPU 版本会显著慢于 GPU 加速的 torch。
+1. 整合包使用的是 CPU 版本的 torch，大小约 **2.6G**。
+2. 在配音步骤使用 UVR5 进行人声分离时，CPU 版本会显著慢于 GPU 加速的 torch。
 3. 整合包**仅支持通过 API 调用 whisperXapi ☁️**，不支持本地运行 whisperX 💻。
+4. 整合包使用的 whisperXapi 不支持中文转录，若需要使用中文，请从源码安装使用本地运行的 whisperX 💻。
+5. 整合包在转录步骤尚未进行 UVR5 人声分离，不建议使用 BGM 较嘈杂的视频。
 
 如果需要以下功能，请从源码安装（需要Nvidia显卡以及至少 **20G** 硬盘空间）：
+- 输入语言为中文
 - 本地运行 whisperX 💻
-- 使用 GPU 加速的 UVR5 降噪
+- 使用 GPU 加速的 UVR5 人声分离
+- 转录 BGM 较嘈杂的视频
 
 ### 下载和使用说明
 
-1. 下载 `v1.2.0` 一键整合包(750M): [直接下载](https://vip.123pan.cn/1817874751/8158115) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v1.3` 一键整合包(800M): [直接下载](https://vip.123pan.cn/1817874751/8187706) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
@@ -112,7 +124,7 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 | deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ￥2 / 1M tokens | 😲 |
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤选用。
 
-> 提醒：deepseek在翻译过程有极低的概率错误，若出错请更换sonnet...
+> 提醒：deepseek在翻译过程有极低的概率错误，若出错请更换claude 3.5 sonnet模型
 
 #### 常见问题
 
@@ -146,7 +158,7 @@ VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api�
 | 方案 | 缺点 |
 |:-----|:-----|
 | **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 下载模型 📥<br>• 高显存 💾 |
-| **whisperXapi ☁️ (推荐)** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳 |
+| **whisperXapi ☁️** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳<br>• **中文效果差** 🚫 |
 
 #### 获取令牌
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
@@ -166,6 +178,12 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 - **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
 - **Fish TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册充值
 
+<details>
+<summary>OpenAI 声音怎么选？</summary>
+
+声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova` 和 `fable` 等，在 `config.py` 中修改 `OAI_VOICE` 即可。
+
+</details>
 <details>
 <summary>Azure 声音怎么选？</summary>
 
@@ -209,7 +227,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
       ```
    - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
-   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。
+   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。目前仍处于测试版，可能产生报错。
 
 
    ```
@@ -248,20 +266,20 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 ### 安装步骤
 
-支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
+需要一定的 python 基础，支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
 
-1. 打开 Anaconda Powershell Prompt 并切换到桌面目录：
+1. 打开 Anaconda Prompt 并切换到桌面目录：
    ```bash
    cd desktop
    ```
 
-2. 克隆项目：
+2. 克隆项目并切换至项目目录：
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-3. 配置虚拟环境（必须 3.10.0）：
+3. 创建并激活虚拟环境（**必须 3.10.0**）：
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
@@ -271,20 +289,32 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    ```bash
    python install.py
    ```
-   根据提示选择所需的 Whisper 项目，脚本将自动安装相应的 torch 和 whisper 版本
+   根据提示选择所需的 Whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
 
-   注意：Mac 用户需根据提示手动安装 ffmpeg
+5. 仅对于需要使用中文转录的用户：
+   
+   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下
 
-5. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
+6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
    streamlit run st.py
    ```
 
-6. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
+7. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
    ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
 
+8. （可选）更多进阶设置可以在 `config.py` 中手动修改
+
 <!-- 本项目采用结构化模块开发，可按顺序逐个运行 `core\step__.py`，技术文档: [中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（待更新） -->
+
+## ⚠️ 注意事项
+
+1. UVR5 对内存要求较高，16G 内存处理极限是 30min， 32GB 内存处理极限是 50min，请谨慎尝试长视频。
+   
+2. 翻译步骤极小可能出现 'phrase' 错误，遇到请反馈。
+   
+3. 配音功能质量不稳定，为最佳质量，请尽量选择适合原视频的 TTS 语速，例如 OAITTS 语速较快，FishTTS 语速请试听后选择。
 
 ## 📄 许可证
 
@@ -300,6 +330,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [json_repair](https://github.com/mangiucugna/json_repair)
 - [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
+- [BELLE](https://github.com/LianjiaTech/BELLE)
 
 ## 📬 联系我们
 

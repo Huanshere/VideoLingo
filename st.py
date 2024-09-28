@@ -95,15 +95,12 @@ def audio_processing_section():
                 st.rerun()
 
 def process_audio():
-    input_video = step1_ytdlp.find_video_files()
-    
     with st.spinner(gls("audio_step1").split(".")[1]): 
         step8_gen_audio_task.gen_audio_task_main()
     with st.spinner(gls("audio_step2").split(".")[1]):
-        step9_uvr_audio.uvr_audio_main(input_video)
+        step9_uvr_audio.uvr_audio_main()
     with st.spinner(gls("audio_step3").split(".")[1]):
         step10_gen_audio.process_sovits_tasks()
-
     with st.spinner(gls("audio_step4").split(".")[1]):
         step11_merge_audio_to_vid.merge_main()
     

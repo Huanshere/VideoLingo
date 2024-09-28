@@ -30,33 +30,30 @@ def save_log(model, prompt, response, log_title = 'default', message = None):
     with open(log_file, 'w', encoding='utf-8') as f:
         json.dump(logs, f, ensure_ascii=False, indent=4)
         
-def check_ask_gpt_history(prompt, model):
+def check_ask_gpt_history(prompt, model, log_title):
     # check if the prompt has been asked before
     if not os.path.exists(LOG_FOLDER):
         return False
-    for file_name in os.listdir(LOG_FOLDER):
-        # check all files in the folder except error.json
-        if file_name.endswith('.json') and "error" not in file_name:
-            file_path = os.path.join(LOG_FOLDER, file_name)
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                for item in data:
-                    if item["prompt"] == prompt and item["model"] == model:
-                        return item["response"]
+    file_path = os.path.join(LOG_FOLDER, f"{log_title}.json")
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            for item in data:
+                if item["prompt"] == prompt and item["model"] == model:
+                    return item["response"]
     return False
 
 def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
     from config import MODEL, API_KEY, BASE_URL, llm_support_json
     with LOCK:
-        if check_ask_gpt_history(prompt, MODEL):
-            return check_ask_gpt_history(prompt, MODEL)
+        history_response = check_ask_gpt_history(prompt, MODEL, log_title)
+        if history_response:
+            return history_response
     
     if not API_KEY:
         raise ValueError(f"⚠️API_KEY is missing")
     
-    messages = [
-        {"role": "user", "content": prompt},
-    ]
+    messages = [{"role": "user", "content": prompt}]
     
     base_url = BASE_URL.strip('/') + '/v1' if 'v1' not in BASE_URL else BASE_URL
     client = OpenAI(api_key=API_KEY, base_url=base_url)
@@ -68,7 +65,8 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
-                response_format=response_format
+                response_format=response_format,
+                timeout=150 #! set timeout
             )
             
             if response_json:

@@ -54,7 +54,7 @@ def translate_all():
         console.print(Panel("🚨 File `translation_results.xlsx` already exists, skipping TRANSLATE ALL.", title="Warning", border_style="yellow"))
         return
     
-    console.print("[bold green]Start Translate All...[/bold green]")
+    console.print("[bold green]Start Translating All...[/bold green]")
     from config import MODEL
     if 'sonnet' in MODEL:
         chunks = split_chunks_by_chars()

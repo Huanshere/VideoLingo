@@ -5,7 +5,6 @@ from difflib import SequenceMatcher
 import re
 from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
-from rich import print as rprint
 from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
@@ -26,7 +25,9 @@ def convert_to_srt_format(start_time, end_time):
     return f"{start_srt} --> {end_srt}"
 
 def remove_punctuation(text):
-    return re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'[^\w\s]', '', text)
+    return text.strip()
 
 def get_sentence_timestamps(df_words, df_sentences):
     time_stamp_list = []
@@ -63,7 +64,8 @@ def get_sentence_timestamps(df_words, df_sentences):
                 break
             word_index += 1
         
-        if best_match['score'] > 0.9:
+        #! Originally 0.9, but for very short sentences, a single space can cause a difference of 0.8, so we lower the threshold
+        if best_match['score'] >= 0.75:
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
             word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
         else:
@@ -71,7 +73,7 @@ def get_sentence_timestamps(df_words, df_sentences):
             table = Table(title="Match Details")
             table.add_column("Item", style="cyan")
             table.add_column("Value", style="magenta")
-            table.add_row("🔍 Original sentence", sentence)
+            table.add_row("🔍 Original sentence", repr(sentence))
             table.add_row("🔗 Matched", best_match['phrase'])
             table.add_row("📊 Similarity", f"{best_match['score']:.2f}")
             console.print(table)
@@ -127,8 +129,10 @@ def align_timestamp_main():
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
     df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
     # check if there's empty translation
-    if (df_translate['Translation'].str.len() == 0).sum() > 0:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
+    empty_rows = df_translate[df_translate['Translation'].str.len() == 0]
+    if not empty_rows.empty:
+        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
+        console.print(empty_rows.index.tolist())
         raise ValueError("Empty translation rows detected")
     subtitle_output_configs = [ 
         ('src_subtitles.srt', ['Source']),

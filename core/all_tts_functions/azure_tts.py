@@ -22,4 +22,5 @@ def azure_tts(text, savepath):
             print(f"Error: {speech_synthesis_result.cancellation_details.error_details}")
         return False
 
-# azure_tts("你好，世界！", "output/audio/azure_tts.wav")
+if __name__ == "__main__":
+    azure_tts("你好，世界！", "output/audio/azure_tts.wav")

@@ -42,67 +42,68 @@ def main():
             print("requirements.txt not found. Skipping installation.")
 
     def dowanload_uvr_model():
-        """Download the specified uvr model."""
-        if not os.path.exists("_model_cache/uvr5_weights/HP2_all_vocals.pth"):
-            os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
-            import requests
-            print("Downloading UVR model...")
-            url = "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth"
-            response = requests.get(url, stream=True)
-            total_size = int(response.headers.get('content-length', 0))
-            with open("_model_cache/uvr5_weights/HP2_all_vocals.pth", "wb") as file:
-                for data in response.iter_content(chunk_size=4096):
-                    size = file.write(data)
-                    print(f"Downloaded: {(size/total_size)*100:.2f}%", end="\r")
-            print("\nUVR model downloaded successfully.")
-        else:
-            print("HP2_all_vocals.pth already exists. Skipping download.")
+        """Download the specified uvr models."""
+        models = {
+            "HP2_all_vocals.pth": "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
+            "VR-DeEchoAggressive.pth": "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth"
+        }
+        os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
+        import requests
+        for model_name, url in models.items():
+            model_path = f"_model_cache/uvr5_weights/{model_name}"
+            if not os.path.exists(model_path):
+                print(f"Downloading UVR model: {model_name}...")
+                response = requests.get(url, stream=True)
+                total_size = int(response.headers.get('content-length', 0))
+                with open(model_path, "wb") as file:
+                    for data in response.iter_content(chunk_size=4096):
+                        size = file.write(data)
+                        print(f"Downloaded: {(size/total_size)*100:.2f}%", end="\r")
+                print(f"\n{model_name} downloaded successfully.")
+            else:
+                print(f"{model_name} already exists. Skipping download.")
 
     def download_and_extract_ffmpeg():
-        """Download FFmpeg and FFprobe based on the platform, extract them, and clean up."""
+        """Download FFmpeg based on the platform, extract it, and clean up."""
         system = platform.system()
         if system == "Windows":
             ffmpeg_exe = "ffmpeg.exe"
-            ffprobe_exe = "ffprobe.exe"
             url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
         elif system == "Darwin":
-            print("For macOS users, please install FFmpeg using Homebrew:\n"
-                  "1. Install Homebrew if you haven't: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n"
-                  "2. Then run: brew install ffmpeg")
-            return
+            ffmpeg_exe = "ffmpeg"
+            url = "https://evermeet.cx/ffmpeg/getrelease/zip"
         elif system == "Linux":
             ffmpeg_exe = "ffmpeg"
-            ffprobe_exe = "ffprobe"
             url = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
         else:
             return
 
-        if os.path.exists(ffmpeg_exe) and os.path.exists(ffprobe_exe):
-            print(f"{ffmpeg_exe} and {ffprobe_exe} already exist. Skipping download.")
+        if os.path.exists(ffmpeg_exe):
+            print(f"{ffmpeg_exe} already exists. Skipping download.")
             return
 
-        print("Downloading FFmpeg and FFprobe...")
+        print("Downloading FFmpeg...")
         import requests
 
         response = requests.get(url)
         if response.status_code == 200:
-            filename = "ffmpeg.zip" if system == "Windows" else "ffmpeg.tar.xz"
+            filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
             with open(filename, 'wb') as f:
                 f.write(response.content)
-            print(f"FFmpeg and FFprobe have been downloaded to {filename}")
+            print(f"FFmpeg has been downloaded to {filename}")
         
-            print("Extracting FFmpeg and FFprobe...")
+            print("Extracting FFmpeg...")
             if system == "Linux":
                 import tarfile
                 with tarfile.open(filename) as tar_ref:
                     for member in tar_ref.getmembers():
-                        if member.name.endswith(("ffmpeg", "ffprobe")):
+                        if member.name.endswith("ffmpeg"):
                             member.name = os.path.basename(member.name)
                             tar_ref.extract(member)
             else:
                 with zipfile.ZipFile(filename, 'r') as zip_ref:
                     for file in zip_ref.namelist():
-                        if file.endswith((ffmpeg_exe, ffprobe_exe)):
+                        if file.endswith(ffmpeg_exe):
                             zip_ref.extract(file)
                             shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
             
@@ -112,9 +113,9 @@ def main():
                 for item in os.listdir():
                     if os.path.isdir(item) and "ffmpeg" in item.lower():
                         shutil.rmtree(item)
-            print("FFmpeg and FFprobe extraction completed.")
+            print("FFmpeg extraction completed.")
         else:
-            print("Failed to download FFmpeg and FFprobe")
+            print("Failed to download FFmpeg")
 
     def init_config():
         """Initialize the config.py file with the specified API key and base URL."""
@@ -158,7 +159,7 @@ def main():
     else:  # Linux/Windows
         if choice == '1':
             console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
-            subprocess.check_call(["conda", "install", "pytorch==2.0.0", "torchaudio==2.0.0", "pytorch-cuda=11.8", "-c", "pytorch", "-c", "nvidia", "-y"])
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
 
             print("Installing whisperX...")
             current_dir = os.getcwd()
