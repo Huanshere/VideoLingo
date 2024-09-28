@@ -186,7 +186,7 @@ def transcribe_audio(audio_base64: str) -> Dict:
             "language_detection_max_tries": 5
         }
         
-        if WHISPER_LANGUAGE != 'auto (except zh)':
+        if 'auto' not in WHISPER_LANGUAGE:
             input_params["language"] = WHISPER_LANGUAGE
         
         output = replicate.run(

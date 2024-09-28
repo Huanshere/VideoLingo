@@ -4,6 +4,7 @@ import whisperx
 import torch
 from typing import Dict
 from rich import print as rprint
+import warnings
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from config import MODEL_DIR
@@ -26,20 +27,26 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         rprint(f"[cyan]GPU memory:[/cyan] {gpu_mem:.2f} GB, [cyan]Batch size:[/cyan] {batch_size}")
     else:
         batch_size = 4
+        compute_type = "int8"
     
     rprint(f"[green]Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
     
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
-        model_name = "large-v3" if WHISPER_LANGUAGE not in ["zh", "yue", "ja"] else "BELLE-2/Belle-whisper-large-v3-zh-punct"
+        if WHISPER_LANGUAGE in ["zh", "yue"]:
+            model_name = "BELLE-2/Belle-whisper-large-v3-zh-punct"
+        else:
+            model_name = "large-v3"
         rprint(f"[green]Loading WHISPER model:[/green] {model_name} ...")
+
         model = whisperx.load_model(model_name, device, compute_type=compute_type, download_root=whisperx_model_dir)
 
         # Load audio segment
         audio = whisperx.load_audio(audio_file)
         audio_segment = audio[int(start * 16000):int(end * 16000)]  # Assuming 16kHz sample rate
 
-        result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if WHISPER_LANGUAGE == 'auto (except zh)' else WHISPER_LANGUAGE))
+        result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE))
+        
         # Free GPU resources
         del model
         torch.cuda.empty_cache()
