@@ -8,56 +8,30 @@ import subprocess
 import base64
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from moviepy.editor import AudioFileClip
+import librosa
+import soundfile as sf
 
 def convert_video_to_audio(input_file: str) -> str:
-    os.makedirs('output/audio', exist_ok=True)
-    audio_file = 'output/audio/raw_full_audio'
-    audio_file_with_format = f'{audio_file}.wav'
+    audio_dir = 'output/audio'
+    os.makedirs(audio_dir, exist_ok=True)
+    audio_file = 'output/audio/raw_full_audio.wav'
 
-    if not os.path.exists(f'{audio_file}.wav'):
-        ffmpeg_cmd = [
-            'ffmpeg',
-            '-y', # 默认覆盖已有文件
-            '-i', input_file,
-            '-vn',
-            '-acodec', 'libmp3lame',
-            '-ar', '16000',
-            '-b:a', '64k',
-            f'{audio_file}.wav'
-        ]
+    if not os.path.exists(audio_file):
         try:
-            print(f"🎬➡️🎵 Converting to audio with libmp3lame ......")
-            subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            print(f"🎬➡️🎵 Converted <{input_file}> to <{f'{audio_file}.wav'}> with libmp3lame\n")
-            audio_file_with_format = f'{audio_file}.wav'
+            print(f"🎬➡️🎵 Converting to audio with librosa ......")
+            # Load the audio from the video file
+            y, sr = librosa.load(input_file, sr=16000)
+            
+            # Save the audio as a WAV file
+            sf.write(audio_file, y, sr, subtype='PCM_16')
+            
+            print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}> with librosa\n")
+        except Exception as e:
+            print(f"❌ Failed to convert <{input_file}> to <{audio_file}>.")
+            print(f"Error: {str(e)}")
+            raise
 
-        except subprocess.CalledProcessError as e:
-            print(f"Error output: {e.stderr.decode()}")
-            print("❌ libmp3lame failed. Retrying with aac ......")
-
-            # 有时候会遇到ffmpeg不含libmp3lame解码器的错误，使用内置 flac无损编码 兜底进行音频转换的 fallback ffmpeg 命令
-            ffmpeg_cmd = [
-                'ffmpeg',
-                '-y', # 默认覆盖已有文件
-                '-i', input_file,
-                '-vn',
-                '-acodec', 'flac',
-                '-ar', '16000',
-                '-b:a', '64k',
-                f'{audio_file}.flac'
-            ]
-
-            try:
-                subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-                print(f"🎬➡️🎵 Converted <{input_file}> to <{f'{audio_file}.flac'}> with aac\n")
-                audio_file_with_format = f'{audio_file}.flac'
-
-            except subprocess.CalledProcessError as e:
-                print(f"❌ Failed to convert <{input_file}> to <{f'{audio_file}.flac'}> with both libmp3lame and aac.")
-                print(f"Error output: {e.stderr.decode()}")
-                raise
-
-    return audio_file_with_format
+    return audio_file
 
 def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60) -> List[Tuple[float, float]]:
     print("🔪 Splitting audio into segments...")
@@ -250,16 +224,18 @@ def save_language(language: str):
 def transcribe(video_file: str):
     if not os.path.exists("output/log/cleaned_chunks.xlsx"):
         audio_file = convert_video_to_audio(video_file)
-        
+        print("! Warning: This method does not apply UVR5 processing to the audio. Not recommended for videos with loud BGM.")
+        # step2 Extract audio
         segments = split_audio(audio_file)
         
+        # step3 Transcribe audio
         all_results = []
         for start, end in segments:
             result = transcribe_segment(audio_file, start, end)
             result['time_offset'] = start  # Add time offset to the result
             all_results.append(result)
         
-        # Combine results
+        # step4 Combine results
         combined_result = {
             'segments': [],
             'detected_language': all_results[0]['detected_language']
@@ -275,8 +251,10 @@ def transcribe(video_file: str):
                         word['end'] += result['time_offset']
             combined_result['segments'].extend(result['segments'])
         
+        # step5 Save language
         save_language(combined_result['detected_language'])
         
+        # step6 Process transcription
         df = process_transcription(combined_result)
         save_results(df)
     else:

@@ -12,6 +12,7 @@ from core.all_whisper_methods.whisperXapi import (
     process_transcription, convert_video_to_audio, split_audio,
     save_results, save_language
 )
+from third_party.uvr5.uvr5_for_videolingo import uvr5_for_videolingo
 
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     from config import WHISPER_LANGUAGE
@@ -93,15 +94,30 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
 def transcribe(video_file: str):
     if not os.path.exists("output/log/cleaned_chunks.xlsx"):
         audio_file = convert_video_to_audio(video_file)
-        
+        # step1 UVR5 vocal separation
+        output_dir = 'output/audio'
+        if os.path.exists(os.path.join(output_dir, 'background.wav')):
+            print(f"{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.")
+        else:
+            uvr5_for_videolingo(
+                r'output\audio\raw_full_audio.wav',
+                r'output\audio',
+                r'output\audio\background.wav',
+                r'output\audio\original_vocal.wav'
+            )
+            print("UVR5 processing completed, original_vocal.wav and background.wav saved")
+
+        # step2 Extract audio
+        audio_file = os.path.join(output_dir, 'original_vocal.wav')
         segments = split_audio(audio_file)
         
+        # step3 Transcribe audio
         all_results = []
         for start, end in segments:
             result = transcribe_audio(audio_file, start, end)
             all_results.append(result)
         
-        # Combine results
+        # step4 Combine results
         combined_result = {'segments': []}
         for result in all_results:
             combined_result['segments'].extend(result['segments'])

@@ -92,14 +92,16 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 ### 注意事项：
 
 1. 整合包使用的是 CPU 版本的 torch，大小约 **2.5G**。
-2. 在配音步骤使用 UVR5 降噪时，CPU 版本会显著慢于 GPU 加速的 torch。
+2. 在配音步骤使用 UVR5 进行人声分离时，CPU 版本会显著慢于 GPU 加速的 torch。
 3. 整合包**仅支持通过 API 调用 whisperXapi ☁️**，不支持本地运行 whisperX 💻。
 4. 整合包使用的 whisperXapi 不支持中文转录，若需要使用中文，请从源码安装使用本地运行的 whisperX 💻。
+5. 整合包在转录步骤尚未进行 UVR5 人声分离，不建议使用 BGM 较嘈杂的视频。
 
 如果需要以下功能，请从源码安装（需要Nvidia显卡以及至少 **20G** 硬盘空间）：
 - 输入语言为中文
 - 本地运行 whisperX 💻
 - 使用 GPU 加速的 UVR5 人声分离
+- 转录 BGM 较嘈杂的视频
 
 ### 下载和使用说明
 
@@ -305,6 +307,14 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 8. （可选）更多进阶设置可以在 `config.py` 中手动修改
 
 <!-- 本项目采用结构化模块开发，可按顺序逐个运行 `core\step__.py`，技术文档: [中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（待更新） -->
+
+## ⚠️ 注意事项
+
+1. UVR5 对内存要求较高，16G 内存处理极限是 30min， 32GB 内存处理极限是 50min，请谨慎尝试长视频。
+   
+2. 翻译步骤极小可能出现 'phrase' 错误，遇到请反馈。
+   
+3. 配音功能质量不稳定，为最佳质量，请尽量选择适合原视频的 TTS 语速，例如 OAITTS 语速较快，FishTTS 语速请试听后选择。
 
 ## 📄 许可证
 

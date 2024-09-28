@@ -44,6 +44,9 @@ def download_video_section():
             from config import ALLOWED_VIDEO_FORMATS
             uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=ALLOWED_VIDEO_FORMATS)
             if uploaded_file:
+                #delte file in output
+                if os.path.exists("output"):
+                    shutil.rmtree("output")
                 os.makedirs("output", exist_ok=True)
                 # Normalize filename
                 normalized_name = re.sub(r'[^\w\-_\.]', '', uploaded_file.name.replace(' ', '_'))

@@ -8,7 +8,6 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 import pandas as pd
 import soundfile as sf
-from moviepy.editor import VideoFileClip
 
 console = Console()
 
@@ -37,73 +36,61 @@ def extract_audio(input_video, start_time, end_time, output_file):
         # Save extracted audio
         sf.write(output_file, extract, samplerate)
 
-def uvr_audio_main(input_video):
+# TODO 需要拆分文件进行UVR
+def uvr_audio_main():
     output_dir = 'output/audio'
-    if os.path.exists(os.path.join(output_dir, 'background.wav')):
-        rprint(Panel(f"{os.path.join(output_dir, 'background.wav')} already exists, skip.", title="Info", border_style="blue"))
-        return
 
     # step1 uvr5 降噪完整音频
-    full_audio_path = os.path.join(output_dir, 'full_audio.wav')
-    
-    with console.status("[bold green]Extracting full audio..."):
-        video = VideoFileClip(input_video)
-        audio = video.audio
-        audio.write_audiofile(full_audio_path, codec='pcm_s16le', fps=44100)
-        video.close()
-
-    with console.status("[bold green]UVR5 processing full audio, Might take a while to save audio after 100% ..."):
-        uvr5_for_videolingo(full_audio_path, output_dir)
-    
-    os.remove(full_audio_path)
-    original_vocal_path = os.path.join(output_dir, 'original_vocal.wav')
-    background_path = os.path.join(output_dir, 'background.wav')
-    
-    if os.path.exists(original_vocal_path):
-        os.remove(original_vocal_path)
-    if os.path.exists(background_path):
-        os.remove(background_path)
-    
-    os.rename(os.path.join(output_dir, 'vocal_full_audio.wav_10.wav'), original_vocal_path)
-    os.rename(os.path.join(output_dir, 'instrument_full_audio.wav_10.wav'), background_path)
-    
-    rprint(Panel("Full audio extracted, cleaned and saved as original_vocal.wav and background.wav", title="Success", border_style="green"))
+    if os.path.exists(os.path.join(output_dir, 'background.wav')):
+        rprint(Panel(f"{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.", title="Info", border_style="blue"))
+    else:
+        
+        uvr5_for_videolingo(
+            r'output\audio\raw_full_audio.wav',
+            r'output\audio',
+            r'output\audio\background.wav',
+            r'output\audio\original_vocal.wav'
+        )
+        rprint(Panel("UVR5 processing completed, original_vocal.wav and background.wav saved", title="Success", border_style="green"))
 
     # step2 提取音频
-    df = pd.read_excel(os.path.join(output_dir, 'sovits_tasks.xlsx'))
-    
-    refers_dir = os.path.join(output_dir, 'refers')
-    os.makedirs(refers_dir, exist_ok=True)
-    
-    original_vocal_path = os.path.join(output_dir, 'original_vocal.wav')
-    
-    progress = Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-    )
-    
-    with progress:
-        extract_task = progress.add_task("[cyan]Extracting audio segments...", total=len(df))
+    if os.path.exists(os.path.join(output_dir, 'segs', '1.wav')):
+        rprint(Panel(f"{os.path.join(output_dir, 'segs', '1.wav')} already exists, skip extraction.", title="Info", border_style="blue"))
+    else:
+        df = pd.read_excel(os.path.join(output_dir, 'sovits_tasks.xlsx'))
         
-        # Read the full audio file once
-        data, samplerate = sf.read(original_vocal_path)
+        refers_dir = os.path.join(output_dir, 'refers')
+        os.makedirs(refers_dir, exist_ok=True)
         
-        for _, row in df.iterrows():
-            number = row['number']
-            start_time = time_to_seconds(row['start_time'])
-            end_time = time_to_seconds(row['end_time'])
-            output_file = os.path.join(refers_dir, f"{number}.wav")
-            # Calculate start and end samples
-            start_sample = int(start_time * samplerate)
-            end_sample = int(end_time * samplerate)
-            # Extract and Save audio segment
-            extract = data[start_sample:end_sample]
-            sf.write(output_file, extract, samplerate)
+        original_vocal_path = os.path.join(output_dir, 'original_vocal.wav')
+        
+        progress = Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        )
+        
+        with progress:
+            extract_task = progress.add_task("[cyan]Extracting audio segments...", total=len(df))
             
-            progress.update(extract_task, advance=1)
-    rprint(Panel(f"Audio segments extracted and saved in {refers_dir}", title="Success", border_style="green"))
+            # Read the full audio file once
+            data, samplerate = sf.read(original_vocal_path)
+            
+            for _, row in df.iterrows():
+                number = row['number']
+                start_time = time_to_seconds(row['start_time'])
+                end_time = time_to_seconds(row['end_time'])
+                output_file = os.path.join(refers_dir, f"{number}.wav")
+                # Calculate start and end samples
+                start_sample = int(start_time * samplerate)
+                end_sample = int(end_time * samplerate)
+                # Extract and Save audio segment
+                extract = data[start_sample:end_sample]
+                sf.write(output_file, extract, samplerate)
+                
+                progress.update(extract_task, advance=1)
+        rprint(Panel(f"Audio segments extracted and saved in {refers_dir}", title="Success", border_style="green"))
     
 def time_to_seconds(time_str):
     h, m, s = time_str.split(':')
