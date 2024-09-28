@@ -39,7 +39,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         audio = whisperx.load_audio(audio_file)
         audio_segment = audio[int(start * 16000):int(end * 16000)]  # Assuming 16kHz sample rate
 
-        result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE))
+        result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if WHISPER_LANGUAGE == 'auto (except zh)' else WHISPER_LANGUAGE))
         # Free GPU resources
         del model
         torch.cuda.empty_cache()
