@@ -91,9 +91,10 @@ def merge_video_audio():
         return
 
     # Merge video and audio
-    from config import ORIGINAL_VOLUME
-    volumn = ORIGINAL_VOLUME
-    cmd = ['ffmpeg', '-y', '-i', video_file, '-i', background_file, '-i', original_vocal, '-i', audio_file, '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={volumn}[a2];[3:a]volume=1[a3];[a1][a2][a3]amix=inputs=3:duration=first:dropout_transition=3[a]', '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', output_file]
+    from config import ORIGINAL_VOLUME, DUB_VOLUME
+    original_volume = ORIGINAL_VOLUME
+    dub_volume = DUB_VOLUME
+    cmd = ['ffmpeg', '-y', '-i', video_file, '-i', background_file, '-i', original_vocal, '-i', audio_file, '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={original_volume}[a2];[3:a]volume={dub_volume}[a3];[a1][a2][a3]amix=inputs=3:duration=first:dropout_transition=3[a]', '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', output_file]
 
     try:
         subprocess.run(cmd, check=True)

@@ -77,8 +77,6 @@ FISH_TTS_CHARACTER_ID_DICT = {
     '邓紫棋': '3b55b3d84d2f453a98d8ca9bb24182d6',
     '郭德纲': '7c66db6e457c4d53b1fe428a8c547953',
 }
-# *FishTTS 音量增益，官方模型一般音量偏小，建议增益1.5
-FISH_TTS_VOLUME = 1.5
 
 # *音频的速度范围
 MIN_SPEED_FACTOR = 1
@@ -92,6 +90,8 @@ MIN_TRIM_DURATION = 2
 
 # 压制配音视频中原始人声音量 0.1=10% or 0
 ORIGINAL_VOLUME = 0.1
+# *压制配音音量 1.5=150%, 大部分配音原音都较小
+DUB_VOLUME = 1.5
 
 ## ======================== 额外设定 请勿修改 ======================== ##
 # Whisper 模型目录

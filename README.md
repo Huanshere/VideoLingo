@@ -114,7 +114,7 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 | deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ￥2 / 1M tokens | 😲 |
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤选用。
 
-> 提醒：deepseek在翻译过程有极低的概率错误，若出错请更换sonnet...
+> 提醒：deepseek在翻译过程有极低的概率错误，若出错请更换claude 3.5 sonnet模型
 
 #### 常见问题
 
@@ -148,7 +148,7 @@ VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api�
 | 方案 | 缺点 |
 |:-----|:-----|
 | **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 下载模型 📥<br>• 高显存 💾 |
-| **whisperXapi ☁️ (推荐)** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳 |
+| **whisperXapi ☁️** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳<br>• **中文效果差** 🚫 |
 
 #### 获取令牌
    - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
@@ -250,20 +250,20 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 ### 安装步骤
 
-支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
+需要一定的 python 基础，支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
 
-1. 打开 Anaconda Powershell Prompt 并切换到桌面目录：
+1. 打开 Anaconda Prompt 并切换到桌面目录：
    ```bash
    cd desktop
    ```
 
-2. 克隆项目：
+2. 克隆项目并切换至项目目录：
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-3. 配置虚拟环境（**必须 3.10.0**）：
+3. 创建并激活虚拟环境（**必须 3.10.0**）：
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
@@ -273,16 +273,20 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    ```bash
    python install.py
    ```
-   根据提示选择所需的 Whisper 项目，脚本将自动安装相应的 torch 和 whisper 版本
+   根据提示选择所需的 Whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
 
    注意：Mac 用户需根据提示手动安装 ffmpeg
 
-5. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
+5. 仅对于需要使用中文转录的用户：
+   
+   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n) | [HF链接](https://huggingface.co/Huan69/Belle-whisper-large-v3-zh-punct-for-whisperX)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下
+
+6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
    streamlit run st.py
    ```
 
-6. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
+7. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
    ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
 
@@ -302,6 +306,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [json_repair](https://github.com/mangiucugna/json_repair)
 - [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
+- [BELLE](https://github.com/LianjiaTech/BELLE)
 
 ## 📬 联系我们
 

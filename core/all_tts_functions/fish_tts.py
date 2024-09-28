@@ -2,15 +2,12 @@ import requests
 from pathlib import Path
 import os, sys
 from rich import print as rprint
-import soundfile as sf
-import librosa
 import io
-import numpy as np
 import pydub
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 def fish_tts(text, save_path):
-    from config import FISH_TTS_API_KEY, FISH_TTS_CHARACTER, FISH_TTS_CHARACTER_ID_DICT, FISH_TTS_VOLUME
+    from config import FISH_TTS_API_KEY, FISH_TTS_CHARACTER, FISH_TTS_CHARACTER_ID_DICT
     if FISH_TTS_CHARACTER not in FISH_TTS_CHARACTER_ID_DICT:
         raise ValueError(f"Character '{FISH_TTS_CHARACTER}' not found in FISH_TTS_CHARACTER_ID_DICT")
     id = FISH_TTS_CHARACTER_ID_DICT[FISH_TTS_CHARACTER]
@@ -38,8 +35,6 @@ def fish_tts(text, save_path):
             # Convert mp3 to wav using pydub, otherwise it cannot read the duration
             audio = pydub.AudioSegment.from_file(io.BytesIO(response.content), format="mp3")
             
-            # Adjust volume
-            audio = audio + (10 * np.log10(FISH_TTS_VOLUME))
             audio.export(wav_file_path, format="wav")
             rprint(f"[bold green]Converted audio saved to {wav_file_path}[/bold green]")
             break
