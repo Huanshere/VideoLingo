@@ -107,8 +107,6 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
         start += target_duration
     
     print(f"🔪 Split audio into {len(segments)} segments")
-    #! Occasionally, the process may pause here. Warning the user to skip the pause.
-    print(f"! YOU SHOULD SEE [🚀 Starting WhisperX...] in the next step in 3 secs, otherwise hit ENTER to skip the pause.")
     return segments
 
 import time

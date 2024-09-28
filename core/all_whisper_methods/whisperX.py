@@ -4,6 +4,7 @@ import whisperx
 import torch
 from typing import Dict
 from rich import print as rprint
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from config import MODEL_DIR
@@ -48,8 +49,16 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         audio = whisperx.load_audio(audio_file)
         audio_segment = audio[int(start * 16000):int(end * 16000)]  # Assuming 16kHz sample rate
 
-        result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE))
-        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            transient=True
+        ) as progress:
+            task = progress.add_task("[cyan]Transcribing...", total=None)
+            result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE))
+            progress.update(task, completed=True)
+
         # Free GPU resources
         del model
         torch.cuda.empty_cache()

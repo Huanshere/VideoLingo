@@ -64,18 +64,19 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 
 ### 语言支持：
 
-当前输入语言支持和示例（暂不支持中文输入）：
+当前输入语言支持和示例：
 
 | 输入语言 | 支持程度 | 翻译demo | 配音demo |
 |---------|---------|---------|----------|
-| 🇬🇧🇺🇸 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
-| 🇷🇺 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
-| 🇫🇷 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
-| 🇩🇪 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
-| 🇮🇹 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
-| 🇪🇸 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
-| 🇯🇵 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
-| 🇨🇳 中文 | 🤩 | TODO | TODO |
+| 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
+| 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
+| 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
+| 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
+| 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
+| 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
+| 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
+| 中文* | 🤩 | TODO | TODO |
+> *中文需单独配置whisperX模型，见源码安装
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 
@@ -168,6 +169,12 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 - **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
 - **Fish TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册充值
 
+<details>
+<summary>OpenAI 声音怎么选？</summary>
+
+声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova` 和 `fable` 等，在 `config.py` 中修改 `OAI_VOICE` 即可。
+
+</details>
 <details>
 <summary>Azure 声音怎么选？</summary>
 
