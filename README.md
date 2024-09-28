@@ -75,7 +75,7 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 | 🇮🇹 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
 | 🇪🇸 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
 | 🇯🇵 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
-| 🇨🇳 中文 | 😖 | ❌ | TODO |
+| 🇨🇳 中文 | 🤩 | TODO | TODO |
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 
@@ -86,10 +86,12 @@ https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 1. 整合包使用的是 CPU 版本的 torch，大小约 **2.5G**。
 2. 在配音步骤使用 UVR5 降噪时，CPU 版本会显著慢于 GPU 加速的 torch。
 3. 整合包**仅支持通过 API 调用 whisperXapi ☁️**，不支持本地运行 whisperX 💻。
+4. 整合包使用的 whisperXapi 不支持中文转录，若需要使用中文，请从源码安装使用本地运行的 whisperX 💻。
 
 如果需要以下功能，请从源码安装（需要Nvidia显卡以及至少 **20G** 硬盘空间）：
+- 输入语言为中文
 - 本地运行 whisperX 💻
-- 使用 GPU 加速的 UVR5 降噪
+- 使用 GPU 加速的 UVR5 人声分离
 
 ### 下载和使用说明
 
@@ -209,7 +211,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
       ```
    - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
-   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。
+   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。目前仍处于测试版，可能产生报错。
 
 
    ```

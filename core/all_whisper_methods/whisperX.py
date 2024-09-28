@@ -32,7 +32,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
-        model_name = "large-v3" if WHISPER_LANGUAGE not in ["zh"] else "BELLE-2/Belle-whisper-large-v3-zh-punct"
+        model_name = "large-v3" if WHISPER_LANGUAGE not in ["zh", "yue"] else "BELLE-2/Belle-whisper-large-v3-zh-punct"
+        rprint(f"[green]Loading WHISPER model:[/green] {model_name} ...")
         model = whisperx.load_model(model_name, device, compute_type=compute_type, download_root=whisperx_model_dir)
 
         # Load audio segment
@@ -49,7 +50,6 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
             raise ValueError("WhisperX-large-v3 在中文转录方面表现不佳。请改用 'BELLE-2/Belle-whisper-large-v3-zh-punct' 模型。参考 'https://github.com/Huanshere/Videolingo/' 的说明")
 
-        # Align whisper output
         # Align whisper output
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
         result = whisperx.align(result["segments"], model_a, metadata, audio_segment, device, return_char_alignments=False)
