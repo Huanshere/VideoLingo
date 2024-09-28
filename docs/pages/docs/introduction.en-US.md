@@ -13,13 +13,13 @@ Key features and functionalities:
 
 - **📝 Uses NLP and GPT for subtitle segmentation based on sentence meaning**
 
-- **📚 GPT summarizes intelligent terminology knowledge base for context-aware translation**
+- **📚 GPT summarizes and extracts terminology knowledge base for context-aware translation**
 
-- **🔄 Three-step direct translation, reflection, and paraphrasing to eliminate awkward machine translations**
+- **🔄 Three-step direct translation, reflection, and paraphrasing, rivaling professional subtitle translation quality**
 
-- **✅ Netflix-standard single-line subtitle length and translation quality checks**
+- **✅ Checks single-line length according to Netflix standards, absolutely no double-line subtitles**
 
-- 🗣️ Uses GPT-SoVITS for high-quality aligned dubbing
+- **🗣️ Uses methods like GPT-SoVITS for high-quality aligned dubbing**
 
 - 🚀 One-click integrated package launch, one-click video production in Streamlit
 
@@ -27,25 +27,32 @@ Key features and functionalities:
 
 <table>
 <tr>
-<td width="33%">
+<td width="25%">
 
 ### Russian Translation
-
+---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
-<td width="33%">
+<td width="25%">
 
 ### GPT-SoVITS
-
+---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 </td>
-<td width="33%">
+<td width="25%">
 
-### Azure TTS
+### Fish TTS Ding Zhen
+---
+https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
 
-https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
+</td>
+<td width="25%">
+
+### OAITTS
+---
+https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 </td>
 </tr>
@@ -53,18 +60,19 @@ https://github.com/user-attachments/assets/a5384bd1-0dc8-431a-9aa7-bbe2ea4831b8
 
 ### Language Support:
 
-Currently supported input languages and examples (Chinese input not supported yet):
+Currently supported input languages and examples:
 
 | Input Language | Support Level | Translation Demo | Dubbing Demo |
 |----------------|---------------|-------------------|--------------|
-| 🇬🇧🇺🇸 English | 🤩 | [English to Chinese](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
-| 🇷🇺 Russian | 😊 | [Russian to Chinese](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
-| 🇫🇷 French | 🤩 | [French to Japanese](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
-| 🇩🇪 German | 🤩 | [German to Chinese](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
-| 🇮🇹 Italian | 🤩 | [Italian to Chinese](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
-| 🇪🇸 Spanish | 🤩 | [Spanish to Chinese](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
-| 🇯🇵 Japanese | 😐 | [Japanese to Chinese](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
-| 🇨🇳 Chinese | 😖 | ❌ | TODO |
+| English | 🤩 | [English to Chinese](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
+| Russian | 😊 | [Russian to Chinese](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
+| French | 🤩 | [French to Japanese](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
+| German | 🤩 | [German to Chinese](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
+| Italian | 🤩 | [Italian to Chinese](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
+| Spanish | 🤩 | [Spanish to Chinese](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
+| Japanese | 😐 | [Japanese to Chinese](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
+| Chinese* | 🤩 | [Chinese to English](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [Professor Luo Xiang's Talk Show](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
+> *Chinese requires separate configuration of the whisperX model, see source code installation
 
 Translation languages support all languages that the large language model can handle, while dubbing languages depend on the chosen TTS method.
 
