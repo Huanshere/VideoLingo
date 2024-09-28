@@ -2,9 +2,9 @@ import requests
 from pathlib import Path
 import os, sys
 from rich import print as rprint
-import io
-import pydub
+from moviepy.editor import AudioFileClip
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 def fish_tts(text, save_path):
     from config import FISH_TTS_API_KEY, FISH_TTS_CHARACTER, FISH_TTS_CHARACTER_ID_DICT
@@ -32,10 +32,19 @@ def fish_tts(text, save_path):
             wav_file_path = Path(save_path).with_suffix('.wav')
             wav_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Convert mp3 to wav using pydub, otherwise it cannot read the duration
-            audio = pydub.AudioSegment.from_file(io.BytesIO(response.content), format="mp3")
-            
-            audio.export(wav_file_path, format="wav")
+            # Save the MP3 content to a temporary file
+            temp_mp3_path = wav_file_path.with_suffix('.mp3')
+            with open(temp_mp3_path, 'wb') as temp_file:
+                temp_file.write(response.content)
+
+            # Convert mp3 to wav using moviepy
+            audio_clip = AudioFileClip(str(temp_mp3_path))
+            audio_clip.write_audiofile(str(wav_file_path))
+            audio_clip.close()
+
+            # Remove the temporary MP3 file
+            os.remove(temp_mp3_path)
+
             rprint(f"[bold green]Converted audio saved to {wav_file_path}[/bold green]")
             break
         else:
