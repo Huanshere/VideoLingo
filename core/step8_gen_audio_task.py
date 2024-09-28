@@ -54,7 +54,6 @@ def check_len_then_trim(text, duration):
         original_text = text
         prompt = get_subtitle_trim_prompt(text, duration)
         def valid_trim(response):
-            # check eky trans_text_processed
             if 'trans_text_processed' not in response:
                 return {'status': 'error', 'message': 'No trans_text_processed in response'}
             return {'status': 'success', 'message': ''}
