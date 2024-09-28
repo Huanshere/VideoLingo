@@ -4,7 +4,6 @@ import whisperx
 import torch
 from typing import Dict
 from rich import print as rprint
-import warnings
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from config import MODEL_DIR
@@ -33,13 +32,17 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
-        if WHISPER_LANGUAGE in ["zh", "yue"]:
+        if WHISPER_LANGUAGE == 'zh':
             model_name = "BELLE-2/Belle-whisper-large-v3-zh-punct"
         else:
             model_name = "large-v3"
         rprint(f"[green]Loading WHISPER model:[/green] {model_name} ...")
 
-        model = whisperx.load_model(model_name, device, compute_type=compute_type, download_root=whisperx_model_dir)
+        try:
+            model = whisperx.load_model(model_name, device, compute_type=compute_type, download_root=whisperx_model_dir)
+        except Exception as e:
+            rprint(f"[red]WhisperX model loading error:[/red]{e}\nMake sure you have downloaded the model first.")
+            raise
 
         # Load audio segment
         audio = whisperx.load_audio(audio_file)
