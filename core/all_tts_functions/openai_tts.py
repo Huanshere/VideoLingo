@@ -25,5 +25,5 @@ def openai_tts(text, save_path):
     
     print(f"Audio saved to {speech_file_path}")
 
-# Example usage
-# openai_tts("今天是个好日子，适合做点人们喜欢的东西！", "output/audio/tmp/test.wav")
+if __name__ == "__main__":
+    openai_tts("今天是个好日子，适合做点人们喜欢的东西！", "output/audio/tmp/test.wav")
