@@ -59,50 +59,46 @@ def main():
             print("HP2_all_vocals.pth already exists. Skipping download.")
 
     def download_and_extract_ffmpeg():
-        """Download FFmpeg and FFprobe based on the platform, extract them, and clean up."""
+        """Download FFmpeg based on the platform, extract it, and clean up."""
         system = platform.system()
         if system == "Windows":
             ffmpeg_exe = "ffmpeg.exe"
-            ffprobe_exe = "ffprobe.exe"
             url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
         elif system == "Darwin":
-            print("For macOS users, please install FFmpeg using Homebrew:\n"
-                  "1. Install Homebrew if you haven't: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n"
-                  "2. Then run: brew install ffmpeg")
-            return
+            ffmpeg_exe = "ffmpeg"
+            url = "https://evermeet.cx/ffmpeg/getrelease/zip"
         elif system == "Linux":
             ffmpeg_exe = "ffmpeg"
-            ffprobe_exe = "ffprobe"
             url = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
         else:
             return
 
-        if os.path.exists(ffmpeg_exe) and os.path.exists(ffprobe_exe):
-            print(f"{ffmpeg_exe} and {ffprobe_exe} already exist. Skipping download.")
+        if os.path.exists(ffmpeg_exe):
+            print(f"{ffmpeg_exe} already exists. Skipping download.")
             return
 
-        print("Downloading FFmpeg and FFprobe...")
+        print("Downloading FFmpeg...")
         import requests
 
         response = requests.get(url)
         if response.status_code == 200:
-            filename = "ffmpeg.zip" if system == "Windows" else "ffmpeg.tar.xz"
+            filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
             with open(filename, 'wb') as f:
                 f.write(response.content)
-            print(f"FFmpeg and FFprobe have been downloaded to {filename}")
+            print(f"FFmpeg has been downloaded to {filename}")
         
-            print("Extracting FFmpeg and FFprobe...")
+            print("Extracting FFmpeg...")
             if system == "Linux":
                 import tarfile
                 with tarfile.open(filename) as tar_ref:
                     for member in tar_ref.getmembers():
-                        if member.name.endswith(("ffmpeg", "ffprobe")):
+                        if member.name.endswith("ffmpeg"):
                             member.name = os.path.basename(member.name)
                             tar_ref.extract(member)
             else:
                 with zipfile.ZipFile(filename, 'r') as zip_ref:
                     for file in zip_ref.namelist():
-                        if file.endswith((ffmpeg_exe, ffprobe_exe)):
+                        if file.endswith(ffmpeg_exe):
                             zip_ref.extract(file)
                             shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
             
@@ -112,9 +108,9 @@ def main():
                 for item in os.listdir():
                     if os.path.isdir(item) and "ffmpeg" in item.lower():
                         shutil.rmtree(item)
-            print("FFmpeg and FFprobe extraction completed.")
+            print("FFmpeg extraction completed.")
         else:
-            print("Failed to download FFmpeg and FFprobe")
+            print("Failed to download FFmpeg")
 
     def init_config():
         """Initialize the config.py file with the specified API key and base URL."""

@@ -275,8 +275,6 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    ```
    根据提示选择所需的 Whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
 
-   注意：Mac 用户需根据提示手动安装 ffmpeg
-
 5. 仅对于需要使用中文转录的用户：
    
    请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n) | [HF链接](https://huggingface.co/Huan69/Belle-whisper-large-v3-zh-punct-for-whisperX)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下

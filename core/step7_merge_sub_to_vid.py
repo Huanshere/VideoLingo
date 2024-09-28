@@ -2,7 +2,8 @@ import os, subprocess, time, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step1_ytdlp import find_video_files
 from rich import print as rprint
-from rich.panel import Panel
+import cv2
+import numpy as np
 
 SRC_FONT_SIZE = 16
 TRANS_FONT_SIZE = 18
@@ -24,14 +25,18 @@ def merge_subtitles_to_video():
     output_video = "output/output_video_with_subs.mp4"
     os.makedirs(os.path.dirname(output_video), exist_ok=True)
 
-    # Check resolution and video duration
-    if RESOLUTION == "0x0":
-        rprint(Panel("Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.", title="Warning", border_style="yellow"))
-        # Suppress detailed output of ffmpeg command
-        subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
-                        '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_video],
-                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print("Placeholder video has been generated.")
+    # Check resolution
+    if RESOLUTION == '0x0':
+        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
+
+        # Create a black frame
+        frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_video, fourcc, 1, (1920, 1080))
+        out.write(frame)
+        out.release()
+
+        rprint("[bold green]Placeholder video has been generated.[/bold green]")
         return
 
     en_srt = "output/src_subtitles.srt"

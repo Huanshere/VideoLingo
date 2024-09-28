@@ -5,15 +5,18 @@ import pandas as pd
 import subprocess
 from pydub import AudioSegment
 from rich import print as rprint
+import numpy as np
+import soundfile as sf
+import cv2
 
 def time_to_datetime(time_str):
     return datetime.strptime(time_str, '%H:%M:%S.%f')
 
 def create_silence(duration, output_file):
-    subprocess.run([
-        'ffmpeg', '-f', 'lavfi', '-i', f'anullsrc=channel_layout=mono:sample_rate=32000:duration={duration}',
-        '-acodec', 'pcm_s16le', '-y', output_file
-    ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    sample_rate = 32000
+    num_samples = int(duration * sample_rate)
+    silence = np.zeros(num_samples, dtype=np.float32)
+    sf.write(output_file, silence, sample_rate)
 
 def merge_all_audio():
     # Define input and output paths
@@ -76,17 +79,13 @@ def merge_video_audio():
     if RESOLUTION == '0x0':
         rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
 
-        # 确定是否是macOS
-        macOS = os.name == 'posix' and os.uname().sysname == 'Darwin'
+        # Create a black frame
+        frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_file, fourcc, 1, (1920, 1080))
+        out.write(frame)
+        out.release()
 
-        if macOS:
-            subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
-                            '-c:v', 'libx264', '-t', '0', '-y', output_file],
-                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
-            subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
-                            '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_file],
-                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         rprint("[bold green]Placeholder video has been generated.[/bold green]")
         return
 
