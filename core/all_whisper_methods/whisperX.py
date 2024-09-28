@@ -47,7 +47,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         # Save language
         save_language(result['language'])
         if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
-            raise ValueError("WhisperX-large-v3 在中文转录方面表现不佳。请改用 'BELLE-2/Belle-whisper-large-v3-zh-punct' 模型。参考'https://github.com/Huanshere/Videolingo'")
+            raise ValueError("WhisperX-large-v3 在中文转录方面表现不佳。请改用 'BELLE-2/Belle-whisper-large-v3-zh-punct' 模型。参考 'https://github.com/Huanshere/Videolingo/' 的说明")
 
         # Align whisper output
         # Align whisper output
