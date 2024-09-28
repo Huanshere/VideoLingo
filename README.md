@@ -30,7 +30,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 - **✅ 按照 Netflix 标准检查单行长度，绝无双行字幕**
 
-- 🗣️ 使用 GPT-SoVITS 等方法进行高质量的对齐配音
+- **🗣️ 使用 GPT-SoVITS 等方法进行高质量的对齐配音**
 
 - 🚀 整合包一键启动，在 streamlit 中一键出片
 
@@ -91,7 +91,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 注意事项：
 
-1. 整合包使用的是 CPU 版本的 torch，大小约 **2.5G**。
+1. 整合包使用的是 CPU 版本的 torch，大小约 **2.6G**。
 2. 在配音步骤使用 UVR5 进行人声分离时，CPU 版本会显著慢于 GPU 加速的 torch。
 3. 整合包**仅支持通过 API 调用 whisperXapi ☁️**，不支持本地运行 whisperX 💻。
 4. 整合包使用的 whisperXapi 不支持中文转录，若需要使用中文，请从源码安装使用本地运行的 whisperX 💻。
@@ -105,7 +105,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 下载和使用说明
 
-1. 下载 `v1.2.0` 一键整合包(750M): [直接下载](https://vip.123pan.cn/1817874751/8158115) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v1.3` 一键整合包(800M): [直接下载](https://vip.123pan.cn/1817874751/8187706) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
