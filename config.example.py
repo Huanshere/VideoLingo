@@ -15,7 +15,7 @@ TARGET_LANGUAGE = '简体中文'
 # *每行字幕的最大长度 字母数量
 MAX_SUB_LENGTH = 70
 # *翻译字幕比源字幕字号更大一些，会影响切割字幕的参考长度
-TARGET_SUB_MULTIPLIER = 1.2
+TARGET_SUB_MULTIPLIER = 1.1
 
 # 视频分辨率 [0x0, 640x360, 1920x1080]  0x0会生成一个0秒的黑色视频占位
 RESOLUTION = '640x360'
