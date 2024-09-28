@@ -58,9 +58,17 @@ def page_setting():
             if replicate_api_token != config.REPLICATE_API_TOKEN:
                 changes["REPLICATE_API_TOKEN"] = replicate_api_token
             
-        target_language = st.text_input(gls("translation_target_language"), value=config.TARGET_LANGUAGE, help=gls("translation_target_language_help"))
-        if target_language != config.TARGET_LANGUAGE:
-            changes["TARGET_LANGUAGE"] = target_language
+        col1, col2 = st.columns(2)
+        with col1:
+            whisper_language_options = ["en", "zh", "auto (except zh)"]
+            selected_whisper_language = st.selectbox(gls("whisper_language"), options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE))
+            if selected_whisper_language != config.WHISPER_LANGUAGE:
+                changes["WHISPER_LANGUAGE"] = selected_whisper_language
+
+        with col2:
+            target_language = st.text_input(gls("translation_target_language"), value=config.TARGET_LANGUAGE, help=gls("translation_target_language_help"))
+            if target_language != config.TARGET_LANGUAGE:
+                changes["TARGET_LANGUAGE"] = target_language
 
         resolution_options = {
             "1080p": "1920x1080",

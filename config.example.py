@@ -30,8 +30,8 @@ YTB_RESOLUTION = '1080'
 # Whisper 设置 [whisperx, whisperxapi]
 WHISPER_METHOD = 'whisperxapi'
 
-# *Whisper 指定识别语言 [auto, en, ...] auto为自动检测，en为强制转译为英文
-WHISPER_LANGUAGE = 'zh'
+# Whisper 指定识别语言 [en, zh, auto (except zh)] auto为自动检测，en为强制转译为英文
+WHISPER_LANGUAGE = 'en'
 
 # *llm 多线程访问数量
 MAX_WORKERS = 6
