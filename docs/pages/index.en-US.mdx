@@ -11,70 +11,70 @@ export default function Component() {
     const features = [
         {
             title: 'Intelligent Subtitle Segmentation',
-            description: 'Using NLP and LLM technologies to precisely segment subtitles, ensuring each sentence is just right.',
+            description: 'Using NLP and LLM technologies to precisely segment subtitles based on sentence meaning, ensuring each sentence is just right.',
             icon: 'CheckCircle',
         },
         {
             title: 'Context-Aware Translation',
-            description: 'Intelligent terminology knowledge base for context-aware translation, making every translation natural and fluent.',
+            description: 'GPT summarizes and extracts terminology knowledge base, achieving context-coherent translation, making every translation natural and fluent.',
             icon: 'ArrowRight',
         },
         {
             title: 'Three-Step Translation Process',
-            description: 'Direct translation - Reflection - Improvement, multiple safeguards to ensure translation quality.',
+            description: 'Direct translation - Reflection - Paraphrasing, multiple safeguards, rivaling the quality of professional subtitle team translations.',
             icon: 'CheckCircle',
         },
         {
             title: 'Precise Subtitle Alignment',
-            description: 'Word-level subtitle alignment for accurate synchronization of every word.',
+            description: 'Using WhisperX for word-level timeline subtitle recognition, ensuring accurate synchronization of every word.',
             icon: 'ArrowRight',
         },
         {
             title: 'High-Quality Dubbing',
-            description: 'High-quality personalized dubbing powered by GPT-SoVits technology, making videos more appealing.',
+            description: 'Supports multiple TTS solutions, including high-quality personalized dubbing powered by GPT-SoVITS technology, making videos more appealing.',
             icon: 'CheckCircle',
         },
         {
             title: 'Developer-Friendly',
-            description: 'Structured file design for easy customization and extension of functionality by developers.',
+            description: 'Structured file design for easy customization and extension of functionality by developers. Supports multiple deployment methods.',
             icon: 'ArrowRight',
         },
     ]
 
     const comments = [
         {
-            content: "VideoLingo has completely transformed our video localization process. Now we can produce multilingual content with unprecedented speed and quality.",
-            author: "John Doe",
-            title: "CEO @ TechStart"
+            content: "What used to take a whole day now gets done in just an hour!",
+            author: "K-bro",
+            title: "Bilibili creator with 300K subscribers"
         },
         {
-            content: "As an independent creator, VideoLingo allows me to easily promote my content to a global audience. It's a real game-changer!",
-            author: "Jane Smith",
-            title: "YouTuber"
+            content: "The AI dubbing is even more accurate than my own voice. It's given me so many fun ideas! 🤩",
+            author: "A-Biao",
+            title: "Xiaohongshu creator with 100K followers, Cantonese content"
         },
         {
-            content: "The AI dubbing feature of VideoLingo is amazing. It has added a whole new dimension to our educational videos.",
-            author: "Mike Johnson",
-            title: "Founder of Online Education Platform"
+            content: "I posted it just for fun after work, didn't expect it to blow up so quickly! 😂",
+            author: "X",
+            title: "TikTok creator gaining 7K followers daily"
         }
     ];
 
     const faqItems = [
         {
             question: "What video formats does VideoLingo support?",
-            answer: "VideoLingo supports most common video formats, including MP4, AVI, MOV, WMV, etc. If you have special format requirements, please contact our support team."
+            answer: "VideoLingo uses yt-dlp to download videos from YouTube links and supports most common video formats. If you have special format requirements, please contact our support team."
         },
         {
             question: "How is the quality of translation and dubbing ensured?",
-            answer: "We use advanced AI technology combined with human review to ensure the accuracy of translations. For dubbing, our GP-SoVits technology can generate natural and fluent speech."
+            answer: "We use advanced AI technologies such as Claude 3.5 or DeepSeek models for translation. For dubbing, we offer multiple TTS solutions, including OpenAI TTS, Azure TTS, Fish TTS, and GPT-SoVITS."
         },
         {
             question: "How long does it take to process a video?",
-            answer: "Processing time depends on the length of the video and the services required. Typically, a 5-minute video takes about 30 minutes to complete translation and dubbing."
+            answer: "Processing time depends on the length of the video and the selected services. Typically, a 5-minute video takes about 30 minutes to complete translation and dubbing. Please note that UVR5 has high memory requirements and may take longer for processing long videos."
         },
         {
             question: "Can VideoLingo's features be customized?",
-            answer: "Yes, VideoLingo provides flexible APIs and developer documentation, allowing you to customize and integrate according to your needs."
+            answer: "Yes, VideoLingo provides flexible configuration options and developer documentation, allowing you to customize and integrate according to your needs. You can make advanced settings in config.py."
         }
     ]
 
@@ -83,7 +83,7 @@ export default function Component() {
             <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
                 <Hero
                     title="VideoLingo: Connecting the World, Frame by Frame"
-                    description="Fully automated video localization tool, generating Netflix-quality subtitles! Clone your own voice for dubbing!"
+                    description="Fully automated video localization tool, generating Netflix-quality subtitles! Supports multiple high-quality dubbing solutions!"
                     githubLink="https://github.com/Huanshere/VideoLingo"
                     videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
                 />
