@@ -59,7 +59,7 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
     client = OpenAI(api_key=API_KEY, base_url=base_url)
     response_format = {"type": "json_object"} if response_json and MODEL in llm_support_json else None
 
-    max_retries = 5
+    max_retries = 3
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(

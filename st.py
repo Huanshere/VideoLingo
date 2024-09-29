@@ -6,7 +6,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-st.set_page_config(page_title="VideoLingo", page_icon="🌉")
+st.set_page_config(page_title="VideoLingo", page_icon="st_components/icon.png")
 
 def text_processing_section():
     st.header(gls("translate_generate_subtitle"))
