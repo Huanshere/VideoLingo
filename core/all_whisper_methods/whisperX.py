@@ -100,10 +100,10 @@ def transcribe(video_file: str):
             print(f"{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.")
         else:
             uvr5_for_videolingo(
-                r'output\audio\raw_full_audio.wav',
-                r'output\audio',
-                r'output\audio\background.wav',
-                r'output\audio\original_vocal.wav'
+                'output/audio/raw_full_audio.wav',
+                'output/audio',
+                'output/audio/background.wav',
+                'output/audio/original_vocal.wav'
             )
             print("UVR5 processing completed, original_vocal.wav and background.wav saved")
 
