@@ -143,6 +143,9 @@ def split_sentences_main(nlp):
         output_file.seek(output_file.tell() - 1, os.SEEK_SET)
         output_file.truncate()
 
+    # delete the original file
+    os.remove("output/log/sentence_by_comma.txt")
+    
     print("[green]💾 Sentences split by connectors saved to →  `sentence_splitbyconnector.txt`[/green]")
 
 if __name__ == "__main__":

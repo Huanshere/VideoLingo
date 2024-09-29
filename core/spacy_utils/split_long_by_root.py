@@ -79,6 +79,9 @@ def split_long_by_root_main(nlp):
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
 
+    # delete the original file
+    os.remove("output/log/sentence_splitbyconnector.txt")   
+
     print("[green]💾 Long sentences split by root saved to →  `sentence_splitbynlp.txt`[/green]")
 
 if __name__ == "__main__":
