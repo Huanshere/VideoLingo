@@ -83,7 +83,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 | 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
 | 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
 | 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [罗翔老师脱口秀](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
-> *中文需单独配置whisperX模型，见源码安装
+> *中文需单独配置whisperX模型，详见源码安装，并注意在网页侧边栏指定转录语言为zh
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 
@@ -291,9 +291,9 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    ```
    根据提示选择所需的 Whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
 
-5. 仅对于需要使用中文转录的用户：
+5. 仅**对于需要使用中文转录**的用户：
    
-   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下
+   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下，并注意在网页侧边栏指定**转录语言为zh**
 
 6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
