@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 interface HeroProps {
-  title: string
-  description: string
-  githubLink: string
-  videoSrc: string
+	title: string
+	description: string
+	githubLink: string
+	videoSrc: string
 }
 
 export default function Hero({ title, description, githubLink, videoSrc }: HeroProps) {
@@ -15,13 +15,18 @@ export default function Hero({ title, description, githubLink, videoSrc }: HeroP
 				<div className="flex flex-col items-center text-center">
 					<div className="space-y-4">
 						<h1 className="text-6xl font-bold tracking-tight">{title}</h1>
-						<p className="mx-auto max-w-[700px] text-lg">
-							{description}
-						</p>
+						<p className="mx-auto max-w-[700px] text-lg">{description}</p>
 					</div>
 					<div className="space-x-4 mt-8">
+						<Link href={'/docs/start'}>
+							<Button className="bg-[#C05F3C] hover:bg-[#C96442] rounded-lg" size="lg">
+								Start
+							</Button>
+						</Link>
 						<Link href={githubLink} target="_blank" passHref>
-							<Button className="bg-[#C05F3C] hover:bg-[#C96442] rounded-lg" size="lg">GitHub</Button>
+							<Button className="rounded-lg" size="lg">
+								GitHub
+							</Button>
 						</Link>
 					</div>
 					{/* 新增视频演示组件 */}
