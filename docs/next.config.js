@@ -8,7 +8,7 @@ const nextConfig = {
         unoptimized: true
     },
     i18n: {
-        locales: ['en-US', 'zh-CN'],
+        locales: ['en-US', 'zh-CN', 'ja'],
         defaultLocale: 'zh-CN'
     }
 }
