@@ -99,9 +99,8 @@ def transcribe(video_file: str):
 
         # step1 UVR5 vocal separation
         from config import UVR_BEFORE_TRANSCRIPTION
+        output_dir = 'output/audio'
         if UVR_BEFORE_TRANSCRIPTION:
-        
-            output_dir = 'output/audio'
             if os.path.exists(os.path.join(output_dir, 'background.wav')):
                 rprint(f"[yellow]{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.[/yellow]")
             else:
