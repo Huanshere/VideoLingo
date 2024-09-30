@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import HeroVideoDialog from "@/components/ui/hero-video-dialog";
 
 interface HeroProps {
 	title: string
@@ -31,12 +32,12 @@ export default function Hero({ title, description, githubLink, videoSrc }: HeroP
 					</div>
 					{/* 新增视频演示组件 */}
 					<div className="w-full max-w-6xl mt-16 mb-16">
-						<div className="aspect-video rounded-2xl overflow-hidden">
-							<video className="w-full h-full object-cover" controls>
-								<source src={videoSrc} type="video/mp4" />
-								您的浏览器不支持视频标签。
-							</video>
-						</div>
+						<HeroVideoDialog
+							animationStyle="from-center"
+							videoSrc={videoSrc}
+							thumbnailSrc="/images/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4_20240930_173826.986.jpg"
+							thumbnailAlt="Hero Video"
+						/>
 					</div>
 				</div>
 			</div>
