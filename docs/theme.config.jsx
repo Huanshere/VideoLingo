@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router'
+
 export default {
 	logo: <span>VideoLingo</span>,
 	project: {
@@ -10,4 +12,12 @@ export default {
 		{ locale: 'en-US', text: 'English' },
 		{ locale: 'zh-CN', text: '中文' },
 	],
+	useNextSeoProps() {
+		const { asPath } = useRouter()
+		if (asPath !== '/') {
+			return {
+				titleTemplate: '%s | VideoLingo',
+			}
+		}
+	},
 }
