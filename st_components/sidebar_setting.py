@@ -58,9 +58,17 @@ def page_setting():
             if replicate_api_token != config.REPLICATE_API_TOKEN:
                 changes["REPLICATE_API_TOKEN"] = replicate_api_token
             
-        target_language = st.text_input(gls("translation_target_language"), value=config.TARGET_LANGUAGE, help=gls("translation_target_language_help"))
-        if target_language != config.TARGET_LANGUAGE:
-            changes["TARGET_LANGUAGE"] = target_language
+        col1, col2 = st.columns(2)
+        with col1:
+            whisper_language_options = ["en", "zh", "auto"]
+            selected_whisper_language = st.selectbox(gls("whisper_language"), options=whisper_language_options, index=whisper_language_options.index(config.WHISPER_LANGUAGE))
+            if selected_whisper_language != config.WHISPER_LANGUAGE:
+                changes["WHISPER_LANGUAGE"] = selected_whisper_language
+
+        with col2:
+            target_language = st.text_input(gls("translation_target_language"), value=config.TARGET_LANGUAGE, help=gls("translation_target_language_help"))
+            if target_language != config.TARGET_LANGUAGE:
+                changes["TARGET_LANGUAGE"] = target_language
 
         resolution_options = {
             "1080p": "1920x1080",
@@ -113,7 +121,7 @@ def page_setting():
             if azure_voice != config.AZURE_VOICE:
                 changes["AZURE_VOICE"] = azure_voice
         elif selected_tts_method == "gpt_sovits":
-            st.info("配置GPT_SoVITS，参考[安装指南](https://github.com/Huanshere/VideoLingo/blob/main/docs/install_locally_zh.md)")
+            st.info("配置GPT_SoVITS，请参考Github主页")
             st.warning("注意：当前适配只支持输出为中文，输入参考为英文。对于嘈杂音频效果不佳，且偶尔会发生漏句漏字现象。如使用参考视频语音的模式，建议选用和视频原声音色相近的底模")
             sovits_character = st.text_input(gls("sovits_character"), value=config.DUBBING_CHARACTER, help="需在 GPT-SoVITS 的 config 目录下配置有 `xxx.yaml` 文件")
             if sovits_character != config.DUBBING_CHARACTER:

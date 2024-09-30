@@ -54,7 +54,7 @@ def translate_all():
         console.print(Panel("🚨 File `translation_results.xlsx` already exists, skipping TRANSLATE ALL.", title="Warning", border_style="yellow"))
         return
     
-    console.print("[bold green]Start Translate All...[/bold green]")
+    console.print("[bold green]Start Translating All...[/bold green]")
     from config import MODEL
     if 'sonnet' in MODEL:
         chunks = split_chunks_by_chars()
@@ -103,7 +103,6 @@ def translate_all():
     df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']) if x['duration'] > MIN_TRIM_DURATION else x['Translation'], axis=1)
     console.print(df_time)
     
-    df_translate.to_excel("output/log/translation_results_before_trim.xlsx", index=False)
     df_time.to_excel("output/log/translation_results.xlsx", index=False)
     console.print("[bold green]✅ Translation completed and results saved.[/bold green]")
 

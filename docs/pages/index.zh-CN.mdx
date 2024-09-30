@@ -2,6 +2,98 @@
 title: VideoLingo
 ---
 
-import Landing from './landing'
+import Hero from '@/components/landing/hero'
+import Features from '@/components/landing/features'
+import Comments from '@/components/landing/comments'
+import FAQ from '@/components/landing/faq'
 
-<Landing />
+export default function Component() {
+    const features = [
+        {
+            title: '智能字幕分割',
+            description: '使用 NLP 和 LLM 技术，根据句意精确分割字幕，确保每一句话都恰到好处。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '上下文感知翻译',
+            description: 'GPT 总结提取术语知识库，实现上下文连贯翻译，让每一句翻译都自然流畅。',
+            icon: 'ArrowRight',
+        },
+        {
+            title: '三步翻译过程',
+            description: '直接翻译 - 反思 - 意译，多重保障，媲美字幕组精翻效果。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '精确字幕对齐',
+            description: '使用 WhisperX 进行单词级时间轴字幕识别，让每一个字都准确同步。',
+            icon: 'ArrowRight',
+        },
+        {
+            title: '高质量配音',
+            description: '支持多种 TTS 方案，包括 GPT-SoVITS 技术的高质量个性化配音，让视频更具魅力。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '开发者友好',
+            description: '结构化文件设计，方便开发者自定义和扩展功能。支持多种部署方式。',
+            icon: 'ArrowRight',
+        },
+    ]
+
+    const comments = [
+
+        {
+            content: "之前要弄一整天，现在一个小时就弄完了！",
+            author: "k哥",
+            title: "B站30w粉up"
+        },
+        {
+            content: "这个配音比我说得还准，我一下就有好多好玩的想法了🤩",
+            author: "阿标",
+            title: "小红书10w粉粤语up"
+        },
+        {
+            content: "下班单纯发着玩，没想到一下就爆了😂",
+            author: "X",
+            title: "抖音日涨7k粉up"
+        }
+    ];
+
+    const faqItems = [
+        {
+            question: "VideoLingo 支持哪些视频格式？",
+            answer: "VideoLingo 使用 yt-dlp 从 Youtube 链接下载视频，支持大多数常见的视频格式。如果您有特殊格式需求，请联系我们的支持团队。"
+        },
+        {
+            question: "翻译和配音的质量如何保证？",
+            description: "我们使用先进的 AI 技术，如 Claude 3.5 或 DeepSeek 模型进行翻译。对于配音，我们提供多种 TTS 方案，包括 OpenAI TTS、Azure TTS、Fish TTS 和 GPT-SoVITS 等。"
+        },
+        {
+            question: "处理一个视频需要多长时间？",
+            answer: "处理时间取决于视频的长度和所选的服务。通常，一个 5 分钟的视频完成翻译和配音大约需要 30 分钟。请注意，UVR5 对内存要求较高，处理长视频时可能需要更多时间。"
+        },
+        {
+            question: "可以自定义 VideoLingo 的功能吗？",
+            answer: "是的，VideoLingo 提供了灵活的配置选项和开发者文档，允许您根据需求进行自定义和集成。您可以在 config.py 中进行更多进阶设置。"
+        }
+    ]
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
+                <Hero
+                    title="VideoLingo: 连接世界的每一帧"
+                    description="全自动视频本地化工具，生成 Netflix 品质的字幕！支持多种高质量配音方案！"
+                    githubLink="https://github.com/Huanshere/VideoLingo"
+                    videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+                />
+
+                <Features title="强大功能，释放创意" features={features} />
+                <Comments title="他们都在用 VideoLingo" comments={comments} />
+                <FAQ title="常见问题" faqItems={faqItems} />
+            </main>
+        </div>
+    )
+
+}

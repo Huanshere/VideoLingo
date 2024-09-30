@@ -1,12 +1,10 @@
 from pathlib import Path
-import json
 import requests
 from rich import print as rprint
 import os, sys
 import subprocess
 import socket
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-import time
 def check_lang(text_lang, prompt_lang):
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文']):
         text_lang = 'zh'

@@ -11,50 +11,46 @@ from rich.console import Console
 
 console = Console()
 from config import MAX_SPEED_FACTOR, NORMAL_SPEED_FACTOR
-# TODO: 需要优化，目前只考虑了中英文标点符号，没有考虑其他语言的标点符号
+
 def check_len_then_trim(text, duration):
     # Define speech speed: characters/second or words/second, punctuation/second
     speed_zh_ja = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR  # Chinese and Japanese characters per second
-    speed_en = speed_ru = speed_fr = speed_es = speed_it = speed_de = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Words per second for English, Russian, French, Spanish, Italian, German
+    speed_en_and_others = 5 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Words per second for English and other languages
     speed_punctuation = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Punctuation marks per second
     
     # Count characters, words, and punctuation for each language
     chinese_japanese_chars = len(re.findall(r'[\u4e00-\u9fff\u3040-\u30ff\u3400-\u4dbf\uf900-\ufaff\uff66-\uff9f]', text))
-    english_words = len(re.findall(r'\b[a-zA-Z]+\b', text))
-    russian_words = len(re.findall(r'\b[а-яА-Я]+\b', text))
-    french_words = len(re.findall(r'\b[a-zA-Zàâçéèêëîïôûùüÿñæœ]+\b', text))
-    spanish_words = len(re.findall(r'\b[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+\b', text))
-    italian_words = len(re.findall(r'\b[a-zA-ZàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚ]+\b', text))
-    german_words = len(re.findall(r'\b[a-zA-ZäöüßÄÖÜ]+\b', text))
+    en_and_others_words = len(re.findall(r'\b[a-zA-ZàâçéèêëîïôûùüÿñæœáéíóúüñÁÉÍÓÚÜÑàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚäöüßÄÖÜа-яА-Я]+\b', text))
     punctuation_count = len(re.findall(r'[,.!?;:，。！？；：](?=.)', text))
     
     # Estimate duration for each language part and punctuation
     chinese_japanese_duration = chinese_japanese_chars / speed_zh_ja
-    english_duration = english_words / speed_en
-    russian_duration = russian_words / speed_ru
-    french_duration = french_words / speed_fr
-    spanish_duration = spanish_words / speed_es
-    italian_duration = italian_words / speed_it
-    german_duration = german_words / speed_de
+    en_and_others_duration = en_and_others_words / speed_en_and_others
     punctuation_duration = punctuation_count / speed_punctuation
     
     # Total estimated duration
-    estimated_duration = (chinese_japanese_duration + english_duration + russian_duration + 
-                          french_duration + spanish_duration + italian_duration + 
-                          german_duration + punctuation_duration)
+    estimated_duration = chinese_japanese_duration + en_and_others_duration + punctuation_duration
     
-    console.print(f"Subtitle info: Chinese/Japanese chars: {chinese_japanese_chars}, English words: {english_words}, "
-                  f"Russian words: {russian_words}, French words: {french_words}, "
-                  f"Spanish words: {spanish_words}, Italian words: {italian_words}, "
-                  f"German words: {german_words}, Punctuation marks: {punctuation_count}, "
+    console.print(f"Subtitle text: {text}, "
+                  f"Subtitle info: Chinese/Japanese chars: {chinese_japanese_chars}, "
+                  f"English and other language words: {en_and_others_words}, "
+                  f"Punctuation marks: {punctuation_count}, "
                   f"[bold green]Estimated reading duration: {estimated_duration:.2f} seconds[/bold green]")
-    
+
     if estimated_duration > duration:
         rprint(Panel(f"Estimated reading duration {estimated_duration:.2f} seconds exceeds given duration {duration:.2f} seconds, shortening...", title="Processing", border_style="yellow"))
         original_text = text
         prompt = get_subtitle_trim_prompt(text, duration)
-        response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
-        shortened_text = response['trans_text_processed']
+        def valid_trim(response):
+            if 'trans_text_processed' not in response:
+                return {'status': 'error', 'message': 'No trans_text_processed in response'}
+            return {'status': 'success', 'message': ''}
+        try:    
+            response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim', valid_def=valid_trim)
+            shortened_text = response['trans_text_processed']
+        except Exception:
+            rprint("[bold red]🚫 AI refused to answer due to sensitivity, so manually remove punctuation[/bold red]")
+            shortened_text = re.sub(r'[,.!?;:，。！？；：]', ' ', text).strip()
         rprint(Panel(f"Subtitle before shortening: {original_text}\nSubtitle after shortening: {shortened_text}", title="Subtitle Shortening Result", border_style="green"))
         return shortened_text
     else:

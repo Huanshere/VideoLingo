@@ -4,6 +4,7 @@ import whisperx
 import torch
 from typing import Dict
 from rich import print as rprint
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from config import MODEL_DIR
@@ -11,10 +12,12 @@ from core.all_whisper_methods.whisperXapi import (
     process_transcription, convert_video_to_audio, split_audio,
     save_results, save_language
 )
+from third_party.uvr5.uvr5_for_videolingo import uvr5_for_videolingo
 
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     from config import WHISPER_LANGUAGE
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    rprint(f"[green]🚀 Starting WhisperX...[/green]")
     rprint(f"[cyan]Device:[/cyan] {device}")
     
     # Adjust batch size based on GPU memory
@@ -31,19 +34,40 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
-        model = whisperx.load_model("large-v2", device, compute_type=compute_type, download_root=whisperx_model_dir)
+        if WHISPER_LANGUAGE == 'zh':
+            model_name = "BELLE-2/Belle-whisper-large-v3-zh-punct"
+        else:
+            model_name = "large-v3"
+        rprint(f"[green]Loading WHISPER model:[/green] {model_name} ...")
+
+        try:
+            model = whisperx.load_model(model_name, device, compute_type=compute_type, download_root=whisperx_model_dir)
+        except Exception as e:
+            rprint(f"[red]WhisperX model loading error:[/red]{e}\nMake sure you have downloaded the model first.")
+            raise
 
         # Load audio segment
         audio = whisperx.load_audio(audio_file)
         audio_segment = audio[int(start * 16000):int(end * 16000)]  # Assuming 16kHz sample rate
 
-        result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE))
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            transient=True
+        ) as progress:
+            task = progress.add_task("[cyan]Transcribing...", total=None)
+            result = model.transcribe(audio_segment, batch_size=batch_size, language=(None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE))
+            progress.update(task, completed=True)
+
         # Free GPU resources
         del model
         torch.cuda.empty_cache()
 
         # Save language
         save_language(result['language'])
+        if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
+            raise ValueError("WhisperX-large-v3 在中文转录方面表现不佳。请改用 'BELLE-2/Belle-whisper-large-v3-zh-punct' 模型。参考 'https://github.com/Huanshere/Videolingo/' 的说明")
 
         # Align whisper output
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
@@ -70,15 +94,30 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
 def transcribe(video_file: str):
     if not os.path.exists("output/log/cleaned_chunks.xlsx"):
         audio_file = convert_video_to_audio(video_file)
-        
+        # step1 UVR5 vocal separation
+        output_dir = 'output/audio'
+        if os.path.exists(os.path.join(output_dir, 'background.wav')):
+            print(f"{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.")
+        else:
+            uvr5_for_videolingo(
+                'output/audio/raw_full_audio.wav',
+                'output/audio',
+                'output/audio/background.wav',
+                'output/audio/original_vocal.wav'
+            )
+            print("UVR5 processing completed, original_vocal.wav and background.wav saved")
+
+        # step2 Extract audio
+        audio_file = os.path.join(output_dir, 'original_vocal.wav')
         segments = split_audio(audio_file)
         
+        # step3 Transcribe audio
         all_results = []
         for start, end in segments:
             result = transcribe_audio(audio_file, start, end)
             all_results.append(result)
         
-        # Combine results
+        # step4 Combine results
         combined_result = {'segments': []}
         for result in all_results:
             combined_result['segments'].extend(result['segments'])

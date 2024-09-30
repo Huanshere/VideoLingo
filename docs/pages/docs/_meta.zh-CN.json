@@ -1,5 +1,8 @@
 {
-    "index1": {
+    "introduction": {
+      "title": "介绍"
+    },
+    "start": {
       "title": "使用文档"
     },
     "tech": {

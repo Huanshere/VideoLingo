@@ -2,10 +2,11 @@ import os, subprocess, time, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step1_ytdlp import find_video_files
 from rich import print as rprint
-from rich.panel import Panel
+import cv2
+import numpy as np
 
-SRC_FONT_SIZE = 15
-TRANS_FONT_SIZE = 19
+SRC_FONT_SIZE = 16
+TRANS_FONT_SIZE = 18
 FONT_NAME = 'Arial'
 TRANS_FONT_NAME = 'Arial'
 SRC_FONT_COLOR = '&HFFFFFF' 
@@ -24,14 +25,18 @@ def merge_subtitles_to_video():
     output_video = "output/output_video_with_subs.mp4"
     os.makedirs(os.path.dirname(output_video), exist_ok=True)
 
-    # Check resolution and video duration
-    if RESOLUTION == "0x0":
-        rprint(Panel("Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.", title="Warning", border_style="yellow"))
-        # Suppress detailed output of ffmpeg command
-        subprocess.run(['ffmpeg', '-f', 'lavfi', '-i', 'color=c=black:s=1920x1080:d=0',
-                        '-c:v', 'libx264', '-t', '0', '-preset', 'ultrafast', '-y', output_video],
-                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print("Placeholder video has been generated.")
+    # Check resolution
+    if RESOLUTION == '0x0':
+        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
+
+        # Create a black frame
+        frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_video, fourcc, 1, (1920, 1080))
+        out.write(frame)
+        out.release()
+
+        rprint("[bold green]Placeholder video has been generated.[/bold green]")
         return
 
     en_srt = "output/src_subtitles.srt"
@@ -55,7 +60,7 @@ def merge_subtitles_to_video():
             f"subtitles={trans_srt}:force_style='FontSize={TRANS_FONT_SIZE},FontName={TRANS_FONT_NAME},"
             f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
             f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=25,BorderStyle=4'"
-        ),
+        ).encode('utf-8'),  # 使用 UTF-8 编码
         '-y',
         output_video
     ]
@@ -67,22 +72,25 @@ def merge_subtitles_to_video():
 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
-    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, encoding='utf-8')  # 指定 UTF-8 编码
 
     try:
-        stdout, stderr = process.communicate(timeout=120)
+        for line in process.stdout:
+            print(line, end='')  # Print FFmpeg output in real-time
+        
+        process.wait()
         if process.returncode == 0:
-            print(f"Process completed in {time.time() - start_time:.2f} seconds.")
+            print(f"\n[Process completed in {time.time() - start_time:.2f} seconds.]")
             print("🎉🎥 Subtitles merging to video completed! Please check in the `output` folder 👀")
         else:
-            print("Error occurred during FFmpeg execution:")
-            print(stderr.decode())
-    except subprocess.TimeoutExpired:
+            print("\n[Error occurred during FFmpeg execution.]")
+    except KeyboardInterrupt:
         process.kill()
+        print("\n[Process interrupted by user.]")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"\n[An unexpected error occurred: {e}]")
         if process.poll() is None:
             process.kill()
-    
+
 if __name__ == "__main__":
     merge_subtitles_to_video()

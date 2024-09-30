@@ -21,7 +21,7 @@ def valid_translate_result(result: dict, required_keys: list, required_sub_keys:
     
     # Check if all sub-keys values are not empty
     def remove_punctuation(text):
-        return re.sub(r'[^\w\s]', '', text)
+        return re.sub(r'[^\w\s]', '', text).strip()
     for key in result:
         for sub_key in required_sub_keys:
             translate_result = remove_punctuation(result[key][sub_key]).strip()
