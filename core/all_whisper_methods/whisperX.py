@@ -6,7 +6,8 @@ from typing import Dict
 from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from config import MODEL_DIR
 from core.all_whisper_methods.whisperXapi import (
     process_transcription, convert_video_to_audio, split_audio,
@@ -46,9 +47,10 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             rprint(f"[red]WhisperX model loading error:[/red]{e}\nMake sure you have downloaded the model first.")
             raise
 
-        # Load audio segment
-        audio = whisperx.load_audio(audio_file)
-        audio_segment = audio[int(start * 16000):int(end * 16000)]  # Assuming 16kHz sample rate
+        # Load audio segment using librosa
+        import librosa
+        audio, sample_rate = librosa.load(audio_file, sr=None, offset=start, duration=end-start)
+        audio_segment = audio
 
         with Progress(
             SpinnerColumn(),
@@ -94,21 +96,27 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
 def transcribe(video_file: str):
     if not os.path.exists("output/log/cleaned_chunks.xlsx"):
         audio_file = convert_video_to_audio(video_file)
+
         # step1 UVR5 vocal separation
-        output_dir = 'output/audio'
-        if os.path.exists(os.path.join(output_dir, 'background.wav')):
-            print(f"{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.")
+        from config import UVR_BEFORE_TRANSCRIPTION
+        if UVR_BEFORE_TRANSCRIPTION:
+        
+            output_dir = 'output/audio'
+            if os.path.exists(os.path.join(output_dir, 'background.wav')):
+                rprint(f"[yellow]{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.[/yellow]")
+            else:
+                uvr5_for_videolingo(
+                    os.path.join(output_dir, 'raw_full_audio.wav'),
+                    output_dir,
+                    os.path.join(output_dir, 'background.wav'),
+                    os.path.join(output_dir, 'original_vocal.wav')
+                )
+                print("UVR5 processing completed, original_vocal.wav and background.wav saved")
+            audio_file = os.path.join(output_dir, 'original_vocal.wav')
         else:
-            uvr5_for_videolingo(
-                'output/audio/raw_full_audio.wav',
-                'output/audio',
-                'output/audio/background.wav',
-                'output/audio/original_vocal.wav'
-            )
-            print("UVR5 processing completed, original_vocal.wav and background.wav saved")
+            audio_file = os.path.join(output_dir, 'raw_full_audio.wav')
 
         # step2 Extract audio
-        audio_file = os.path.join(output_dir, 'original_vocal.wav')
         segments = split_audio(audio_file)
         
         # step3 Transcribe audio

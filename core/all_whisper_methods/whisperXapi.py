@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from moviepy.editor import AudioFileClip
 import librosa
 import soundfile as sf
+import time
 
 def convert_video_to_audio(input_file: str) -> str:
     audio_dir = 'output/audio'
@@ -52,17 +53,7 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
         window_start = start + target_duration - window
         window_end = min(window_start + 2 * window, duration)
         
-        ffmpeg_cmd = [
-            'ffmpeg',
-            '-y',
-            '-i', audio_file,
-            '-ss', str(window_start),
-            '-to', str(window_end),
-            '-af', 'silencedetect=n=-30dB:d=0.5',
-            '-f', 'null',
-            '-'
-        ]
-        
+        ffmpeg_cmd = ['ffmpeg', '-y', '-i', audio_file, '-ss', str(window_start), '-to', str(window_end), '-af', 'silencedetect=n=-30dB:d=0.5', '-f', 'null', '-']
         output = subprocess.run(ffmpeg_cmd, capture_output=True, text=True).stderr
         
         # Parse silence detection output
@@ -83,28 +74,17 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
     print(f"🔪 Split audio into {len(segments)} segments")
     return segments
 
-import time
 def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     print(f"🎙️ Transcribing segment from {start:.2f}s to {end:.2f}s")
     
-    segment_file = f'output/audio/segment_{start:.2f}_{end:.2f}.wav'
-    ffmpeg_cmd = [
-        'ffmpeg',
-        '-y',
-        '-i', audio_file,
-        '-ss', str(start),
-        '-to', str(end),
-        '-c', 'copy',
-        segment_file
-    ]
+    segment_file = f'output/audio/segment_{start:.2f}_{end:.2f}.mp3'
+    ffmpeg_cmd = ['ffmpeg', '-y', '-i', audio_file, '-ss', str(start), '-to', str(end), '-ar', '16000', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '24k', segment_file]
     
     try:
         # Run ffmpeg command with timeout
         subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, timeout=300)
     except subprocess.TimeoutExpired:
         print("⚠️ ffmpeg command timed out, retrying...")
-        # If timeout occurs, try with a different encoding method
-        ffmpeg_cmd[6] = 'pcm_s16le'
         subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
     
     # Short wait to ensure file is written
@@ -121,7 +101,6 @@ def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     segment_size = len(audio_base64) / (1024 * 1024)  # Size in MB
     print(f"📊 Segment size: {segment_size:.2f} MB")
 
-    print("🚀 Starting WhisperX API...")
     result = transcribe_audio(audio_base64)
     
     # Delete segment file

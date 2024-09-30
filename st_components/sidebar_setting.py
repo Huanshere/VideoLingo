@@ -53,7 +53,12 @@ def page_setting():
         selected_whisper_method = whisper_method_mapping[selected_whisper_method_display]
         if selected_whisper_method != config.WHISPER_METHOD:
             changes["WHISPER_METHOD"] = selected_whisper_method
-        if selected_whisper_method == "whisperxapi":    
+
+        if selected_whisper_method == "whisperx":
+            uvr_before_transcription = st.toggle(gls("uvr_before_transcription"), value=config.UVR_BEFORE_TRANSCRIPTION, help=gls("uvr_before_transcription_help"))
+            if uvr_before_transcription != config.UVR_BEFORE_TRANSCRIPTION:
+                changes["UVR_BEFORE_TRANSCRIPTION"] = uvr_before_transcription
+        elif selected_whisper_method == "whisperxapi":    
             replicate_api_token = st.text_input(gls("replicate_api_token"), value=config.REPLICATE_API_TOKEN, help=gls("replicate_api_token_help"))
             if replicate_api_token != config.REPLICATE_API_TOKEN:
                 changes["REPLICATE_API_TOKEN"] = replicate_api_token
@@ -80,7 +85,7 @@ def page_setting():
         if resolution != config.RESOLUTION:
             changes["RESOLUTION"] = resolution
         
-    with st.expander(gls("dubbing_settings"), expanded=True):
+    with st.expander(gls("dubbing_settings"), expanded=False):
         tts_methods = ["openai", "azure_tts", "gpt_sovits", "fish_tts"]
         selected_tts_method = st.selectbox(gls("tts_method"), options=tts_methods, index=tts_methods.index(config.TTS_METHOD))
         if selected_tts_method != config.TTS_METHOD:
@@ -157,7 +162,8 @@ def page_setting():
 
     if changes:
         st.toast(gls("remember_save_settings"), icon="🔔")
-    
+        st.warning(gls("unsaved_changes_warning"))
+
     st.markdown("")
     cols_save = st.columns(2)
     with cols_save[0]:
@@ -170,15 +176,15 @@ def page_setting():
         if st.button(gls("verify"), use_container_width=True):
             st.toast(gls("attempting_access"), icon="🔄")
             if valid_llm_api():
-                st.toast(f"LLM API 验证成功", icon="✅")
+                st.toast(f"LLM API", icon="✅")
             else:
-                st.toast(f"LLM API 验证失败", icon="❌")
+                st.toast(f"LLM API", icon="❌")
             
             if config.WHISPER_METHOD == "whisperxapi":
                 if valid_replicate_token(config.REPLICATE_API_TOKEN):
-                    st.toast(f"Replicate Token 验证成功", icon="✅")
+                    st.toast(f"Replicate Token", icon="✅")
                 else:
-                    st.toast(f"Replicate Token 验证失败", icon="❌")
+                    st.toast(f"Replicate Token", icon="❌")
             
 
 def valid_llm_api():

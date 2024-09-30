@@ -43,7 +43,8 @@ def find_video_files(save_path='output'):
     from config import ALLOWED_VIDEO_FORMATS
     video_files = [file for file in glob.glob(save_path + "/*") if os.path.splitext(file)[1][1:] in ALLOWED_VIDEO_FORMATS]
     # change \\ to /, this happen on windows
-    video_files = [file.replace("\\", "/") for file in video_files]
+    if sys.platform.startswith('win'):
+        video_files = [file.replace("\\", "/") for file in video_files]
     video_files = [file for file in video_files if not file.startswith("output/output")]
     # if num != 1, raise ValueError
     if len(video_files) != 1:
