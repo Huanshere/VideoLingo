@@ -298,7 +298,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    ```bash
    python install.py
    ```
-   根据提示选择所需的 Whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
+   根据提示选择所需的 whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
 
 5. 仅**对于需要使用中文转录**的用户：
    
@@ -346,9 +346,8 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 - 加入我们的 QQ 群：875297969
 - 在 GitHub 上提交 [Issues](https://github.com/Huanshere/VideoLingo/issues) 或 [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls)
-
-twitter @Huanshere
-网站：videolingo.io
+- 关注我的 Twitter：[@Huanshere](https://twitter.com/Huanshere)
+- 访问官方网站：[videolingo.io](https://videolingo.io)
 
 ## ⭐ Star History
 
