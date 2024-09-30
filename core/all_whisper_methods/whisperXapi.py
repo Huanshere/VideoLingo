@@ -191,6 +191,14 @@ def process_transcription(result: Dict) -> pd.DataFrame:
 def save_results(df: pd.DataFrame):
     os.makedirs('output/log', exist_ok=True)
     excel_path = os.path.join('output/log', "cleaned_chunks.xlsx")
+    
+    # Remove rows where 'text' is empty
+    initial_rows = len(df)
+    df = df[df['text'].str.len() > 0]
+    removed_rows = initial_rows - len(df)
+    if removed_rows > 0:
+        print(f"ℹ️ Removed {removed_rows} row(s) with empty text.")
+    
     df['text'] = df['text'].apply(lambda x: f'"{x}"')
     df.to_excel(excel_path, index=False)
     print(f"📊 Excel file saved to {excel_path}")
