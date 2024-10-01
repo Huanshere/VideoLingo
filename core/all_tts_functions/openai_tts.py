@@ -6,14 +6,16 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 # voice options: alloy, echo, fable, onyx, nova, and shimmer
 # refer to: https://platform.openai.com/docs/guides/text-to-speech/quickstart
 def openai_tts(text, save_path):
-    from config import API_KEY, BASE_URL, OAI_VOICE
+    from config import OAI_TTS_API_KEY, OAI_TTS_API_BASE_URL, OAI_VOICE
 
     client = OpenAI(
-        base_url=BASE_URL.strip('/') + '/v1',
-        api_key=API_KEY
+        base_url=OAI_TTS_API_BASE_URL.strip('/') + '/v1',
+        api_key=OAI_TTS_API_KEY
     )
 
     speech_file_path = Path(save_path)
+    # make dir before save
+    speech_file_path.parent.mkdir(parents=True, exist_ok=True)
     with client.audio.speech.with_streaming_response.create(
         model="tts-1",
         voice=OAI_VOICE,
