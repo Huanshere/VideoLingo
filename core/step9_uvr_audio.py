@@ -36,7 +36,6 @@ def extract_audio(input_video, start_time, end_time, output_file):
         # Save extracted audio
         sf.write(output_file, extract, samplerate)
 
-# TODO 需要拆分文件进行UVR
 def uvr_audio_main():
     output_dir = 'output/audio'
 
@@ -44,12 +43,11 @@ def uvr_audio_main():
     if os.path.exists(os.path.join(output_dir, 'background.wav')):
         rprint(Panel(f"{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.", title="Info", border_style="blue"))
     else:
-        
         uvr5_for_videolingo(
-            r'output\audio\raw_full_audio.wav',
-            r'output\audio',
-            r'output\audio\background.wav',
-            r'output\audio\original_vocal.wav'
+            'output/audio/raw_full_audio.wav',
+            'output/audio',
+            'output/audio/background.wav',
+            'output/audio/original_vocal.wav'
         )
         rprint(Panel("UVR5 processing completed, original_vocal.wav and background.wav saved", title="Success", border_style="green"))
 
