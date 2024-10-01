@@ -76,7 +76,12 @@ def split_long_by_root_main(nlp):
             all_split_sentences.append(sentence.strip())
 
     with open("output/log/sentence_splitbynlp.txt", "w", encoding="utf-8") as output_file:
-        for sentence in all_split_sentences:
+        for i, sentence in enumerate(all_split_sentences):
+            if not sentence.strip() or not sentence.strip(''.join([char for char in sentence if not char.isalnum()])):
+                print(f"[yellow]⚠️  Warning: Empty or punctuation-only line detected at index {i}[/yellow]")
+                if i > 0:
+                    all_split_sentences[i-1] += sentence
+                continue
             output_file.write(sentence + "\n")
 
     # delete the original file
