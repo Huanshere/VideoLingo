@@ -25,26 +25,21 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 							</Button>
 						</Link>
 						<div
-							data-heyform-id="yKaJUF8F"
+							data-heyform-id="52QH8JAj"
 							data-heyform-type="modal"
-							data-heyform-custom-url="https://videolingoform.zeabur.app/form/"
+							data-heyform-custom-url="https://form-vl.zeabur.app/form/"
 							data-heyform-size="large"
 							data-heyform-open-trigger="click"
 							data-heyform-open-delay="5"
 							data-heyform-open-scroll-percent="30"
-							data-heyform-trigger-background="#f0eee5"
+							data-heyform-trigger-background="#bbf7d0"
 							data-heyform-trigger-text="请求演示"
 							data-heyform-hide-after-submit="true"
 							data-heyform-auto-close="5"
-							data-heyform-transparent-background="false"
 						>
-							<Button 
-								className="rounded-lg" 
-								size="lg" 
-								onClick={() => (window as any).HeyForm.openModal('yKaJUF8F')}
-							>
+							<button className="heyform__trigger-button" type="button" onClick={() => (window as any).HeyForm.openModal('52QH8JAj')}>
 								请求演示
-							</Button>
+							</button>
 						</div>
 					</div>
 					{/* 视频演示组件 */}
