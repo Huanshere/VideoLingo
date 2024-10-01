@@ -7,7 +7,7 @@
   <a href="https://github.com/Huanshere/VideoLingo/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/Huanshere/VideoLingo.svg" alt="GitHub stars"></a>
 </p>
 
-[**中文**](README.md) | [**English**](README.en.md)
+[**中文**](README.md) | [**English**](README.en.md)｜[**日本語**](README.ja.md)
 
 **QQ Group: 875297969**
 
