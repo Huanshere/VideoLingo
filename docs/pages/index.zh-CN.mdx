@@ -7,6 +7,7 @@ import Features from '@/components/landing/features'
 import Comments from '@/components/landing/comments'
 import FAQ from '@/components/landing/faq'
 import GitHubStats from '@/components/landing/github-stats'
+import Script from 'next/script'
 
 import { useData } from 'nextra/data'
  
@@ -115,6 +116,28 @@ export default function Component() {
                     videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
                 />
 
+                {/* Add the demo request button here */}
+                <div className="text-center my-8">
+                    <div
+                        data-heyform-id="yKaJUF8F"
+                        data-heyform-type="modal"
+                        data-heyform-custom-url="https://videolingoform.zeabur.app/form/"
+                        data-heyform-size="large"
+                        data-heyform-open-trigger="click"
+                        data-heyform-open-delay="5"
+                        data-heyform-open-scroll-percent="30"
+                        data-heyform-trigger-background="#1d4ed8"
+                        data-heyform-trigger-text="请求演示"
+                        data-heyform-hide-after-submit="true"
+                        data-heyform-auto-close="5"
+                        data-heyform-transparent-background="false"
+                    >
+                        <button className="heyform__trigger-button" type="button" onClick={() => HeyForm.openModal('yKaJUF8F')}>
+                            请求演示
+                        </button>
+                    </div>
+                </div>
+
                 <Features title="强大功能，释放创意" features={features} />
                 <Comments title="他们都在用 VideoLingo" comments={comments} />
                 
@@ -122,6 +145,9 @@ export default function Component() {
 
                 <FAQ title="常见问题" faqItems={faqItems} />
             </main>
+
+            {/* Add the HeyForm script */}
+            <Script src="https://www.unpkg.com/@heyform-inc/embed@latest/dist/index.umd.js" />
         </div>
     )
 
