@@ -41,7 +41,7 @@ def main():
         else:
             print("requirements.txt not found. Skipping installation.")
 
-    def dowanload_uvr_model():
+    def download_uvr_model():
         """Download the specified uvr models."""
         models = {
             "HP2_all_vocals.pth": "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
@@ -53,13 +53,19 @@ def main():
             model_path = f"_model_cache/uvr5_weights/{model_name}"
             if not os.path.exists(model_path):
                 print(f"Downloading UVR model: {model_name}...")
-                response = requests.get(url, stream=True)
-                total_size = int(response.headers.get('content-length', 0))
-                with open(model_path, "wb") as file:
-                    for data in response.iter_content(chunk_size=4096):
-                        size = file.write(data)
-                        print(f"Downloaded: {(size/total_size)*100:.2f}%", end="\r")
-                print(f"\n{model_name} downloaded successfully.")
+                try:
+                    response = requests.get(url, stream=True)
+                    response.raise_for_status()
+                    total_size = int(response.headers.get('content-length', 0))
+                    downloaded_size = 0
+                    with open(model_path, "wb") as file:
+                        for data in response.iter_content(chunk_size=4096):
+                            size = file.write(data)
+                            downloaded_size += size
+                            print(f"Downloaded: {(downloaded_size/total_size)*100:.2f}%", end="\r")
+                    print(f"\n{model_name} downloaded successfully.")
+                except requests.RequestException as e:
+                    print(f"Failed to download {model_name}: {e}")
             else:
                 print(f"{model_name} already exists. Skipping download.")
 
@@ -193,7 +199,7 @@ def main():
     install_requirements()
 
     # Download UVR model
-    dowanload_uvr_model()
+    download_uvr_model()
     
     # Download and extract FFmpeg
     download_and_extract_ffmpeg()
