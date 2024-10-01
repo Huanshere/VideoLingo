@@ -307,7 +307,7 @@ Some Python knowledge is required. Supports Win, Mac, Linux. If you encounter an
 
 7. Set the key in the sidebar of the pop-up webpage, and be sure to select the whisper method
 
-   ![attentionen](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
+   ![attention](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
 
 8. (Optional) More advanced settings can be manually modified in `config.py`
 
