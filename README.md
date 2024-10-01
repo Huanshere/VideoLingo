@@ -183,7 +183,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | 🎤 Fish TTS  | 绝 | 需充值 偶尔不稳定 | 😱 | 😱 |
 | 🗣️ GPT-SoVITS (测试) | 本地运行语音克隆 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😂 | 🚫 |
 
-- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)；
+- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)，注意在模型处勾选 `tts-1`；
 - **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
 - **Fish TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册充值
 
