@@ -1,0 +1,125 @@
+---
+title: VideoLingo
+---
+
+import Hero from '@/components/landing/hero'
+import Features from '@/components/landing/features'
+import Comments from '@/components/landing/comments'
+import FAQ from '@/components/landing/faq'
+import GitHubStats from '@/components/landing/github-stats'
+
+import { useData } from 'nextra/data'
+ 
+export const getStaticProps = ({ params }) => {
+  return fetch(`https://api.github.com/repos/Huanshere/VideoLingo`)
+    .then(res => res.json())
+    .then(repo => ({
+      props: {
+        // Nextra の `useData` フックに提供される `ssg` フィールドをページのプロパティに追加します。
+        ssg: {
+          stars: repo.stargazers_count
+        }
+      },
+      // ページは60秒ごとに古いとみなされ、再生成されます。
+      revalidate: 60
+    }))
+}
+ 
+export const Stars = () => {
+  // SSGからデータを取得し、コンポーネントとしてレンダリングします。
+  const { stars } = useData()
+  return <strong>{stars}</strong>
+}
+ 
+
+export default function Component() {
+    const features = [
+        {
+            title: 'インテリジェントな字幕分割',
+            description: 'NLPとLLM技術を使用して、文の意味に基づいて字幕を正確に分割し、各文を適切に調整します。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: 'コンテキスト認識翻訳',
+            description: 'GPTが用語知識ベースを要約・抽出し、文脈に沿った翻訳を実現。すべての翻訳が自然で流暢になります。',
+            icon: 'ArrowRight',
+        },
+        {
+            title: '3ステップ翻訳プロセス',
+            description: '直接翻訳 - 反省 - 意訳の3段階で、プロの字幕チームに匹敵する品質を実現します。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '正確な字幕同期',
+            description: 'WhisperXを使用して単語レベルのタイムライン字幕認識を行い、すべての単語を正確に同期させます。',
+            icon: 'ArrowRight',
+        },
+        {
+            title: '高品質な吹き替え',
+            description: '複数のTTSソリューションをサポートし、GPT-SoVITS技術による高品質なパーソナライズ吹き替えで、動画をより魅力的にします。',
+            icon: 'CheckCircle',
+        },
+        {
+            title: '開発者フレンドリー',
+            description: '構造化されたファイル設計により、開発者が機能をカスタマイズおよび拡張しやすくなっています。複数のデプロイ方法をサポートします。',
+            icon: 'ArrowRight',
+        },
+    ]
+
+    const comments = [
+        {
+            content: "以前は1日かかっていたことが、今では1時間で完了します！",
+            author: "Kさん",
+            title: "Bilibili 30万フォロワーのクリエイター"
+        },
+        {
+            content: "この吹き替えは私の話し方よりも正確で、たくさんの面白いアイデアが浮かびました🤩",
+            author: "アビオさん",
+            title: "小紅書 10万フォロワーの広東語クリエイター"
+        },
+        {
+            content: "仕事帰りに単純に遊びで投稿したら、突然バズってしまいました😂",
+            author: "Xさん",
+            title: "TikTok 1日で7000フォロワー増加したクリエイター"
+        }
+    ];
+
+    const faqItems = [
+        {
+            question: "VideoLingoはどのような動画フォーマットをサポートしていますか？",
+            answer: "VideoLingoはyt-dlpを使用してYoutubeリンクから動画をダウンロードし、ほとんどの一般的な動画フォーマットをサポートしています。特殊なフォーマットが必要な場合は、サポートチームにお問い合わせください。"
+        },
+        {
+            question: "翻訳と吹き替えの品質はどのように保証されていますか？",
+            description: "翻訳には、Claude 3.5やDeepSeekモデルなどの最先端のAI技術を使用しています。吹き替えについては、OpenAI TTS、Azure TTS、Fish TTS、GPT-SoVITSなど、複数のTTSソリューションを提供しています。"
+        },
+        {
+            question: "1つの動画の処理にどのくらい時間がかかりますか？",
+            answer: "処理時間は動画の長さと選択したサービスによって異なります。通常、5分の動画の翻訳と吹き替えには約30分かかります。UVR5はメモリ要求が高いため、長い動画の処理にはより多くの時間が必要になる場合があることにご注意ください。"
+        },
+        {
+            question: "VideoLingoの機能をカスタマイズできますか？",
+            answer: "はい、VideoLingoは柔軟な設定オプションと開発者ドキュメントを提供しており、ニーズに応じてカスタマイズと統合が可能です。config.pyでさらに高度な設定を行うことができます。"
+        }
+    ]
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
+                <Hero
+                    title="VideoLingo: 世界をつなぐフレーム"
+                    description="完全自動化された動画ローカライゼーションツール。Netflixクオリティの字幕を生成！複数の高品質吹き替えオプションをサポート！"
+                    githubLink="https://github.com/Huanshere/VideoLingo"
+                    videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+                />
+
+                <Features title="パワフルな機能で創造性を解き放つ" features={features} />
+                <Comments title="VideoLingoユーザーの声" comments={comments} />
+                
+                <GitHubStats stars={<Stars />} />
+
+                <FAQ title="よくある質問" faqItems={faqItems} />
+            </main>
+        </div>
+    )
+}
