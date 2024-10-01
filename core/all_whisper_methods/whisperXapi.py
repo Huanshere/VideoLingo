@@ -199,6 +199,12 @@ def save_results(df: pd.DataFrame):
     if removed_rows > 0:
         print(f"ℹ️ Removed {removed_rows} row(s) with empty text.")
     
+    # Check for and remove words longer than 20 characters
+    long_words = df[df['text'].str.len() > 20]
+    if not long_words.empty:
+        print(f"⚠️ Warning: Detected {len(long_words)} word(s) longer than 20 characters. These will be removed.")
+        df = df[df['text'].str.len() <= 20]
+    
     df['text'] = df['text'].apply(lambda x: f'"{x}"')
     df.to_excel(excel_path, index=False)
     print(f"📊 Excel file saved to {excel_path}")
