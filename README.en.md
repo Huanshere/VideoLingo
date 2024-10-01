@@ -94,11 +94,11 @@ Translation languages support all languages that the large language model can ha
 
 ### Important Notes:
 
-1. The integrated package uses the CPU version of torch, with a size of about **2.6G**.
-2. When using UVR5 for voice separation in the dubbing step, the CPU version will be significantly slower than GPU-accelerated torch.
+1. The integrated package uses the CPU version of the torch, with a size of about **2.6G**.
+2. The CPU version will be significantly slower than GPU-accelerated torch When using UVR5 for voice separation in the dubbing step.
 3. The integrated package **only supports calling whisperXapi ☁️ via API**, and does not support running whisperX locally 💻.
 4. The whisperXapi used in the integrated package does not support Chinese transcription. If you need to use Chinese, please install from source code and use locally run whisperX 💻.
-5. The integrated package has not yet performed UVR5 voice separation in the transcription step, so it is not recommended to use videos with noisy BGM.
+5. The integrated package has not yet performed UVR5 voice separation in the transcription step, so using videos with noisy BGM is not recommended.
 
 If you need the following features, please install from source code (requires an Nvidia GPU and at least **20G** of disk space):
 - Input language is Chinese
@@ -116,16 +116,16 @@ If you need the following features, please install from source code (requires an
   ![attentionen](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
 
 
-> 💡 Note: This project requires configuration of large language models, WhisperX, and TTS. Please carefully read the **API Preparation** section below
+> 💡 Note: This project requires the configuration of large language models, WhisperX, and TTS. Please carefully read the **API Preparation** section below
 
 ## 📋 API Preparation
-This project requires the use of large language models, WhisperX, and TTS. Multiple options are provided for each component. **Please read the configuration guide carefully 😊**
+This project requires using large language models, WhisperX, and TTS. Multiple options are provided for each component. **Please read the configuration guide carefully 😊**
 ### 1. **Obtain API_KEY for Large Language Models**:
 
 | Recommended Model | Recommended Provider | base_url | Price | Effect |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 (default) | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M tokens | 🤩 |
-| deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ¥2 / 1M tokens | 😲 |
+| Claude-3-5-sonnet-20240620 (default) | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M tokens | 🤩 |
+| deep seek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ¥2 / 1M tokens | 😲 |
 > Note: Yunwu API also supports OpenAI's tts-1 interface, which can be used in the dubbing step.
 
 > Reminder: deepseek has a very low probability of errors during translation. If errors occur, please switch to the claude 3.5 sonnet model.
@@ -152,7 +152,7 @@ This project requires the use of large language models, WhisperX, and TTS. Multi
 <summary>Can I use other models?</summary>
 
 - ✅ Supports OAI-Like API interfaces, but you need to change it yourself in the Streamlit sidebar.
-- ⚠️ However, other models (especially small models) have weak ability to follow instructions and are very likely to report errors during translation, which is strongly discouraged.
+- ⚠️ However, other models (especially small models) have a weak ability to follow instructions and are very likely to report errors during translation, which is strongly discouraged.
 </details>
 
 ### 2. **Prepare Replicate Token** (Only when using whisperXapi ☁️)
@@ -214,16 +214,16 @@ Go to the [official website](https://fish.audio/zh-CN/) to listen and choose the
 
    a. Self-trained model:
    - After training the model, `tts_infer.yaml` under `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` will automatically be filled with your model address. Copy and rename it to `your_preferred_english_character_name.yaml`
-   - In the same directory as the `yaml` file, place the reference audio you'll use later, named `your_preferred_english_character_name_text_content_of_reference_audio.wav` or `.mp3`, for example `Huanyuv2_Hello, this is a test audio.wav`
+   - In the same directory as the `yaml` file, place the reference audio you'll use later, named `your_preferred_english_character_name_text_content_of_reference_audio.wav` or `.mp3`, for example, `Huanyuv2_Hello, this is a test audio.wav`
    - In the sidebar of the VideoLingo webpage, set `GPT-SoVITS Character` to `your_preferred_english_character_name`.
 
-   b. Use pre-trained model:
+   b. Use a pre-trained model:
    - Download my model from [here](https://vip.123pan.cn/1817874751/8137723), extract and overwrite to `GPT-SoVITS-v2-xxx`.
    - Set `GPT-SoVITS Character` to `Huanyuv2`.
 
    c. Use other trained models:
    - Place the `xxx.ckpt` model file in the `GPT_weights_v2` folder and the `xxx.pth` model file in the `SoVITS_weights_v2` folder.
-   - Refer to method a, rename the `tts_infer.yaml` file and modify the `t2s_weights_path` and `vits_weights_path` in the `custom` section of the file to point to your models, for example:
+   - Refer to method a, rename the `tts_infer.yaml` file, and modify the `t2s_weights_path` and `vits_weights_path` in the `custom` section of the file to point to your models, for example:
   
       ```yaml
       # Example configuration for method b:
@@ -232,7 +232,7 @@ Go to the [official website](https://fish.audio/zh-CN/) to listen and choose the
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
       ```
    - Refer to method a, place the reference audio you'll use later in the same directory as the `yaml` file, named `your_preferred_english_character_name_text_content_of_reference_audio.wav` or `.mp3`, for example `Huanyuv2_Hello, this is a test audio.wav`. The program will automatically recognize and use it.
-   - ⚠️ Warning: **Please use English to name the `character_name`**, otherwise errors will occur. The `text_content_of_reference_audio` can be in Chinese. It's still in beta version and may produce errors.
+   - ⚠️ Warning: **Please use English to name the `character_name`**, otherwise errors will occur. The `text_content_of_reference_audio` can be in Chinese. It's still in the beta version and may produce errors.
 
 
    ```
@@ -317,9 +317,9 @@ Some Python knowledge is required. Supports Win, Mac, Linux. If you encounter an
 
 1. UVR5 has high memory requirements. 16G RAM can process up to 30min, 32GB RAM can process up to 50min. Please be cautious with long videos.
    
-2. There's a very small chance of 'phrase' errors occurring in the translation step. If encountered, please report.
+2. There's a very small chance of 'phrase' errors occurring in the translation step. If encountered, please report it.
    
-3. The dubbing function's quality is unstable. For best quality, please try to choose TTS speed suitable for the original video. For example, OAITTS speed is relatively fast, while for FishTTS speed, please listen to samples before choosing.
+3. The dubbing function's quality is unstable. For the best quality, please try to choose a TTS speed suitable for the original video. For example, OAITTS speed is relatively fast, while for FishTTS speed, please listen to samples before choosing.
 
 ## 📄 License
 
