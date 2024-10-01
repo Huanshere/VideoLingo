@@ -19,12 +19,13 @@ If you need the following features, please install from source code (requires an
 
 ### Download and Usage Instructions
 
-1. Download the `v1.3` one-click package (800M): [Download Directly](https://vip.123pan.cn/1817874751/8187706) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v1.4` one-click package (800M): [Download Directly](https://vip.123pan.cn/1817874751/8209290) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. After extracting, double-click `OneKeyStart.bat` in the folder
 
 3. In the opened browser window, configure the necessary settings in the sidebar, then create your video with one click!
-  ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
+  ![attentionen](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
+
 
 > 💡 Note: This project requires configuration of large language models, WhisperX, and TTS. Please carefully read the **API Preparation** section below
 
@@ -217,7 +218,7 @@ Some Python knowledge is required. Supports Win, Mac, Linux. If you encounter an
 
 7. Set the key in the sidebar of the pop-up webpage, and be sure to select the whisper method
 
-   ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
+   ![attentionen](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
 
 8. (Optional) More advanced settings can be manually modified in `config.py`
 

@@ -23,6 +23,10 @@ Key features and functionalities:
 
 - 🚀 One-click integrated package launch, one-click video production in Streamlit
 
+- 📝 Detailed logging of each operation step, supporting interruption and progress resumption at any time
+
+- 🌐 Comprehensive multi-language support, easily achieving cross-language video localization
+
 ## 🎥 Demo
 
 <table>
@@ -95,6 +99,8 @@ We sincerely thank the following open-source projects for their contributions, w
 
 - Join our QQ Group: 875297969
 - Submit [Issues](https://github.com/Huanshere/VideoLingo/issues) or [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls) on GitHub
+- Follow me on Twitter: [@Huanshere](https://twitter.com/Huanshere)
+- Visit the official website: [videolingo.io](https://videolingo.io)
 
 ## ⭐ Star History
 
