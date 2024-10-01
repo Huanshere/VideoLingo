@@ -18,7 +18,7 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 						<h1 className="text-6xl font-bold tracking-tight">{title}</h1>
 						<p className="mx-auto max-w-[700px] text-lg">{description}</p>
 					</div>
-					<div className="space-x-4 mt-8">
+					<div className="flex space-x-4 mt-8">
 						<Link href={'/docs/start'}>
 							<Button className="bg-[#C05F3C] hover:bg-[#C96442] rounded-lg" size="lg">
 								Start
@@ -37,9 +37,9 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 							data-heyform-hide-after-submit="true"
 							data-heyform-auto-close="5"
 						>
-							<button className="heyform__trigger-button" type="button" onClick={() => (window as any).HeyForm.openModal('52QH8JAj')}>
+							<Button className="bg-[#4A5568] hover:bg-[#2D3748] rounded-lg" size="lg" onClick={() => (window as any).HeyForm.openModal('52QH8JAj')}>
 								请求演示
-							</button>
+							</Button>
 						</div>
 					</div>
 					{/* 视频演示组件 */}
