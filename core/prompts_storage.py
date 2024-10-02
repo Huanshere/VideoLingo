@@ -207,6 +207,7 @@ Based on the provided original {src_language} text and {TARGET_LANGUAGE} direct 
 1. Analyze the direct translation results line by line, pointing out existing issues
 2. Provide detailed modification suggestions
 3. Perform free translation based on your analysis
+4. DO NOT leave empty lines.
 
 {shared_prompt}
 
