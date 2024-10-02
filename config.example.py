@@ -8,6 +8,10 @@ MODEL = 'claude-3-5-sonnet-20240620'
 # Replicate API 设置
 REPLICATE_API_TOKEN = 'YOUR_TOKEN'
 
+# *HTTP代理设置
+USE_HTTP_PROXY = False
+HTTP_PROXY = "http://127.0.0.1:7890"
+
 # 语言设置，写入prompt中，用自然语言描述即可
 TARGET_LANGUAGE = '简体中文'
 
@@ -59,11 +63,6 @@ OAI_TTS_API_BASE_URL = 'https://yunwu.zeabur.app'
 AZURE_KEY = 'YOUR_AZURE_KEY'
 AZURE_REGION = 'eastasia'
 AZURE_VOICE = 'zh-CN-YunfengNeural'
-
-
-# HTTP代理设置
-USE_HTTP_PROXY = False
-HTTP_PROXY = "http://127.0.0.1:7890"
 
 # SoVITS角色配置
 DUBBING_CHARACTER = 'Huanyuv2'
