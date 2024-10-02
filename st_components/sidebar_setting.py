@@ -45,7 +45,15 @@ def page_setting():
         model = st.text_input("MODEL", value=config.MODEL)
         if model and model != config.MODEL:
             changes["MODEL"] = model
-    
+
+        use_http_proxy = st.toggle(gls("use_http_proxy"), value=config.USE_HTTP_PROXY, help=gls("use_http_proxy_help"))
+        if use_http_proxy != config.USE_HTTP_PROXY:
+            changes["USE_HTTP_PROXY"] = use_http_proxy
+
+        http_proxy = st.text_input(gls("http_proxy"), value=config.HTTP_PROXY, help=gls("http_proxy_help"))
+        if http_proxy != config.HTTP_PROXY:
+            changes["HTTP_PROXY"] = http_proxy
+
     with st.expander(gls("subtitle_settings"), expanded=True):
         whisper_method_options = ["whisperX 💻", "whisperX ☁️"]
         whisper_method_mapping = {"whisperX 💻": "whisperx", "whisperX ☁️": "whisperxapi"}

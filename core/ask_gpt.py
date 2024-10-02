@@ -7,6 +7,7 @@ import json
 from openai import OpenAI
 import time
 from requests.exceptions import RequestException
+import httpx
 
 LOG_FOLDER = 'output/gpt_log'
 LOCK = Lock()
@@ -44,7 +45,7 @@ def check_ask_gpt_history(prompt, model, log_title):
     return False
 
 def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
-    from config import MODEL, API_KEY, BASE_URL, llm_support_json
+    from config import MODEL, API_KEY, BASE_URL, llm_support_json, USE_HTTP_PROXY, HTTP_PROXY
     with LOCK:
         history_response = check_ask_gpt_history(prompt, MODEL, log_title)
         if history_response:
@@ -56,7 +57,21 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
     messages = [{"role": "user", "content": prompt}]
     
     base_url = BASE_URL.strip('/') + '/v1' if 'v1' not in BASE_URL else BASE_URL
-    client = OpenAI(api_key=API_KEY, base_url=base_url)
+    
+    # 设置代理
+    proxies = None
+    if USE_HTTP_PROXY:
+        proxies = {"http://": HTTP_PROXY, "https://": HTTP_PROXY}
+    
+    # 使用httpx.Client作为自定义http客户端
+    http_client = httpx.Client(proxies=proxies)
+    
+    client = OpenAI(
+        api_key=API_KEY,
+        base_url=base_url,
+        http_client=http_client
+    )
+    
     response_format = {"type": "json_object"} if response_json and MODEL in llm_support_json else None
 
     max_retries = 3
