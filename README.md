@@ -7,6 +7,7 @@
   <a href="https://www.python.org" target="_blank"><img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python"></a>
   <a href="https://github.com/Huanshere/VideoLingo/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/Huanshere/VideoLingo.svg" alt="License"></a>
   <a href="https://github.com/Huanshere/VideoLingo/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/Huanshere/VideoLingo.svg" alt="GitHub stars"></a>
+  <a href="https://colab.research.google.com/github/Huanshere/VideoLingo/VideoLingo_colab.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 </p>
 
 [**中文**](README.md) | [**English**](README.en.md)｜[**日本語**](README.ja.md)
@@ -230,7 +231,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    - 参考方法 a，重命名 `tts_infer.yaml` 文件，并修改文件中的 `custom` 部分的 `t2s_weights_path` 和 `vits_weights_path` 指向你的模型，例如：
   
       ```yaml
-      # 示例 方法 b 的配置：
+      # 示例 法 b 的配置：
       t2s_weights_path: GPT_weights_v2/Huanyu_v2-e10.ckpt
       version: v2
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
