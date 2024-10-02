@@ -60,6 +60,11 @@ AZURE_KEY = 'YOUR_AZURE_KEY'
 AZURE_REGION = 'eastasia'
 AZURE_VOICE = 'zh-CN-YunfengNeural'
 
+
+# HTTP代理设置
+USE_HTTP_PROXY = False
+HTTP_PROXY = "http://127.0.0.1:7890"
+
 # SoVITS角色配置
 DUBBING_CHARACTER = 'Huanyuv2'
 # SoVits的参考音频模式

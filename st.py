@@ -2,6 +2,13 @@ import streamlit as st
 import os, sys
 from st_components.imports_and_utils import *
 
+# 添加以下代码来设置代理
+from config import USE_HTTP_PROXY, HTTP_PROXY
+
+if USE_HTTP_PROXY:
+    os.environ['HTTP_PROXY'] = HTTP_PROXY
+    os.environ['HTTPS_PROXY'] = HTTP_PROXY
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
