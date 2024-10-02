@@ -1,25 +1,17 @@
-requests
-pandas
-jupyter
-openai
-openpyxl
-spacy
-yt-dlp
-pyyaml
-pydub
-librosa
-json-repair
-resampy
-streamlit
-
-# for create video
-opencv-python
-moviepy
-# for whisperX api
-replicate
-
-# for azure tts
-azure-cognitiveservices-speech
-
-# freeze numpy
+azure-cognitiveservices-speech==1.40.0
+librosa==0.10.2.post1
+moviepy==1.0.3
 numpy==1.26.4
+openai==1.47.0
+opencv-python==4.10.0.84
+openpyxl==3.1.5
+pandas==2.2.3
+pydub==0.25.1
+PyYAML==6.0.2
+replicate==0.33.0
+requests==2.32.3
+resampy==0.4.3
+spacy==3.7.6
+streamlit==1.38.0
+yt-dlp==2024.8.6
+json-repair
