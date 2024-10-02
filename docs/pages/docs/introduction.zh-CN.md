@@ -23,6 +23,12 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 - 🚀 整合包一键启动，在 streamlit 中一键出片
 
+- 📝 详细记录每步操作日志，支持随时中断和恢复进度
+
+- 🌐 全面的多语言支持，轻松实现跨语言视频本地化
+
+与同类项目的主要区别：**绝无多行字幕，最佳的翻译质量**
+
 ## 🎥 效果演示
 
 <table>
@@ -72,7 +78,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 | 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
 | 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
 | 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [罗翔老师脱口秀](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
-> *中文需单独配置whisperX模型，见源码安装
+> *中文需单独配置whisperX模型，详见源码安装，并注意在网页侧边栏指定转录语言为zh
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 
@@ -95,6 +101,8 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 - 加入我们的 QQ 群：875297969
 - 在 GitHub 上提交 [Issues](https://github.com/Huanshere/VideoLingo/issues) 或 [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls)
+- 关注我的 Twitter：[@Huanshere](https://twitter.com/Huanshere)
+- 访问官方网站：[videolingo.io](https://videolingo.io)
 
 ## ⭐ Star History
 

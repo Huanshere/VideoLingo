@@ -90,6 +90,7 @@ Currently supported input languages and examples:
 > *Chinese requires separate configuration of the whisperX model, see source code installation
 
 Translation languages support all languages that the large language model can handle, while dubbing languages depend on the chosen TTS method.
+
 ## 🚀 One-Click Integrated Package for Windows
 
 ### Important Notes:
@@ -341,7 +342,8 @@ We sincerely thank the following open-source projects for their contributions, w
 
 - Join our QQ Group: 875297969
 - Submit [Issues](https://github.com/Huanshere/VideoLingo/issues) or [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls) on GitHub
-
+- Follow me on Twitter: [@Huanshere](https://twitter.com/Huanshere)
+- Visit the official website: [videolingo.io](https://videolingo.io)
 
 ## ⭐ Star History
 

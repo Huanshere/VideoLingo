@@ -19,12 +19,13 @@
 
 ### 下载和使用说明
 
-1. 下载 `v1.3` 一键整合包(800M): [直接下载](https://vip.123pan.cn/1817874751/8187706) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v1.4` 一键整合包(800M): [直接下载](https://vip.123pan.cn/1817874751/8209290) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
 3. 在打开的浏览器窗口中，在侧边栏进行必要配置，然后一键出片！
-  ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
+  ![attention](https://github.com/user-attachments/assets/7db25130-d421-452e-a16a-d7cfb0478ebf)
+
 
 > 💡 提示: 本项目需要配置大模型、WhisperX、TTS，请仔细往下阅读 **API 准备**
 
@@ -84,11 +85,11 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🔊 Azure TTS  | 效果自然 | 充值不方便 | 🤩 | 😃 |
-| 🎤 Fish TTS (推荐) | 绝 | 需充值 | 😱 | 😱 |
+| 🔊 Azure TTS (推荐)  | 效果自然 | 充值不方便 | 🤩 | 😃 |
+| 🎤 Fish TTS  | 绝 | 需充值 偶尔不稳定 | 😱 | 😱 |
 | 🗣️ GPT-SoVITS (测试) | 本地运行语音克隆 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😂 | 🚫 |
 
-- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)；
+- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)，注意在模型处勾选 `tts-1`；
 - **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
 - **Fish TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册充值
 
@@ -180,7 +181,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 ### 安装步骤
 
-需要一定的 python 基础，支持Win, Mac, Linux。遇到问题可以把整个步骤丢给 GPT 问问~
+需要一定的 python 基础，支持Win, Mac, Linux。遇到任何问题可以询问官方网站 [videolingo.io](https://videolingo.io) 右下角的AI助手~
 
 1. 打开 Anaconda Prompt 并切换到桌面目录：
    ```bash
@@ -203,11 +204,11 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    ```bash
    python install.py
    ```
-   根据提示选择所需的 Whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
+   根据提示选择所需的 whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
 
-5. 仅对于需要使用中文转录的用户：
+5. 仅**对于需要使用中文转录**的用户：
    
-   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下
+   请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下，并注意在网页侧边栏指定**转录语言为zh**
 
 6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
@@ -216,7 +217,8 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 7. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
-   ![settings](https://github.com/user-attachments/assets/3d99cf63-ab89-404c-ae61-5a8a3b27d840)
+   ![attention](https://github.com/user-attachments/assets/7db25130-d421-452e-a16a-d7cfb0478ebf)
+
 
 8. （可选）更多进阶设置可以在 `config.py` 中手动修改
 
@@ -224,9 +226,8 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 ## ⚠️ 注意事项
 
-1. UVR5 对内存要求较高，16G 内存处理极限是 30min， 32GB 内存处理极限是 50min，请谨慎尝试长视频。
+1. UVR5 对系统资源要求较高，处理速度较慢。建议仅在拥有 16GB 以上内存和 8GB 以上显存的设备上勾选使用此功能。
    
 2. 翻译步骤极小可能出现 'phrase' 错误，遇到请反馈。
    
 3. 配音功能质量不稳定，为最佳质量，请尽量选择适合原视频的 TTS 语速，例如 OAITTS 语速较快，FishTTS 语速请试听后选择。
-
