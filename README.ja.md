@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://s21.ax1x.com/2024/09/29/pA16WHx.png" alt="VideoLingo Logo" height="140">
+<img src="docs/logo.png" alt="VideoLingo Logo" height="140">
 
 # VideoLingo: 世界をつなぐ一コマ一コマ
 <p align="center">

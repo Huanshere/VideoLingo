@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/logo.png" alt="VideoLingo Logo" height="140">
+
 # VideoLingo: Connecting the World, Frame by Frame
 <p align="center">
   <a href="https://www.python.org" target="_blank"><img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python"></a>
