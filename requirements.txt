@@ -20,3 +20,6 @@ replicate
 
 # for azure tts
 azure-cognitiveservices-speech
+
+# freeze numpy
+numpy==1.26.4
