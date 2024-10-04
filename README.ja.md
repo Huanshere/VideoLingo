@@ -10,9 +10,7 @@
   <a href="https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 </p>
 
-[**中文**](README.md) | [**English**](README.en.md)｜[**日本語**](README.ja.md)
-
-**QQグループ：875297969**
+[**English**](README.md)｜[**中文**](README.zh.md) | [**日本語**](README.ja.md)
 
 </div>
 
