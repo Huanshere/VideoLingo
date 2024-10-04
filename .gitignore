@@ -161,8 +161,9 @@ _model_cache/
 /ffprobe.exe
 /ffprobe
 .DS_Store
-_config.py
+AllinOne.ipynb
 config.py
+
 
 # runtime
 runtime/
