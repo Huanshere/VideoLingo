@@ -4,6 +4,7 @@ from core.step1_ytdlp import find_video_files
 from rich import print as rprint
 import cv2
 import numpy as np
+import platform
 
 SRC_FONT_SIZE = 16
 TRANS_FONT_SIZE = 18
