@@ -95,6 +95,4 @@ def time_to_seconds(time_str):
     return int(h) * 3600 + int(m) * 60 + float(s)
 
 if __name__ == "__main__":
-    from core.step1_ytdlp import find_video_files
-    input_video = find_video_files()
-    uvr_audio_main(input_video)
+    uvr_audio_main()
