@@ -8,8 +8,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 def check_lang(text_lang, prompt_lang):
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文']):
         text_lang = 'zh'
+    elif any(lang in text_lang.lower() for lang in ['en', 'english']):
+        text_lang = 'en'
     else:
-        raise ValueError("Unsupported text language. Only Chinese is supported.")
+        raise ValueError("Unsupported text language. Only Chinese and English are supported.")
     
     if 'en' in prompt_lang.lower():
         prompt_lang = 'en'
