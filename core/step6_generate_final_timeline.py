@@ -108,11 +108,7 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
 
     # Polish subtitles: replace punctuation in Translation if for_display
     if for_display:
-        language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
-        joiner = get_joiner(language)
-        # for languages that don't use space as a joiner, replace punctuation with space
-        if joiner == "":
-            df_trans_time['Translation'] = df_trans_time['Translation'].apply(lambda x: re.sub(r'[,，。]', ' ', x).strip())
+        df_trans_time['Translation'] = df_trans_time['Translation'].apply(lambda x: re.sub(r'[，。]', ' ', x).strip())
 
     # Output subtitles 📜
     def generate_subtitle_string(df, columns):
