@@ -347,6 +347,12 @@ We sincerely thank the following open-source projects for their contributions, w
 - Follow me on Twitter: [@Huanshere](https://twitter.com/Huanshere)
 - Visit the official website: [videolingo.io](https://videolingo.io)
 
+
+## 💫 Contributors
+
+<a href="https://github.com/Huanshere/VideoLingo/graphs/contributors">
+  <img alt="contributors" src="https://contrib.rocks/image?repo=Huanshere/VideoLingo"/>
+</a>
 ## ⭐ Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
