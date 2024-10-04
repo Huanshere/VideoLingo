@@ -12,7 +12,7 @@ def sanitize_filename(filename):
     # Use default name if filename is empty
     return filename if filename else 'video'
 
-def download_video_ytdlp(url, save_path='output', resolution='1080'):
+def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time=None):
     allowed_resolutions = ['360', '1080', 'best']
     if resolution not in allowed_resolutions:
         resolution = '1080'
@@ -38,6 +38,11 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
             new_filename = sanitize_filename(filename)
             if new_filename != filename:
                 os.rename(os.path.join(save_path, file), os.path.join(save_path, new_filename + ext))
+    
+    if cutoff_time:
+        # cutoff_time is in seconds
+        video_file = find_video_files(save_path)
+        os.system(f'ffmpeg -i "{video_file}" -ss {cutoff_time} -c copy "{video_file}"')
 
 def find_video_files(save_path='output'):
     from config import ALLOWED_VIDEO_FORMATS
