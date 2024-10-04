@@ -71,7 +71,7 @@ export default function Component() {
 
         {
             content: "之前要弄一整天，现在一个小时就弄完了！",
-            author: "k哥",
+            author: "k",
             title: "B站30w粉up"
         },
         {
@@ -88,21 +88,17 @@ export default function Component() {
 
     const faqItems = [
         {
-            question: "VideoLingo 支持哪些视频格式？",
-            answer: "VideoLingo 使用 yt-dlp 从 Youtube 链接下载视频，支持大多数常见的视频格式。如果您有特殊格式需求，请联系我们的支持团队。"
-        },
-        {
-            question: "翻译和配音的质量如何保证？",
-            description: "我们使用先进的 AI 技术，如 Claude 3.5 或 DeepSeek 模型进行翻译。对于配音，我们提供多种 TTS 方案，包括 OpenAI TTS、Azure TTS、Fish TTS 和 GPT-SoVITS 等。"
+            question: "翻译和配音的质量如何？",
+            description: "我们严格参照 Netflix 字幕标准，使用最先进的 Claude 3.5 模型进行多步骤翻译，使用 NLP 进行多行字幕分割，还提供了多种 TTS 方案，翻译效果获得了开源社区与内测群的一致好评。"
         },
         {
             question: "处理一个视频需要多长时间？",
-            answer: "处理时间取决于视频的长度和所选的服务。通常，一个 5 分钟的视频完成翻译和配音大约需要 30 分钟。请注意，UVR5 对内存要求较高，处理长视频时可能需要更多时间。"
+            answer: "处理时间取决于视频的长度和所选的服务。通常，一个 60 分钟的视频完成翻译和配音大约需要 40 分钟。"
         },
         {
-            question: "可以自定义 VideoLingo 的功能吗？",
-            answer: "是的，VideoLingo 提供了灵活的配置选项和开发者文档，允许您根据需求进行自定义和集成。您可以在 config.py 中进行更多进阶设置。"
-        }
+            question: "如何收费呢？",
+            answer: "VideoLingo是开源项目，已经在Github上获得3k+ stars，即将推出商业版，会带来更多功能~"
+        },
     ]
 
     return (
@@ -111,7 +107,7 @@ export default function Component() {
                 <Hero
                     title="VideoLingo: 连接世界的每一帧"
                     description="全自动视频本地化工具，生成 Netflix 品质的字幕！支持多种高质量配音方案！"
-                    videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+                    videoSrc="/videos/demo.mp4"
                 />
 
                 <Features title="强大功能，释放创意" features={features} />

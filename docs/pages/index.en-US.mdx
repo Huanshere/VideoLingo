@@ -44,7 +44,7 @@ export default function Component() {
     const comments = [
         {
             content: "What used to take a whole day now gets done in just an hour!",
-            author: "K-bro",
+            author: "K",
             title: "Bilibili creator with 300K subscribers"
         },
         {
@@ -61,20 +61,16 @@ export default function Component() {
 
     const faqItems = [
         {
-            question: "What video formats does VideoLingo support?",
-            answer: "VideoLingo uses yt-dlp to download videos from YouTube links and supports most common video formats. If you have special format requirements, please contact our support team."
-        },
-        {
             question: "How is the quality of translation and dubbing ensured?",
-            answer: "We use advanced AI technologies such as Claude 3.5 or DeepSeek models for translation. For dubbing, we offer multiple TTS solutions, including OpenAI TTS, Azure TTS, Fish TTS, and GPT-SoVITS."
+            description: "We strictly adhere to Netflix subtitle standards, using state-of-the-art Claude 3.5 models for multi-step translation, NLP for multi-line subtitle segmentation, and offer various TTS solutions. Our translation quality has received unanimous praise from the open-source community and internal test groups."
         },
         {
             question: "How long does it take to process a video?",
-            answer: "Processing time depends on the length of the video and the selected services. Typically, a 5-minute video takes about 30 minutes to complete translation and dubbing. Please note that UVR5 has high memory requirements and may take longer for processing long videos."
+            answer: "Processing time depends on the video length and selected services. Typically, a 60-minute video takes about 40 minutes to complete translation and dubbing."
         },
         {
-            question: "Can VideoLingo's features be customized?",
-            answer: "Yes, VideoLingo provides flexible configuration options and developer documentation, allowing you to customize and integrate according to your needs. You can make advanced settings in config.py."
+            question: "How much does it cost?",
+            answer: "VideoLingo is an open-source project that has already gained 3k+ stars on GitHub. We're about to launch a commercial version that will bring even more features!"
         }
     ]
 
@@ -85,7 +81,7 @@ export default function Component() {
                     title="VideoLingo: Connecting the World, Frame by Frame"
                     description="Fully automated video localization tool, generating Netflix-quality subtitles! Supports multiple high-quality dubbing solutions!"
                     githubLink="https://github.com/Huanshere/VideoLingo"
-                    videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+                    videoSrc="/videos/demo.mp4"
                 />
 
                 <Features title="Powerful Features, Unleash Creativity" features={features} />

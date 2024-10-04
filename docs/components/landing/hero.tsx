@@ -33,12 +33,12 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 							data-heyform-open-delay="5"
 							data-heyform-open-scroll-percent="30"
 							data-heyform-trigger-background="#bcf8d0"
-							data-heyform-trigger-text="请求演示"
+							data-heyform-trigger-text="Request Demo"
 							data-heyform-hide-after-submit="true"
 							data-heyform-auto-close="5"
 						>
 							<Button className="bg-[#BCF8D0] hover:bg-[#A3E4B8] text-black rounded-lg" size="lg" onClick={() => (window as any).HeyForm.openModal('52QH8JAj')}>
-								请求演示
+								Request Demo
 							</Button>
 						</div>
 					</div>
@@ -47,7 +47,7 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 						<HeroVideoDialog
 							animationStyle="from-center"
 							videoSrc={videoSrc}
-							thumbnailSrc="/images/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4_20240930_173826.986.jpg"
+							thumbnailSrc="/images/demo.png"
 							thumbnailAlt="Hero Video"
 						/>
 					</div>

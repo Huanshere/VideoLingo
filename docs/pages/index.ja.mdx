@@ -69,7 +69,7 @@ export default function Component() {
     const comments = [
         {
             content: "以前は1日かかっていたことが、今では1時間で完了します！",
-            author: "Kさん",
+            author: "K",
             title: "Bilibili 30万フォロワーのクリエイター"
         },
         {
@@ -86,21 +86,17 @@ export default function Component() {
 
     const faqItems = [
         {
-            question: "VideoLingoはどのような動画フォーマットをサポートしていますか？",
-            answer: "VideoLingoはyt-dlpを使用してYoutubeリンクから動画をダウンロードし、ほとんどの一般的な動画フォーマットをサポートしています。特殊なフォーマットが必要な場合は、サポートチームにお問い合わせください。"
-        },
-        {
             question: "翻訳と吹き替えの品質はどのように保証されていますか？",
-            description: "翻訳には、Claude 3.5やDeepSeekモデルなどの最先端のAI技術を使用しています。吹き替えについては、OpenAI TTS、Azure TTS、Fish TTS、GPT-SoVITSなど、複数のTTSソリューションを提供しています。"
+            description: "私たちはNetflixの字幕基準に厳密に従い、最先端のClaude 3.5モデルを使用して多段階翻訳を行い、NLPを使用して複数行の字幕分割を行っています。また、様々なTTSソリューションを提供しており、翻訳の品質はオープンソースコミュニティと内部テストグループから一致して高い評価を得ています。"
         },
         {
             question: "1つの動画の処理にどのくらい時間がかかりますか？",
-            answer: "処理時間は動画の長さと選択したサービスによって異なります。通常、5分の動画の翻訳と吹き替えには約30分かかります。UVR5はメモリ要求が高いため、長い動画の処理にはより多くの時間が必要になる場合があることにご注意ください。"
+            answer: "処理時間は動画の長さと選択したサービスによって異なります。通常、60分の動画の翻訳と吹き替えには約40分かかります。"
         },
         {
-            question: "VideoLingoの機能をカスタマイズできますか？",
-            answer: "はい、VideoLingoは柔軟な設定オプションと開発者ドキュメントを提供しており、ニーズに応じてカスタマイズと統合が可能です。config.pyでさらに高度な設定を行うことができます。"
-        }
+            question: "料金はどのようになっていますか？",
+            answer: "VideoLingoはオープンソースプロジェクトで、すでにGitHubで3k以上のスターを獲得しています。近々商用版をリリースする予定で、さらに多くの機能が追加される予定です。"
+        },
     ]
 
     return (
@@ -110,7 +106,7 @@ export default function Component() {
                     title="VideoLingo: 世界をつなぐフレーム"
                     description="完全自動化された動画ローカライゼーションツール。Netflixクオリティの字幕を生成！複数の高品質吹き替えオプションをサポート！"
                     githubLink="https://github.com/Huanshere/VideoLingo"
-                    videoSrc="/videos/369750234-47d965b2-b4ab-4a0b-9d08-b49a7bf3508c.mp4"
+                    videoSrc="/videos/demo.mp4"
                 />
 
                 <Features title="パワフルな機能で創造性を解き放つ" features={features} />
