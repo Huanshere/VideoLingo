@@ -17,7 +17,7 @@
 
 ## 🌟 Project Introduction
 
-VideoLingo is an all-in-one video translation and localization dubbing tool, aimed at generating Netflix-quality subtitles, eliminating stiff machine translations and multi-line subtitles, while also adding high-quality dubbing. It enables knowledge sharing across language barriers worldwide. Through an intuitive Streamlit web interface, you can complete the entire process from video link to embedded high-quality bilingual subtitles and even dubbing with just a few clicks, easily creating Netflix-quality localized videos.
+VideoLingo is an all-in-one video translation and localization tool that generates Netflix-quality subtitles, eliminates awkward translations and multi-line captions, and provides high-quality dubbing. With a simple Streamlit interface, users can effortlessly transform video links into localized content with bilingual subtitles and professional dubbing in just a few clicks..
 
 Key features and functionalities:
 - 🎥 Uses yt-dlp to download videos from YouTube links
@@ -145,8 +145,8 @@ This project requires the use of large language models, WhisperX, and TTS. Multi
 <details>
 <summary>How to get an API key?</summary>
 
-1. Click the link for the recommended provider above
-2. Register an account and recharge
+1. Click the link above to visit the recommended provider
+2. Register and recharge your account.  
 3. Create a new API key on the API key page
 4. For Yunwu API, make sure to check `Unlimited Quota`, select the `claude-3-5-sonnet-20240620` model, and it is recommended to choose the `Pure AZ 1.5x` channel.
 </details>
