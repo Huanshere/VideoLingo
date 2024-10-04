@@ -126,6 +126,11 @@ def main():
         else:
             print("config.py file already exists.")
 
+    def install_noto_font():
+        if platform.system() == 'Linux':
+            # 如果字体未安装，安装 Noto 字体
+            subprocess.run(['sudo', 'apt-get', 'install', '-y', 'fonts-noto'], check=True)
+
     # Initialize config.py file
     init_config()
 
@@ -193,6 +198,9 @@ def main():
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
         else:
             raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
+
+    # Install noto font
+    install_noto_font()
 
     # Install other dependencies
     install_requirements()

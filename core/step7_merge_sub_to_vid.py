@@ -9,7 +9,13 @@ SRC_FONT_SIZE = 16
 TRANS_FONT_SIZE = 18
 FONT_NAME = 'Arial'
 TRANS_FONT_NAME = 'Arial'
-SRC_FONT_COLOR = '&HFFFFFF' 
+
+# Linux出现中文乱码问题，需要安装google noto字体：apt-get install fonts-noto
+if platform.system() == 'Linux':
+    FONT_NAME = 'NotoSansCJK-Regular'
+    TRANS_FONT_NAME = 'NotoSansCJK-Regular'
+
+SRC_FONT_COLOR = '&HFFFFFF'
 SRC_OUTLINE_COLOR = '&H000000'
 SRC_OUTLINE_WIDTH = 1
 SRC_SHADOW_COLOR = '&H80000000'
