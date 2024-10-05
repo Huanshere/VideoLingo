@@ -69,15 +69,8 @@ def get_sentence_timestamps(df_words, df_sentences):
             time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
             word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
         else:
-            console.print(Panel(f"[yellow]⚠️ Warning: No match found for the sentence: {sentence}[/yellow]"))
-            table = Table(title="Match Details")
-            table.add_column("Item", style="cyan")
-            table.add_column("Value", style="magenta")
-            table.add_row("🔍 Original sentence", repr(sentence))
-            table.add_row("🔗 Matched", best_match['phrase'])
-            table.add_row("📊 Similarity", f"{best_match['score']:.2f}")
-            console.print(table)
-            console.print("➖" * 25)
+            print(f"⚠️ Warning: No match found for sentence: {sentence}\nOriginal: {repr(sentence)}\nMatched: {best_match['phrase']}\nSimilarity: {best_match['score']:.2f}\n{'─' * 50}")
+            raise ValueError("❎ No match found for sentence. Please delete the 'output' directory and rerun the process, ensuring UVR is activated before transcription.")
         
         start_index = word_index  # update start_index for the next sentence
     
