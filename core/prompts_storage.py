@@ -28,10 +28,10 @@ Your task is to split the given subtitle text into **{num_parts}** parts, each s
 Please provide your answer in the following JSON format, <<>> represents placeholders:
 {{
     "analysis": "Brief analysis of the text structure and split strategy",
-    "split_way_1": "<<The first split method, output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>",
-    "split_way_2": "<<The second split method>>",
-    "evaluation": "<<Unified brief evaluation of the 2 split methods, written in one sentence, no line breaks>>",
-    "best_way": "<<The best split method number, 1 or 2>>"
+    "split_1": "<<The first split method, output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>",
+    "split_2": "<<The second split method>>",
+    "eval": "<<Unified brief evaluation of the 2 split methods, written in one sentence, no line breaks>>",
+    "best": "<<The best split method number, 1 or 2>>"
 }}
 
 ### Given Text
@@ -278,14 +278,14 @@ Please follow these steps and provide the results for each step in the JSON outp
 Please complete the following JSON data, where << >> represents placeholders, and return your results in JSON format:
 {{
     "analysis": "<<Detailed analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles>>",
-    "align_way_1": [
+    "align_1": [
         {align_parts_json}
     ],
-    "align_way_2": [
+    "align_2": [
         {align_parts_json}
     ],
     "comparison": "<<Brief evaluation and comparison of the 2 alignment schemes>>",
-    "best_way": "<<Number of the best alignment scheme, 1 or 2>>"
+    "best": "<<Number of the best alignment scheme, 1 or 2>>"
 }}
 '''
 
