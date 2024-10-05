@@ -146,8 +146,8 @@ def get_prompt_faithfulness(lines, shared_prompt):
     json_format = {}
     for i, line in enumerate(line_splits, 1):
         json_format[i] = {
-            "Original Subtitle": line,
-            "Direct Translation": f"<<direct {TARGET_LANGUAGE} translation>>"
+            "Origin": line,
+            "Direct": f"<<direct {TARGET_LANGUAGE} translation>>"
         }
     
     src_language = get_whisper_language()
@@ -188,10 +188,10 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
     json_format = {}
     for key, value in faithfulness_result.items():
         json_format[key] = {
-            "Original Subtitle": value['Original Subtitle'],
-            "Direct Translation": value['Direct Translation'],
-            "Translation Reflection": "<<reflection on the direct translation version>>",
-            "Free Translation": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
+            "Origin": value['Origin'],
+            "Direct": value['Direct'],
+            "Reflection": "<<reflection on the direct translation version>>",
+            "Free": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
         }
 
     src_language = get_whisper_language()
