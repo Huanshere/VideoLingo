@@ -124,5 +124,5 @@ def split_sentences_by_meaning():
     console.print('[green]✅ All sentences have been successfully split![/green]')
 
 if __name__ == '__main__':
-    print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))
-    # split_sentences_by_meaning()
+    # print(split_sentence('Which makes no sense to the... average guy who always pushes the character creation slider all the way to the right.', 2, 22))
+    split_sentences_by_meaning()
