@@ -47,28 +47,21 @@ VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 
 
 <table>
 <tr>
-<td width="25%">
+<td width="33%">
 
 ### 俄语翻译
 ---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
-<td width="25%">
+<td width="33%">
 
 ### GPT-SoVITS
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 </td>
-<td width="25%">
-
-### Fish TTS 丁真
----
-https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
-
-</td>
-<td width="25%">
+<td width="33%">
 
 ### OAITTS
 ---
@@ -82,35 +75,35 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 当前输入语言支持和示例：
 
-| 输入语言 | 支持程度 | 翻译demo | 配音demo |
-|---------|---------|---------|----------|
-| 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
-| 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
-| 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
-| 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
-| 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
-| 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
-| 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
-| 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [罗翔老师脱口秀](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
+| 输入语言 | 支持程度 | 翻译demo |
+|---------|---------|---------|
+| 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) |
+| 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) |
+| 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) |
+| 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) |
+| 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) |
+| 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) |
+| 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) |
+| 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) |
 > *中文需单独配置whisperX模型，详见源码安装，并注意在网页侧边栏指定转录语言为zh
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 
-## 🚀 一键整合包 for Windows
+## 🚀 Win 一键整合包
 
 ### 注意事项：
 
-1. 整合包使用的是 CPU 版本的 torch，大小约 **2.6G**。
-2. 在配音步骤使用 UVR5 进行人声分离时，CPU 版本会显著慢于 GPU 加速的 torch。
-3. 整合包**仅支持通过 API 调用 whisperXapi ☁️**，不支持本地运行 whisperX 💻。
-4. 整合包使用的 whisperXapi 不支持中文转录，若需要使用中文，请从源码安装使用本地运行的 whisperX 💻。
-5. 整合包在转录步骤尚未进行 UVR5 人声分离，不建议使用 BGM 较嘈杂的视频。
+- 整合包使用 CPU 版本 torch，约 **2.6G**。
+- UVR5 人声分离在 CPU 上较慢。
+- 仅支持 whisperXapi ☁️，不支持本地 whisperX 💻。
+- 不支持中文转录。
+- 转录步骤未进行人声分离，不适用于 BGM 嘈杂视频。
 
-如果需要以下功能，请从源码安装（需要Nvidia显卡以及至少 **20G** 硬盘空间）：
-- 输入语言为中文
-- 本地运行 whisperX 💻
-- 使用 GPU 加速的 UVR5 人声分离
-- 转录 BGM 较嘈杂的视频
+需要以下功能请从源码安装（需 Nvidia 显卡和 **20G** 硬盘）：
+- 中文转录
+- 本地 whisperX 💻
+- GPU 加速 UVR5
+- 处理 BGM 嘈杂视频
 
 ### 下载和使用说明
 
@@ -122,7 +115,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
   ![attention](https://github.com/user-attachments/assets/7db25130-d421-452e-a16a-d7cfb0478ebf)
 
 
-> 💡 提示: 本项目需要配置大模型、WhisperX、TTS，请仔细往下阅读 **API 准备**
+> 💡 提示: 本项目需要配置大模型, WhisperX, TTS，请仔细往下阅读 **API 准备**
 
 ## 📋 API 准备
 本项目需使用大语言模型、WhisperX 和 TTS ，每个环节都提供了多种选择，**请仔细阅读配置指南😊**
@@ -130,28 +123,19 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 （默认） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens | 🤩 |
-| deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ￥2 / 1M tokens | 😲 |
+| claude-3-5-sonnet-20240620 （默认） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens（官网1/10） | 🤩 |
+
+⚠️ 警告：prompt 涉及多步思维链和复杂的json格式，除了 claude 3.5 sonnet 模型，其他模型均容易出错。一小时视频花费约 ￥7。
+
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤选用。
 
-> 提醒：deepseek在翻译过程有极低的概率错误，若出错请更换claude 3.5 sonnet模型
-
-#### 常见问题
-
 <details>
-<summary>选择哪一个模型好？</summary>
-
-- 🌟 默认使用 Claude 3.5 ，翻译质量极佳，翻译的连贯性非常好，没有 ai 味。
-- 🚀 若使用deepseek, 1h 视频翻译花费约 ￥1，效果一般。
-</details>
-
-<details>
-<summary>如何获取 api key？</summary>
+<summary>云雾api 如何获取 api key？</summary>
 
 1. 点击上面 推荐提供商 的链接
 2. 注册账户并充值
 3. 在 api key 页面新建一个即可
-4. 云雾api要注意勾选 `无限额度` ，模型处选择 `claude-3-5-sonnet-20240620` 模型，渠道建议选 `纯AZ 1.5倍`
+4. 云雾api要注意勾选 `无限额度` ，模型处选择 `claude-3-5-sonnet-20240620` 模型，渠道建议选 `纯AZ 1.5倍`，如需配音时使用 `openai`，还需要勾选 `tts-1` 模型
 </details>
 
 <details>
@@ -163,16 +147,19 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 2. **准备 Replicate 的 Token** （仅当选用 whisperXapi ☁️ 时）
 
-VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api。
-#### 方案对比：
+VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api。如果你没有显卡或者仅想快速体验，可以使用云端api。
+
+#### 两者对比：
 | 方案 | 缺点 |
 |:-----|:-----|
-| **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 下载模型 📥<br>• 高显存 💾 |
+| **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 需下载模型 📥<br>• 高显存 💾 |
 | **whisperXapi ☁️** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳<br>• **中文效果差** 🚫 |
 
-#### 获取令牌
-   - 在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌
-   - **或加入 QQ 群在群公告中免费获取测试令牌**
+<details>
+<summary>如何获取令牌</summary>
+在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌。**或加入 QQ 群在群公告中免费获取测试令牌**
+</details>
+
 
 ### 3. **TTS 的 API**
 VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音仅翻译请跳过）
@@ -181,17 +168,17 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 |:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
 | 🔊 Azure TTS (推荐)  | 效果自然 | 充值不方便 | 🤩 | 😃 |
-| 🎤 Fish TTS  | 绝 | 需充值 偶尔不稳定 | 😱 | 😱 |
-| 🗣️ GPT-SoVITS (测试) | 本地运行语音克隆 | 目前只支持英文输入中文输出，需要N卡推理模型，最好用于 无明显bgm 的单人视频，且底模最好与原声相近 | 😂 | 🚫 |
+| 🎤 Fish TTS  | 真是本地人 | 官方模型有限 | 😂 | 😂 |
+| 🗣️ GPT-SoVITS (测试) | 最强语音克隆 | 目前只支持中英文，需要N卡推理模型，配置需要相关知识 | 🏆 | 🚫 |
 
 - OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)，注意在模型处勾选 `tts-1`；
 - **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
-- **Fish TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册充值
+- Fish TTS 请自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册（送10刀额度）
 
 <details>
 <summary>OpenAI 声音怎么选？</summary>
 
-声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova` 和 `fable` 等，在 `config.py` 中修改 `OAI_VOICE` 即可。
+声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.py` 中修改 `OAI_VOICE` 即可。
 
 </details>
 <details>
@@ -257,7 +244,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
            └── [你的SoVITS模型文件]
    ```
         
-配置完成后，注意在网页侧边栏选择 `参考音频模式`，VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口，配音完成后可手动关闭。注意，此方法仍然不够稳定，容易出现漏字漏句或其他bug，请谨慎使用。</details>
+配置完成后，注意在网页侧边栏选择 `参考音频模式`（具体原理可以参考语雀文档），VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口，配音完成后可手动关闭。注意，此方法的稳定性取决于选择的底模。</details>
 
 ## 🛠️ 源码安装流程
 
@@ -319,13 +306,27 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 <!-- 本项目采用结构化模块开发，可按顺序逐个运行 `core\step__.py`，技术文档: [中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（待更新） -->
 
-## ⚠️ 注意事项
+## ⚠️ 当前限制
 
-1. UVR5 对系统资源要求较高，处理速度较慢。建议仅在拥有 16GB 以上内存和 8GB 以上显存的设备上勾选使用此功能。
+1. **UVR5 人声分离对系统资源要求较高**，处理速度较慢。建议仅在拥有 16GB 以上内存和 8GB 以上显存的设备上勾选使用此功能。注意：对于BGM过吵的视频，如果不在 whisper 前进行人声分离，很可能会导致单词级字幕黏连，在最后的对齐步骤抛出错误。
+
    
-2. 翻译步骤极小可能出现 'phrase' 错误，遇到请反馈。
-   
-3. 配音功能质量不稳定，为最佳质量，请尽量选择适合原视频的 TTS 语速，例如 OAITTS 语速较快，FishTTS 语速请试听后选择。
+2. **配音功能的质量可能不完美**，归根结底是因为语言结构差异、以及源语言与目标语言之间的语素信息密度不同。为获得最佳效果，建议根据原视频的语速和内容特点，选择相近语速的 TTS。最佳实践是使用GPT-SoVITS训练原视频声音，然后采取 `模式3:使用每一条参考音频` 进行配音，这样能最大程度保证音色、语速、语气的吻合，效果见 [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e)。
+
+3. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。
+
+3. **多角色分别配音暂不可用**，whisperX 具有 VAD 的潜力，但是具体需要一些施工，暂时没有开发此功能。
+
+## 🚨 常见报错
+
+1. **'Empty Translation Line'**: 这是由于选用了较笨的LLM，在翻译时把一些短语句直接省略了。解决方案：请换用Claude 3.5 Sonnet重试。
+
+2. **翻译过程的 'Key Error'**: 
+   - 原因1：同上，弱模型遵循JSON格式能力有误。
+   - 原因2：对于敏感内容，LLM可能拒绝翻译。
+   解决方案：请检查 `output/gpt_log/error.json` 的 `response` 和 `msg` 字段。
+
+3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: 通常是网络问题。解决方案：中国大陆用户请切换网络节点重试。
 
 ## 📄 许可证
 

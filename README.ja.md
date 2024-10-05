@@ -45,28 +45,21 @@ VideoLingoは、Netflix品質の高品質な字幕を生成し、硬直した機
 
 <table>
 <tr>
-<td width="25%">
+<td width="33%">
 
 ### ロシア語翻訳
 ---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
-<td width="25%">
+<td width="33%">
 
 ### GPT-SoVITS
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 </td>
-<td width="25%">
-
-### Fish TTS 丁真
----
-https://github.com/user-attachments/assets/e7bb9090-d2ef-4261-9dc5-56bd67dc710d
-
-</td>
-<td width="25%">
+<td width="33%">
 
 ### OAITTS
 ---
@@ -80,16 +73,16 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 現在サポートされている入力言語と例：
 
-| 入力言語 | サポートレベル | 翻訳デモ | 吹き替えデモ |
-|---------|---------|---------|----------|
-| 英語 | 🤩 | [英語から中国語](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) | TODO |
-| ロシア語 | 😊 | [ロシア語から中国語](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) | TODO |
-| フランス語 | 🤩 | [フランス語から日本語](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) | TODO |
-| ドイツ語 | 🤩 | [ドイツ語から中国語](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) | TODO |
-| イタリア語 | 🤩 | [イタリア語から中国語](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) | TODO |
-| スペイン語 | 🤩 | [スペイン語から中国語](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
-| 日本語 | 😐 | [日本語から中国語](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
-| 中国語* | 🤩 | [中国語から英語](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [羅翔先生のトークショー](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
+| 入力言語 | サポートレベル | 翻訳デモ |
+|---------|---------|---------|
+| 英語 | 🤩 | [英語から中国語](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) |
+| ロシア語 | 😊 | [ロシア語から中国語](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) |
+| フランス語 | 🤩 | [フランス語から日本語](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) |
+| ドイツ語 | 🤩 | [ドイツ語から中国語](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) |
+| イタリア語 | 🤩 | [イタリア語から中国語](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) |
+| スペイン語 | 🤩 | [スペイン語から中国語](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) |
+| 日本語 | 😐 | [日本語から中国語](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) |
+| 中国語* | 🤩 | [中国語から英語](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) |
 > *中国語はwhisperXモデルの別途設定が必要です。詳細はソースコードのインストールを参照し、ウェブページのサイドバーで転写言語をzhに指定してください。
 
 翻訳言語は大規模言語モデルが対応するすべての言語をサポートし、吹き替え言語は選択したTTS方法に依存します。
@@ -98,17 +91,17 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 注意事項：
 
-1. 統合パッケージはCPUバージョンのtorchを使用しており、サイズは約**2.6G**です。
-2. 吹き替えステップでUVR5を使用して音声分離を行う場合、CPUバージョンはGPU加速のtorchよりも著しく遅くなります。
-3. 統合パッケージは**APIを介してwhisperXapi ☁️を呼び出すことのみをサポート**し、ローカルでwhisperXを実行することはサポートしていません💻。
-4. 統合パッケージで使用されるwhisperXapiは中国語の転写をサポートしていません。中国語を使用する必要がある場合は、ソースコードからインストールし、ローカルでwhisperXを実行してください💻。
-5. 統合パッケージは転写ステップでUVR5音声分離をまだ行っていないため、BGMが騒がしいビデオの使用は推奨されません。
+- 統合パッケージはCPUバージョンのtorchを使用しており、約**2.6G**です。
+- UVR5音声分離はCPU上で遅くなります。
+- whisperXapi ☁️のみをサポートし、ローカルのwhisperX 💻はサポートしていません。
+- 中国語の転写をサポートしていません。
+- 転写ステップで音声分離を行っていないため、BGMが騒がしいビデオには適していません。
 
-以下の機能が必要な場合は、ソースコードからインストールしてください（Nvidia GPUと少なくとも**20G**のディスクスペースが必要です）：
-- 入力言語が中国語
-- ローカルでwhisperXを実行💻
-- GPU加速のUVR5を使用して音声分離
-- BGMが騒がしいビデオの転写
+以下の機能が必要な場合は、ソースコードからインストールしてください（Nvidia GPUと**20G**のディスクスペースが必要）：
+- 中国語の転写
+- ローカルのwhisperX 💻
+- GPU加速のUVR5
+- BGMが騒がしいビデオの処理
 
 ### ダウンロードと使用方法
 
@@ -128,28 +121,19 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 | 推奨モデル | 推奨プロバイダー | base_url | 価格 | 効果 |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620（デフォルト） | [雲霧api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens | 🤩 |
-| deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ￥2 / 1M tokens | 😲 |
+| claude-3-5-sonnet-20240620（デフォルト） | [雲霧api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens（公式の1/10） | 🤩 |
+
+⚠️ 警告：プロンプトには複数ステップの思考チェーンと複雑なJSON形式が含まれているため、Claude 3.5 Sonnetモデル以外のモデルではエラーが発生しやすくなっています。1時間のビデオの処理には約￥7かかります。
+
 > 注：雲霧apiはopenaiのtts-1インターフェースもサポートしており、吹き替えステップで使用できます。
 
-> リマインダー：deepseekは翻訳中に非常に低い確率でエラーが発生する可能性があります。エラーが発生した場合は、claude 3.5 sonnetモデルに切り替えてください。
-
-#### よくある質問
-
 <details>
-<summary>どのモデルを選ぶべきですか？</summary>
-
-- 🌟 デフォルトでClaude 3.5を使用し、翻訳品質が非常に優れており、連続性が非常に良く、AIの味がありません。
-- 🚀 deepseekを使用する場合、1時間のビデオの翻訳には約￥1がかかり、結果は平均的です。
-</details>
-
-<details>
-<summary>APIキーを取得する方法は？</summary>
+<summary>雲霧apiでAPIキーを取得する方法は？</summary>
 
 1. 上記の推奨プロバイダーのリンクをクリック
 2. アカウントを登録し、チャージ
-3. APIキーのページで新しいAPIキーを作成
-4. 雲霧apiの場合、`無制限のクォータ`をチェックし、`claude-3-5-sonnet-20240620`モデルを選択し、`純AZ 1.5倍`チャネルを選択することをお勧めします。
+3. APIキーのページで新しいキーを作成
+4. 雲霧apiの場合、`無制限のクォータ`をチェックし、`claude-3-5-sonnet-20240620`モデルを選択し、`純AZ 1.5倍`チャネルを選択することをお勧めします。吹き替えにopenaiを使用する場合は、`tts-1`モデルもチェックしてください。
 </details>
 
 <details>
@@ -161,16 +145,18 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 2. **Replicateのトークンを準備**（whisperXapi ☁️を使用する場合のみ）
 
-VideoLingoはWhisperXを使用して音声認識を行い、ローカルデプロイメントとクラウドAPIの両方をサポートしています。
+VideoLingoはWhisperXを使用して音声認識を行い、ローカルデプロイメントとクラウドAPIの両方をサポートしています。GPUがない場合や、すぐに体験したい場合は、クラウドAPIを使用できます。
+
 #### オプションの比較：
 | オプション | 欠点 |
 |:-----|:-----|
 | **whisperX 🖥️** | • CUDAのインストール 🛠️<br>• モデルのダウンロード 📥<br>• 高いVRAM要件 💾 |
 | **whisperXapi ☁️** | • VPNが必要 🕵️‍♂️<br>• Visaカード 💳<br>• **中国語の効果が悪い** 🚫 |
 
-#### トークンの取得
-   - [Replicate](https://replicate.com/account/api-tokens)に登録し、Visaカードの支払い方法をバインドしてトークンを取得
-   - **またはQQグループに参加し、グループのアナウンスから無料のテストトークンを取得**
+<details>
+<summary>トークンの取得方法</summary>
+[Replicate](https://replicate.com/account/api-tokens)に登録し、Visaカードの支払い方法をバインドしてトークンを取得します。**またはQQグループに参加し、グループのアナウンスから無料のテストトークンを取得できます**
+</details>
 
 ### 3. **TTSのAPI**
 VideoLingoは複数のTTS統合方法を提供しています。以下は比較です（吹き替えを使用せず、翻訳のみの場合はスキップしてください）：
@@ -179,17 +165,17 @@ VideoLingoは複数のTTS統合方法を提供しています。以下は比較�
 |:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | 感情がリアル | 中国語は外国人のように聞こえる | 😕 | 🤩 |
 | 🔊 Azure TTS (推奨)  | 自然な効果 | チャージが不便 | 🤩 | 😃 |
-| 🎤 Fish TTS  | 優れた効果 | チャージが必要 時々不安定 | 😱 | 😱 |
-| 🗣️ GPT-SoVITS (テスト) | ローカルでの音声クローン | 現在、英語入力中国語出力のみをサポートしており、Nカードでのモデル推論が必要で、明確なBGMのない単一人物のビデオに最適で、ベースモデルは元の声に近い必要があります | 😂 | 🚫 |
+| 🎤 Fish TTS  | 本物のローカル話者のよう | 公式モデルが限られている | 😂 | 😂 |
+| 🗣️ GPT-SoVITS (ベータ) | 最強の音声クローン | 現在中国語と英語のみをサポート、モデル推論にGPUが必要、設定に関連知識が必要 | 🏆 | 🚫 |
 
-- OpenAI TTSの場合、[雲霧api](https://yunwu.zeabur.app/register?aff=TXMB)を使用することをお勧めします。
+- OpenAI TTSの場合、[雲霧api](https://yunwu.zeabur.app/register?aff=TXMB)を使用することをお勧めします。`tts-1`モデルをチェックすることを忘れないでください。
 - **Azure TTSの無料キーはQQグループのアナウンスで取得できます** または[公式サイト](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python)で自分で登録してチャージできます。
-- **Fish TTSの無料キーはQQグループのアナウンスで取得できます** または[公式サイト](https://fish.audio/zh-CN/go-api/)で自分で登録してチャージできます。
+- Fish TTSは[公式サイト](https://fish.audio/zh-CN/go-api/)で自分で登録してください（10ドルの無料クレジットあり）
 
 <details>
 <summary>OpenAIの声を選ぶ方法は？</summary>
 
-声のリストは[公式サイト](https://platform.openai.com/docs/guides/text-to-speech/voice-options)で見つけることができます。例えば、`alloy`、`echo`、`nova`、`fable`などです。`config.py`で`OAI_VOICE`を変更して声を変更します。
+声のリストは[公式サイト](https://platform.openai.com/docs/guides/text-to-speech/voice-options)で見つけることができます。例えば、`alloy`、`echo`、`nova`などです。`config.py`で`OAI_VOICE`を変更して声を変更します。
 
 </details>
 <details>
@@ -317,13 +303,26 @@ VideoLingoのインストールを開始する前に、**20G**の空きディス
 
 <!-- 本プロジェクトは構造化モジュール開発を採用しており、`core\step__.py`ファイルを順番に実行できます。技術文書：[中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（更新予定） -->
 
-## ⚠️ 注意事項
+## ⚠️ 現在の制限事項
 
-1. UVR5はシステムリソースの要求が高く、処理速度が遅いです。この機能を使用する場合は、16GB以上のメモリと8GB以上のVRAMを持つデバイスでのみ選択することをお勧めします。
-   
-2. 翻訳ステップで非常に低い確率で'phrase'エラーが発生する可能性があります。発生した場合はフィードバックをお願いします。
-   
-3. 吹き替え機能の品質は不安定です。最高の品質を得るためには、元のビデオに適したTTS速度を選択することをお勧めします。例えば、OAITTSの速度は比較的速く、FishTTSの速度はサンプルを聞いてから選択してください。
+1. **UVR5 音声分離はシステムリソースの要求が高く**、処理速度が遅いです。16GB以上のメモリと8GB以上のVRAMを持つデバイスでのみこの機能の使用をお勧めします。注意：BGMが大きすぎる動画の場合、whisper前に音声分離を行わないと、単語レベルの字幕が連結してしまい、最後の整列ステップでエラーが発生する可能性が高くなります。
+
+2. **吹き替え機能の品質は完璧ではない可能性があります**。これは主に言語構造の違いや、ソース言語と目標言語の間の音素情報密度の違いが原因です。最良の結果を得るには、元の動画の話速と内容の特徴に基づいて、類似した話速のTTSを選択することをお勧めします。最適な方法は、GPT-SoVITSを使用して元の動画の音声をトレーニングし、その後「モード3：各参照音声を使用」で吹き替えを行うことです。これにより、音色、話速、イントネーションの一致度を最大限に保証できます。効果は[デモ](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e)をご覧ください。
+
+3. **多言語動画の文字起こしでは主要言語のみが保持されます**。これはwhisperXが単語レベルの字幕を強制的に整列する際に、単一言語に特化したモデルを使用するため、他の言語を認識せずに削除してしまうためです。
+
+4. **複数の役割ごとの個別の吹き替えは現在利用できません**。whisperXにはVADの潜在能力がありますが、具体的な実装にはいくつかの作業が必要で、現時点ではこの機能を開発していません。
+
+## 🚨 よくあるエラー
+
+1. **'Empty Translation Line'**: これは比較的能力の低いLLMを選択したことが原因で、翻訳時に一部の短い文を省略してしまったためです。解決策：Claude 3.5 Sonnetに切り替えて再試行してください。
+
+2. **翻訳プロセスでの 'Key Error'**: 
+   - 原因1：上記と同様に、弱いモデルがJSON形式に従う能力が不足しています。
+   - 原因2：センシティブな内容に対して、LLMが翻訳を拒否する可能性があります。
+   解決策：`output/gpt_log/error.json`の`response`と`msg`フィールドを確認してください。
+
+3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: 通常はネットワークの問題です。解決策：中国本土のユーザーはネットワークノードを切り替えて再試行してください。
 
 ## 📄 ライセンス
 

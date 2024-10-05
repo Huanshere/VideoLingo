@@ -1,25 +1,25 @@
 
 # Start
 
-## 🚀 One-Click Integrated Package for Windows
+## 🚀 Win One-Click Integrated Package
 
 ### Important Notes:
 
-1. The integrated package uses the CPU version of torch, with a size of about **2.6G**.
-2. When using UVR5 for voice separation in the dubbing step, the CPU version will be significantly slower than GPU-accelerated torch.
-3. The integrated package **only supports calling whisperXapi ☁️ via API**, and does not support running whisperX locally 💻.
-4. The whisperXapi used in the integrated package does not support Chinese transcription. If you need to use Chinese, please install from source code and use locally run whisperX 💻.
-5. The integrated package has not yet performed UVR5 voice separation in the transcription step, so it is not recommended to use videos with noisy BGM.
+- The integrated package uses the CPU version of torch, about **2.6G**.
+- UVR5 voice separation is slow on CPU.
+- Only supports whisperXapi ☁️, does not support local whisperX 💻.
+- Does not support Chinese transcription.
+- Transcription step has not performed voice separation, not suitable for videos with noisy BGM.
 
-If you need the following features, please install from source code (requires an Nvidia GPU and at least **20G** of disk space):
-- Input language is Chinese
-- Run whisperX locally 💻
-- Use GPU-accelerated UVR5 for voice separation
-- Transcribe videos with noisy BGM
+For the following features, please install from source code (requires Nvidia GPU and **20G** disk space):
+- Chinese transcription
+- Local whisperX 💻
+- GPU-accelerated UVR5
+- Process videos with noisy BGM
 
 ### Download and Usage Instructions
 
-1. Download the `v1.4` one-click package (800M): [Download Directly](https://vip.123pan.cn/1817874751/8209290) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download `v1.4` one-click package (800M): [Direct Download](https://vip.123pan.cn/1817874751/8209290) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. After extracting, double-click `OneKeyStart.bat` in the folder
 
@@ -35,28 +35,19 @@ This project requires the use of large language models, WhisperX, and TTS. Multi
 
 | Recommended Model | Recommended Provider | base_url | Price | Effect |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 (default) | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M tokens | 🤩 |
-| deepseek-coder | [deepseek](https://platform.deepseek.com/api_keys) | https://api.deepseek.com | ¥2 / 1M tokens | 😲 |
+| claude-3-5-sonnet-20240620 (default) | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M tokens (1/10 of official price) | 🤩 |
+
+⚠️ Warning: The prompt involves multi-step thinking chains and complex JSON formats. Models other than Claude 3.5 Sonnet are prone to errors. The cost for a one-hour video is about ¥7.
+
 > Note: Yunwu API also supports OpenAI's tts-1 interface, which can be used in the dubbing step.
 
-> Reminder: deepseek has a very low probability of errors during translation. If errors occur, please switch to the claude 3.5 sonnet model.
-
-#### Common Questions
-
 <details>
-<summary>Which model should I choose?</summary>
-
-- 🌟 Default use of Claude 3.5, excellent translation quality, very good coherence, no AI flavor.
-- 🚀 If using deepseek, translating a 1-hour video costs about ¥1, with average results.
-</details>
-
-<details>
-<summary>How to get an API key?</summary>
+<summary>How to get an API key from Yunwu API?</summary>
 
 1. Click the link for the recommended provider above
 2. Register an account and recharge
 3. Create a new API key on the API key page
-4. For Yunwu API, make sure to check `Unlimited Quota`, select the `claude-3-5-sonnet-20240620` model, and it is recommended to choose the `Pure AZ 1.5x` channel.
+4. For Yunwu API, make sure to check `Unlimited Quota`, select the `claude-3-5-sonnet-20240620` model, and it is recommended to choose the `Pure AZ 1.5x` channel. If you need to use OpenAI for dubbing, also check the `tts-1` model
 </details>
 
 <details>
@@ -68,16 +59,18 @@ This project requires the use of large language models, WhisperX, and TTS. Multi
 
 ### 2. **Prepare Replicate Token** (Only when using whisperXapi ☁️)
 
-VideoLingo uses WhisperX for speech recognition, supporting both local deployment and cloud API.
+VideoLingo uses WhisperX for speech recognition, supporting both local deployment and cloud API. If you don't have a GPU or just want to quickly experience it, you can use the cloud API.
+
 #### Comparison of options:
 | Option | Disadvantages |
 |:-----|:-----|
 | **whisperX 🖥️** | • Install CUDA 🛠️<br>• Download model 📥<br>• High VRAM requirement 💾 |
 | **whisperXapi ☁️** | • Requires VPN 🕵️‍♂️<br>• Visa card 💳<br>• **Poor Chinese effect** 🚫 |
 
-#### Obtaining the token
-   - Register at [Replicate](https://replicate.com/account/api-tokens), bind a Visa card payment method, and obtain the token
-   - **Or join the QQ group to get a free test token from the group announcement**
+<details>
+<summary>How to obtain the token</summary>
+Register at [Replicate](https://replicate.com/account/api-tokens), bind a Visa card payment method, and obtain the token. **Or join the QQ group to get a free test token from the group announcement**
+</details>
 
 ### 3. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip this if you're only translating without dubbing):
@@ -85,25 +78,25 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | TTS Option | Advantages | Disadvantages | Chinese Effect | Non-Chinese Effect |
 |:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | Realistic emotion | Chinese sounds like a foreigner | 😕 | 🤩 |
-| 🔊 Azure TTS  | Natural effect | Inconvenient recharge | 🤩 | 😃 |
-| 🎤 Fish TTS (Recommended) | Excellent | Requires recharge | 😱 | 😱 |
-| 🗣️ GPT-SoVITS (beta) | Local voice cloning | Currently only supports English input Chinese output, requires GPU for model inference, best for single-person videos without obvious BGM, and the base model should be close to the original voice | 😂 | 🚫 |
+| 🔊 Azure TTS (Recommended) | Natural effect | Inconvenient recharge | 🤩 | 😃 |
+| 🎤 Fish TTS  | Sounds like a real local | Limited official models | 😂 | 😂 |
+| 🗣️ GPT-SoVITS (beta) | Strongest voice cloning | Currently only supports Chinese and English, requires GPU for model inference, configuration requires relevant knowledge | 🏆 | 🚫 |
 
-- For OpenAI TTS, we recommend using [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB);
+- For OpenAI TTS, we recommend using [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB), make sure to check the `tts-1` model;
 - **Azure TTS free keys can be obtained in the QQ group announcement** or you can register and recharge yourself on the [official website](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python);
-- **Fish TTS free keys can be obtained in the QQ group announcement** or you can register and recharge yourself on the [official website](https://fish.audio/zh-CN/go-api/)
+- For Fish TTS, please register yourself on the [official website](https://fish.audio/zh-CN/go-api/) (10 USD free credit)
 
 <details>
 <summary>How to choose an OpenAI voice?</summary>
 
-You can find the voice list on the [official website](https://platform.openai.com/docs/guides/text-to-speech/voice-options), such as `alloy`, `echo`, `nova`, and `fable`. Modify `OAI_VOICE` in `config.py` to change the voice.
+You can find the voice list on the [official website](https://platform.openai.com/docs/guides/text-to-speech/voice-options), such as `alloy`, `echo`, `nova`, etc. Modify `OAI_VOICE` in `config.py` to change the voice.
 
 </details>
 
 <details>
 <summary>How to choose an Azure voice?</summary>
 
-It is recommended to listen and choose the voice you want in the [online experience](https://speech.microsoft.com/portal/voicegallery), and find the corresponding code for that voice in the right-hand code, such as `zh-CN-XiaoxiaoMultilingualNeural`.
+It is recommended to listen and choose the voice you want in the [online experience](https://speech.microsoft.com/portal/voicegallery), and find the corresponding code for that voice in the right-hand code, such as `zh-CN-XiaoxiaoMultilingualNeural`
 
 </details>
 
@@ -163,7 +156,7 @@ Go to the [official website](https://fish.audio/zh-CN/) to listen and choose the
            └── [Your SoVITS model file]
    ```
         
-After configuration, make sure to select `Reference Audio Mode` in the webpage sidebar. VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line during the dubbing step. You can manually close it after dubbing is complete. Note that this method is still not very stable and may result in missing words or sentences or other bugs, so please use it with caution.</details>
+After configuration, make sure to select `Reference Audio Mode` in the webpage sidebar (for detailed principles, please refer to the Yuque document). During the dubbing step, VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line. You can manually close it after dubbing is complete. Note that the stability of this method depends on the chosen base model.</details>
 
 ## 🛠️ Source Code Installation Process
 
@@ -182,7 +175,7 @@ Before starting the installation of VideoLingo, please ensure you have **20G** o
 
 ### Installation Steps
 
-Some Python knowledge is required. Supports Win, Mac, Linux. If you encounter any issues, you can ask GPT about the entire process~
+Python knowledge is required. Supports Win, Mac, Linux. If you encounter any issues, you can ask the AI assistant in the bottom right corner of the official website [videolingo.io](https://videolingo.io) for help~
 
 1. Open Anaconda Prompt and switch to the desktop directory:
    ```bash
@@ -224,10 +217,23 @@ Some Python knowledge is required. Supports Win, Mac, Linux. If you encounter an
 
 <!-- This project uses structured module development. You can run `core\step__.py` files in sequence. Technical documentation: [Chinese](./docs/README_guide_zh.md) | [English](./docs/README_guide_en.md) (To be updated) -->
 
-## ⚠️ Precautions
+## ⚠️ Current Limitations
 
-1. UVR5 has high memory requirements. 16G RAM can process up to 30min, 32GB RAM can process up to 50min. Please be cautious with long videos.
-   
-2. There's a very small chance of 'phrase' errors occurring in the translation step. If encountered, please report.
-   
-3. The dubbing function's quality is unstable. For best quality, please try to choose TTS speed suitable for the original video. For example, OAITTS speed is relatively fast, while for FishTTS speed, please listen to samples before choosing.
+1. **UVR5 voice separation has high system resource requirements** and processes slowly. It is recommended to only use this feature on devices with more than 16GB of memory and 8GB of VRAM. Note: For videos with noisy BGM, if voice separation is not performed before whisper, it is likely to cause word-level subtitle adhesion and throw errors in the final alignment step.
+
+2. **The quality of the dubbing function may not be perfect**, ultimately due to differences in language structure and the density of morpheme information between source and target languages. For best results, it is recommended to choose TTS with similar speed to the original video based on the speech rate and content characteristics. The best practice is to use GPT-SoVITS to train the original video voice, then adopt "Mode 3: Use every reference audio" for dubbing, which can ensure the maximum consistency of timbre, speech rate, and intonation. See the [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e) for the effect.
+
+3. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, and will delete other languages it doesn't recognize.
+
+4. **Separate dubbing for multiple characters is currently unavailable**. WhisperX has the potential for VAD, but it requires some construction work, and this feature has not been developed yet.
+
+## 🚨 Common Errors
+
+1. **'Empty Translation Line'**: This is due to using a less capable LLM that omits some short phrases during translation. Solution: Please switch to Claude 3.5 Sonnet and try again.
+
+2. **'Key Error' during translation process**: 
+   - Reason 1: Same as above, weaker models may have issues following JSON format.
+   - Reason 2: For sensitive content, LLM may refuse to translate.
+   Solution: Please check the `response` and `msg` fields in `output/gpt_log/error.json`.
+
+3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China, please switch network nodes and retry.
