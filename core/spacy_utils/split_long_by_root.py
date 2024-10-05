@@ -1,11 +1,12 @@
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 import os,sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..', '..')))
 from core.spacy_utils.load_nlp_model import init_nlp
 from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
 from rich import print
+import string
 
 def split_long_sentence(doc):
     tokens = [token.text for token in doc]
@@ -58,6 +59,8 @@ def split_extremely_long_sentence(doc):
     
     return sentences
 
+
+
 def split_long_by_root_main(nlp):
 
     with open("output/log/sentence_splitbyconnector.txt", "r", encoding="utf-8") as input_file:
@@ -75,9 +78,12 @@ def split_long_by_root_main(nlp):
         else:
             all_split_sentences.append(sentence.strip())
 
+    punctuation = string.punctuation + "'" + '"'  # include all punctuation and apostrophe ' and "
+
     with open("output/log/sentence_splitbynlp.txt", "w", encoding="utf-8") as output_file:
         for i, sentence in enumerate(all_split_sentences):
-            if not sentence.strip() or not sentence.strip(''.join([char for char in sentence if not char.isalnum()])):
+            stripped_sentence = sentence.strip()
+            if not stripped_sentence or all(char in punctuation for char in stripped_sentence):
                 print(f"[yellow]⚠️  Warning: Empty or punctuation-only line detected at index {i}[/yellow]")
                 if i > 0:
                     all_split_sentences[i-1] += sentence
