@@ -35,11 +35,7 @@ def text_processing_section():
                 process_text()
                 st.rerun()
         else:
-            #! ffmpeg has problems merging subtitles on linux
-            if sys.platform.startswith('linux'):
-                st.warning(gls("linux_warning"))
-            else:
-                st.success(gls("subtitle_translation_complete"))
+            st.success(gls("subtitle_translation_complete"))
             from config import RESOLUTION
             if RESOLUTION != "0x0":
                 st.video("output/output_video_with_subs.mp4")
