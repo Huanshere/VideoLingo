@@ -50,9 +50,9 @@ def uvr5_for_videolingo(music_file, save_dir, background_file, original_vocal_fi
     
     # Load the full audio file
     audio = AudioSegment.from_wav(music_file)
-    segment_duration = 15 * 60 * 1000  # 15 minutes in milliseconds
+    segment_duration = 10 * 60 * 1000  # 10 minutes in milliseconds
 
-    # Process audio in 15-minute segments
+    # Process audio in 10-minute segments
     segment_count = 0
     for start in range(0, len(audio), segment_duration):
         end = min(start + segment_duration, len(audio))
