@@ -14,9 +14,9 @@ def record_and_update_config(source_language, target_language):
     original_source_lang = get_config_value('SOURCE_LANGUAGE')
     original_target_lang = get_config_value('TARGET_LANGUAGE')
     
-    if source_language:
+    if source_language and not pd.isna(source_language):
         update_config('SOURCE_LANGUAGE', source_language)
-    if target_language:
+    if target_language and not pd.isna(target_language):
         update_config('TARGET_LANGUAGE', target_language)
     
     return original_source_lang, original_target_lang
@@ -44,7 +44,6 @@ def process_batch():
                 # Restore original config
                 update_config('SOURCE_LANGUAGE', original_source_lang)
                 update_config('TARGET_LANGUAGE', original_target_lang)
-            
             # update excel Status column
             df.at[index, 'Status'] = status_msg
             df.to_excel('batch/tasks_setting.xlsx', index=False)
