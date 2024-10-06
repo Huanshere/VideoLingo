@@ -27,27 +27,30 @@ def process_batch():
 
     df = pd.read_excel('batch/tasks_setting.xlsx')
     for index, row in df.iterrows():
-        total_tasks = len(df)
-        console.print(Panel(f"Now processing task: {row['Video File']}\nTask {index + 1}/{total_tasks}", title="[bold blue]Current Task", expand=False))
-        source_language = row['Source Language']
-        target_language = row['Target Language']
-        
-        # Record current config and update if necessary
-        original_source_lang, original_target_lang = record_and_update_config(source_language, target_language)
-        
-        try:
-            dubbing = 0 if pd.isna(row['Dubbing']) else int(row['Dubbing'])
-            status, error_step, error_message = process_video(row['Video File'], dubbing)
-            status_msg = "Done" if status else f"Error: {error_step} - {error_message}"
-        finally:
-            # Restore original config
-            update_config('SOURCE_LANGUAGE', original_source_lang)
-            update_config('TARGET_LANGUAGE', original_target_lang)
-        
-        # update excel Status column
-        df.at[index, 'Status'] = status_msg
-        df.to_excel('batch/tasks_setting.xlsx', index=False)
-        time.sleep(1)
+        if pd.isna(row['Status']):
+            total_tasks = len(df)
+            console.print(Panel(f"Now processing task: {row['Video File']}\nTask {index + 1}/{total_tasks}", title="[bold blue]Current Task", expand=False))
+            source_language = row['Source Language']
+            target_language = row['Target Language']
+            
+            # Record current config and update if necessary
+            original_source_lang, original_target_lang = record_and_update_config(source_language, target_language)
+            
+            try:
+                dubbing = 0 if pd.isna(row['Dubbing']) else int(row['Dubbing'])
+                status, error_step, error_message = process_video(row['Video File'], dubbing)
+                status_msg = "Done" if status else f"Error: {error_step} - {error_message}"
+            finally:
+                # Restore original config
+                update_config('SOURCE_LANGUAGE', original_source_lang)
+                update_config('TARGET_LANGUAGE', original_target_lang)
+            
+            # update excel Status column
+            df.at[index, 'Status'] = status_msg
+            df.to_excel('batch/tasks_setting.xlsx', index=False)
+            time.sleep(1)
+        else:
+            print(f"Skipping task: {row['Video File']} - Status: {row['Status']}")
 
     console.print(Panel("All tasks processed!\nCheck out in `batch/output`!", title="[bold green]Batch Processing Complete", expand=False))
 
