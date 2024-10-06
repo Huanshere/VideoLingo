@@ -131,3 +131,14 @@ def get_joiner(language):
         return ""
     else:
         raise ValueError(f"Unsupported language code: {language}")
+
+import re
+def get_config_value(key):
+    with open('config.py', 'r', encoding='utf-8') as f:
+        content = f.read()
+    pattern = rf"^{re.escape(key)}\s*=\s*(.*)$"
+    match = re.search(pattern, content, flags=re.MULTILINE)
+    if match:
+        return eval(match.group(1))
+    else:
+        return None

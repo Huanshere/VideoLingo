@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple
 import subprocess
 import base64
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from config import get_config_value
 from moviepy.editor import AudioFileClip
 import librosa
 import soundfile as sf
@@ -116,7 +117,7 @@ def encode_file_to_base64(file_path: str) -> str:
         return encoded
 
 def transcribe_audio(audio_base64: str) -> Dict:
-    from config import WHISPER_LANGUAGE
+    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
     if WHISPER_LANGUAGE == 'zh':
         raise Exception("WhisperX API 不支持中文，如需翻译中文视频请本地部署 whisperX 模型，参阅 'https://github.com/Huanshere/VideoLingo/' 的说明文档.")
     from config import REPLICATE_API_TOKEN

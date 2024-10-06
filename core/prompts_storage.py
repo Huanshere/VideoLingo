@@ -1,6 +1,8 @@
 import os,sys,json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step2_whisper import get_whisper_language
+from config import get_config_value
+
 ## ================================================================
 # @ step4_splitbymeaning.py
 def get_split_prompt(sentence, num_parts = 2, word_limit = 20):
@@ -46,7 +48,7 @@ Please provide your answer in the following JSON format, <<>> represents placeho
 # @ step4_1_summarize.py
 def get_summary_prompt(source_content):
     src_language = get_whisper_language()
-    from config import TARGET_LANGUAGE
+    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
     summary_prompt = f"""
 ### Role
 You are a professional video translation expert and terminology consultant. Your expertise lies not only in accurately understanding the original {src_language} text but also in extracting key professional terms and optimizing the translation to better suit the expression habits and cultural background of {TARGET_LANGUAGE}.
@@ -138,7 +140,7 @@ def generate_shared_prompt(previous_content_prompt, after_content_prompt, summar
 {things_to_note_prompt}'''
 
 def get_prompt_faithfulness(lines, shared_prompt):
-    from config import TARGET_LANGUAGE
+    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
     # Split lines by \n
     line_splits = lines.split('\n')
     
@@ -184,7 +186,7 @@ Please complete the following JSON data, where << >> represents placeholders tha
 
 
 def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
-    from config import TARGET_LANGUAGE
+    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
     json_format = {}
     for key, value in faithfulness_result.items():
         json_format[key] = {
@@ -241,7 +243,7 @@ Please complete the following JSON data, where << >> represents placeholders tha
 ## ================================================================
 # @ step6_splitforsub.py
 def get_align_prompt(src_sub, tr_sub, src_part):
-    from config import TARGET_LANGUAGE
+    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
     src_language = get_whisper_language()
     src_splits = src_part.split('\n')
     num_parts = len(src_splits)

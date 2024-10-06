@@ -54,9 +54,9 @@ def prepare_output_folder(output_folder):
     os.makedirs(output_folder)
 
 def process_input_file(file):
-    import config
+    from config import YTB_RESOLUTION
     if file.startswith('http'):
-        step1_ytdlp.download_video_ytdlp(file, resolution=config.YTB_RESOLUTION, cutoff_time=None)
+        step1_ytdlp.download_video_ytdlp(file, resolution=YTB_RESOLUTION, cutoff_time=None)
         video_file = step1_ytdlp.find_video_files()
     else:
         input_file = os.path.join('batch', 'input', file)

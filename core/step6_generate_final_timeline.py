@@ -3,7 +3,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from difflib import SequenceMatcher
 import re
-from config import get_joiner, WHISPER_LANGUAGE
+from config import get_joiner, get_config_value
 from core.step2_whisper import get_whisper_language
 from rich.panel import Panel
 from rich.console import Console
@@ -31,6 +31,7 @@ def remove_punctuation(text):
 def get_sentence_timestamps(df_words, df_sentences):
     time_stamp_list = []
     word_index = 0
+    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
     language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
     joiner = get_joiner(language)
 

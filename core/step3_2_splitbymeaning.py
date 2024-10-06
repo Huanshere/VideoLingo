@@ -6,7 +6,7 @@ from core.prompts_storage import get_split_prompt
 from difflib import SequenceMatcher
 import math
 from core.spacy_utils.load_nlp_model import init_nlp
-from config import get_joiner, WHISPER_LANGUAGE
+from config import get_joiner, get_config_value
 from core.step2_whisper import get_whisper_language
 from rich.console import Console
 from rich.table import Table
@@ -22,6 +22,7 @@ def find_split_positions(original, modified):
     split_positions = []
     parts = modified.split('[br]')
     start = 0
+    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
     language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
     joiner = get_joiner(language)
 
