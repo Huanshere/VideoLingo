@@ -25,5 +25,7 @@ MESSAGES = {
     "manual_check": "请手动检查配置或尝试以管理员权限运行此脚本。",
     "switch_fail_permissions": "切换镜像源失败，将继续使用当前源。",
     "check_permissions": "请检查是否有足够的权限来修改pip配置。",
-    "all_unreachable": "所有镜像源都无法连接，请检查网络连接。"
+    "all_unreachable": "所有镜像源都无法连接，请检查网络连接。",
+    "fast_mirror_found": "找到响应时间小于500ms的镜像，跳过测试。",
+    "no_fast_mirror": "未找到响应时间小于500ms的镜像，已测试所有镜像。"    
 }
