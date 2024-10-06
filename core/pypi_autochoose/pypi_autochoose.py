@@ -37,7 +37,7 @@ def test_mirror_speed(name, url):
         response = requests.get(url, timeout=5)
         end_time = time.time()
         if response.status_code == 200:
-            speed = (end_time - start_time) * 1000  # 转换为毫秒
+            speed = (end_time - start_time) * 1000 
             return name, speed
         else:
             return name, float('inf')
