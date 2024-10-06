@@ -166,7 +166,7 @@ Before installing VideoLingo, ensure you have **25GB** of free disk space. Insta
 | CUDA Toolkit 12.6 🚀 | [Download](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
 | cuDNN 9.3.0 🧠 | [Download](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
 
-> Important: When installing Anaconda, make sure to check `Add to system PATH`. After installing CUDA and cuDNN, you need to restart your computer 🔄
+> Important: After installing CUDA and cuDNN, you need to restart your computer 🔄
 
 ### Installation Steps
 
@@ -209,8 +209,6 @@ Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you enc
    ![attention](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
 
 8. (Optional) For more advanced settings, you can manually modify `config.py`. Pay attention to the command line output during the running process.
-
-<!-- This project uses structured module development. You can run `core\step__.py` files in order. Technical documentation: [Chinese](./docs/README_guide_zh.md) | [English](./docs/README_guide_en.md) (To be updated) -->
 
 ## 🚨 Common Errors and Solutions
 
