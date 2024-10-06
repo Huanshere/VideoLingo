@@ -32,7 +32,7 @@ DISPLAY_LANGUAGE = 'auto'
 YTB_RESOLUTION = '1080'
 
 # Whisper settings [whisperx, whisperxapi]
-WHISPER_METHOD = 'whisperxapi'
+WHISPER_METHOD = 'whisperx'
 
 # Whether to perform UVR processing before transcription
 UVR_BEFORE_TRANSCRIPTION = False

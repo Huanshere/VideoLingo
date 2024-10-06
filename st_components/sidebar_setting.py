@@ -75,13 +75,24 @@ def page_setting():
             if target_language != config.TARGET_LANGUAGE:
                 changes["TARGET_LANGUAGE"] = target_language
 
+        include_video = st.toggle(gls("include_video"), value=config.RESOLUTION != "0x0")
+
         resolution_options = {
             "1080p": "1920x1080",
-            "360p": "640x360",
-            "No video": "0x0"
+            "360p": "640x360"
         }
-        selected_resolution = st.selectbox(gls("video_resolution"), options=list(resolution_options.keys()), index=list(resolution_options.values()).index(config.RESOLUTION))
-        resolution = resolution_options[selected_resolution]
+        selected_resolution = st.selectbox(
+            gls("video_resolution"),
+            options=list(resolution_options.keys()),
+            index=list(resolution_options.values()).index(config.RESOLUTION) if config.RESOLUTION != "0x0" else 0,
+            disabled=not include_video
+        )
+
+        if include_video:
+            resolution = resolution_options[selected_resolution]
+        else:
+            resolution = "0x0"
+
         if resolution != config.RESOLUTION:
             changes["RESOLUTION"] = resolution
         

@@ -151,9 +151,13 @@ dmypy.json
 cython_debug/
 
 # history and output
-output/
-history/
+/output/
+/history/
 _model_cache/
+
+batch/input/
+batch/output/
+batch/tasks_setting.xlsx
 
 # large files
 /ffmpeg.exe
@@ -164,8 +168,6 @@ _model_cache/
 AllinOne.ipynb
 config.py
 
-
 # runtime
 runtime/
-venv/
 dev/
