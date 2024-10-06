@@ -165,7 +165,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | Cuda Toolkit 12.6 🚀 | [下载](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
 | Cudnn 9.3.0 🧠 | [下载](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
 
-> 注意：安装完 Cuda 和 Cudnn 后需要重启计算机 🔄
+> 注意：安装 Anaconda 时勾选 `添加到系统Path`，安装完 Cuda 和 Cudnn 后需要重启计算机 🔄
 
 ### 安装步骤
 
@@ -209,6 +209,8 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 
 8. （可选）更多进阶设置可以在 `config.py` 中手动修改，运行过程请注意命令行输出
+
+<!-- 本项目采用结构化模块开发，可按顺序逐个运行 `core\step__.py`，技术文档: [中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（待更新） -->
 
 ## 🚨 常见报错
 
