@@ -155,13 +155,11 @@ cython_debug/
 /history/
 _model_cache/
 
-# Allow batch/input folder, but ignore its contents
-/batch/input/*
-!/batch/input/.gitkeep
+# # Allow batch/input folder, but ignore its contents
+# /batch/input/*
 
-# Allow batch/output folder, but ignore its contents
-/batch/output/*
-!/batch/output/.gitkeep
+# # Allow batch/output folder, but ignore its contents
+# /batch/output/*
 
 # large files
 /ffmpeg.exe
