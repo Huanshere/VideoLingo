@@ -6,11 +6,29 @@ import zipfile
 import shutil
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# 导入 pypi_autochoose.py 的 main 函数
-from core.pypi_autochoose import main as choose_mirror
-
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
+
+# 首先安装 requests
+install_package("requests")
+
+# 现在导入 pypi_autochoose.py 的 main 函数
+from core.pypi_autochoose import main as choose_mirror
+
+def main():
+    # 调用 pypi_autochoose.py 的 main 函数
+    choose_mirror()
+
+    # 安装 rich
+    install_package("rich")
+
+    # 现在导入 rich 组件
+    from rich.console import Console
+    from rich.table import Table
+    from rich.panel import Panel
+
+    console = Console()
+    console.print(Panel.fit("Starting installation...", style="bold magenta"))
 
 def main():
     # 调用 pypi_autochoose.py 的 main 函数
