@@ -5,11 +5,6 @@ MIRRORS = {
     "USTC": "https://mirrors.ustc.edu.cn/pypi/simple",
     "Huawei Cloud": "https://repo.huaweicloud.com/repository/pypi/simple",
     "Tencent Cloud": "https://mirrors.cloud.tencent.com/pypi/simple",
-    "Google": "https://pypi.org/simple",
-    "Cloudflare": "https://pypi.cloudflare.com/simple",
-    "Azure China": "https://mirrors.azure.cn/pypi/simple",
-    "ReadTheDocs": "https://pypi.readthedocs.org/simple",
-    "CERN": "https://pypi.cern.ch/simple"
 }
 
 MESSAGES = {
