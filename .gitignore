@@ -156,10 +156,10 @@ cython_debug/
 _model_cache/
 
 # # Allow batch/input folder, but ignore its contents
-# /batch/input/*
+/batch/input/*
 
 # # Allow batch/output folder, but ignore its contents
-# /batch/output/*
+/batch/output/*
 
 # large files
 /ffmpeg.exe
