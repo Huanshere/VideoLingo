@@ -7,7 +7,6 @@ from config import get_joiner, WHISPER_LANGUAGE
 from core.step2_whisper import get_whisper_language
 from rich.panel import Panel
 from rich.console import Console
-from rich.table import Table
 
 console = Console()
 
@@ -126,7 +125,11 @@ def align_timestamp_main():
     if not empty_rows.empty:
         console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
         console.print(empty_rows.index.tolist())
-        raise ValueError("Empty translation rows detected")
+        from config import MODEL
+        if 'sonnet' not in MODEL:
+            raise ValueError("Empty translation rows detected, this is likely due to weak model, please use claude-3-5-sonnet or manually adjust the empty rows.")
+        else:
+            raise ValueError("Empty translation rows detected. This is weird, please keep the `output` folder and raise an issue.")
     subtitle_output_configs = [ 
         ('src_subtitles.srt', ['Source']),
         ('trans_subtitles.srt', ['Translation']),
