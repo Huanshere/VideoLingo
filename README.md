@@ -15,22 +15,22 @@
 
 </div>
 
-## 🌟 Project Overview
+## 🌟 Overview
 
 VideoLingo is an all-in-one video translation, localization, and dubbing tool aimed at generating Netflix-quality subtitles. It eliminates stiff machine translations and multi-line subtitles while adding high-quality dubbing, enabling global knowledge sharing across language barriers. With an intuitive Streamlit interface, you can transform a video link into a localized video with high-quality bilingual subtitles and dubbing in just a few clicks.
 
-Key features:
+**Key features:**
 - 🎥 YouTube video download via yt-dlp
 
 - 🎙️ Word-level subtitle recognition with WhisperX
 
-- 📝 NLP and GPT-based subtitle segmentation
+- **📝 NLP and GPT-based subtitle segmentation**
 
-- 📚 GPT-generated terminology for coherent translation
+- **📚 GPT-generated terminology for coherent translation**
 
-- 🔄 Three-step translation process rivaling professional quality
+- **🔄 2-step translation process rivaling professional quality**
 
-- ✅ Netflix-standard single-line subtitles only
+- **✅ Netflix-standard single-line subtitles only**
 
 - 🗣️ Dubbing alignment (e.g., GPT-SoVITS)
 
@@ -40,7 +40,8 @@ Key features:
 
 - 🌐 Comprehensive multi-language support
 
-Unique selling point: **No multi-line subtitles, superior translation quality**
+
+Difference from similar projects: **Single-line subtitles only, superior translation quality**
 
 ## 🎥 Demo
 
@@ -98,7 +99,7 @@ Experience VideoLingo quickly in Colab in just 5 minutes:
 
 ### Local Installation
 
-VideoLingo offers two local installation methods: **One-click Easy Package** and **Source Code Installation**. Please refer to the installation documentation: [English](./docs/pages/docs/start.en-US.md) | [简体中文](./docs/pages/docs/start.zh-CN.md)
+VideoLingo offers two local installation methods: **One-click Simple Package** and **Source Code Installation**. Please refer to the installation documentation: [English](./docs/pages/docs/start.en-US.md) | [简体中文](./docs/pages/docs/start.zh-CN.md)
 
 ## 🏭 Batch Mode
 
