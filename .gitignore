@@ -155,9 +155,9 @@ cython_debug/
 /history/
 _model_cache/
 
-/batch/input/
-/batch/output/
-/batch/tasks_setting.xlsx
+batch/input/
+batch/output/
+batch/tasks_setting.xlsx
 
 # large files
 /ffmpeg.exe
