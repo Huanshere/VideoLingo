@@ -34,16 +34,18 @@ def check_settings():
         elif os.path.isfile(os.path.join('batch', 'input', video_file)):
             local_video_tasks += 1
         else:
-            console.print(Panel(f"Invalid video file or URL", title=f"[bold red]Error in row {index + 2}", expand=False))
+            console.print(Panel(f"Invalid video file or URL 「{video_file}」", title=f"[bold red]Error in row {index + 2}", expand=False))
             all_passed = False
 
-        if source_language.lower() not in ['en', 'cn', 'auto']:
-            console.print(Panel(f"Invalid source language", title=f"[bold red]Error in row {index + 2}", expand=False))
-            all_passed = False
+        if not pd.isna(source_language):
+            if source_language.lower() not in ['en', 'cn', 'auto']:
+                console.print(Panel(f"Invalid source language 「{source_language}」", title=f"[bold red]Error in row {index + 2}", expand=False))
+                all_passed = False
 
-        if str(dubbing) not in ['0', '1']:
-            console.print(Panel(f"Invalid dubbing value", title=f"[bold red]Error in row {index + 2}", expand=False))
-            all_passed = False
+        if not pd.isna(dubbing):
+            if int(dubbing) not in [0, 1]:
+                console.print(Panel(f"Invalid dubbing value 「{dubbing}」", title=f"[bold red]Error in row {index + 2}", expand=False))
+                all_passed = False
 
     if all_passed:
         console.print(Panel(f"✅ All settings passed the check!\nDetected {local_video_tasks} local video tasks and {url_tasks} URL tasks.", title="[bold green]Success", expand=False))

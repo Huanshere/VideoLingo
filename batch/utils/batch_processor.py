@@ -27,6 +27,8 @@ def process_batch():
 
     df = pd.read_excel('batch/tasks_setting.xlsx')
     for index, row in df.iterrows():
+        total_tasks = len(df)
+        console.print(Panel(f"Now processing task: {row['Video File']}\nTask {index + 1}/{total_tasks}", title="[bold blue]Current Task", expand=False))
         source_language = row['Source Language']
         target_language = row['Target Language']
         
@@ -34,7 +36,8 @@ def process_batch():
         original_source_lang, original_target_lang = record_and_update_config(source_language, target_language)
         
         try:
-            status, error_step, error_message = process_video(row['Video File'], row['Dubbing'])
+            dubbing = 0 if pd.isna(row['Dubbing']) else int(row['Dubbing'])
+            status, error_step, error_message = process_video(row['Video File'], dubbing)
             status_msg = "Done" if status else f"Error: {error_step} - {error_message}"
         finally:
             # Restore original config

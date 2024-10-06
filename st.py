@@ -47,10 +47,8 @@ def text_processing_section():
             return True
 
 def process_text():
-    video_file = step1_ytdlp.find_video_files()
-    
     with st.spinner(gls("using_whisper_transcription")):
-        step2_whisper.transcribe(video_file)
+        step2_whisper.transcribe()
     with st.spinner(gls("splitting_long_sentences")):  
         step3_1_spacy_split.split_by_spacy()
         step3_2_splitbymeaning.split_sentences_by_meaning()

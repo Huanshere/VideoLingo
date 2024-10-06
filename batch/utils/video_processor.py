@@ -8,11 +8,10 @@ import shutil
 from functools import partial
 
 def process_video(file, dubbing=False):
-    # 定义步骤和对应的函数
     steps = [
         ("Preparing output folder", partial(prepare_output_folder, 'output')),
         ("Processing input file", partial(process_input_file, file)),
-        ("Transcribing with Whisper", partial(step2_whisper.transcribe, 'video_file')),
+        ("Transcribing with Whisper", partial(step2_whisper.transcribe)),
         ("Splitting sentences", split_sentences),
         ("Summarizing and translating", summarize_and_translate),
         ("Processing and aligning subtitles", process_and_align_subtitles),
