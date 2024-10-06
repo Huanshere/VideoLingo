@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step1_ytdlp import find_video_files
 import shutil
 
-def cleanup():
+def cleanup(history_dir="history"):
     # Get video file name
     video_file = find_video_files()
     video_name = video_file.split("/")[1]
@@ -12,17 +12,17 @@ def cleanup():
     video_name = sanitize_filename(video_name)
     
     # Create required folders
-    os.makedirs("history", exist_ok=True)
-    history_dir = os.path.join("history", video_name)
-    log_dir = os.path.join(history_dir, "log")
-    gpt_log_dir = os.path.join(history_dir, "gpt_log")
+    os.makedirs(history_dir, exist_ok=True)
+    video_history_dir = os.path.join(history_dir, video_name)
+    log_dir = os.path.join(video_history_dir, "log")
+    gpt_log_dir = os.path.join(video_history_dir, "gpt_log")
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(gpt_log_dir, exist_ok=True)
 
     # Move non-log files
     for file in glob.glob("output/*"):
         if not file.endswith(('log', 'gpt_log')):
-            move_file(file, history_dir)
+            move_file(file, video_history_dir)
 
     # Move log files
     for file in glob.glob("output/log/*"):

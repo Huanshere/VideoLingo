@@ -151,9 +151,17 @@ dmypy.json
 cython_debug/
 
 # history and output
-output/
-history/
+/output/
+/history/
 _model_cache/
+
+# Allow batch/input folder, but ignore its contents
+/batch/input/*
+!/batch/input/.gitkeep
+
+# Allow batch/output folder, but ignore its contents
+/batch/output/*
+!/batch/output/.gitkeep
 
 # large files
 /ffmpeg.exe
@@ -164,8 +172,6 @@ _model_cache/
 AllinOne.ipynb
 config.py
 
-
 # runtime
 runtime/
-venv/
 dev/
