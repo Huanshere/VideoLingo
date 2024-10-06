@@ -120,8 +120,7 @@ def transcribe_audio(audio_base64: str) -> Dict:
     if WHISPER_LANGUAGE == 'zh':
         raise Exception("WhisperX API 不支持中文，如需翻译中文视频请本地部署 whisperX 模型，参阅 'https://github.com/Huanshere/VideoLingo/' 的说明文档.")
     from config import REPLICATE_API_TOKEN
-    # Set API token
-    os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
+    client = replicate.Client(api_token=REPLICATE_API_TOKEN)
     print(f"🚀 Starting WhisperX API... Sometimes it takes time for the official server to start, please wait patiently... Actual processing speed is 10s for 2min audio, costing about ¥0.1 per run")
     try:
         input_params = {
@@ -140,7 +139,7 @@ def transcribe_audio(audio_base64: str) -> Dict:
         if 'auto' not in WHISPER_LANGUAGE:
             input_params["language"] = WHISPER_LANGUAGE
         
-        output = replicate.run(
+        output = client.run(
             "victor-upmeet/whisperx:84d2ad2d6194fe98a17d2b60bef1c7f910c46b2f6fd38996ca457afd9c8abfcb",
             input=input_params
         )
