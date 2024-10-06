@@ -82,12 +82,31 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 
+## ⚠️ 当前限制
+
+1. **UVR5 人声分离对系统资源要求较高**，处理速度较慢。建议仅在拥有 16GB 以上内存和 8GB 以上显存的设备上勾选使用此功能。注意：对于BGM过吵的视频，如果不在 whisper 前进行人声分离，很可能会导致单词级字幕黏连，在最后的对齐步骤抛出错误。
+
+   
+2. **配音功能的质量可能不完美**，归根结底是因为语言结构差异、以及源语言与目标语言之间的语素信息密度不同。为获得最佳效果，建议根据原视频的语速和内容特点，选择相近语速的 TTS。最佳实践是使用GPT-SoVITS训练原视频声音，然后采取 `模式3:使用每一条参考音频` 进行配音，这样能最大程度保证音色、语速、语气的吻合，效果见 [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e)。
+
+3. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。
+
+4. **多角色分别配音暂不可用**，whisperX 具有 VAD 的潜力，但是具体需要一些施工，暂时没有开发此功能。
+
+## 🚗 路线图
+
+- [ ] VAD 区分说话人，多角色配音
+- [ ] 翻译风格自定义
+- [ ] 用户术语表
+- [ ] 提供商业化服务
+
+
 ## 📄 许可证
 
 本项目采用 Apache 2.0 许可证。使用本项目时，请遵循以下规定：
 
 1. 发表作品时**建议（不强制要求）标注字幕由 VideoLingo 生成**。
-2. 遵循使用的大模型和 TTS 条约进行备注。
+2. 遵循使用的大模型和TTS条约进行备注。
 3. 如拷贝代码请包含完整的 Apache 2.0 许可证副本。
 
 我们衷心感谢以下开源项目的贡献，它们为 VideoLingo 的开发提供了重要支持：
@@ -96,6 +115,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [json_repair](https://github.com/mangiucugna/json_repair)
 - [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
+- [BELLE](https://github.com/LianjiaTech/BELLE)
 
 ## 📬 联系我们
 
@@ -110,4 +130,4 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ---
 
-如果觉得 VideoLingo 有帮助，请给我们一个 ⭐️！
+<p align="center">如果觉得 VideoLingo 有帮助，请给我们一个 ⭐️！</p>
