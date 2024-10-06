@@ -137,7 +137,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 | 简易包 | 源码安装 |
 |------------|--------------|
-| 💻 CPU 版本 torch，约 **2.6G** | 🖥️ 需 Nvidia 显卡和 **20G** 硬盘 |
+| 💻 CPU 版本 torch，约 **2.7G** | 🖥️ 需 Nvidia 显卡和 **25G** 硬盘 |
 | 🐢 UVR5 人声分离在 CPU 上较慢 | 🚀 GPU 加速 UVR5 |
 | ☁️ 仅支持 whisperXapi，不支持本地 whisperX | 🏠 支持本地 whisperX |
 | 🈚 不支持中文转录 | 🈶 支持中文转录 |
@@ -145,7 +145,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 ### 下载和使用说明
 
-1. 下载 `v1.4` 一键简易包(800M): [直接下载](https://vip.123pan.cn/1817874751/8209290) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. 下载 `v1.5` 一键简易包(800M): [直接下载](https://vip.123pan.cn/1817874751/8313069) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. 解压后双击运行文件夹中的 `一键启动.bat`
 
