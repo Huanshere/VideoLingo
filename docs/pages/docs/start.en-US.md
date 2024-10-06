@@ -1,33 +1,5 @@
 
-# Start
-
-## 🚀 Win One-Click Integrated Package
-
-### Important Notes:
-
-- The integrated package uses the CPU version of torch, about **2.6G**.
-- UVR5 voice separation is slow on CPU.
-- Only supports whisperXapi ☁️, does not support local whisperX 💻.
-- Does not support Chinese transcription.
-- Transcription step has not performed voice separation, not suitable for videos with noisy BGM.
-
-For the following features, please install from source code (requires Nvidia GPU and **20G** disk space):
-- Chinese transcription
-- Local whisperX 💻
-- GPU-accelerated UVR5
-- Process videos with noisy BGM
-
-### Download and Usage Instructions
-
-1. Download `v1.4` one-click package (800M): [Direct Download](https://vip.123pan.cn/1817874751/8209290) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
-
-2. After extracting, double-click `OneKeyStart.bat` in the folder
-
-3. In the opened browser window, configure the necessary settings in the sidebar, then create your video with one click!
-  ![attentionen](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
-
-
-> 💡 Note: This project requires configuration of large language models, WhisperX, and TTS. Please carefully read the **API Preparation** section below
+# 🚀 Getting Started
 
 ## 📋 API Preparation
 This project requires the use of large language models, WhisperX, and TTS. Multiple options are provided for each component. **Please read the configuration guide carefully 😊**
@@ -59,7 +31,7 @@ This project requires the use of large language models, WhisperX, and TTS. Multi
 
 ### 2. **Prepare Replicate Token** (Only when using whisperXapi ☁️)
 
-VideoLingo uses WhisperX for speech recognition, supporting both local deployment and cloud API. If you don't have a GPU or just want to quickly experience it, you can use the cloud API.
+VideoLingo uses WhisperX for speech recognition, supporting both local deployment and cloud API. If you don't have a GPU or just want to quickly experience it, you can use the cloud API and the one-click easy package.
 
 #### Comparison of options:
 | Option | Disadvantages |
@@ -80,10 +52,10 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🎙️ OpenAI TTS | Realistic emotion | Chinese sounds like a foreigner | 😕 | 🤩 |
 | 🔊 Azure TTS (Recommended) | Natural effect | Inconvenient recharge | 🤩 | 😃 |
 | 🎤 Fish TTS  | Sounds like a real local | Limited official models | 😂 | 😂 |
-| 🗣️ GPT-SoVITS (beta) | Strongest voice cloning | Currently only supports Chinese and English, requires GPU for model inference, configuration requires relevant knowledge | 🏆 | 🚫 |
+| 🗣️ GPT-SoVITS (Testing) | Strongest voice cloning | Currently only supports Chinese and English, requires GPU for model inference, configuration requires relevant knowledge | 🏆 | 🚫 |
 
 - For OpenAI TTS, we recommend using [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB), make sure to check the `tts-1` model;
-- **Azure TTS free keys can be obtained in the QQ group announcement** or you can register and recharge yourself on the [official website](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python);
+- **Azure TTS test keys can be obtained in the QQ group announcement** or you can register and recharge yourself on the [official website](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python);
 - For Fish TTS, please register yourself on the [official website](https://fish.audio/zh-CN/go-api/) (10 USD free credit)
 
 <details>
@@ -158,37 +130,60 @@ Go to the [official website](https://fish.audio/zh-CN/) to listen and choose the
         
 After configuration, make sure to select `Reference Audio Mode` in the webpage sidebar (for detailed principles, please refer to the Yuque document). During the dubbing step, VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line. You can manually close it after dubbing is complete. Note that the stability of this method depends on the chosen base model.</details>
 
+## 💨 Windows One-Click Package
+
+### Important Note:
+
+**The one-click package does not have all the features of a source code installation**. It's primarily for quick testing (we now recommend using the Colab version for trials). For processing long videos and accessing full functionality, we strongly advise using the source code installation. Here's a comparison:
+
+| One-Click Package | Source Code Installation |
+|-------------------|--------------------------|
+| 💻 CPU version of torch, about **2.6GB** | 🖥️ Requires Nvidia GPU and **20GB** disk space |
+| 🐢 UVR5 voice separation is slow on CPU | 🚀 GPU-accelerated UVR5 |
+| ☁️ Only supports whisperXapi, no local whisperX | 🏠 Supports local whisperX |
+| 🈚 No Chinese transcription support | 🈶 Supports Chinese transcription |
+| 🎵 No voice separation in transcription, not suitable for videos with noisy BGM | 🎼 Can process videos with noisy background music |
+
+### Download and Usage Instructions
+
+1. Download the `v1.4` one-click package (800MB): [Direct Download](https://vip.123pan.cn/1817874751/8209290) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+
+2. After extracting, double-click `一键启动.bat` (One-click Start) in the folder
+
+3. In the browser window that opens, make necessary configurations in the sidebar, then click to produce your video!
+  ![attention](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
+
 ## 🛠️ Source Code Installation Process
 
 ### Windows Prerequisites
 
-Before starting the installation of VideoLingo, please ensure you have **20G** of free disk space and complete the following steps:
+Before installing VideoLingo, ensure you have **25GB** of free disk space. Install the following dependencies based on whether you're using a local whisper model:
 
 | Dependency | whisperX 🖥️ | whisperX ☁️ |
-|:-----|:-------------------|:----------------|
+|:-----------|:------------|:------------|
 | Anaconda 🐍 | [Download](https://www.anaconda.com/products/distribution#download-section) | [Download](https://www.anaconda.com/products/distribution#download-section) |
 | Git 🌿 | [Download](https://git-scm.com/download/win) | [Download](https://git-scm.com/download/win) |
-| Cuda Toolkit 12.6 🚀 | [Download](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
-| Cudnn 9.3.0 🧠 | [Download](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
+| CUDA Toolkit 12.6 🚀 | [Download](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
+| cuDNN 9.3.0 🧠 | [Download](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
 
-> Note: When installing Anaconda, check "Add to system Path", and restart your computer after installation 🔄
+> Important: When installing Anaconda, make sure to check `Add to system PATH`. After installing CUDA and cuDNN, you need to restart your computer 🔄
 
 ### Installation Steps
 
-Python knowledge is required. Supports Win, Mac, Linux. If you encounter any issues, you can ask the AI assistant in the bottom right corner of the official website [videolingo.io](https://videolingo.io) for help~
+Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you encounter any issues, you can ask the AI assistant at the bottom right of the official website [videolingo.io](https://videolingo.io).
 
-1. Open Anaconda Prompt and switch to the desktop directory:
+1. Open Anaconda Prompt and navigate to your desktop:
    ```bash
    cd desktop
    ```
 
-2. Clone the project and switch to the project directory:
+2. Clone the project and change to the project directory:
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-3. Create and activate the virtual environment (**must be 3.10.0**):
+3. Create and activate a virtual environment (must use Python 3.10.0):
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
@@ -198,42 +193,34 @@ Python knowledge is required. Supports Win, Mac, Linux. If you encounter any iss
    ```bash
    python install.py
    ```
-   Follow the prompts to select the desired Whisper method, the script will automatically install the corresponding torch and whisper versions
+   Follow the prompts to choose your desired whisper method. The script will automatically install the appropriate versions of torch and whisper.
 
-5. Only for users who need to use Chinese transcription:
+5. Only for users who need Chinese transcription:
    
-   Please manually download the Belle-whisper-large-v3-zh-punct model ([Baidu link](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)), and overwrite it in the `_model_cache` folder in the project root directory
+   Manually download the Belle-whisper-large-v3-zh-punct model ([Baidu link](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)), and place it in the `_model_cache` folder in the project root directory. Make sure to set the **transcription language to zh** in the webpage sidebar.
 
-6. 🎉 Enter the command or click `OneKeyStart.bat` to launch the Streamlit application:
+6. 🎉 Start the Streamlit application by entering the command or clicking `OneKeyStart.bat`:
    ```bash
    streamlit run st.py
    ```
 
-7. Set the key in the sidebar of the pop-up webpage, and be sure to select the whisper method
+7. Set up your API key in the sidebar of the pop-up webpage, and make sure to select the correct whisper method.
 
-   ![attentionen](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
+   ![attention](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
 
-8. (Optional) More advanced settings can be manually modified in `config.py`
+8. (Optional) For more advanced settings, you can manually modify `config.py`. Pay attention to the command line output during the running process.
 
-<!-- This project uses structured module development. You can run `core\step__.py` files in sequence. Technical documentation: [Chinese](./docs/README_guide_zh.md) | [English](./docs/README_guide_en.md) (To be updated) -->
+<!-- This project uses structured module development. You can run `core\step__.py` files in order. Technical documentation: [Chinese](./docs/README_guide_zh.md) | [English](./docs/README_guide_en.md) (To be updated) -->
 
-## ⚠️ Current Limitations
+## 🚨 Common Errors and Solutions
 
-1. **UVR5 voice separation has high system resource requirements** and processes slowly. It is recommended to only use this feature on devices with more than 16GB of memory and 8GB of VRAM. Note: For videos with noisy BGM, if voice separation is not performed before whisper, it is likely to cause word-level subtitle adhesion and throw errors in the final alignment step.
-
-2. **The quality of the dubbing function may not be perfect**, ultimately due to differences in language structure and the density of morpheme information between source and target languages. For best results, it is recommended to choose TTS with similar speed to the original video based on the speech rate and content characteristics. The best practice is to use GPT-SoVITS to train the original video voice, then adopt "Mode 3: Use every reference audio" for dubbing, which can ensure the maximum consistency of timbre, speech rate, and intonation. See the [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e) for the effect.
-
-3. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, and will delete other languages it doesn't recognize.
-
-4. **Separate dubbing for multiple characters is currently unavailable**. WhisperX has the potential for VAD, but it requires some construction work, and this feature has not been developed yet.
-
-## 🚨 Common Errors
-
-1. **'Empty Translation Line'**: This is due to using a less capable LLM that omits some short phrases during translation. Solution: Please switch to Claude 3.5 Sonnet and try again.
+1. **'Empty Translation Line'**: This occurs when using a less capable LLM that omits some short phrases during translation. Solution: Please switch to Claude 3.5 Sonnet and try again.
 
 2. **'Key Error' during translation process**: 
-   - Reason 1: Same as above, weaker models may have issues following JSON format.
-   - Reason 2: For sensitive content, LLM may refuse to translate.
+   - Reason 1: As above, weaker models may have issues following JSON format.
+   - Reason 2: For sensitive content, the LLM may refuse to translate.
    Solution: Please check the `response` and `msg` fields in `output/gpt_log/error.json`.
 
-3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China, please switch network nodes and retry.
+3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: These are usually network issues. Solution: For users in mainland China, please try switching to a different network node and retry.
+
+
