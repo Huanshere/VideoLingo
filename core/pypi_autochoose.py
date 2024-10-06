@@ -3,6 +3,8 @@ import time
 import requests
 import concurrent.futures
 import os
+import json
+from datetime import datetime, timedelta
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
@@ -25,6 +27,9 @@ mirrors = {
     "ReadTheDocs": "https://pypi.readthedocs.org/simple",
     "CERN": "https://pypi.cern.ch/simple"
 }
+
+RESULTS_FILE = "mirror_test_results.json"
+RESULTS_VALID_DURATION = timedelta(hours=1)  # 结果有效期为1小时
 
 def get_optimal_thread_count():
     try:
@@ -61,27 +66,51 @@ def get_current_pip_mirror():
     except subprocess.CalledProcessError:
         return None
 
-def main():
-    console.print(Panel.fit("正在测试镜像源速度...", style="bold magenta"))
-    
-    optimal_thread_count = get_optimal_thread_count()
-    console.print(f"使用 [cyan]{optimal_thread_count}[/cyan] 个线程进行测试")
+def load_previous_results():
+    if os.path.exists(RESULTS_FILE):
+        with open(RESULTS_FILE, 'r') as f:
+            data = json.load(f)
+        test_time = datetime.fromisoformat(data['test_time'])
+        if datetime.now() - test_time <= RESULTS_VALID_DURATION:
+            return data['speeds']
+    return None
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-    ) as progress:
-        task = progress.add_task("[cyan]测试镜像源...", total=len(mirrors))
-        with concurrent.futures.ThreadPoolExecutor(max_workers=optimal_thread_count) as executor:
-            future_to_url = {executor.submit(test_mirror_speed, name, url): name for name, url in mirrors.items()}
-            speeds = {}
-            for future in concurrent.futures.as_completed(future_to_url):
-                name, speed = future.result()
-                if speed != float('inf'):
-                    speeds[name] = speed
-                progress.update(task, advance=1)
+def save_results(speeds):
+    data = {
+        'test_time': datetime.now().isoformat(),
+        'speeds': speeds
+    }
+    with open(RESULTS_FILE, 'w') as f:
+        json.dump(data, f)
+
+def main():
+    console.print(Panel.fit("检查镜像源速度...", style="bold magenta"))
+
+    speeds = load_previous_results()
+    if speeds:
+        console.print("[green]使用缓存的测试结果[/green]")
+    else:
+        console.print("[yellow]开始新的镜像源速度测试[/yellow]")
+        optimal_thread_count = get_optimal_thread_count()
+        console.print(f"使用 [cyan]{optimal_thread_count}[/cyan] 个线程进行测试")
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        ) as progress:
+            task = progress.add_task("[cyan]测试镜像源...", total=len(mirrors))
+            with concurrent.futures.ThreadPoolExecutor(max_workers=optimal_thread_count) as executor:
+                future_to_url = {executor.submit(test_mirror_speed, name, url): name for name, url in mirrors.items()}
+                speeds = {}
+                for future in concurrent.futures.as_completed(future_to_url):
+                    name, speed = future.result()
+                    if speed != float('inf'):
+                        speeds[name] = speed
+                    progress.update(task, advance=1)
+
+        save_results(speeds)
 
     table = Table(title="镜像源速度测试结果")
     table.add_column("镜像源", style="cyan")
