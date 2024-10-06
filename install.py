@@ -5,7 +5,6 @@ import sys
 import zipfile
 import shutil
 
-# 确保 core 目录在 Python 路径中
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def install_package(*packages):
@@ -13,18 +12,11 @@ def install_package(*packages):
 
 # 首先安装 requests 和 rich
 install_package("requests", "rich")
-
-# 导入 pypi_autochoose 的 main 函数
 from core.pypi_autochoose.pypi_autochoose import main as choose_mirror
 
 def main():
-    # 调用 pypi_autochoose 的 main 函数
+
     choose_mirror()
-
-    # 安装 rich（虽然之前已经安装过，但为了保险起见，我们再次安装）
-    install_package("rich")
-
-    # 现在导入 rich 组件
     from rich.console import Console
     from rich.table import Table
     from rich.panel import Panel
