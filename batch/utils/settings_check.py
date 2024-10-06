@@ -38,7 +38,7 @@ def check_settings():
             all_passed = False
 
         if not pd.isna(source_language):
-            if source_language.lower() not in ['en', 'cn', 'auto']:
+            if source_language.lower() not in ['en', 'zh', 'auto']:
                 console.print(Panel(f"Invalid source language 「{source_language}」", title=f"[bold red]Error in row {index + 2}", expand=False))
                 all_passed = False
 
