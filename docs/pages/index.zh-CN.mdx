@@ -4,19 +4,21 @@ title: VideoLingo
 
 import Landing from '@/components/landing'
 
-export const getStaticProps = ({ params }) => {
-    return Promise.all([
+export const getStaticProps = async ({ params }) => {
+    const [repo, stargazers] = await Promise.all([
         fetch(`https://api.github.com/repos/Huanshere/VideoLingo`).then(res => res.json()),
         fetch(`https://api.github.com/repos/Huanshere/VideoLingo/contributors?per_page=16`).then(res => res.json())
-    ]).then(([repo, stargazers]) => ({
+    ]);
+
+    return {
         props: {
             ssg: {
-                stars: repo.stargazers_count,
+                stars: repo.stargazers_count !== undefined ? repo.stargazers_count : null,
                 recentStargazers: stargazers
             }
         },
         revalidate: 60
-    }))
+    };
 }
 
 export default function Component() {
