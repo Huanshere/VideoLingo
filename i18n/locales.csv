@@ -1,8 +1,8 @@
 locale,key,value
 en_US,app_title,"VideoLingo: Connecting Every Frame Across the World"
 zh_CN,app_title,"VideoLingo: 连接世界的每一帧"
-en_US,app_description,"Hello, thank you for visiting VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! We will present more features in the near future. You can also visit our website: videolingo.io ~"
-zh_CN,app_description,"👏 欢迎来到 VideoLingo. 目前该项目还在建设中，遇到任何问题可以在 Github 或 QQ 群提问！也可以访问我们的官网： videolingo.io ~"
+en_US,app_description,"Hello, thank you for visiting VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also visit our website: videolingo.io"
+zh_CN,app_description,"👏 欢迎来到 VideoLingo. 目前该项目还在建设中，遇到任何问题可以在 Github 或 QQ 群提问！也可以访问我们的官网： videolingo.io"
 en_US,translate_generate_subtitle,"Translate and Generate Subtitles"
 zh_CN,translate_generate_subtitle,"翻译并生成字幕"
 en_US,text_processing_steps,"This stage includes the following steps:"
