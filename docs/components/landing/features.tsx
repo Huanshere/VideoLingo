@@ -18,8 +18,8 @@ type FeaturesProps = {
 export default function Features({ items, title }: FeaturesProps) {
 	// 创建图标映射
 	const iconMap = {
-		CheckCircle: <CheckCircle className="h-10 w-10 text-primary" />,
-		ArrowRight: <ArrowRight className="h-10 w-10 text-primary" />,
+		CheckCircle: <CheckCircle className="h-10 w-10 text-primary dark:text-gray-100" />,
+		ArrowRight: <ArrowRight className="h-10 w-10 text-primary dark:text-gray-100" />,
 	}
 
 	return (
@@ -31,7 +31,7 @@ export default function Features({ items, title }: FeaturesProps) {
 				<div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
 					{items &&
 						items.map((feature, index) => (
-							<Card key={index} className="n-card">
+							<Card key={index} className="n-card dark:bg-zinc-800 dark:text-gray-100">
 								<CardHeader>
 									<div className="flex items-center space-x-4">
 										{iconMap[feature.icon]}

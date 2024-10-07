@@ -4,7 +4,7 @@ export default function GitHubStats({ stars, recentStargazers }) {
 	return (
 		<section className="py-16">
 			<div className="container mx-auto text-center">
-				<div className=" bg-white rounded-2xl py-24 px-12">
+				<div className="bg-white dark:bg-zinc-800 rounded-2xl py-24 px-12">
 					<h2 className="text-3xl font-bold mb-8">GitHub</h2>
 					<div className="flex justify-center items-center space-x-4 mb-8">
 						<svg

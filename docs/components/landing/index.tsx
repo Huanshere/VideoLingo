@@ -20,7 +20,7 @@ export default function Landing({ data }) {
 
 	return (
 		<div className="flex flex-col min-h-screen">
-			<main className="flex-1 bg-[#FAFAF8] text-[#141413]">
+			<main className="flex-1 bg-[#FAFAF8] dark:bg-zinc-900 text-[#141413] dark:text-gray-100">
 				<Hero {...hero} />
 				{features && <Features {...features} />}
 				{comments && <Comments {...comments} />}

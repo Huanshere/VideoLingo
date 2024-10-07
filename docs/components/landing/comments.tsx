@@ -21,7 +21,7 @@ export default function Comments({ items, title }: Props) {
 				<div className="grid gap-8 lg:grid-cols-3">
 					{items &&
 						items.map((comment, index) => (
-							<Card key={index} className="n-card !bg-[#F0EFEA] border-none">
+							<Card key={index} className="n-card !bg-[#F0EFEA] dark:!bg-zinc-800 border-none dark:text-gray-100">
 								<CardContent className="p-10">
 									<p className="text-lg mb-4">"{comment.content}"</p>
 									<p className="font-semibold">
