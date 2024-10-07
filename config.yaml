@@ -33,7 +33,7 @@ http_proxy:
   address: "http://127.0.0.1:7890"
 
 # *Default resolution for downloading YouTube videos [360, 1080, best]
-ytb_resolution: '1080'
+ytb_resolution: '360'
 
 subtitle:
   # *Maximum length of each subtitle line in characters
