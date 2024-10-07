@@ -30,7 +30,7 @@
       "types.d.ts",
       "**/*.ts",
       "**/*.tsx",
-      "tailwind.config.js",
+      "tailwind.config.cjs",
       "pages/_meta.js",
       ".next/types/**/*.ts"
     ],

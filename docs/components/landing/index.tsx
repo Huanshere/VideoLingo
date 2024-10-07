@@ -3,8 +3,7 @@ import Features from '@/components/landing/features'
 import Comments from '@/components/landing/comments'
 import FAQ from '@/components/landing/faq'
 import GitHubStats from '@/components/landing/github-stats'
-import { useData } from 'nextra/data'
-
+import { useData } from 'nextra/hooks'
 export const Stars = () => {
 	const { stars } = useData()
 	return <strong>{stars}</strong>
