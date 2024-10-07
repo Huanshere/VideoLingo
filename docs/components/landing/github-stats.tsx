@@ -1,4 +1,4 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export default function GitHubStats({ stars, recentStargazers }) {
 	return (
@@ -23,20 +23,22 @@ export default function GitHubStats({ stars, recentStargazers }) {
 					</div>
 					<div className="flex justify-center flex-wrap gap-3">
 						<TooltipProvider>
-							{recentStargazers.map((user, index) => (
-								<Tooltip key={index}>
-									<TooltipTrigger>
-										<img
-											src={user.avatar_url}
-											alt={user.login}
-											className="w-16 h-16 rounded-full"
-										/>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>{user.login}</p>
-									</TooltipContent>
-								</Tooltip>
-							))}
+							{recentStargazers && recentStargazers.length > 0
+								? recentStargazers.map((user, index) => (
+										<Tooltip key={index}>
+											<TooltipTrigger>
+												<img
+													src={user.avatar_url}
+													alt={user.login}
+													className="w-16 h-16 rounded-full"
+												/>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>{user.login}</p>
+											</TooltipContent>
+										</Tooltip>
+								  ))
+								: ''}
 						</TooltipProvider>
 					</div>
 				</div>
