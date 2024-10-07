@@ -11,27 +11,29 @@ import GitHubStats from '@/components/landing/github-stats'
 import { useData } from 'nextra/data'
  
 export const getStaticProps = ({ params }) => {
-  return fetch(`https://api.github.com/repos/Huanshere/VideoLingo`)
-    .then(res => res.json())
-    .then(repo => ({
-      props: {
-        // We add an `ssg` field to the page props,
-        // which will be provided to the Nextra `useData` hook.
-        ssg: {
-          stars: repo.stargazers_count
-        }
-      },
-      // The page will be considered as stale and regenerated every 60 seconds.
-      revalidate: 60
+    return Promise.all([
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo`).then(res => res.json()),
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo/contributors?per_page=16`).then(res => res.json())
+    ]).then(([repo, stargazers]) => ({
+        props: {
+            ssg: {
+                stars: repo.stargazers_count,
+                recentStargazers: stargazers
+            }
+        },
+        revalidate: 60
     }))
 }
- 
+
 export const Stars = () => {
-  // Get the data from SSG, and render it as a component.
-  const { stars } = useData()
-  return <strong>{stars}</strong>
+    const { stars } = useData()
+    return <strong>{stars}</strong>
 }
- 
+
+export const RecentStargazers = () => {
+    const { recentStargazers } = useData()
+    return recentStargazers
+}
 
 export default function Component() {
     const features = [
@@ -103,7 +105,7 @@ export default function Component() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
+            <main className="flex-1 bg-[#FAFAF8] text-[#141413]">
                 <Hero
                     title="VideoLingo: 连接世界的每一帧"
                     description="全自动视频本地化工具，生成 Netflix 品质的字幕！支持多种高质量配音方案！"
@@ -112,8 +114,8 @@ export default function Component() {
 
                 <Features title="强大功能，释放创意" features={features} />
                 <Comments title="他们都在用 VideoLingo" comments={comments} />
-                
-                <GitHubStats stars={<Stars />} />
+
+                <GitHubStats stars={<Stars />} recentStargazers={RecentStargazers()} />
 
                 <FAQ title="常见问题" faqItems={faqItems} />
             </main>
