@@ -12,9 +12,9 @@ export default {
 		text: <span>{new Date().getFullYear()} © {title}.</span>,
 	},
 	i18n: [
-		{ locale: 'en-US', text: 'English' },
-		{ locale: 'zh-CN', text: '中文' },
-		{ locale: 'ja', text: '日本語' },
+		{ locale: 'en-US', name: 'English' },
+		{ locale: 'zh-CN', name: '中文' },
+		{ locale: 'ja', name: '日本語' },
 	],
 	head: () => {
 		const { asPath, defaultLocale, locale } = useRouter()
