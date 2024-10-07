@@ -6,6 +6,29 @@ import Hero from '@/components/landing/hero'
 import Features from '@/components/landing/features'
 import Comments from '@/components/landing/comments'
 import FAQ from '@/components/landing/faq'
+import { useData } from 'nextra/data'
+ 
+export const getStaticProps = ({ params }) => {
+  return fetch(`https://api.github.com/repos/Huanshere/VideoLingo`)
+    .then(res => res.json())
+    .then(repo => ({
+      props: {
+        // We add an `ssg` field to the page props,
+        // which will be provided to the Nextra `useData` hook.
+        ssg: {
+          stars: repo.stargazers_count
+        }
+      },
+      // The page will be considered as stale and regenerated every 60 seconds.
+      revalidate: 60
+    }))
+}
+ 
+export const Stars = () => {
+  // Get the data from SSG, and render it as a component.
+  const { stars } = useData()
+  return <strong>{stars}</strong>
+}
 
 export default function Component() {
     const features = [
@@ -86,6 +109,7 @@ export default function Component() {
 
                 <Features title="Powerful Features, Unleash Creativity" features={features} />
                 <Comments title="They're All Using VideoLingo" comments={comments} />
+
                 <FAQ title="Frequently Asked Questions" faqItems={faqItems} />
             </main>
         </div>

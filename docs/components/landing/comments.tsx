@@ -20,8 +20,8 @@ export default function Comments({ comments, title }: Props) {
 				</h2>
 				<div className="grid gap-8 lg:grid-cols-3">
 					{comments.map((comment, index) => (
-						<Card key={index} className="n-card">
-							<CardContent className="p-6">
+						<Card key={index} className="n-card !bg-[#F0EFEA] border-none">
+							<CardContent className="p-10">
 								<p className="text-lg mb-4">"{comment.content}"</p>
 								<p className="font-semibold">
 									{comment.author}, {comment.title}

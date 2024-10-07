@@ -20,7 +20,7 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 					</div>
 					<div className="flex space-x-4 mt-8">
 						<Link href={'/docs/start'}>
-							<Button className="bg-[#C05F3C] hover:bg-[#C96442] rounded-lg" size="lg">
+							<Button className="rounded-lg" size="lg">
 								Start
 							</Button>
 						</Link>
