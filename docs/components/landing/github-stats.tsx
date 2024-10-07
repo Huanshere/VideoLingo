@@ -34,11 +34,13 @@ export default function GitHubStats({ stars, recentStargazers }) {
 								? recentStargazers.map((user, index) => (
 										<Tooltip key={index}>
 											<TooltipTrigger>
-												<img
-													src={user.avatar_url}
-													alt={user.login}
-													className="w-16 h-16 rounded-full"
-												/>
+												<Link href={user.html_url} target="_blank" rel="noopener noreferrer">
+													<img
+														src={user.avatar_url}
+														alt={user.login}
+														className="w-16 h-16 rounded-full"
+													/>
+												</Link>
 											</TooltipTrigger>
 											<TooltipContent>
 												<p>{user.login}</p>
