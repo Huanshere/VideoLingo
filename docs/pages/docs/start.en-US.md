@@ -211,7 +211,7 @@ Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you enc
 
 8. Set up your API key in the sidebar of the pop-up webpage, and make sure to select the correct whisper method.
 
-   ![attention](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
+   ![en_set](https://github.com/user-attachments/assets/2f32f49b-0b7a-4ff4-930f-4e5f9bac9002)
 
 9. (Optional) For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
 

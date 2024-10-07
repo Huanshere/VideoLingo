@@ -210,7 +210,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 8. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
-   ![attention](https://github.com/user-attachments/assets/7db25130-d421-452e-a16a-d7cfb0478ebf)
+   ![zh_set](https://github.com/user-attachments/assets/bb9381d0-8d99-4d8b-aaff-9846076fc7a3)
 
 
 9. （可选）更多进阶设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
