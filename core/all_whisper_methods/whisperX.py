@@ -107,7 +107,7 @@ def transcribe(video_file: str):
 
         # step1 UVR5 vocal separation
         output_dir = 'output/audio'
-        if load_key("uvr_before_transcription"):
+        if load_key("whisper.uvr_before_transcription"):
             if os.path.exists(os.path.join(output_dir, 'background.wav')):
                 rprint(f"[yellow]{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.[/yellow]")
             else:
