@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo.png" alt="VideoLingo Logo" height="140">
+<img src="/docs/logo.png" alt="VideoLingo Logo" height="140">
 
 # VideoLingo: 连接世界的每一帧
 <p align="center">
@@ -10,7 +10,7 @@
   <a href="https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 </p>
 
-[**English**](README.md)｜[**中文**](README.zh.md) | [**日本語**](README.ja.md)
+[**English**](/README.md)｜[**中文**](/i18n/README.zh.md) | [**日本語**](/i18n/README.ja.md)
 
 **QQ群：875297969**
 

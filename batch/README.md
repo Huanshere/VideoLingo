@@ -2,11 +2,11 @@
 
 [English](./README.md) | [简体中文](./README.zh.md)
 
-Before utilizing the batch mode, ensure you have familiarized yourself with the Streamlit mode and properly configured the parameters in `config.py`.
+Before utilizing the batch mode, ensure you have familiarized yourself with the Streamlit mode and properly configured the parameters in `config.yaml`.
 
 ## Usage Guide
 
-> Note: All referenced files, with the exception of `config.py`, are located within the `batch` folder.
+> Note: All referenced files, with the exception of `config.yaml`, are located within the `batch` folder.
 
 ### 1. Video File Preparation
 
@@ -41,7 +41,7 @@ Example configuration:
 
 ### Handling Interruptions
 
-In the event of an unexpected command line closure, language settings in `config.py` may be altered. Verify these settings before attempting to resume processing.
+In the event of an unexpected command line closure, language settings in `config.yaml` may be altered. Verify these settings before attempting to resume processing.
 
 ### Error Management
 
