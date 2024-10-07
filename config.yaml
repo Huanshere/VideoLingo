@@ -21,11 +21,11 @@ whisper:
   language: 'en'
 
 # Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
-resolution: '1920x1080'
+resolution: '640x360'
 
 ## ======================== Advanced Settings ======================== ##
 # Web display language, auto for automatic detection based on system [zh_CN, en_US, auto]
-display_language: 'zh_CN'
+display_language: 'auto'
 
 # * HTTP proxy settings
 http_proxy:
