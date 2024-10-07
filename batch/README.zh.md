@@ -37,6 +37,8 @@
 2. 输出文件将保存在 `output` 文件夹
 3. 任务状态可在 `tasks_setting.xlsx` 的 `Status` 列查看
 
+> 注意在运行时保持 `tasks_setting.xlsx` 关闭，否则会因占用无法写入而中断。
+
 ## 注意事项
 
 ### 中断处理

@@ -37,6 +37,9 @@ Example configuration:
 2. Processed files will be stored in the `output` folder
 3. Monitor task progress in the `Status` column of `tasks_setting.xlsx`
 
+> Note: Keep `tasks_setting.xlsx` closed during execution to prevent interruptions due to file access conflicts.
+
+
 ## Important Considerations
 
 ### Handling Interruptions
