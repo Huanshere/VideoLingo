@@ -67,7 +67,7 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     for i, key in enumerate(express_result):
         table.add_row(f"[bold blue]Origin:    [/bold blue][light_blue]{faith_result[key]['origin']}[/light_blue]")
         table.add_row(f"[dim italic]Direct:    [/dim italic][dim]{faith_result[key]['direct']}[/dim]")
-        table.add_row(f"[bold green]Free:      [/bold green]{express_result[key]['free']}")
+        table.add_row(f"[bold green]Free:      [/bold green][green]{express_result[key]['free']}[/green]")
         if i < len(express_result) - 1:
             table.add_row("[yellow]" + "-" * 50 + "[/yellow]")
 
