@@ -4,6 +4,7 @@ import glob
 from yt_dlp import YoutubeDL
 import re
 import subprocess
+from core.config_utils import load_key
 
 def sanitize_filename(filename):
     # Remove or replace illegal characters
@@ -69,8 +70,7 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
             print(f"Video duration ({duration:.2f}s) is not longer than cutoff time. No need to cut.")
 
 def find_video_files(save_path='output'):
-    from config import ALLOWED_VIDEO_FORMATS
-    video_files = [file for file in glob.glob(save_path + "/*") if os.path.splitext(file)[1][1:] in ALLOWED_VIDEO_FORMATS]
+    video_files = [file for file in glob.glob(save_path + "/*") if os.path.splitext(file)[1][1:] in load_key("allowed_video_formats")]
     # change \\ to /, this happen on windows
     if sys.platform.startswith('win'):
         video_files = [file.replace("\\", "/") for file in video_files]

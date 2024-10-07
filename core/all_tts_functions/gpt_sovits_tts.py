@@ -4,22 +4,26 @@ from rich import print as rprint
 import os, sys
 import subprocess
 import socket
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+import time
+import requests
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+from core.config_utils import load_key
+
 def check_lang(text_lang, prompt_lang):
-    if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文']):
+    #TODO 可以考虑用ask gpt来判断语言
+    if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文', 'chinese']):
         text_lang = 'zh'
-    elif any(lang in text_lang.lower() for lang in ['en', 'english']):
+    elif any(lang in text_lang.lower() for lang in ['英文', '英语', 'english']):
         text_lang = 'en'
     else:
         raise ValueError("Unsupported text language. Only Chinese and English are supported.")
     
     if 'en' in prompt_lang.lower():
         prompt_lang = 'en'
-    elif any(lang in prompt_lang.lower() for lang in ['zh', 'cn', '中文']):
+    elif any(lang in prompt_lang.lower() for lang in ['zh', 'cn', '中文', 'chinese']):
         prompt_lang = 'zh'
     else:
         raise ValueError("Unsupported prompt language. Only Chinese and English are supported.")
-    
     return text_lang, prompt_lang
 
 
@@ -54,9 +58,13 @@ def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prom
 
 def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     start_gpt_sovits_server()
-    from config import TARGET_LANGUAGE, WHISPER_LANGUAGE, REFER_MODE, DUBBING_CHARACTER
-    from core.step2_whisper import get_whisper_language
+    TARGET_LANGUAGE = load_key("target_language")
+    WHISPER_LANGUAGE = load_key("whisper.language")
+    sovits_set = load_key("sovits")
+    DUBBING_CHARACTER = sovits_set["character"]
+    REFER_MODE = sovits_set["refer_mode"]
 
+    from core.step2_whisper import get_whisper_language
     current_dir = Path.cwd()
     prompt_lang = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
     prompt_text = task_df.loc[task_df['number'] == number, 'origin'].values[0]
@@ -75,8 +83,10 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         # Extract content from filename
         content = ref_audio_path.stem.split('_', 1)[1]
         
-        # ! 固定为 zh
-        prompt_lang = 'zh' 
+        #! Check. Only support zh and en.
+        prompt_lang = 'zh' if any('\u4e00' <= char <= '\u9fff' for char in content) else 'en'
+        
+        print(f"Detected language: {prompt_lang}")
         prompt_text = content
     elif REFER_MODE == 2:
         # Use only the reference audio path
@@ -111,9 +121,6 @@ def find_and_check_config_path(dubbing_character):
     return gpt_sovits_dir, config_path
 
 def start_gpt_sovits_server():
-    from config import DUBBING_CHARACTER
-    import time
-    import requests
     current_dir = Path(__file__).resolve().parent.parent.parent
     # Check if port 9880 is already in use
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -125,7 +132,7 @@ def start_gpt_sovits_server():
     sock.close()
 
     # Find and check config path
-    gpt_sovits_dir, config_path = find_and_check_config_path(DUBBING_CHARACTER)
+    gpt_sovits_dir, config_path = find_and_check_config_path(load_key("sovits.character"))
 
     # Change to the GPT-SoVITS-v2 directory
     os.chdir(gpt_sovits_dir)

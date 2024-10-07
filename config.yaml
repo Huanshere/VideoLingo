@@ -7,25 +7,25 @@ api:
   model: 'claude-3-5-sonnet-20240620'
 
 # Replicate API settings
-replicate_api_token: 'YOUR_TOKEN'
+replicate_api_token: 'YOUR_REPLICATE_API_TOKEN'
 
 # Language settings, written into the prompt, can be described in natural language
-target_language: 'Simplified Chinese'
+target_language: '简体中文'
 
 whisper:
   # Whisper settings [whisperx, whisperxapi]
-  method: 'whisperx'
+  method: 'whisperxapi'
   # Whether to perform UVR processing before transcription
-  uvr_before_transcription: false
+  uvr_before_transcription: true
   # Whisper specified recognition language [en, zh, auto] auto for automatic detection, en for forced translation to English
   language: 'en'
 
 # Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
-resolution: '640x360'
+resolution: '1920x1080'
 
 ## ======================== Advanced Settings ======================== ##
 # Web display language, auto for automatic detection based on system [zh_CN, en_US, auto]
-display_language: 'auto'
+display_language: 'zh_CN'
 
 # * HTTP proxy settings
 http_proxy:
@@ -43,7 +43,6 @@ subtitle:
 
 # *Number of LLM multi-threaded accesses
 max_workers: 8
-
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
 
@@ -51,18 +50,18 @@ max_split_length: 20
 pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [openai, gpt_sovits, azure_tts, fish_tts]
-tts_method: 'azure_tts'
+# TTS selection [openai_tts, gpt_sovits, azure_tts, fish_tts]
+tts_method: 'fish_tts'
 
 # OpenAI TTS-1 API configuration
-openai:
+openai_tts:
   voice: 'alloy'
-  api_key: 'YOUR_API_KEY'
-  api_base_url: 'https://yunwu.zeabur.app'
+  api_key: 'YOUR_OPENAI_API_KEY'
+  base_url: 'https://yunwu.zeabur.app'
 
 # Azure configuration
 azure_tts:
-  key: 'YOUR_AZURE_KEY'
+  key: 'YOUR_AZURE_API_KEY'
   region: 'eastasia'
   voice: 'zh-CN-YunfengNeural'
 
@@ -73,8 +72,8 @@ gpt_sovits:
 
 # FishTTS configuration
 fish_tts:
-  api_key: 'YOUR_FISH_TTS_API_KEY'
-  character: '丁真'
+  api_key: 'YOUR_FISH_API_KEY'
+  character: 'AD学姐'
   character_id_dict:
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
     '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
@@ -107,18 +106,18 @@ model_dir: './_model_cache'
 
 # Supported upload video formats
 allowed_video_formats:
-  - 'mp4'
-  - 'mov'
-  - 'avi'
-  - 'mkv'
-  - 'flv'
-  - 'wmv'
-  - 'webm'
+- 'mp4'
+- 'mov'
+- 'avi'
+- 'mkv'
+- 'flv'
+- 'wmv'
+- 'webm'
 
 # LLMs that support returning JSON format
 llm_support_json:
-  - 'deepseek-coder'
-  - 'gpt-4o'
+- 'deepseek-coder'
+- 'gpt-4o'
 
 # Spacy models
 spacy_model_map:
@@ -133,17 +132,17 @@ spacy_model_map:
 
 # Languages that use space as separator
 language_split_with_space:
-  - 'en'
-  - 'es'
-  - 'fr'
-  - 'de'
-  - 'it'
-  - 'ru'
+- 'en'
+- 'es'
+- 'fr'
+- 'de'
+- 'it'
+- 'ru'
 
 # Languages that do not use space as separator
 language_split_without_space:
-  - 'zh'
-  - 'ja'
+- 'zh'
+- 'ja'
 
 video:
   resolution: '0x0'

@@ -166,7 +166,7 @@ batch/tasks_setting.xlsx
 /ffprobe
 .DS_Store
 AllinOne.ipynb
-config.py
+config.backup.yaml
 
 # runtime
 runtime/

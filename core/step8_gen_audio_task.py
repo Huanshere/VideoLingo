@@ -8,15 +8,17 @@ from core.prompts_storage import get_subtitle_trim_prompt
 from rich import print as rprint
 from rich.panel import Panel
 from rich.console import Console
+from core.config_utils import load_key  
 
 console = Console()
-from config import MAX_SPEED_FACTOR, NORMAL_SPEED_FACTOR
+speed_factor = load_key("speed_factor")
 
 def check_len_then_trim(text, duration):
+    multiplier = speed_factor['normal'] * speed_factor['max']
     # Define speech speed: characters/second or words/second, punctuation/second
-    speed_zh_ja = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR  # Chinese and Japanese characters per second
-    speed_en_and_others = 5 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Words per second for English and other languages
-    speed_punctuation = 4 * MAX_SPEED_FACTOR * NORMAL_SPEED_FACTOR   # Punctuation marks per second
+    speed_zh_ja = 4 * multiplier  # Chinese and Japanese characters per second
+    speed_en_and_others = 5 * multiplier   # Words per second for English and other languages
+    speed_punctuation = 4 * multiplier   # Punctuation marks per second
     
     # Count characters, words, and punctuation for each language
     chinese_japanese_chars = len(re.findall(r'[\u4e00-\u9fff\u3040-\u30ff\u3400-\u4dbf\uf900-\ufaff\uff66-\uff9f]', text))
@@ -119,7 +121,7 @@ def process_srt():
     df = pd.DataFrame(subtitles)
     
     i = 0
-    from config import MIN_SUBTITLE_DURATION
+    MIN_SUBTITLE_DURATION = load_key("min_subtitle_duration")
     while i < len(df):
         if df.loc[i, 'duration'] < MIN_SUBTITLE_DURATION:
             if i < len(df) - 1 and (datetime.datetime.combine(datetime.date.today(), df.loc[i+1, 'start_time']) - 

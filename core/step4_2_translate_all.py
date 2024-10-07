@@ -7,6 +7,7 @@ from core.translate_once import translate_lines
 from core.step4_1_summarize import search_things_to_note_in_prompt
 from core.step8_gen_audio_task import check_len_then_trim
 from core.step6_generate_final_timeline import align_timestamp
+from core.config_utils import load_key
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -55,8 +56,7 @@ def translate_all():
         return
     
     console.print("[bold green]Start Translating All...[/bold green]")
-    from config import MODEL
-    if 'sonnet' in MODEL:
+    if 'sonnet' in load_key("api.model"):
         chunks = split_chunks_by_chars()
     else:
         console.print("[yellow]🚨 Not using sonnet, using smaller chunk size and max_i to avoid OOM[/yellow]")
@@ -65,14 +65,13 @@ def translate_all():
         theme_prompt = json.load(file).get('theme')
 
     # 🔄 Use concurrent execution for translation
-    from config import MAX_WORKERS
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         transient=True,
     ) as progress:
         task = progress.add_task("[cyan]Translating chunks...", total=len(chunks))
-        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
             futures = []
             for i, chunk in enumerate(chunks):
                 future = executor.submit(translate_chunk, chunk, chunks, theme_prompt, i)
@@ -99,8 +98,7 @@ def translate_all():
     df_time = align_timestamp(df_text, df_translate, subtitle_output_configs, output_dir=None, for_display=False)
     console.print(df_time)
     # apply check_len_then_trim to df_time['Translation'], only when duration > MIN_TRIM_DURATION.
-    from config import MIN_TRIM_DURATION
-    df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']) if x['duration'] > MIN_TRIM_DURATION else x['Translation'], axis=1)
+    df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']) if x['duration'] > load_key("min_trim_duration") else x['Translation'], axis=1)
     console.print(df_time)
     
     df_time.to_excel("output/log/translation_results.xlsx", index=False)

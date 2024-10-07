@@ -3,14 +3,14 @@ import streamlit as st
 import locale
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.config_utils import load_key
 
 @st.cache_data
 def load_locales():
     return pd.read_csv("st_components/locales.csv")
 
 def get_localized_string(key):
-    import config
-    locale = config.DISPLAY_LANGUAGE
+    locale = load_key("display_language")
     locales = load_locales()
     try:
         return locales[(locales["locale"] == locale) & (locales["key"] == key)]["value"].iloc[0]
