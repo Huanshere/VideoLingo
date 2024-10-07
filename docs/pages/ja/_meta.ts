@@ -1,0 +1,16 @@
+
+
+export default {
+  index: {
+    type: "page",
+    title: "VideoLingo",
+    display: "hidden",
+    theme: {
+      layout: "raw"
+    }
+  },
+  docs: {
+    type: "page",
+    title: "ドキュメント"
+  }
+};
