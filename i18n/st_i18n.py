@@ -7,7 +7,7 @@ from core.config_utils import load_key
 
 @st.cache_data
 def load_locales():
-    return pd.read_csv("st_components/locales.csv")
+    return pd.read_csv("i18n/locales.csv")
 
 def get_localized_string(key):
     locale = load_key("display_language")
