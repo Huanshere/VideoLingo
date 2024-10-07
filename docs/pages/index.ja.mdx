@@ -2,120 +2,103 @@
 title: VideoLingo
 ---
 
-import Hero from '@/components/landing/hero'
-import Features from '@/components/landing/features'
-import Comments from '@/components/landing/comments'
-import FAQ from '@/components/landing/faq'
-import GitHubStats from '@/components/landing/github-stats'
+import Landing from '@/components/landing'
 
-import { useData } from 'nextra/data'
- 
 export const getStaticProps = ({ params }) => {
-  return fetch(`https://api.github.com/repos/Huanshere/VideoLingo`)
-    .then(res => res.json())
-    .then(repo => ({
-      props: {
-        // Nextra の `useData` フックに提供される `ssg` フィールドをページのプロパティに追加します。
-        ssg: {
-          stars: repo.stargazers_count
-        }
-      },
-      // ページは60秒ごとに古いとみなされ、再生成されます。
-      revalidate: 60
+    return Promise.all([
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo`).then(res => res.json()),
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo/contributors?per_page=16`).then(res => res.json())
+    ]).then(([repo, stargazers]) => ({
+        props: {
+            ssg: {
+                stars: repo.stargazers_count,
+                recentStargazers: stargazers
+            }
+        },
+        revalidate: 60
     }))
 }
- 
-export const Stars = () => {
-  // SSGからデータを取得し、コンポーネントとしてレンダリングします。
-  const { stars } = useData()
-  return <strong>{stars}</strong>
-}
- 
 
 export default function Component() {
-    const features = [
-        {
-            title: 'インテリジェントな字幕分割',
-            description: 'NLPとLLM技術を使用して、文の意味に基づいて字幕を正確に分割し、各文を適切に調整します。',
-            icon: 'CheckCircle',
+    const landingData = {
+        hero: {
+            title: "VideoLingo: 世界の一コマ一コマをつなぐ",
+            description: "Netflixレベルの字幕分割、翻訳、同期、さらに吹き替えまで、ワンクリックで全自動の動画翻訳AIチーム",
+            videoSrc: "/videos/demo.mp4"
         },
-        {
-            title: 'コンテキスト認識翻訳',
-            description: 'GPTが用語知識ベースを要約・抽出し、文脈に沿った翻訳を実現。すべての翻訳が自然で流暢になります。',
-            icon: 'ArrowRight',
+        features: {
+            title: "強力な機能で創造性を解き放つ",
+            items: [
+                {
+                    title: 'インテリジェントな字幕分割',
+                    description: 'NLPとLLM技術を使用し、文意に基づいて字幕を正確に分割し、各フレーズが適切であることを保証します。',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: 'コンテキスト認識翻訳',
+                    description: 'GPTで用語知識ベースを要約・抽出し、文脈に沿った一貫性のある翻訳を実現。自然で流暢な翻訳を提供します。',
+                    icon: 'ArrowRight',
+                },
+                {
+                    title: '3ステップ翻訳プロセス',
+                    description: '直接翻訳 - 反省 - 意訳の多重保証で、プロの字幕翻訳チームに匹敵する品質を実現。',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: '精密な字幕同期',
+                    description: 'WhisperXを使用して単語レベルのタイムライン字幕認識を行い、すべての単語を正確に同期させます。',
+                    icon: 'ArrowRight',
+                },
+                {
+                    title: '高品質な吹き替え',
+                    description: 'GPT-SoVITS技術を含む複数のTTSソリューションをサポートし、高品質でパーソナライズされた吹き替えで動画をより魅力的に。',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: '開発者フレンドリー',
+                    description: '構造化されたファイル設計で、開発者によるカスタマイズと機能拡張が容易。複数のデプロイメント方法をサポート。',
+                    icon: 'ArrowRight',
+                },
+            ]
         },
-        {
-            title: '3ステップ翻訳プロセス',
-            description: '直接翻訳 - 反省 - 意訳の3段階で、プロの字幕チームに匹敵する品質を実現します。',
-            icon: 'CheckCircle',
+        comments: {
+            title: "VideoLingoユーザーの声",
+            items: [
+                {
+                    content: "以前は1日かかっていたことが、今では1時間で完了します！",
+                    author: "k",
+                    title: "ビリビリ動画30万フォロワーの配信者"
+                },
+                {
+                    content: "この吹き替えは私の話し方よりも正確で、たくさんの面白いアイデアが浮かびました🤩",
+                    author: "アービョウ",
+                    title: "小紅書10万フォロワーの広東語配信者"
+                },
+                {
+                    content: "仕事帰りに単純に遊びで投稿したら、思わぬ大ヒットになりました😂",
+                    author: "X",
+                    title: "Douyin（TikTok中国版）で1日7000フォロワー増の配信者"
+                }
+            ]
         },
-        {
-            title: '正確な字幕同期',
-            description: 'WhisperXを使用して単語レベルのタイムライン字幕認識を行い、すべての単語を正確に同期させます。',
-            icon: 'ArrowRight',
-        },
-        {
-            title: '高品質な吹き替え',
-            description: '複数のTTSソリューションをサポートし、GPT-SoVITS技術による高品質なパーソナライズ吹き替えで、動画をより魅力的にします。',
-            icon: 'CheckCircle',
-        },
-        {
-            title: '開発者フレンドリー',
-            description: '構造化されたファイル設計により、開発者が機能をカスタマイズおよび拡張しやすくなっています。複数のデプロイ方法をサポートします。',
-            icon: 'ArrowRight',
-        },
-    ]
-
-    const comments = [
-        {
-            content: "以前は1日かかっていたことが、今では1時間で完了します！",
-            author: "K",
-            title: "Bilibili 30万フォロワーのクリエイター"
-        },
-        {
-            content: "この吹き替えは私の話し方よりも正確で、たくさんの面白いアイデアが浮かびました🤩",
-            author: "アビオさん",
-            title: "小紅書 10万フォロワーの広東語クリエイター"
-        },
-        {
-            content: "仕事帰りに単純に遊びで投稿したら、突然バズってしまいました😂",
-            author: "Xさん",
-            title: "TikTok 1日で7000フォロワー増加したクリエイター"
+        faq: {
+            title: "よくある質問",
+            items: [
+                {
+                    question: "翻訳の品質はどうですか？",
+                    description: "Netflixの字幕基準に厳密に従い、最先端のClaude 3.5モデルを使用して多段階の翻訳を行っています。"
+                },
+                {
+                    question: "1つの動画の処理にどのくらい時間がかかりますか？",
+                    answer: "処理時間は動画の長さと選択したサービスによって異なります。通常、60分の動画の翻訳と吹き替えには約40分かかります。"
+                },
+                {
+                    question: "料金はどうなっていますか？",
+                    answer: "VideoLingoはオープンソースプロジェクトで、すでにGitHubで3k以上のスターを獲得しています。商用版の発表が間もなく予定されており、さらに多くの機能が追加される予定です。"
+                },
+            ]
         }
-    ];
+    }
 
-    const faqItems = [
-        {
-            question: "翻訳と吹き替えの品質はどのように保証されていますか？",
-            description: "私たちはNetflixの字幕基準に厳密に従い、最先端のClaude 3.5モデルを使用して多段階翻訳を行い、NLPを使用して複数行の字幕分割を行っています。また、様々なTTSソリューションを提供しており、翻訳の品質はオープンソースコミュニティと内部テストグループから一致して高い評価を得ています。"
-        },
-        {
-            question: "1つの動画の処理にどのくらい時間がかかりますか？",
-            answer: "処理時間は動画の長さと選択したサービスによって異なります。通常、60分の動画の翻訳と吹き替えには約40分かかります。"
-        },
-        {
-            question: "料金はどのようになっていますか？",
-            answer: "VideoLingoはオープンソースプロジェクトで、すでにGitHubで3k以上のスターを獲得しています。近々商用版をリリースする予定で、さらに多くの機能が追加される予定です。"
-        },
-    ]
-
-    return (
-        <div className="flex flex-col min-h-screen">
-            <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
-                <Hero
-                    title="VideoLingo: 世界をつなぐフレーム"
-                    description="完全自動化された動画ローカライゼーションツール。Netflixクオリティの字幕を生成！複数の高品質吹き替えオプションをサポート！"
-                    githubLink="https://github.com/Huanshere/VideoLingo"
-                    videoSrc="/videos/demo.mp4"
-                />
-
-                <Features title="パワフルな機能で創造性を解き放つ" features={features} />
-                <Comments title="VideoLingoユーザーの声" comments={comments} />
-                
-                <GitHubStats stars={<Stars />} />
-
-                <FAQ title="よくある質問" faqItems={faqItems} />
-            </main>
-        </div>
-    )
+    return <Landing data={landingData} />
 }
