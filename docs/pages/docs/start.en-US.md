@@ -191,7 +191,7 @@ Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you enc
 
 4. Install ffmpeg:
    ```bash
-   conda install ffmpeg
+   conda install ffmpeg -y
    ```
 
 5. Run the installation script:

@@ -190,7 +190,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 
 4. 安装ffmpeg:
    ```bash
-   conda install ffmpeg
+   conda install ffmpeg -y
    ```
 
 5. 运行安装脚本：
