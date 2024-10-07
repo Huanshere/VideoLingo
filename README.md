@@ -99,11 +99,11 @@ Experience VideoLingo quickly in Colab in just 5 minutes:
 
 ### Local Installation
 
-VideoLingo offers two local installation methods: **One-click Simple Package** and **Source Code Installation**. Please refer to the installation documentation: [English](./docs/pages/docs/start.en-US.md) | [简体中文](./docs/pages/docs/start.zh-CN.md)
+VideoLingo offers two local installation methods: **One-click Simple Package** and **Source Code Installation**. Please refer to the installation documentation: [English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 🏭 Batch Mode
 
-Usage instructions: [English](./batch/README.md) | [简体中文](./batch/README.zh.md)
+Usage instructions: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
 
 ## ⚠️ Current Limitations
 
@@ -121,6 +121,7 @@ Usage instructions: [English](./batch/README.md) | [简体中文](./batch/README
 - [ ] Customizable translation styles
 - [ ] User terminology glossary
 - [ ] Provide commercial services
+- [ ] Lip sync for dubbed videos
 
 
 ## 📄 License
