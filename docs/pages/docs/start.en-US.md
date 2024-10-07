@@ -151,7 +151,7 @@ After configuration, make sure to select `Reference Audio Mode` in the webpage s
 2. After extracting, double-click `一键启动.bat` (One-click Start) in the folder
 
 3. In the browser window that opens, make necessary configurations in the sidebar, then click to produce your video!
-  ![attention](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
+  ![en_cloud_set](https://github.com/user-attachments/assets/e3219a4d-bdcd-4613-b6c9-5c6577c3e032)
 
 ## 🛠️ Source Code Installation Process
 
