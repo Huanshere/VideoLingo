@@ -40,14 +40,19 @@ def process_batch():
                 dubbing = 0 if pd.isna(row['Dubbing']) else int(row['Dubbing'])
                 status, error_step, error_message = process_video(row['Video File'], dubbing)
                 status_msg = "Done" if status else f"Error: {error_step} - {error_message}"
+            except Exception as e:
+                status_msg = f"Error: Unhandled exception - {str(e)}"
+                console.print(f"[bold red]Error processing {row['Video File']}: {status_msg}")
             finally:
                 # Restore original config
                 update_key('whisper.language', original_source_lang)
                 update_key('target_language', original_target_lang)
-            # update excel Status column
-            df.at[index, 'Status'] = status_msg
-            df.to_excel('batch/tasks_setting.xlsx', index=False)
-            time.sleep(1)
+                
+                # Update excel Status column
+                df.at[index, 'Status'] = status_msg
+                df.to_excel('batch/tasks_setting.xlsx', index=False)
+                
+                time.sleep(1)
         else:
             print(f"Skipping task: {row['Video File']} - Status: {row['Status']}")
 
