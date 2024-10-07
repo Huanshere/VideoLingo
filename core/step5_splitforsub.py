@@ -47,7 +47,7 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     align_data = parsed[f'align_{best}']
     
     src_parts = src_part.split('\n')
-    tr_parts = [item[f'target_part_{i+1}'].strip() for i, item in enumerate(align_data)]
+    tr_parts = [item[key].strip() for item in align_data for key in item if key.startswith('target_part_')]
     
     table = Table(title="🔗 Aligned parts")
     table.add_column("Language", style="cyan")
