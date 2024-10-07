@@ -3,7 +3,7 @@ import os, sys, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.config_utils import load_key
 from core.step1_ytdlp import download_video_ytdlp, find_video_files
-from st_components.st_i18n import get_localized_string
+from i18n.st_i18n import get_localized_string
 from time import sleep
 import re
 

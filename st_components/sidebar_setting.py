@@ -2,8 +2,8 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from st_components.imports_and_utils import ask_gpt
 import streamlit as st
-from st_components.i18n import get_system_language
-from st_components.i18n import get_localized_string as gls
+from i18n.st_i18n import get_system_language
+from i18n.st_i18n import get_localized_string as gls
 import time
 import requests
 from core.config_utils import update_key, load_key
