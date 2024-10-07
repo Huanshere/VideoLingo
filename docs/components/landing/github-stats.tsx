@@ -23,7 +23,7 @@ export default function GitHubStats({ stars, recentStargazers }) {
 					</div>
 					<div className="flex justify-center flex-wrap gap-3">
 						<TooltipProvider>
-							{recentStargazers.length > 0
+							{recentStargazers && recentStargazers.length > 0
 								? recentStargazers.map((user, index) => (
 										<Tooltip key={index}>
 											<TooltipTrigger>
