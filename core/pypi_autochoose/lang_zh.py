@@ -5,11 +5,8 @@ MIRRORS = {
     "中国科技大学": "https://mirrors.ustc.edu.cn/pypi/simple",
     "华为云": "https://repo.huaweicloud.com/repository/pypi/simple",
     "腾讯云": "https://mirrors.cloud.tencent.com/pypi/simple",
-    "Google": "https://pypi.org/simple",
-    "Cloudflare": "https://pypi.cloudflare.com/simple",
-    "Azure中国": "https://mirrors.azure.cn/pypi/simple",
-    "ReadTheDocs": "https://pypi.readthedocs.org/simple",
-    "CERN": "https://pypi.cern.ch/simple"
+    "上海交通大学": "https://mirror.sjtu.edu.cn/pypi/web/simple",
+    "网易": "https://mirrors.163.com/pypi/simple"
 }
 
 MESSAGES = {
@@ -30,5 +27,7 @@ MESSAGES = {
     "manual_check": "请手动检查配置或尝试以管理员权限运行此脚本。",
     "switch_fail_permissions": "切换镜像源失败，将继续使用当前源。",
     "check_permissions": "请检查是否有足够的权限来修改pip配置。",
-    "all_unreachable": "所有镜像源都无法连接，请检查网络连接。"
+    "all_unreachable": "所有镜像源都无法连接，请检查网络连接。",
+    "fast_mirror_found": "找到响应时间小于500ms的镜像，跳过测试。",
+    "no_fast_mirror": "未找到响应时间小于500ms的镜像，已测试所有镜像。"    
 }

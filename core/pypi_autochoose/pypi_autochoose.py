@@ -37,7 +37,7 @@ def test_mirror_speed(name, url):
         response = requests.get(url, timeout=5)
         end_time = time.time()
         if response.status_code == 200:
-            speed = (end_time - start_time) * 1000  # 转换为毫秒
+            speed = (end_time - start_time) * 1000 
             return name, speed
         else:
             return name, float('inf')
@@ -87,6 +87,9 @@ def main():
         optimal_thread_count = get_optimal_thread_count()
         console.print(MESSAGES["using_threads"].format(optimal_thread_count))
 
+        speeds = {}
+        found_fast_mirror = False
+
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -94,14 +97,24 @@ def main():
             TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
         ) as progress:
             task = progress.add_task(f"[cyan]{MESSAGES['testing_mirrors']}", total=len(MIRRORS))
-            with concurrent.futures.ThreadPoolExecutor(max_workers=optimal_thread_count) as executor:
-                future_to_url = {executor.submit(test_mirror_speed, name, url): name for name, url in MIRRORS.items()}
-                speeds = {}
-                for future in concurrent.futures.as_completed(future_to_url):
-                    name, speed = future.result()
-                    if speed != float('inf'):
-                        speeds[name] = speed
+            
+            for name, url in MIRRORS.items():
+                name, speed = test_mirror_speed(name, url)
+                if speed != float('inf'):
+                    speeds[name] = speed
                     progress.update(task, advance=1)
+                    
+                    if speed < 500:
+                        found_fast_mirror = True
+                        break
+                
+                if progress.finished:
+                    break
+
+        if found_fast_mirror:
+            console.print(f"[green]{MESSAGES['fast_mirror_found']}[/green]")
+        else:
+            console.print(f"[yellow]{MESSAGES['no_fast_mirror']}[/yellow]")
 
         save_results(speeds)
 
@@ -138,6 +151,7 @@ def main():
             console.print(f"[yellow]{MESSAGES['check_permissions']}[/yellow]")
     else:
         console.print(f"[bold red]{MESSAGES['all_unreachable']}[/bold red]")
+
 
 if __name__ == "__main__":
     main()

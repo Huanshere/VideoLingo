@@ -5,11 +5,8 @@ MIRRORS = {
     "USTC": "https://mirrors.ustc.edu.cn/pypi/simple",
     "Huawei Cloud": "https://repo.huaweicloud.com/repository/pypi/simple",
     "Tencent Cloud": "https://mirrors.cloud.tencent.com/pypi/simple",
-    "Google": "https://pypi.org/simple",
-    "Cloudflare": "https://pypi.cloudflare.com/simple",
-    "Azure China": "https://mirrors.azure.cn/pypi/simple",
-    "ReadTheDocs": "https://pypi.readthedocs.org/simple",
-    "CERN": "https://pypi.cern.ch/simple"
+    "上海交通大学": "https://mirror.sjtu.edu.cn/pypi/web/simple",
+    "163 Cloud": "https://mirrors.163.com/pypi/simple"
 }
 
 MESSAGES = {
@@ -30,5 +27,7 @@ MESSAGES = {
     "manual_check": "Please check the configuration manually or try running this script with administrator privileges.",
     "switch_fail_permissions": "Failed to switch mirror, will continue using the current source.",
     "check_permissions": "Please check if you have sufficient permissions to modify pip configuration.",
-    "all_unreachable": "All mirrors are unreachable. Please check your network connection."
+    "all_unreachable": "All mirrors are unreachable. Please check your network connection.",
+    "fast_mirror_found": "Find the image with a response time of less than 500 ms and skip the test.",
+    "no_fast_mirror": "No images with a response time of less than 500 ms were found, and all images have been tested."
 }
