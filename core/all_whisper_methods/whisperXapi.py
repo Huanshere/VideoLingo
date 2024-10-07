@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 import subprocess
 import base64
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from config import get_config_value
+from core.config_utils import load_key
 from moviepy.editor import AudioFileClip
 import librosa
 import soundfile as sf
@@ -117,11 +117,10 @@ def encode_file_to_base64(file_path: str) -> str:
         return encoded
 
 def transcribe_audio(audio_base64: str) -> Dict:
-    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
+    WHISPER_LANGUAGE = load_key("whisper.language")
     if WHISPER_LANGUAGE == 'zh':
         raise Exception("WhisperX API 不支持中文，如需翻译中文视频请本地部署 whisperX 模型，参阅 'https://github.com/Huanshere/VideoLingo/' 的说明文档.")
-    from config import REPLICATE_API_TOKEN
-    client = replicate.Client(api_token=REPLICATE_API_TOKEN)
+    client = replicate.Client(api_token=load_key("replicate_api_token"))
     print(f"🚀 Starting WhisperX API... Sometimes it takes time for the official server to start, please wait patiently... Actual processing speed is 10s for 2min audio, costing about ¥0.1 per run")
     try:
         input_params = {

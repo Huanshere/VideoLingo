@@ -6,7 +6,7 @@ from core.prompts_storage import get_split_prompt
 from difflib import SequenceMatcher
 import math
 from core.spacy_utils.load_nlp_model import init_nlp
-from config import get_joiner, get_config_value
+from core.config_utils import load_key, get_joiner
 from core.step2_whisper import get_whisper_language
 from rich.console import Console
 from rich.table import Table
@@ -22,8 +22,8 @@ def find_split_positions(original, modified):
     split_positions = []
     parts = modified.split('[br]')
     start = 0
-    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
-    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
+    whisper_language = load_key("whisper.language")
+    language = get_whisper_language() if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
 
     for i in range(len(parts) - 1):
@@ -115,9 +115,8 @@ def split_sentences_by_meaning():
 
     nlp = init_nlp()
     # 🔄 process sentences multiple times to ensure all are split
-    from config import MAX_WORKERS, MAX_SPLIT_LENGTH
     for retry_attempt in range(3):
-        sentences = parallel_split_sentences(sentences, max_length=MAX_SPLIT_LENGTH, max_workers=MAX_WORKERS, nlp=nlp, retry_attempt=retry_attempt)
+        sentences = parallel_split_sentences(sentences, max_length=load_key("max_split_length"), max_workers=load_key("max_workers"), nlp=nlp, retry_attempt=retry_attempt)
 
     # 💾 save results
     with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:

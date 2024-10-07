@@ -2,16 +2,13 @@ import os
 import platform
 import subprocess
 import sys
-import zipfile
-import shutil
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
-# 首先安装 requests 和 rich
-install_package("requests", "rich")
+install_package("requests", "rich", "ruamel.yaml")
 from core.pypi_autochoose.pypi_autochoose import main as choose_mirror
 
 def main():
@@ -23,6 +20,19 @@ def main():
 
     console = Console()
     console.print(Panel.fit("Starting installation...", style="bold magenta"))
+
+    def init_language():
+        import locale
+        from core.config_utils import load_key, update_key
+        system_lang = locale.getdefaultlocale()[0]
+        lang_map = {
+            'zh_CN': 'zh_CN', 'zh_TW': 'zh_CN',
+            'en_US': 'en_US', 'ja_JP': 'ja_JP'
+        }
+        display_language = lang_map.get(system_lang, 'en_US')
+        if load_key("display_language") == "auto":
+            update_key("display_language", display_language)
+            console.print(Panel.fit("Display language set to system language: " + display_language, style="bold green"))
 
     def install_requirements():
         """Install requirements from requirements.txt file."""
@@ -66,80 +76,10 @@ def main():
             else:
                 print(f"{model_name} already exists. Skipping download.")
 
-    def download_and_extract_ffmpeg():
-        """Download FFmpeg based on the platform, extract it, and clean up."""
-        system = platform.system()
-        if system == "Windows":
-            ffmpeg_exe = "ffmpeg.exe"
-            url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
-        elif system == "Darwin":
-            ffmpeg_exe = "ffmpeg"
-            url = "https://evermeet.cx/ffmpeg/getrelease/zip"
-        elif system == "Linux":
-            ffmpeg_exe = "ffmpeg"
-            url = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
-        else:
-            return
-
-        if os.path.exists(ffmpeg_exe):
-            print(f"{ffmpeg_exe} already exists. Skipping download.")
-            return
-
-        print("Downloading FFmpeg...")
-        import requests
-
-        response = requests.get(url)
-        if response.status_code == 200:
-            filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
-            with open(filename, 'wb') as f:
-                f.write(response.content)
-            print(f"FFmpeg has been downloaded to {filename}")
-        
-            print("Extracting FFmpeg...")
-            if system == "Linux":
-                import tarfile
-                with tarfile.open(filename) as tar_ref:
-                    for member in tar_ref.getmembers():
-                        if member.name.endswith("ffmpeg"):
-                            member.name = os.path.basename(member.name)
-                            tar_ref.extract(member)
-            else:
-                with zipfile.ZipFile(filename, 'r') as zip_ref:
-                    for file in zip_ref.namelist():
-                        if file.endswith(ffmpeg_exe):
-                            zip_ref.extract(file)
-                            shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
-            
-            print("Cleaning up...")
-            os.remove(filename)
-            if system == "Windows":
-                for item in os.listdir():
-                    if os.path.isdir(item) and "ffmpeg" in item.lower():
-                        shutil.rmtree(item)
-            print("FFmpeg extraction completed.")
-        else:
-            print("Failed to download FFmpeg")
-
-    def init_config():
-        """Initialize the config.py file with the specified API key and base URL."""
-        if not os.path.exists("config.py"):
-            # Copy config.py from config.example.py
-            shutil.copy("config.example.py", "config.py")
-            print("config.py file has been created. Please fill in the API key and base URL in the config.py file.")
-        else:
-            print("config.py file already exists.")
-
     def install_noto_font():
         if platform.system() == 'Linux':
             # 如果字体未安装，安装 Noto 字体
             subprocess.run(['sudo', 'apt-get', 'install', '-y', 'fonts-noto'], check=True)
-
-    # Initialize config.py file
-    init_config()
-
-    # Install requests
-    console.print(Panel("Installing requests...", style="cyan"))
-    install_package("requests")
     
     # User selects Whisper model
     table = Table(title="Whisper Model Selection")
@@ -202,6 +142,9 @@ def main():
         else:
             raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
 
+    # Initialize display language
+    init_language()
+
     # Install noto font
     install_noto_font()
 
@@ -210,9 +153,6 @@ def main():
 
     # Download UVR model
     dowanload_uvr_model()
-    
-    # Download and extract FFmpeg
-    download_and_extract_ffmpeg()
     
     console.print(Panel.fit("All installation steps are completed!", style="bold green"))
     console.print("Please use the following command to start Streamlit:")

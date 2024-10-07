@@ -61,7 +61,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 <details>
 <summary>OpenAI 声音怎么选？</summary>
 
-声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.py` 中修改 `OAI_VOICE` 即可。
+声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.yaml` 中修改 `openai_tts.voice` 即可。
 
 </details>
 <details>
@@ -74,7 +74,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 <details>
 <summary>Fish TTS 声音怎么选？</summary>
 
-前往 [官网](https://fish.audio/zh-CN/) 中试听选择你想要的声音，在 URL 中可以找到该声音对应的代号，例如丁真是 `54a5170264694bfc8e9ad98df7bd89c3`，热门的几种声音已添加在 `config.py` 中，直接修改 `FISH_TTS_CHARACTER` 即可。如需使用其他声音，请在 `config.py` 中修改 `FISH_TTS_CHARACTER_ID_DICT` 字典。
+前往 [官网](https://fish.audio/zh-CN/) 中试听选择你想要的声音，在 URL 中可以找到该声音对应的代号，例如丁真是 `54a5170264694bfc8e9ad98df7bd89c3`，热门的几种声音已添加在 `config.yaml` 中。如需使用其他声音，请在 `config.yaml` 中修改 `fish_tts.character_id_dict` 字典。
 
 </details>
 
@@ -188,29 +188,32 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    conda activate videolingo
    ```
 
-4. 运行安装脚本：
+4. 安装ffmpeg:
+   ```bash
+   conda install ffmpeg
+   ```
+
+5. 运行安装脚本：
    ```bash
    python install.py
    ```
    根据提示选择所需的 whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
 
-5. 仅**对于需要使用中文转录**的用户：
+6. 仅**对于需要使用中文转录**的用户：
    
    请手动下载 Belle-whisper-large-v3-zh-punct 模型（[度盘链接](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)），并将其覆盖在项目根目录的 `_model_cache` 文件夹下，并注意在网页侧边栏指定**转录语言为zh**
 
-6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
+7. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
    streamlit run st.py
    ```
 
-7. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
+8. 在弹出网页的侧边栏中设置key，并注意选择whisper方法
 
    ![attention](https://github.com/user-attachments/assets/7db25130-d421-452e-a16a-d7cfb0478ebf)
 
 
-8. （可选）更多进阶设置可以在 `config.py` 中手动修改，运行过程请注意命令行输出
-
-<!-- 本项目采用结构化模块开发，可按顺序逐个运行 `core\step__.py`，技术文档: [中文](./docs/README_guide_zh.md) ｜ [英文](./docs/README_guide_en.md)（待更新） -->
+9. （可选）更多进阶设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
 
 ## 🚨 常见报错
 

@@ -6,8 +6,10 @@ from typing import Dict
 from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from core.config_utils import load_key
 
-from config import MODEL_DIR, get_config_value
+MODEL_DIR = load_key("model_dir")
+
 from core.all_whisper_methods.whisperXapi import (
     process_transcription, convert_video_to_audio, split_audio,
     save_results, save_language
@@ -15,7 +17,7 @@ from core.all_whisper_methods.whisperXapi import (
 from third_party.uvr5.uvr5_for_videolingo import uvr5_for_videolingo
     
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
-    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
+    WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     rprint(f"[green]🚀 Starting WhisperX...[/green]")
     rprint(f"[cyan]Device:[/cyan] {device}")
@@ -104,9 +106,8 @@ def transcribe(video_file: str):
         audio_file = convert_video_to_audio(video_file)
 
         # step1 UVR5 vocal separation
-        from config import UVR_BEFORE_TRANSCRIPTION
         output_dir = 'output/audio'
-        if UVR_BEFORE_TRANSCRIPTION:
+        if load_key("uvr_before_transcription"):
             if os.path.exists(os.path.join(output_dir, 'background.wav')):
                 rprint(f"[yellow]{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.[/yellow]")
             else:

@@ -1,0 +1,148 @@
+# * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
+## ======================== Basic Settings ======================== ##
+# API settings
+api:
+  key: 'YOUR_API_KEY'
+  base_url: 'https://yunwu.zeabur.app'
+  model: 'claude-3-5-sonnet-20240620'
+
+# Replicate API settings
+replicate_api_token: 'YOUR_REPLICATE_API_TOKEN'
+
+# Language settings, written into the prompt, can be described in natural language
+target_language: '简体中文'
+
+whisper:
+  # Whisper settings [whisperx, whisperxapi]
+  method: 'whisperxapi'
+  # Whether to perform UVR processing before transcription
+  uvr_before_transcription: true
+  # Whisper specified recognition language [en, zh, auto] auto for automatic detection, en for forced translation to English
+  language: 'en'
+
+# Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
+resolution: '640x360'
+
+## ======================== Advanced Settings ======================== ##
+# Web display language, auto for automatic detection based on system [zh_CN, en_US, auto]
+display_language: 'auto'
+
+# * HTTP proxy settings
+http_proxy:
+  use: false
+  address: "http://127.0.0.1:7890"
+
+# *Default resolution for downloading YouTube videos [360, 1080, best]
+ytb_resolution: '360'
+
+subtitle:
+  # *Maximum length of each subtitle line in characters
+  max_length: 70
+  # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
+  target_multiplier: 1.1
+
+# *Number of LLM multi-threaded accesses
+max_workers: 8
+# *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
+max_split_length: 20
+
+# *Whether to pause after extracting professional terms and before translation, allowing users to manually adjust the terminology table output\log\terminology.json
+pause_before_translate: false
+
+## ======================== Dubbing Settings ======================== ##
+# TTS selection [openai_tts, gpt_sovits, azure_tts, fish_tts]
+tts_method: 'fish_tts'
+
+# OpenAI TTS-1 API configuration
+openai_tts:
+  voice: 'alloy'
+  api_key: 'YOUR_OPENAI_API_KEY'
+  base_url: 'https://yunwu.zeabur.app'
+
+# Azure configuration
+azure_tts:
+  key: 'YOUR_AZURE_API_KEY'
+  region: 'eastasia'
+  voice: 'zh-CN-YunfengNeural'
+
+# SoVITS configuration
+gpt_sovits:
+  character: 'Huanyuv2'
+  refer_mode: 3
+
+# FishTTS configuration
+fish_tts:
+  api_key: 'YOUR_FISH_API_KEY'
+  character: 'AD学姐'
+  character_id_dict:
+    'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
+    '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
+    '赛马娘': '0eb38bc974e1459facca38b359e13511'
+    '蔡徐坤': 'e4642e5edccd4d9ab61a69e82d4f8a14'
+    '雷军': '738d0cc1a3e9430a9de2b544a466a7fc'
+
+# *Audio speed range
+speed_factor:
+  min: 1
+  max: 1.4
+  normal: 1.2  # *Considered normal speech rate
+
+# *Merge audio configuration
+min_subtitle_duration: 3
+min_trim_duration: 2.50
+
+# Volume settings
+original_volume: 0.1  # Original voice volume in dubbed video (0.1 = 10% or 0)
+dub_volume: 1.5  # *Dubbed audio volume (1.5 = 150%, most original dubbing audio is relatively quiet)
+
+
+
+
+
+
+## ======================== Additional settings 请勿修改======================== ##
+# Whisper model directory
+model_dir: './_model_cache'
+
+# Supported upload video formats
+allowed_video_formats:
+- 'mp4'
+- 'mov'
+- 'avi'
+- 'mkv'
+- 'flv'
+- 'wmv'
+- 'webm'
+
+# LLMs that support returning JSON format
+llm_support_json:
+- 'deepseek-coder'
+- 'gpt-4o'
+
+# Spacy models
+spacy_model_map:
+  en: 'en_core_web_md'
+  ru: 'ru_core_news_md'
+  fr: 'fr_core_news_md'
+  ja: 'ja_core_news_md'
+  es: 'es_core_news_md'
+  de: 'de_core_news_md'
+  it: 'it_core_news_md'
+  zh: 'zh_core_web_md'
+
+# Languages that use space as separator
+language_split_with_space:
+- 'en'
+- 'es'
+- 'fr'
+- 'de'
+- 'it'
+- 'ru'
+
+# Languages that do not use space as separator
+language_split_without_space:
+- 'zh'
+- 'ja'
+
+video:
+  resolution: '0x0'

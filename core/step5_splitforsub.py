@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step3_2_splitbymeaning import split_sentence
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_align_prompt
-from rich import print
+from core.config_utils import load_key
 from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
@@ -59,7 +59,9 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     return src_parts, tr_parts
 
 def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> Tuple[List[str], List[str]]:
-    from config import MAX_SUB_LENGTH, TARGET_SUB_MULTIPLIER, MAX_WORKERS
+    subtitle_set = load_key("subtitle")
+    MAX_SUB_LENGTH = subtitle_set["max_length"]
+    TARGET_SUB_MULTIPLIER = subtitle_set["target_multiplier"]
     for attempt in range(max_retry):
         console.print(Panel(f"🔄 Split attempt {attempt + 1}", expand=False))
         to_split = []
@@ -79,7 +81,7 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> 
             split_src = split_sentence(src_lines[i], num_parts=2).strip()
             src_lines[i], tr_lines[i] = align_subs(src_lines[i], tr_lines[i], split_src)
         
-        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
             executor.map(process, to_split)
         
         # Flatten `src_lines` and `tr_lines`

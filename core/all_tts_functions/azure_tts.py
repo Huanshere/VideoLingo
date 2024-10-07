@@ -1,14 +1,15 @@
 import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 import azure.cognitiveservices.speech as speechsdk
+from core.config_utils import load_key
 
 def azure_tts(text, savepath):
-    from config import AZURE_KEY, AZURE_REGION, AZURE_VOICE
-    speech_config = speechsdk.SpeechConfig(subscription=AZURE_KEY, region=AZURE_REGION)
+    azure_set = load_key("azure_tts")
+    speech_config = speechsdk.SpeechConfig(subscription=azure_set["key"], region=azure_set["region"])
     audio_config = speechsdk.audio.AudioOutputConfig(filename=savepath)
 
     # The neural multilingual voice can speak different languages based on the input text.
-    speech_config.speech_synthesis_voice_name=AZURE_VOICE
+    speech_config.speech_synthesis_voice_name=azure_set["voice"]
 
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
@@ -23,4 +24,4 @@ def azure_tts(text, savepath):
         return False
 
 if __name__ == "__main__":
-    azure_tts("你好，世界！", "output/audio/azure_tts.wav")
+    azure_tts("你好，世界！", "azure_tts.wav")

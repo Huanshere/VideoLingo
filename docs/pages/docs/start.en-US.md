@@ -61,7 +61,7 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 <details>
 <summary>How to choose an OpenAI voice?</summary>
 
-You can find the voice list on the [official website](https://platform.openai.com/docs/guides/text-to-speech/voice-options), such as `alloy`, `echo`, `nova`, etc. Modify `OAI_VOICE` in `config.py` to change the voice.
+You can find the voice list on the [official website](https://platform.openai.com/docs/guides/text-to-speech/voice-options), such as `alloy`, `echo`, `nova`, etc. Modify `openai_tts.voice` in `config.yaml` to change the voice.
 
 </details>
 
@@ -75,7 +75,7 @@ It is recommended to listen and choose the voice you want in the [online experie
 <details>
 <summary>How to choose a Fish TTS voice?</summary>
 
-Go to the [official website](https://fish.audio/zh-CN/) to listen and choose the voice you want, and find the corresponding code for that voice in the URL, such as Ding Zhen is `54a5170264694bfc8e9ad98df7bd89c3`. Popular voices have been added to `config.py`, just modify `FISH_TTS_CHARACTER`. If you need to use other voices, please modify the `FISH_TTS_CHARACTER_ID_DICT` dictionary in `config.py`.
+Go to the [official website](https://fish.audio) to listen and choose the voice you want, and find the corresponding code for that voice in the URL, such as Ding Zhen is `54a5170264694bfc8e9ad98df7bd89c3`. Popular voices have been added to `config.yaml`. If you need to use other voices, please modify the `fish_tts.character_id_dict` dictionary in `config.yaml`.
 
 </details>
 
@@ -208,9 +208,7 @@ Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you enc
 
    ![attention](https://github.com/user-attachments/assets/9ff9d8e1-5422-466f-9e28-1803f23afdc7)
 
-8. (Optional) For more advanced settings, you can manually modify `config.py`. Pay attention to the command line output during the running process.
-
-<!-- This project uses structured module development. You can run `core\step__.py` files in order. Technical documentation: [Chinese](./docs/README_guide_zh.md) | [English](./docs/README_guide_en.md) (To be updated) -->
+8. (Optional) For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
 
 ## 🚨 Common Errors and Solutions
 
