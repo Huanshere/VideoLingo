@@ -73,11 +73,6 @@ def merge_subtitles_to_video():
         output_video
     ]
 
-    # 根据是否是macOS添加不同的参数, macOS的ffmpeg不包含preset
-    if not macOS:
-        ffmpeg_cmd.insert(-2, '-preset')
-        ffmpeg_cmd.insert(-2, 'veryfast')
-
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
     process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, encoding='utf-8')  # 指定 UTF-8 编码
