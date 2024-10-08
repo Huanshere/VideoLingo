@@ -66,17 +66,17 @@ def main():
 
     def install_requirements():
         if os.path.exists("requirements.txt"):
-            print("Converting requirements.txt to GBK encoding...")
+            print(strings['converting_requirements'])
             try:
                 with open("requirements.txt", "r", encoding="utf-8") as file:
                     content = file.read()
                 with open("requirements.txt", "w", encoding="gbk") as file:
                     file.write(content)
-                print("Conversion completed.")
+                print(strings['conversion_completed'])
             except UnicodeDecodeError:
-                print("requirements.txt is already in GBK encoding, no conversion needed.")
+                print(strings['already_gbk'])
             except Exception as e:
-                print(f"Error occurred during encoding conversion: {str(e)}")
+                print(f"{strings['conversion_error']}: {str(e)}")
             
             print(strings['installing_dependencies'])
             subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
@@ -87,7 +87,7 @@ def main():
         test_url = f"{base_url}lj1995/VoiceConversionWebUI/resolve/main/README.md"
         max_retries = 3
         timeout = 10
-    
+
         for attempt in range(max_retries):
             try:
                 start_time = time.time()
@@ -99,11 +99,10 @@ def main():
             except requests.RequestException:
                 if attempt == max_retries - 1:
                     return name, float('inf')
-                time.sleep(1)  # 在重试之前等待1秒
+                time.sleep(1)  # Wait 1 second before retrying
 
-    return name, float('inf')
+        return name, float('inf')
 
-    
     def download_uvr_model():
         models = {
             "HP2_all_vocals.pth": "lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
@@ -114,9 +113,9 @@ def main():
             "Official": "https://huggingface.co/",
             "Mirror": "https://hf-mirror.com/"
         }
-    
+
         os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
-    
+
         for model_name, model_path in models.items():
             model_file_path = f"_model_cache/uvr5_weights/{model_name}"
             if not os.path.exists(model_file_path):
@@ -125,28 +124,33 @@ def main():
                 # Test speed for each mirror
                 speeds = []
                 for mirror_name, mirror_url in mirrors.items():
-                    test_url = mirror_url + model_path
-                    name, speed = test_mirror_speed(mirror_name, test_url)
+                    name, speed = test_mirror_speed(mirror_name, mirror_url)
                     speeds.append((name, speed))
-                    print(f"{mirror_name} mirror speed: {speed:.2f} ms")
-    
+                    print(f"{mirror_name} {strings['mirror_speed']} {speed:.2f} ms")
+
                 # Choose the fastest mirror
                 fastest_mirror = min(speeds, key=lambda x: x[1])[0]
-                print(f"Choosing {fastest_mirror} mirror for download.")
-    
+                print(f"{strings['choosing_mirror']} {fastest_mirror}")
+
                 # Download from the fastest mirror
                 url = mirrors[fastest_mirror] + model_path
-                response = requests.get(url, stream=True)
-                total_size = int(response.headers.get('content-length', 0))
-                
-                with open(model_file_path, "wb") as file:
-                    downloaded_size = 0
-                    for data in response.iter_content(chunk_size=4096):
-                        size = file.write(data)
-                        downloaded_size += size
-                        print(f"Downloaded: {(downloaded_size/total_size)*100:.2f}%", end="\r")
-                
-                print(f"\n{model_name} {strings['model_downloaded']}")
+                try:
+                    response = requests.get(url, stream=True)
+                    response.raise_for_status()
+                    total_size = int(response.headers.get('content-length', 0))
+                    
+                    with open(model_file_path, "wb") as file:
+                        downloaded_size = 0
+                        for data in response.iter_content(chunk_size=8192):
+                            size = file.write(data)
+                            downloaded_size += size
+                            if total_size:
+                                percent = (downloaded_size / total_size) * 100
+                                print(f"{strings['download_progress']} {percent:.2f}%", end="\r")
+                    
+                    print(f"\n{model_name} {strings['model_downloaded']}")
+                except requests.RequestException as e:
+                    print(f"{strings['download_failed']} {model_name}: {str(e)}")
             else:
                 print(f"{model_name} {strings['model_exists']}")
 
@@ -169,8 +173,6 @@ def main():
             return
 
         print(strings['downloading_ffmpeg'])
-        import requests
-
         response = requests.get(url)
         if response.status_code == 200:
             filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
