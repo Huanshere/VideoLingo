@@ -6,6 +6,8 @@ import zipfile
 import shutil
 import locale
 import requests
+import time
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def install_package(*packages):
