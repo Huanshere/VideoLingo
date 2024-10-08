@@ -97,7 +97,7 @@ def main():
     import time
     import requests
     
-    def download_uvr_model():
+    def downloaded_uvr_model():
         models = {
             "HP2_all_vocals.pth": "lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
             "VR-DeEchoAggressive.pth": "lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth"
