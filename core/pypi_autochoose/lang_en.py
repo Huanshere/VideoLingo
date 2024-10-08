@@ -1,5 +1,4 @@
 MIRRORS = {
-    "PyPI Official": "https://pypi.org/simple",
     "Alibaba Cloud": "https://mirrors.aliyun.com/pypi/simple",
     "Tsinghua University": "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple",
     "Huawei Cloud": "https://repo.huaweicloud.com/repository/pypi/simple",
