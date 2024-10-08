@@ -32,7 +32,7 @@ def parse_srt_time(time_str):
 
 def tts_main(text, save_as, number, task_df):
     TTS_METHOD = load_key("tts_method")
-    if TTS_METHOD == 'openai':
+    if TTS_METHOD == 'openai_tts':
         openai_tts(text, save_as)
     elif TTS_METHOD == 'gpt_sovits':
         #! 注意 gpt_sovits_tts 只支持输出中文，输入中文或英文
