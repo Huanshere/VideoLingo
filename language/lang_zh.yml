@@ -36,3 +36,7 @@ invalid_choice: "无效选择。默认使用 CPU 版本。"
 invalid_choice_retry: "无效选择。请输入 1 或 2。请重试。"
 installation_completed: "所有安装步骤已完成！"
 start_streamlit_command: "请使用以下命令启动 Streamlit："
+downloading_uvr_model: "正在下载 UVR 模型："
+mirror_speed: "镜像速度："
+choosing_mirror: "选择最快的镜像进行下载："
+
