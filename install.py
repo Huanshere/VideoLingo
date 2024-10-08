@@ -2,6 +2,8 @@ import os
 import platform
 import subprocess
 import sys
+import zipfile
+import shutil
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -75,6 +77,60 @@ def main():
                 print(f"\n{model_name} downloaded successfully.")
             else:
                 print(f"{model_name} already exists. Skipping download.")
+
+    def download_and_extract_ffmpeg():
+        """Download FFmpeg based on the platform, extract it, and clean up."""
+        system = platform.system()
+        if system == "Windows":
+            ffmpeg_exe = "ffmpeg.exe"
+            url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+        elif system == "Darwin":
+            ffmpeg_exe = "ffmpeg"
+            url = "https://evermeet.cx/ffmpeg/getrelease/zip"
+        elif system == "Linux":
+            ffmpeg_exe = "ffmpeg"
+            url = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
+        else:
+            return
+
+        if os.path.exists(ffmpeg_exe):
+            print(f"{ffmpeg_exe} already exists. Skipping download.")
+            return
+
+        print("Downloading FFmpeg...")
+        import requests
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
+            with open(filename, 'wb') as f:
+                f.write(response.content)
+            print(f"FFmpeg has been downloaded to {filename}")
+        
+            print("Extracting FFmpeg...")
+            if system == "Linux":
+                import tarfile
+                with tarfile.open(filename) as tar_ref:
+                    for member in tar_ref.getmembers():
+                        if member.name.endswith("ffmpeg"):
+                            member.name = os.path.basename(member.name)
+                            tar_ref.extract(member)
+            else:
+                with zipfile.ZipFile(filename, 'r') as zip_ref:
+                    for file in zip_ref.namelist():
+                        if file.endswith(ffmpeg_exe):
+                            zip_ref.extract(file)
+                            shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
+            
+            print("Cleaning up...")
+            os.remove(filename)
+            if system == "Windows":
+                for item in os.listdir():
+                    if os.path.isdir(item) and "ffmpeg" in item.lower():
+                        shutil.rmtree(item)
+            print("FFmpeg extraction completed.")
+        else:
+            print("Failed to download FFmpeg")
 
     def install_noto_font():
         if platform.system() == 'Linux':
@@ -153,6 +209,9 @@ def main():
 
     # Download UVR model
     dowanload_uvr_model()
+    
+    # Download and extract FFmpeg
+    download_and_extract_ffmpeg()
     
     console.print(Panel.fit("All installation steps are completed!", style="bold green"))
     console.print("Please use the following command to start Streamlit:")
