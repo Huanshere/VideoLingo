@@ -1,5 +1,27 @@
-# 使用 NVIDIA CUDA 12.4 和 Python 3.10 的基础镜像
-FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+ARG IMAGE_NAME=nvidia/cuda
+FROM ${IMAGE_NAME}:12.6.1-runtime-ubuntu24.04 as base
+
+FROM base as base-amd64
+ENV NV_CUDNN_VERSION 9.3.0.75-1
+ENV NV_CUDNN_PACKAGE_NAME libcudnn9-cuda-12
+ENV NV_CUDNN_PACKAGE libcudnn9-cuda-12=${NV_CUDNN_VERSION}
+
+FROM base as base-arm64
+ENV NV_CUDNN_VERSION 9.3.0.75-1
+ENV NV_CUDNN_PACKAGE_NAME libcudnn9-cuda-12
+ENV NV_CUDNN_PACKAGE libcudnn9-cuda-12=${NV_CUDNN_VERSION}
+
+FROM base-${TARGETARCH}
+
+ARG TARGETARCH
+
+LABEL maintainer "NVIDIA CORPORATION <cudatools@nvidia.com>"
+LABEL com.nvidia.cudnn.version="${NV_CUDNN_VERSION}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ${NV_CUDNN_PACKAGE} \
+    && apt-mark hold ${NV_CUDNN_PACKAGE_NAME} \
+    && rm -rf /var/lib/apt/lists/*
 
 # 设置工作目录
 WORKDIR /app
