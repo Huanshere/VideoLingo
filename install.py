@@ -81,26 +81,67 @@ def main():
         else:
             print(strings['requirements_not_found'])
 
-    def dowanload_uvr_model():
-        models = {
-            "HP2_all_vocals.pth": "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
-            "VR-DeEchoAggressive.pth": "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth"
-        }
-        os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
-        import requests
-        for model_name, url in models.items():
-            model_path = f"_model_cache/uvr5_weights/{model_name}"
-            if not os.path.exists(model_path):
-                print(f"{strings['downloading_uvr_model']}{model_name}...")
-                response = requests.get(url, stream=True)
-                total_size = int(response.headers.get('content-length', 0))
-                with open(model_path, "wb") as file:
-                    for data in response.iter_content(chunk_size=4096):
-                        size = file.write(data)
-                        print(f"Downloaded: {(size/total_size)*100:.2f}%", end="\r")
-                print(f"\n{model_name} {strings['model_downloaded']}")
+    def test_mirror_speed(name, url):
+        try:
+            start_time = time.time()
+            response = requests.get(url, timeout=5)
+            end_time = time.time()
+            if response.status_code == 200:
+                speed = (end_time - start_time) * 1000 
+                return name, speed
             else:
-                print(f"{model_name} {strings['model_exists']}")
+                return name, float('inf')
+        except requests.RequestException:
+            return name, float('inf')
+    
+    import time
+    import requests
+    
+    def download_uvr_model():
+        models = {
+            "HP2_all_vocals.pth": "lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
+            "VR-DeEchoAggressive.pth": "lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth"
+        }
+        
+        mirrors = {
+            "Official": "https://huggingface.co/",
+            "Mirror": "https://hf-mirror.com/"
+        }
+    
+        os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
+    
+        for model_name, model_path in models.items():
+            model_file_path = f"_model_cache/uvr5_weights/{model_name}"
+            if not os.path.exists(model_file_path):
+                print(f"{strings['downloading_uvr_model']}{model_name}...")
+            
+            # Test speed for each mirror
+            speeds = []
+            for mirror_name, mirror_url in mirrors.items():
+                test_url = mirror_url + model_path
+                name, speed = test_mirror_speed(mirror_name, test_url)
+                speeds.append((name, speed))
+                print(f"{mirror_name} mirror speed: {speed:.2f} ms")
+
+            # Choose the fastest mirror
+            fastest_mirror = min(speeds, key=lambda x: x[1])[0]
+            print(f"Choosing {fastest_mirror} mirror for download.")
+
+            # Download from the fastest mirror
+            url = mirrors[fastest_mirror] + model_path
+            response = requests.get(url, stream=True)
+            total_size = int(response.headers.get('content-length', 0))
+            
+            with open(model_file_path, "wb") as file:
+                downloaded_size = 0
+                for data in response.iter_content(chunk_size=4096):
+                    size = file.write(data)
+                    downloaded_size += size
+                    print(f"Downloaded: {(downloaded_size/total_size)*100:.2f}%", end="\r")
+            
+            print(f"\n{model_name} {strings['model_downloaded']}")
+        else:
+            print(f"{model_name} {strings['model_exists']}")
 
     def download_and_extract_ffmpeg():
         system = platform.system()
