@@ -193,7 +193,7 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
             "origin": value['origin'],
             "direct": value['direct'],
             "reflection": "<<reflection on the direct translation version>>",
-            "free": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
+            "free": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits, DO NOT leave empty line here!>>"
         }
 
     src_language = get_whisper_language()
@@ -209,7 +209,6 @@ Based on the provided original {src_language} text and {TARGET_LANGUAGE} direct 
 1. Analyze the direct translation results line by line, pointing out existing issues
 2. Provide detailed modification suggestions
 3. Perform free translation based on your analysis
-4. DO NOT leave empty lines.
 
 {shared_prompt}
 
