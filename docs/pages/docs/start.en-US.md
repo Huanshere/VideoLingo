@@ -189,31 +189,26 @@ Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you enc
    conda activate videolingo
    ```
 
-4. Install ffmpeg:
-   ```bash
-   conda install ffmpeg -y
-   ```
-
-5. Run the installation script:
+4. Run the installation script:
    ```bash
    python install.py
    ```
    Follow the prompts to choose your desired whisper method. The script will automatically install the appropriate versions of torch and whisper.
 
-6. Only for users who need Chinese transcription:
+5. Only for users who need Chinese transcription:
    
    Manually download the Belle-whisper-large-v3-zh-punct model ([Baidu link](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)), and place it in the `_model_cache` folder in the project root directory. Make sure to set the **transcription language to zh** in the webpage sidebar.
 
-7. 🎉 Start the Streamlit application by entering the command or clicking `OneKeyStart.bat`:
+6. 🎉 Start the Streamlit application by entering the command or clicking `OneKeyStart.bat`:
    ```bash
    streamlit run st.py
    ```
 
-8. Set up your API key in the sidebar of the pop-up webpage, and make sure to select the correct whisper method.
+7. Set up your API key in the sidebar of the pop-up webpage, and make sure to select the correct whisper method.
 
    ![en_set](https://github.com/user-attachments/assets/2f32f49b-0b7a-4ff4-930f-4e5f9bac9002)
 
-9. (Optional) For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
+8. (Optional) For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
 
 ## 🚨 Common Errors and Solutions
 
