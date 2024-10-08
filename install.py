@@ -10,8 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
-# 首先安装 requests 和 rich
-install_package("requests", "rich")
+install_package("requests", "rich", "ruamel.yaml")
 from core.pypi_autochoose.pypi_autochoose import main as choose_mirror
 
 def main():
@@ -23,6 +22,19 @@ def main():
 
     console = Console()
     console.print(Panel.fit("Starting installation...", style="bold magenta"))
+
+    def init_language():
+        import locale
+        from core.config_utils import load_key, update_key
+        system_lang = locale.getdefaultlocale()[0]
+        lang_map = {
+            'zh_CN': 'zh_CN', 'zh_TW': 'zh_CN',
+            'en_US': 'en_US', 'ja_JP': 'ja_JP'
+        }
+        display_language = lang_map.get(system_lang, 'en_US')
+        if load_key("display_language") == "auto":
+            update_key("display_language", display_language)
+            console.print(Panel.fit("Display language set to system language: " + display_language, style="bold green"))
 
     def install_requirements():
         """Install requirements from requirements.txt file."""
@@ -120,26 +132,10 @@ def main():
         else:
             print("Failed to download FFmpeg")
 
-    def init_config():
-        """Initialize the config.py file with the specified API key and base URL."""
-        if not os.path.exists("config.py"):
-            # Copy config.py from config.example.py
-            shutil.copy("config.example.py", "config.py")
-            print("config.py file has been created. Please fill in the API key and base URL in the config.py file.")
-        else:
-            print("config.py file already exists.")
-
     def install_noto_font():
         if platform.system() == 'Linux':
             # 如果字体未安装，安装 Noto 字体
             subprocess.run(['sudo', 'apt-get', 'install', '-y', 'fonts-noto'], check=True)
-
-    # Initialize config.py file
-    init_config()
-
-    # Install requests
-    console.print(Panel("Installing requests...", style="cyan"))
-    install_package("requests")
     
     # User selects Whisper model
     table = Table(title="Whisper Model Selection")
@@ -201,6 +197,9 @@ def main():
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
         else:
             raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
+
+    # Initialize display language
+    init_language()
 
     # Install noto font
     install_noto_font()

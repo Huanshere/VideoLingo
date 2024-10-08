@@ -4,6 +4,7 @@ from core import step2_whisper, step1_ytdlp, step3_1_spacy_split, step3_2_splitb
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline 
 from core import step7_merge_sub_to_vid, step8_gen_audio_task, step9_uvr_audio, step10_gen_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
+from core.config_utils import load_key
 import shutil
 from functools import partial
 
@@ -54,9 +55,8 @@ def prepare_output_folder(output_folder):
     os.makedirs(output_folder)
 
 def process_input_file(file):
-    from config import YTB_RESOLUTION
     if file.startswith('http'):
-        step1_ytdlp.download_video_ytdlp(file, resolution=YTB_RESOLUTION, cutoff_time=None)
+        step1_ytdlp.download_video_ytdlp(file, resolution=load_key("ytb_resolution"), cutoff_time=None)
         video_file = step1_ytdlp.find_video_files()
     else:
         input_file = os.path.join('batch', 'input', file)

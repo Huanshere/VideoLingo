@@ -14,6 +14,7 @@ from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
 from core.prompts_storage import get_subtitle_trim_prompt
 from core.ask_gpt import ask_gpt
+from core.config_utils import load_key
 
 console = Console()
 
@@ -30,7 +31,7 @@ def parse_srt_time(time_str):
     return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
 
 def tts_main(text, save_as, number, task_df):
-    from config import TTS_METHOD
+    TTS_METHOD = load_key("tts_method")
     if TTS_METHOD == 'openai':
         openai_tts(text, save_as)
     elif TTS_METHOD == 'gpt_sovits':
@@ -42,7 +43,8 @@ def tts_main(text, save_as, number, task_df):
         azure_tts(text, save_as)
 
 def generate_audio(text, target_duration, save_as, number, task_df):
-    from config import MIN_SPEED_FACTOR, MAX_SPEED_FACTOR
+    MIN_SPEED_FACTOR = load_key("speed_factor.min")
+    MAX_SPEED_FACTOR = load_key("speed_factor.max")
     os.makedirs('output/audio/tmp', exist_ok=True)
     temp_filename = f"output/audio/tmp/{number}_temp.wav"
 

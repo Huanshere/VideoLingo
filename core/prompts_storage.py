@@ -1,7 +1,7 @@
 import os,sys,json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step2_whisper import get_whisper_language
-from config import get_config_value
+from core.config_utils import load_key
 
 ## ================================================================
 # @ step4_splitbymeaning.py
@@ -48,7 +48,7 @@ Please provide your answer in the following JSON format, <<>> represents placeho
 # @ step4_1_summarize.py
 def get_summary_prompt(source_content):
     src_language = get_whisper_language()
-    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
+    TARGET_LANGUAGE = load_key("target_language")
     summary_prompt = f"""
 ### Role
 You are a professional video translation expert and terminology consultant. Your expertise lies not only in accurately understanding the original {src_language} text but also in extracting key professional terms and optimizing the translation to better suit the expression habits and cultural background of {TARGET_LANGUAGE}.
@@ -140,7 +140,7 @@ def generate_shared_prompt(previous_content_prompt, after_content_prompt, summar
 {things_to_note_prompt}'''
 
 def get_prompt_faithfulness(lines, shared_prompt):
-    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
+    TARGET_LANGUAGE = load_key("target_language")
     # Split lines by \n
     line_splits = lines.split('\n')
     
@@ -186,14 +186,14 @@ Please complete the following JSON data, where << >> represents placeholders tha
 
 
 def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
-    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
+    TARGET_LANGUAGE = load_key("target_language")
     json_format = {}
     for key, value in faithfulness_result.items():
         json_format[key] = {
             "origin": value['origin'],
             "direct": value['direct'],
             "reflection": "<<reflection on the direct translation version>>",
-            "free": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits>>"
+            "free": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits, DO NOT leave empty line here!>>"
         }
 
     src_language = get_whisper_language()
@@ -209,7 +209,6 @@ Based on the provided original {src_language} text and {TARGET_LANGUAGE} direct 
 1. Analyze the direct translation results line by line, pointing out existing issues
 2. Provide detailed modification suggestions
 3. Perform free translation based on your analysis
-4. DO NOT leave empty lines.
 
 {shared_prompt}
 
@@ -243,7 +242,7 @@ Please complete the following JSON data, where << >> represents placeholders tha
 ## ================================================================
 # @ step6_splitforsub.py
 def get_align_prompt(src_sub, tr_sub, src_part):
-    TARGET_LANGUAGE = get_config_value("TARGET_LANGUAGE")
+    TARGET_LANGUAGE = load_key("target_language")
     src_language = get_whisper_language()
     src_splits = src_part.split('\n')
     num_parts = len(src_splits)

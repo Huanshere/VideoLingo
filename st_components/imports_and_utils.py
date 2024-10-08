@@ -6,12 +6,11 @@ from core import step7_merge_sub_to_vid, step8_gen_audio_task, step9_uvr_audio, 
 from core.onekeycleanup import cleanup  
 from core.delete_retry_dubbing import delete_dubbing_files
 from core.ask_gpt import ask_gpt
-import config
 import streamlit as st
 import io, zipfile
 from st_components.download_video_section import download_video_section
 from st_components.sidebar_setting import page_setting
-from st_components.i18n import get_localized_string as gls
+from i18n.st_i18n import get_localized_string as gls
 
 def download_subtitle_zip_button(text: str):
     zip_buffer = io.BytesIO()

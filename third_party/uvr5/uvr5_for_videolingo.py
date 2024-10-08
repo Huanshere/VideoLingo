@@ -7,6 +7,7 @@ import gc
 from rich.console import Console
 from rich.panel import Panel
 from pydub import AudioSegment
+from core.config_utils import load_key
 
 console = Console()
 
@@ -43,7 +44,7 @@ def process_segment(segment_file, save_dir, device, model_dir, segment_index):
     torch.cuda.empty_cache()
 
 def uvr5_for_videolingo(music_file, save_dir, background_file, original_vocal_file):
-    from config import MODEL_DIR
+    MODEL_DIR = load_key("model_dir")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     console.print(Panel(f"[bold green]Starting UVR5 processing[/bold green]\nDevice: {device}"))

@@ -2,122 +2,105 @@
 title: VideoLingo
 ---
 
-import Hero from '@/components/landing/hero'
-import Features from '@/components/landing/features'
-import Comments from '@/components/landing/comments'
-import FAQ from '@/components/landing/faq'
-import GitHubStats from '@/components/landing/github-stats'
+import Landing from '@/components/landing'
 
-import { useData } from 'nextra/data'
- 
-export const getStaticProps = ({ params }) => {
-  return fetch(`https://api.github.com/repos/Huanshere/VideoLingo`)
-    .then(res => res.json())
-    .then(repo => ({
-      props: {
-        // We add an `ssg` field to the page props,
-        // which will be provided to the Nextra `useData` hook.
-        ssg: {
-          stars: repo.stargazers_count
-        }
-      },
-      // The page will be considered as stale and regenerated every 60 seconds.
-      revalidate: 60
-    }))
+export const getStaticProps = async ({ params }) => {
+    const [repo, stargazers] = await Promise.all([
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo`).then(res => res.json()),
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo/contributors?per_page=16`).then(res => res.json())
+    ]);
+
+    return {
+        props: {
+            ssg: {
+                stars: repo.stargazers_count !== undefined ? repo.stargazers_count : null,
+                recentStargazers: stargazers
+            }
+        },
+        revalidate: 60
+    };
 }
- 
-export const Stars = () => {
-  // Get the data from SSG, and render it as a component.
-  const { stars } = useData()
-  return <strong>{stars}</strong>
-}
- 
 
 export default function Component() {
-    const features = [
-        {
-            title: '智能字幕分割',
-            description: '使用 NLP 和 LLM 技术，根据句意精确分割字幕，确保每一句话都恰到好处。',
-            icon: 'CheckCircle',
+    const landingData = {
+        hero: {
+            title: "VideoLingo: 连接世界的每一帧",
+            description: "Netflix级字幕切割、翻译、对齐、甚至加上配音，一键全自动视频搬运AI字幕组",
+            videoSrc: "/videos/demo.mp4"
         },
-        {
-            title: '上下文感知翻译',
-            description: 'GPT 总结提取术语知识库，实现上下文连贯翻译，让每一句翻译都自然流畅。',
-            icon: 'ArrowRight',
+        features: {
+            title: "强大功能，释放创意",
+            items: [
+                {
+                    title: '智能字幕分割',
+                    description: '使用 NLP 和 LLM 技术，根据句意精确分割字幕，确保每一句话都恰到好处。',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: '上下文感知翻译',
+                    description: 'GPT 总结提取术语知识库，实现上下文连贯翻译，让每一句翻译都自然流畅。',
+                    icon: 'ArrowRight',
+                },
+                {
+                    title: '三步翻译过程',
+                    description: '直接翻译 - 反思 - 意译，多重保障，媲美字幕组精翻效果。',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: '精确字幕对齐',
+                    description: '使用 WhisperX 进行单词级时间轴字幕识别，让每一个字都准确同步。',
+                    icon: 'ArrowRight',
+                },
+                {
+                    title: '高质量配音',
+                    description: '支持多种 TTS 方案，包括 GPT-SoVITS 技术的高质量个性化配音，让视频更具魅力。',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: '开发者友好',
+                    description: '结构化文件设计，方便开发者自定义和扩展功能。支持多种部署方式。',
+                    icon: 'ArrowRight',
+                },
+            ]
         },
-        {
-            title: '三步翻译过程',
-            description: '直接翻译 - 反思 - 意译，多重保障，媲美字幕组精翻效果。',
-            icon: 'CheckCircle',
+        comments: {
+            title: "他们都在用 VideoLingo",
+            items: [
+                {
+                    content: "之前要弄一整天，现在一个小时就弄完了！",
+                    author: "k",
+                    title: "B站30w粉up"
+                },
+                {
+                    content: "这个配音比我说得还准，我一下就有好多好玩的想法了🤩",
+                    author: "阿标",
+                    title: "小红书10w粉粤语up"
+                },
+                {
+                    content: "下班单纯发着玩，没想到一下就爆了😂",
+                    author: "X",
+                    title: "抖音日涨7k粉up"
+                }
+            ]
         },
-        {
-            title: '精确字幕对齐',
-            description: '使用 WhisperX 进行单词级时间轴字幕识别，让每一个字都准确同步。',
-            icon: 'ArrowRight',
-        },
-        {
-            title: '高质量配音',
-            description: '支持多种 TTS 方案，包括 GPT-SoVITS 技术的高质量个性化配音，让视频更具魅力。',
-            icon: 'CheckCircle',
-        },
-        {
-            title: '开发者友好',
-            description: '结构化文件设计，方便开发者自定义和扩展功能。支持多种部署方式。',
-            icon: 'ArrowRight',
-        },
-    ]
-
-    const comments = [
-
-        {
-            content: "之前要弄一整天，现在一个小时就弄完了！",
-            author: "k",
-            title: "B站30w粉up"
-        },
-        {
-            content: "这个配音比我说得还准，我一下就有好多好玩的想法了🤩",
-            author: "阿标",
-            title: "小红书10w粉粤语up"
-        },
-        {
-            content: "下班单纯发着玩，没想到一下就爆了😂",
-            author: "X",
-            title: "抖音日涨7k粉up"
+        faq: {
+            title: "常见问题",
+            items: [
+                {
+                    question: "翻译的质量如何？",
+                    description: "我们严格参照 Netflix 字幕标准，使用最先进的 Claude 3.5 模型进行多步骤翻译。"
+                },
+                {
+                    question: "处理一个视频需要多长时间？",
+                    answer: "处理时间取决于视频的长度和所选的服务。通常，一个 60 分钟的视频完成翻译和配音大约需要 40 分钟。"
+                },
+                {
+                    question: "如何收费呢？",
+                    answer: "VideoLingo是开源项目，已经在Github上获得3k+ stars，即将推出商业版，会带来更多功能~"
+                },
+            ]
         }
-    ];
+    }
 
-    const faqItems = [
-        {
-            question: "翻译的质量如何？",
-            description: "我们严格参照 Netflix 字幕标准，使用最先进的 Claude 3.5 模型进行多步骤翻译。"
-        },
-        {
-            question: "处理一个视频需要多长时间？",
-            answer: "处理时间取决于视频的长度和所选的服务。通常，一个 60 分钟的视频完成翻译和配音大约需要 40 分钟。"
-        },
-        {
-            question: "如何收费呢？",
-            answer: "VideoLingo是开源项目，已经在Github上获得3k+ stars，即将推出商业版，会带来更多功能~"
-        },
-    ]
-
-    return (
-        <div className="flex flex-col min-h-screen">
-            <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
-                <Hero
-                    title="VideoLingo: 连接世界的每一帧"
-                    description="全自动视频本地化工具，生成 Netflix 品质的字幕！支持多种高质量配音方案！"
-                    videoSrc="/videos/demo.mp4"
-                />
-
-                <Features title="强大功能，释放创意" features={features} />
-                <Comments title="他们都在用 VideoLingo" comments={comments} />
-                
-                <GitHubStats stars={<Stars />} />
-
-                <FAQ title="常见问题" faqItems={faqItems} />
-            </main>
-        </div>
-    )
-
+    return <Landing data={landingData} />
 }

@@ -6,11 +6,11 @@ export interface FAQItem {
 }
 
 interface FAQProps {
-	faqItems: FAQItem[]
+	items: FAQItem[]
 	title: string
 }
 
-export default function FAQ({ faqItems, title }: FAQProps) {
+export default function FAQ({ items, title }: FAQProps) {
 	return (
 		<section id="faq" className="w-full py-24 md:py-32 mb-32">
 			<div className="container mx-auto px-4 md:px-6">
@@ -18,9 +18,10 @@ export default function FAQ({ faqItems, title }: FAQProps) {
 					{title}
 				</h2>
 				<Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
-					{faqItems.map((item, index) => (
-						<AccordionItem key={`item-${index + 1}`} value={`item-${index + 1}`}>
-							<AccordionTrigger>{item.question}</AccordionTrigger>
+					{items &&
+						items.map((item, index) => (
+							<AccordionItem key={`item-${index + 1}`} value={`item-${index + 1}`}>
+								<AccordionTrigger>{item.question}</AccordionTrigger>
 							<AccordionContent>{item.answer}</AccordionContent>
 						</AccordionItem>
 					))}

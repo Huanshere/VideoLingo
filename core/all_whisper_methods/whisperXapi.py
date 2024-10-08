@@ -7,10 +7,8 @@ from typing import Dict, List, Tuple
 import subprocess
 import base64
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from config import get_config_value
+from core.config_utils import load_key
 from moviepy.editor import AudioFileClip
-import librosa
-import soundfile as sf
 import time
 
 def convert_video_to_audio(input_file: str) -> str:
@@ -19,18 +17,18 @@ def convert_video_to_audio(input_file: str) -> str:
     audio_file = 'output/audio/raw_full_audio.wav'
 
     if not os.path.exists(audio_file):
+        print(f"🎬➡️🎵 Converting to audio with FFmpeg ......")
+        ffmpeg_cmd = [
+            'ffmpeg', '-y', '-i', input_file,
+            '-vn', '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1',
+            audio_file
+        ]
         try:
-            print(f"🎬➡️🎵 Converting to audio with librosa ......")
-            # Load the audio from the video file
-            y, sr = librosa.load(input_file, sr=16000)
-            
-            # Save the audio as a WAV file
-            sf.write(audio_file, y, sr, subtype='PCM_16')
-            
-            print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}> with librosa\n")
-        except Exception as e:
+            subprocess.run(ffmpeg_cmd, check=True, capture_output=True, text=True)
+            print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}> with FFmpeg\n")
+        except subprocess.CalledProcessError as e:
             print(f"❌ Failed to convert <{input_file}> to <{audio_file}>.")
-            print(f"Error: {str(e)}")
+            print(f"Error: {e.stderr}")
             raise
 
     return audio_file
@@ -117,11 +115,10 @@ def encode_file_to_base64(file_path: str) -> str:
         return encoded
 
 def transcribe_audio(audio_base64: str) -> Dict:
-    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
+    WHISPER_LANGUAGE = load_key("whisper.language")
     if WHISPER_LANGUAGE == 'zh':
         raise Exception("WhisperX API 不支持中文，如需翻译中文视频请本地部署 whisperX 模型，参阅 'https://github.com/Huanshere/VideoLingo/' 的说明文档.")
-    from config import REPLICATE_API_TOKEN
-    client = replicate.Client(api_token=REPLICATE_API_TOKEN)
+    client = replicate.Client(api_token=load_key("replicate_api_token"))
     print(f"🚀 Starting WhisperX API... Sometimes it takes time for the official server to start, please wait patiently... Actual processing speed is 10s for 2min audio, costing about ¥0.1 per run")
     try:
         input_params = {

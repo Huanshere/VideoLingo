@@ -7,11 +7,11 @@ type Comment = {
 }
 
 type Props = {
-	comments: Comment[]
+	items: Comment[]
 	title: string
 }
 
-export default function Comments({ comments, title }: Props) {
+export default function Comments({ items, title }: Props) {
 	return (
 		<section className="w-full py-24 md:py-32">
 			<div className="container mx-auto px-4 md:px-6">
@@ -19,16 +19,17 @@ export default function Comments({ comments, title }: Props) {
 					{title}
 				</h2>
 				<div className="grid gap-8 lg:grid-cols-3">
-					{comments.map((comment, index) => (
-						<Card key={index} className="n-card">
-							<CardContent className="p-6">
-								<p className="text-lg mb-4">"{comment.content}"</p>
-								<p className="font-semibold">
-									{comment.author}, {comment.title}
-								</p>
-							</CardContent>
-						</Card>
-					))}
+					{items &&
+						items.map((comment, index) => (
+							<Card key={index} className="n-card !bg-[#F0EFEA] dark:!bg-zinc-800 border-none dark:text-gray-100">
+								<CardContent className="p-10">
+									<p className="text-lg mb-4">"{comment.content}"</p>
+									<p className="font-semibold">
+										{comment.author}, {comment.title}
+									</p>
+								</CardContent>
+							</Card>
+						))}
 				</div>
 			</div>
 		</section>

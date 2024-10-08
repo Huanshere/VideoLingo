@@ -20,7 +20,7 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 					</div>
 					<div className="flex space-x-4 mt-8">
 						<Link href={'/docs/start'}>
-							<Button className="bg-[#C05F3C] hover:bg-[#C96442] rounded-lg" size="lg">
+							<Button className="rounded-lg" size="lg">
 								Start
 							</Button>
 						</Link>
@@ -37,7 +37,7 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 							data-heyform-hide-after-submit="true"
 							data-heyform-auto-close="5"
 						>
-							<Button className="bg-[#BCF8D0] hover:bg-[#A3E4B8] text-black rounded-lg" size="lg" onClick={() => (window as any).HeyForm.openModal('52QH8JAj')}>
+							<Button variant="outline" size="lg" onClick={() => (window as any).HeyForm.openModal('52QH8JAj')}>
 								Request Demo
 							</Button>
 						</div>

@@ -1,22 +1,55 @@
-export default function GitHubStats({ stars }) {
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+
+export default function GitHubStats({ stars, recentStargazers }) {
 	return (
 		<section className="py-16">
 			<div className="container mx-auto text-center">
-				<h2 className="text-3xl font-bold mb-8">GitHub 统计</h2>
-				<div className="flex justify-center items-center space-x-4">
-					<svg
-						className="w-8 h-8 text-gray-800"
-						fill="currentColor"
-						viewBox="0 0 24 24"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							fillRule="evenodd"
-							d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-							clipRule="evenodd"
-						/>
-					</svg>
-					<span className="text-2xl font-semibold">{stars} 星标</span>
+				<div className="bg-white dark:bg-zinc-800 rounded-2xl py-24 px-12">
+					<h2 className="text-3xl font-bold mb-6">GitHub</h2>
+					<div className="flex justify-center items-center space-x-8 mb-12">
+						<div className="flex items-center space-x-2">
+							<svg
+								className="w-8 h-8 text-gray-800 dark:text-gray-100"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									fillRule="evenodd"
+									d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+									clipRule="evenodd"
+								/>
+							</svg>
+							<span className="text-2xl font-semibold">{stars} Stars</span>
+						</div>
+						<Link target="_blank" href="https://github.com/Huanshere/VideoLingo">
+							<Button>Star on GitHub</Button>
+						</Link>
+					</div>
+					<div className="flex justify-center flex-wrap gap-3">
+						<TooltipProvider>
+							{recentStargazers && recentStargazers.length > 0
+								? recentStargazers.map((user, index) => (
+										<Tooltip key={index}>
+											<TooltipTrigger>
+												<Link href={user.html_url} target="_blank" rel="noopener noreferrer">
+													<img
+														src={user.avatar_url}
+														alt={user.login}
+														className="w-16 h-16 rounded-full"
+													/>
+												</Link>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>{user.login}</p>
+											</TooltipContent>
+										</Tooltip>
+								  ))
+								: ''}
+						</TooltipProvider>
+					</div>
 				</div>
 			</div>
 		</section>

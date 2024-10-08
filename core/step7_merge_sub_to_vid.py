@@ -1,5 +1,6 @@
 import os, subprocess, time, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.config_utils import load_key
 from core.step1_ytdlp import find_video_files
 from rich import print as rprint
 import cv2
@@ -26,7 +27,7 @@ TRANS_OUTLINE_WIDTH = 1
 TRANS_BACK_COLOR = '&H33000000'
 
 def merge_subtitles_to_video():
-    from config import RESOLUTION
+    RESOLUTION = load_key("resolution")
     TARGET_WIDTH, TARGET_HEIGHT = RESOLUTION.split('x')
     video_file = find_video_files()
     output_video = "output/output_video_with_subs.mp4"
@@ -53,9 +54,6 @@ def merge_subtitles_to_video():
         print("Subtitle files not found in the 'output' directory.")
         exit(1)
 
-    # 确定是否是macOS
-    macOS = os.name == 'posix' and os.uname().sysname == 'Darwin'
-
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (
@@ -71,11 +69,6 @@ def merge_subtitles_to_video():
         '-y',
         output_video
     ]
-
-    # 根据是否是macOS添加不同的参数, macOS的ffmpeg不包含preset
-    if not macOS:
-        ffmpeg_cmd.insert(-2, '-preset')
-        ffmpeg_cmd.insert(-2, 'veryfast')
 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()

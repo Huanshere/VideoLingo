@@ -3,7 +3,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 import os,sys
 sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..', '..')))
 from core.spacy_utils.load_nlp_model import init_nlp
-from config import get_joiner, WHISPER_LANGUAGE
+from core.config_utils import load_key, get_joiner
 from core.step2_whisper import get_whisper_language
 from rich import print
 import string
@@ -31,7 +31,8 @@ def split_long_sentence(doc):
     # rebuild sentences based on optimal split points
     sentences = []
     i = n
-    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
+    whisper_language = load_key("whisper.language")
+    language = get_whisper_language() if whisper_language == 'auto' else whisper_language # consider force english case
     joiner = get_joiner(language)
     while i > 0:
         j = prev[i]
@@ -49,7 +50,8 @@ def split_extremely_long_sentence(doc):
     part_length = n // num_parts
     
     sentences = []
-    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE # consider force english case
+    whisper_language = load_key("whisper.language")
+    language = get_whisper_language() if whisper_language == 'auto' else whisper_language # consider force english case
     joiner = get_joiner(language)
     for i in range(num_parts):
         start = i * part_length

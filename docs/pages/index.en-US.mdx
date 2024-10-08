@@ -2,92 +2,103 @@
 title: VideoLingo
 ---
 
-import Hero from '@/components/landing/hero'
-import Features from '@/components/landing/features'
-import Comments from '@/components/landing/comments'
-import FAQ from '@/components/landing/faq'
+import Landing from '@/components/landing'
+
+export const getStaticProps = ({ params }) => {
+    return Promise.all([
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo`).then(res => res.json()),
+        fetch(`https://api.github.com/repos/Huanshere/VideoLingo/contributors?per_page=16`).then(res => res.json())
+    ]).then(([repo, stargazers]) => ({
+        props: {
+            ssg: {
+                stars: repo.stargazers_count,
+                recentStargazers: stargazers
+            }
+        },
+        revalidate: 60
+    }))
+}
 
 export default function Component() {
-    const features = [
-        {
-            title: 'Intelligent Subtitle Segmentation',
-            description: 'Using NLP and LLM technologies to precisely segment subtitles based on sentence meaning, ensuring each sentence is just right.',
-            icon: 'CheckCircle',
+    const landingData = {
+        hero: {
+            title: "VideoLingo: Connecting Every Frame Across the World",
+            description: "Netflix-level subtitle cutting, translation, alignment, and even dubbing - one-click fully automated video localization AI subtitle team",
+            videoSrc: "/videos/demo.mp4"
         },
-        {
-            title: 'Context-Aware Translation',
-            description: 'GPT summarizes and extracts terminology knowledge base, achieving context-coherent translation, making every translation natural and fluent.',
-            icon: 'ArrowRight',
+        features: {
+            title: "Powerful Features, Unleash Creativity",
+            items: [
+                {
+                    title: 'Intelligent Subtitle Segmentation',
+                    description: 'Using NLP and LLM technologies to accurately segment subtitles based on sentence meaning, ensuring each phrase is just right.',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: 'Context-Aware Translation',
+                    description: 'GPT summarizes and extracts terminology knowledge base, achieving context-coherent translation, making every sentence natural and fluent.',
+                    icon: 'ArrowRight',
+                },
+                {
+                    title: 'Three-Step Translation Process',
+                    description: 'Direct translation - Reflection - Paraphrasing, multiple safeguards, rivaling the quality of professional subtitle team translations.',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: 'Precise Subtitle Alignment',
+                    description: 'Using WhisperX for word-level timeline subtitle recognition, ensuring every word is accurately synchronized.',
+                    icon: 'ArrowRight',
+                },
+                {
+                    title: 'High-Quality Dubbing',
+                    description: 'Supports various TTS solutions, including high-quality personalized dubbing with GPT-SoVITS technology, making videos more appealing.',
+                    icon: 'CheckCircle',
+                },
+                {
+                    title: 'Developer-Friendly',
+                    description: 'Structured file design, convenient for developers to customize and extend functionality. Supports multiple deployment methods.',
+                    icon: 'ArrowRight',
+                },
+            ]
         },
-        {
-            title: 'Three-Step Translation Process',
-            description: 'Direct translation - Reflection - Paraphrasing, multiple safeguards, rivaling the quality of professional subtitle team translations.',
-            icon: 'CheckCircle',
+        comments: {
+            title: "They're All Using VideoLingo",
+            items: [
+                {
+                    content: "What used to take a whole day now gets done in an hour!",
+                    author: "k",
+                    title: "Bilibili creator with 300k followers"
+                },
+                {
+                    content: "This dubbing is even more accurate than my own speech, I suddenly have so many fun ideas 🤩",
+                    author: "Ah Biao",
+                    title: "Xiaohongshu Cantonese creator with 100k followers"
+                },
+                {
+                    content: "I just posted it for fun after work, didn't expect it to blow up so quickly 😂",
+                    author: "X",
+                    title: "Douyin creator gaining 7k followers daily"
+                }
+            ]
         },
-        {
-            title: 'Precise Subtitle Alignment',
-            description: 'Using WhisperX for word-level timeline subtitle recognition, ensuring accurate synchronization of every word.',
-            icon: 'ArrowRight',
-        },
-        {
-            title: 'High-Quality Dubbing',
-            description: 'Supports multiple TTS solutions, including high-quality personalized dubbing powered by GPT-SoVITS technology, making videos more appealing.',
-            icon: 'CheckCircle',
-        },
-        {
-            title: 'Developer-Friendly',
-            description: 'Structured file design for easy customization and extension of functionality by developers. Supports multiple deployment methods.',
-            icon: 'ArrowRight',
-        },
-    ]
-
-    const comments = [
-        {
-            content: "What used to take a whole day now gets done in just an hour!",
-            author: "K",
-            title: "Bilibili creator with 300K subscribers"
-        },
-        {
-            content: "The AI dubbing is even more accurate than my own voice. It's given me so many fun ideas! 🤩",
-            author: "A-Biao",
-            title: "Xiaohongshu creator with 100K followers, Cantonese content"
-        },
-        {
-            content: "I posted it just for fun after work, didn't expect it to blow up so quickly! 😂",
-            author: "X",
-            title: "TikTok creator gaining 7K followers daily"
+        faq: {
+            title: "Frequently Asked Questions",
+            items: [
+                {
+                    question: "How is the translation quality?",
+                    description: "We strictly adhere to Netflix subtitle standards, using the most advanced Claude 3.5 model for multi-step translation."
+                },
+                {
+                    question: "How long does it take to process a video?",
+                    answer: "Processing time depends on the length of the video and the selected services. Typically, a 60-minute video takes about 40 minutes to complete translation and dubbing."
+                },
+                {
+                    question: "How is it priced?",
+                    answer: "VideoLingo is an open-source project that has already gained 3k+ stars on Github. A commercial version with more features is coming soon~"
+                },
+            ]
         }
-    ];
+    }
 
-    const faqItems = [
-        {
-            question: "How is the quality of translation and dubbing ensured?",
-            description: "We strictly adhere to Netflix subtitle standards, using state-of-the-art Claude 3.5 models for multi-step translation, NLP for multi-line subtitle segmentation, and offer various TTS solutions. Our translation quality has received unanimous praise from the open-source community and internal test groups."
-        },
-        {
-            question: "How long does it take to process a video?",
-            answer: "Processing time depends on the video length and selected services. Typically, a 60-minute video takes about 40 minutes to complete translation and dubbing."
-        },
-        {
-            question: "How much does it cost?",
-            answer: "VideoLingo is an open-source project that has already gained 3k+ stars on GitHub. We're about to launch a commercial version that will bring even more features!"
-        }
-    ]
-
-    return (
-        <div className="flex flex-col min-h-screen">
-            <main className="flex-1 bg-[#F5F4EF] text-[#3D3929]">
-                <Hero
-                    title="VideoLingo: Connecting the World, Frame by Frame"
-                    description="Fully automated video localization tool, generating Netflix-quality subtitles! Supports multiple high-quality dubbing solutions!"
-                    githubLink="https://github.com/Huanshere/VideoLingo"
-                    videoSrc="/videos/demo.mp4"
-                />
-
-                <Features title="Powerful Features, Unleash Creativity" features={features} />
-                <Comments title="They're All Using VideoLingo" comments={comments} />
-                <FAQ title="Frequently Asked Questions" faqItems={faqItems} />
-            </main>
-        </div>
-    )
+    return <Landing data={landingData} />
 }

@@ -1,8 +1,9 @@
 import streamlit as st
 import os, sys, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.config_utils import load_key
 from core.step1_ytdlp import download_video_ytdlp, find_video_files
-from st_components.i18n import get_localized_string
+from i18n.st_i18n import get_localized_string
 from time import sleep
 import re
 
@@ -28,12 +29,12 @@ def download_video_section():
                 resolution_dict = {
                     "360p": "360",
                     "1080p": "1080",
-                    "最佳质量": "best"
+                    "Best": "best"
                 }
-                from config import YTB_RESOLUTION
+                YTB_RESOLUTION = load_key("ytb_resolution")
                 resolution_options = list(resolution_dict.keys())
                 default_index = list(resolution_dict.values()).index(YTB_RESOLUTION) if YTB_RESOLUTION in resolution_dict.values() else 0
-                resolution_display = st.selectbox("分辨率", options=resolution_options, index=default_index)
+                resolution_display = st.selectbox("Resolution", options=resolution_options, index=default_index)
                 resolution = resolution_dict[resolution_display]
             if st.button(get_localized_string("download_video"), key="download_button", use_container_width=True):
                 if url:
@@ -41,8 +42,7 @@ def download_video_section():
                         download_video_ytdlp(url, resolution=resolution)
                     st.rerun()
 
-            from config import ALLOWED_VIDEO_FORMATS
-            uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=ALLOWED_VIDEO_FORMATS)
+            uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=load_key("allowed_video_formats"))
             if uploaded_file:
                 #delte file in output
                 if os.path.exists("output"):

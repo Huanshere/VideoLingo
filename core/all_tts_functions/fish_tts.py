@@ -3,14 +3,14 @@ from pathlib import Path
 import os, sys
 from rich import print as rprint
 from moviepy.editor import AudioFileClip
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+from core.config_utils import load_key
 
 def fish_tts(text, save_path):
-    from config import FISH_TTS_API_KEY, FISH_TTS_CHARACTER, FISH_TTS_CHARACTER_ID_DICT
-    if FISH_TTS_CHARACTER not in FISH_TTS_CHARACTER_ID_DICT:
-        raise ValueError(f"Character '{FISH_TTS_CHARACTER}' not found in FISH_TTS_CHARACTER_ID_DICT")
-    id = FISH_TTS_CHARACTER_ID_DICT[FISH_TTS_CHARACTER]
+    fish_set = load_key("fish_tts")
+    if fish_set["character"] not in fish_set["character_id_dict"]:
+        raise ValueError(f"Character <{fish_set['character']}> not found in <character_id_dict>")
+    id = fish_set["character_id_dict"][fish_set["character"]]
     url = "https://api.fish.audio/v1/tts"
 
     payload = {
@@ -21,7 +21,7 @@ def fish_tts(text, save_path):
         "reference_id": id
     }
     headers = {
-        "Authorization": f"Bearer {FISH_TTS_API_KEY}",
+        "Authorization": f"Bearer {fish_set['api_key']}",
         "Content-Type": "application/json"
     }
 
@@ -53,4 +53,4 @@ def fish_tts(text, save_path):
                 rprint("[bold red]Max retry attempts reached, operation failed.[/bold red]")
 
 if __name__ == '__main__':
-    fish_tts("今天是个好日子，适合做点人们喜欢的东西！", "test.wav")
+    fish_tts("今天是个好日子！", "fish_tts.wav")

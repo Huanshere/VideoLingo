@@ -3,7 +3,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from difflib import SequenceMatcher
 import re
-from config import get_joiner, get_config_value
+from core.config_utils import load_key, get_joiner
 from core.step2_whisper import get_whisper_language
 from rich.panel import Panel
 from rich.console import Console
@@ -31,8 +31,8 @@ def remove_punctuation(text):
 def get_sentence_timestamps(df_words, df_sentences):
     time_stamp_list = []
     word_index = 0
-    WHISPER_LANGUAGE = get_config_value("WHISPER_LANGUAGE")
-    language = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
+    whisper_language = load_key("whisper.language")
+    language = get_whisper_language() if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
 
     for idx,sentence in df_sentences['Source'].items():
@@ -126,8 +126,7 @@ def align_timestamp_main():
     if not empty_rows.empty:
         console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
         console.print(empty_rows.index.tolist())
-        from config import MODEL
-        if 'sonnet' not in MODEL:
+        if 'sonnet' not in load_key("api.model"):
             raise ValueError("Empty translation rows detected, this is likely due to weak model, please use claude-3-5-sonnet or manually adjust the empty rows.")
         else:
             raise ValueError("Empty translation rows detected. This is weird, please keep the `output` folder and raise an issue.")

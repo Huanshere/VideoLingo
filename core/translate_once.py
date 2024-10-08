@@ -5,6 +5,7 @@ from core.prompts_storage import generate_shared_prompt, get_prompt_faithfulness
 from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
+from rich import box
 import re
 
 console = Console()
@@ -61,8 +62,8 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)
     express_result = retry_translation(prompt2, 'expressiveness')
 
-    table = Table(title="Translation Results")
-    table.add_column("Translations", style="cyan")
+    table = Table(title="Translation Results", show_header=False, box=box.ROUNDED)
+    table.add_column("Translations", style="bold")
     for i, key in enumerate(express_result):
         table.add_row(f"[cyan]Origin:  {faith_result[key]['origin']}[/cyan]")
         table.add_row(f"[magenta]Direct:  {faith_result[key]['direct']}[/magenta]")

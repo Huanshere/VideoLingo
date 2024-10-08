@@ -1,5 +1,6 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.config_utils import load_key
 from datetime import datetime
 import pandas as pd
 import subprocess
@@ -75,8 +76,7 @@ def merge_video_audio():
         rprint(f"[bold yellow]{output_file} already exists, skipping processing.[/bold yellow]")
         return
     
-    from config import RESOLUTION
-    if RESOLUTION == '0x0':
+    if load_key("resolution") == '0x0':
         rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
 
         # Create a black frame
@@ -90,9 +90,8 @@ def merge_video_audio():
         return
 
     # Merge video and audio
-    from config import ORIGINAL_VOLUME, DUB_VOLUME
-    original_volume = ORIGINAL_VOLUME
-    dub_volume = DUB_VOLUME
+    original_volume = load_key("original_volume")
+    dub_volume = load_key("dub_volume")
     cmd = ['ffmpeg', '-y', '-i', video_file, '-i', background_file, '-i', original_vocal, '-i', audio_file, '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={original_volume}[a2];[3:a]volume={dub_volume}[a3];[a1][a2][a3]amix=inputs=3:duration=first:dropout_transition=3[a]', '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', output_file]
 
     try:

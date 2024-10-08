@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo.png" alt="VideoLingo Logo" height="140">
+<img src="/docs/logo.png" alt="VideoLingo Logo" height="140">
 
 # VideoLingo: 连接世界的每一帧
 <p align="center">
@@ -10,7 +10,7 @@
   <a href="https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 </p>
 
-[**English**](README.md)｜[**中文**](README.zh.md) | [**日本語**](README.ja.md)
+[**English**](/README.md)｜[**中文**](/i18n/README.zh.md) | [**日本語**](/i18n/README.ja.md)
 
 **QQ群：875297969**
 
@@ -99,11 +99,11 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 本地安装
 
-VideoLingo 提供 **一键简易包** 和 **源码安装** 两种本地安装方式，请参考安装文档：[English](./docs/pages/docs/start.en-US.md) | [简体中文](./docs/pages/docs/start.zh-CN.md)
+VideoLingo 提供 **一键简易包** 和 **源码安装** 两种本地安装方式，请参考安装文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 🏭 批量模式
 
-使用说明: [English](./batch/README.md) | [简体中文](./batch/README.zh.md)
+使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
 
 ## ⚠️ 当前限制
 
@@ -122,7 +122,7 @@ VideoLingo 提供 **一键简易包** 和 **源码安装** 两种本地安装方
 - [ ] 翻译风格自定义
 - [ ] 用户术语表
 - [ ] 提供商业化服务
-
+- [ ] 配音视频唇形同步
 
 ## 📄 许可证
 

@@ -2,11 +2,11 @@
 
 [English](./README.md) | [简体中文](./README.zh.md)
 
-Before utilizing the batch mode, ensure you have familiarized yourself with the Streamlit mode and properly configured the parameters in `config.py`.
+Before utilizing the batch mode, ensure you have familiarized yourself with the Streamlit mode and properly configured the parameters in `config.yaml`.
 
 ## Usage Guide
 
-> Note: All referenced files, with the exception of `config.py`, are located within the `batch` folder.
+> Note: All referenced files, with the exception of `config.yaml`, are located within the `batch` folder.
 
 ### 1. Video File Preparation
 
@@ -37,11 +37,14 @@ Example configuration:
 2. Processed files will be stored in the `output` folder
 3. Monitor task progress in the `Status` column of `tasks_setting.xlsx`
 
+> Note: Keep `tasks_setting.xlsx` closed during execution to prevent interruptions due to file access conflicts.
+
+
 ## Important Considerations
 
 ### Handling Interruptions
 
-In the event of an unexpected command line closure, language settings in `config.py` may be altered. Verify these settings before attempting to resume processing.
+In the event of an unexpected command line closure, language settings in `config.yaml` may be altered. Verify these settings before attempting to resume processing.
 
 ### Error Management
 
