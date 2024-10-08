@@ -262,7 +262,7 @@ def main():
     init_language()
     install_noto_font()
     install_requirements()
-    dowanload_uvr_model()
+    download_uvr_model()  
     download_and_extract_ffmpeg()
     
     console.print(Panel.fit(strings['installation_completed'], style="bold green"))
