@@ -1,12 +1,8 @@
-
 import subprocess
 import time
 import requests
-import concurrent.futures
 import os
-import json
 import locale
-from datetime import datetime, timedelta
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
@@ -20,9 +16,6 @@ else:
     from .lang_en import MESSAGES, MIRRORS
 
 console = Console()
-
-RESULTS_FILE = "mirror_test_results.json"
-RESULTS_VALID_DURATION = timedelta(hours=1)
 
 def get_optimal_thread_count():
     try:
@@ -59,64 +52,41 @@ def get_current_pip_mirror():
     except subprocess.CalledProcessError:
         return None
 
-def load_previous_results():
-    if os.path.exists(RESULTS_FILE):
-        with open(RESULTS_FILE, 'r') as f:
-            data = json.load(f)
-        test_time = datetime.fromisoformat(data['test_time'])
-        if datetime.now() - test_time <= RESULTS_VALID_DURATION:
-            return data['speeds']
-    return None
-
-def save_results(speeds):
-    data = {
-        'test_time': datetime.now().isoformat(),
-        'speeds': speeds
-    }
-    with open(RESULTS_FILE, 'w') as f:
-        json.dump(data, f)
-
 def main():
     console.print(Panel.fit(MESSAGES["checking_speeds"], style="bold magenta"))
 
-    speeds = load_previous_results()
-    if speeds:
-        console.print(f"[green]{MESSAGES['using_cached']}[/green]")
-    else:
-        console.print(f"[yellow]{MESSAGES['starting_new_test']}[/yellow]")
-        optimal_thread_count = get_optimal_thread_count()
-        console.print(MESSAGES["using_threads"].format(optimal_thread_count))
+    console.print(f"[yellow]{MESSAGES['starting_new_test']}[/yellow]")
+    optimal_thread_count = get_optimal_thread_count()
+    console.print(MESSAGES["using_threads"].format(optimal_thread_count))
 
-        speeds = {}
-        found_fast_mirror = False
+    speeds = {}
+    found_fast_mirror = False
 
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(),
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        ) as progress:
-            task = progress.add_task(f"[cyan]{MESSAGES['testing_mirrors']}", total=len(MIRRORS))
-            
-            for name, url in MIRRORS.items():
-                name, speed = test_mirror_speed(name, url)
-                if speed != float('inf'):
-                    speeds[name] = speed
-                    progress.update(task, advance=1)
-                    
-                    if speed < 500:
-                        found_fast_mirror = True
-                        break
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+    ) as progress:
+        task = progress.add_task(f"[cyan]{MESSAGES['testing_mirrors']}", total=len(MIRRORS))
+        
+        for name, url in MIRRORS.items():
+            name, speed = test_mirror_speed(name, url)
+            if speed != float('inf'):
+                speeds[name] = speed
+                progress.update(task, advance=1)
                 
-                if progress.finished:
+                if speed < 500:
+                    found_fast_mirror = True
                     break
+            
+            if progress.finished:
+                break
 
-        if found_fast_mirror:
-            console.print(f"[green]{MESSAGES['fast_mirror_found']}[/green]")
-        else:
-            console.print(f"[yellow]{MESSAGES['no_fast_mirror']}[/yellow]")
-
-        save_results(speeds)
+    if found_fast_mirror:
+        console.print(f"[green]{MESSAGES['fast_mirror_found']}[/green]")
+    else:
+        console.print(f"[yellow]{MESSAGES['no_fast_mirror']}[/yellow]")
 
     table = Table(title=MESSAGES["results_title"])
     table.add_column(MESSAGES["mirror_column"], style="cyan")
@@ -151,7 +121,6 @@ def main():
             console.print(f"[yellow]{MESSAGES['check_permissions']}[/yellow]")
     else:
         console.print(f"[bold red]{MESSAGES['all_unreachable']}[/bold red]")
-
 
 if __name__ == "__main__":
     main()
