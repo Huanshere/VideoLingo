@@ -132,7 +132,7 @@ def start_gpt_sovits_server():
     sock.close()
 
     # Find and check config path
-    gpt_sovits_dir, config_path = find_and_check_config_path(load_key("sovits.character"))
+    gpt_sovits_dir, config_path = find_and_check_config_path(load_key("gpt_sovits.character"))
 
     # Change to the GPT-SoVITS-v2 directory
     os.chdir(gpt_sovits_dir)
