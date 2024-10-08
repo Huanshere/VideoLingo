@@ -83,18 +83,26 @@ def main():
         else:
             print(strings['requirements_not_found'])
 
-    def test_mirror_speed(name, url):
-        try:
-            start_time = time.time()
-            response = requests.get(url, timeout=5)
-            end_time = time.time()
-            if response.status_code == 200:
-                speed = (end_time - start_time) * 1000 
-                return name, speed
-            else:
-                return name, float('inf')
-        except requests.RequestException:
-            return name, float('inf')
+    def test_mirror_speed(name, base_url):
+        test_url = f"{base_url}lj1995/VoiceConversionWebUI/resolve/main/README.md"
+        max_retries = 3
+        timeout = 10
+    
+        for attempt in range(max_retries):
+            try:
+                start_time = time.time()
+                response = requests.head(test_url, timeout=timeout)
+                end_time = time.time()
+                if response.status_code == 200:
+                    speed = (end_time - start_time) * 1000 
+                    return name, speed
+            except requests.RequestException:
+                if attempt == max_retries - 1:
+                    return name, float('inf')
+                time.sleep(1)  # 在重试之前等待1秒
+
+    return name, float('inf')
+
     
     def download_uvr_model():
         models = {
