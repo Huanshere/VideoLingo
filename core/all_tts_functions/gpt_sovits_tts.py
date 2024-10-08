@@ -60,7 +60,7 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     start_gpt_sovits_server()
     TARGET_LANGUAGE = load_key("target_language")
     WHISPER_LANGUAGE = load_key("whisper.language")
-    sovits_set = load_key("sovits")
+    sovits_set = load_key("gpt_sovits")
     DUBBING_CHARACTER = sovits_set["character"]
     REFER_MODE = sovits_set["refer_mode"]
 
