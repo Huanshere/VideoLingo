@@ -54,9 +54,6 @@ def merge_subtitles_to_video():
         print("Subtitle files not found in the 'output' directory.")
         exit(1)
 
-    # 确定是否是macOS
-    macOS = os.name == 'posix' and os.uname().sysname == 'Darwin'
-
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (
