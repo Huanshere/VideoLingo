@@ -5,7 +5,8 @@ MIRRORS = {
     "Huawei Cloud": "https://repo.huaweicloud.com/repository/pypi/simple",
     "Tencent Cloud": "https://mirrors.cloud.tencent.com/pypi/simple",
     "上海交通大学": "https://mirror.sjtu.edu.cn/pypi/web/simple",
-    "163 Cloud": "https://mirrors.163.com/pypi/simple"
+    "163 Cloud": "https://mirrors.163.com/pypi/simple",
+    "PyPI Official": "https://pypi.org/simple"
 }
 
 MESSAGES = {
