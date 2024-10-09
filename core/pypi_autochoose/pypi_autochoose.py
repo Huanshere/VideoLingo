@@ -3,6 +3,7 @@ import time
 import requests
 import os
 import locale
+import concurrent.futures
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
@@ -17,10 +18,13 @@ else:
 
 console = Console()
 
+FAST_THRESHOLD = 1000  # ms
+SLOW_THRESHOLD = 1500  # ms
+
 def get_optimal_thread_count():
     try:
         cpu_count = os.cpu_count()
-        return max(cpu_count // 2, 1)
+        return max(cpu_count - 1, 1)
     except:
         return 2
 
@@ -59,9 +63,23 @@ def main():
     optimal_thread_count = get_optimal_thread_count()
     console.print(MESSAGES["using_threads"].format(optimal_thread_count))
 
-    speeds = {}
-    found_fast_mirror = False
+    # 首先测试 PyPI 官方源
+    pypi_name = next(name for name, url in MIRRORS.items() if "pypi.org" in url)
+    pypi_url = MIRRORS[pypi_name]
+    console.print(f"[cyan]{MESSAGES['testing_official_mirror']}[/cyan]")
+    _, pypi_speed = test_mirror_speed(pypi_name, pypi_url)
+    
+    if pypi_speed < FAST_THRESHOLD:
+        console.print(MESSAGES["official_mirror_fast"].format(pypi_speed))
+        set_pip_mirror(pypi_url, "pypi.org")
+        return
+    elif pypi_speed < SLOW_THRESHOLD:
+        console.print(MESSAGES["official_mirror_acceptable"].format(pypi_speed))
+        return
 
+    console.print(MESSAGES["official_mirror_slow"].format(pypi_speed))
+
+    speeds = {}
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -70,23 +88,18 @@ def main():
     ) as progress:
         task = progress.add_task(f"[cyan]{MESSAGES['testing_mirrors']}", total=len(MIRRORS))
         
-        for name, url in MIRRORS.items():
-            name, speed = test_mirror_speed(name, url)
-            if speed != float('inf'):
-                speeds[name] = speed
-                progress.update(task, advance=1)
-                
-                if speed < 500:
-                    found_fast_mirror = True
-                    break
-            
-            if progress.finished:
-                break
-
-    if found_fast_mirror:
-        console.print(f"[green]{MESSAGES['fast_mirror_found']}[/green]")
-    else:
-        console.print(f"[yellow]{MESSAGES['no_fast_mirror']}[/yellow]")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=optimal_thread_count) as executor:
+            future_to_mirror = {executor.submit(test_mirror_speed, name, url): name for name, url in MIRRORS.items() if name != pypi_name}
+            for future in concurrent.futures.as_completed(future_to_mirror):
+                name = future_to_mirror[future]
+                try:
+                    name, speed = future.result()
+                    if speed != float('inf'):
+                        speeds[name] = speed
+                except Exception as exc:
+                    print(f'{name} generated an exception: {exc}')
+                finally:
+                    progress.update(task, advance=1)
 
     table = Table(title=MESSAGES["results_title"])
     table.add_column(MESSAGES["mirror_column"], style="cyan")
