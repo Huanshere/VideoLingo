@@ -3,7 +3,6 @@ MIRRORS = {
     "Tsinghua University": "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple",
     "Huawei Cloud": "https://repo.huaweicloud.com/repository/pypi/simple",
     "Tencent Cloud": "https://mirrors.cloud.tencent.com/pypi/simple",
-    "S J T U": "https://mirror.sjtu.edu.cn/pypi/web/simple",
     "163 Cloud": "https://mirrors.163.com/pypi/simple",
     "PyPI Official": "https://pypi.org/simple"
 }
