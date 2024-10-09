@@ -28,7 +28,7 @@ MESSAGES = {
     "check_permissions": "Please check if you have sufficient permissions to modify pip configuration.",
     "all_unreachable": "All mirrors are unreachable. Please check your network connection.",
     "fast_mirror_found": "Find the image with a response time of less than 500 ms and skip the test.",
-    "no_fast_mirror": "No images with a response time of less than 500 ms were found, and all images have been tested."
+    "no_fast_mirror": "No images with a response time of less than 500 ms were found, and all images have been tested.",
     "testing_official_mirror": "Testing PyPI official mirror...",
     "official_mirror_fast": "PyPI official mirror is fast ({:.2f} ms). Using the official mirror.",
     "official_mirror_acceptable": "PyPI official mirror speed is acceptable ({:.2f} ms). You may continue using it.",
