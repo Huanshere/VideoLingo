@@ -1,6 +1,4 @@
-ask_in_china: "您是否在中国？(1 表示是，0 表示否): "
 configuring_mirror: "正在为中国用户配置 PyPI 镜像..."
-skipping_mirror: "跳过 PyPI 镜像配置。"
 starting_installation: "开始安装..."
 display_language_set: "显示语言设置为系统语言: "
 installing_dependencies: "正在从 requirements.txt 安装依赖..."
