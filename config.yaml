@@ -113,6 +113,8 @@ allowed_video_formats:
 - 'flv'
 - 'wmv'
 - 'webm'
+
+allowed_audio_formats:
 - 'wav'
 - 'mp3'
 - 'flac'

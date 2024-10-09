@@ -43,7 +43,7 @@ def download_video_section():
                         download_video_ytdlp(url, resolution=resolution)
                     st.rerun()
 
-            uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=load_key("allowed_video_formats"))
+            uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
             if uploaded_file:
                 #delte file in output
                 if os.path.exists("output"):
@@ -56,8 +56,7 @@ def download_video_section():
                     f.write(uploaded_file.getbuffer())
 
                 # Convert audio files to video if needed
-                audio_extensions = ("wav", "mp3", "flac")
-                if normalized_name.endswith(audio_extensions):
+                if normalized_name.endswith(load_key("allowed_audio_formats")):
                     convert_audio_to_video(os.path.join("output", normalized_name))
                 st.rerun()
             else:
