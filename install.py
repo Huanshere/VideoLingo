@@ -43,14 +43,9 @@ def main():
 
     console.print(Panel.fit(strings['starting_installation'], style="bold magenta"))
 
-    # Ask if user is in China
-    in_china = console.input(strings['ask_in_china'])
-
-    if in_china == "1":
-        console.print(Panel(strings['configuring_mirror'], style="bold yellow"))
-        choose_mirror()
-    else:
-        console.print(Panel(strings['skipping_mirror'], style="bold blue"))
+    # 直接执行镜像选择
+    console.print(Panel(strings['configuring_mirror'], style="bold yellow"))
+    choose_mirror()
 
     def init_language():
         from core.config_utils import load_key, update_key
