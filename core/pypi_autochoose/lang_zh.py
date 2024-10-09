@@ -29,7 +29,7 @@ MESSAGES = {
     "all_unreachable": "所有镜像源都无法连接，请检查网络连接。",
     "fast_mirror_found": "找到响应时间小于500ms的镜像，跳过测试。",
     "no_fast_mirror": "未找到响应时间小于500ms的镜像，已测试所有镜像。"    
-    "testing_official_mirror": "测试PyPI官方镜像...",
+    "testing_official_mirror": "测试PyPI官方源速度...请耐心等待",
     "official_mirror_fast": "PyPI官方镜像速度很快 ({:.2f} ms)。使用官方镜像。",
     "official_mirror_acceptable": "PyPI官方镜像速度可以接受 ({:.2f} ms)。您可以继续使用它。",
     "official_mirror_slow": "PyPI官方镜像速度较慢 ({:.2f} ms)。测试其他镜像..."
