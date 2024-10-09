@@ -7,7 +7,6 @@ import concurrent.futures
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
-from rich.panel import Panel
 
 # 根据系统语言选择语言文件
 system_language = locale.getdefaultlocale()[0]
@@ -57,16 +56,16 @@ def get_current_pip_mirror():
         return None
 
 def main():
-    console.print(Panel.fit(MESSAGES["checking_speeds"], style="bold magenta"))
-
     console.print(f"[yellow]{MESSAGES['starting_new_test']}[/yellow]")
-    optimal_thread_count = get_optimal_thread_count()
-    console.print(MESSAGES["using_threads"].format(optimal_thread_count))
-
+    
     # 首先测试 PyPI 官方源
     pypi_name = next(name for name, url in MIRRORS.items() if "pypi.org" in url)
     pypi_url = MIRRORS[pypi_name]
     console.print(f"[cyan]{MESSAGES['testing_official_mirror']}[/cyan]")
+    
+    optimal_thread_count = get_optimal_thread_count()
+    console.print(MESSAGES["using_threads"].format(optimal_thread_count))
+    
     _, pypi_speed = test_mirror_speed(pypi_name, pypi_url)
     
     if pypi_speed < FAST_THRESHOLD:
@@ -79,6 +78,7 @@ def main():
 
     console.print(MESSAGES["official_mirror_slow"].format(pypi_speed))
 
+    # 测试其他镜像
     speeds = {}
     with Progress(
         SpinnerColumn(),
@@ -86,7 +86,7 @@ def main():
         BarColumn(),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
     ) as progress:
-        task = progress.add_task(f"[cyan]{MESSAGES['testing_mirrors']}", total=len(MIRRORS))
+        task = progress.add_task(f"[cyan]{MESSAGES['testing_mirrors']}", total=len(MIRRORS) - 1)  # -1 because we already tested PyPI
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=optimal_thread_count) as executor:
             future_to_mirror = {executor.submit(test_mirror_speed, name, url): name for name, url in MIRRORS.items() if name != pypi_name}
