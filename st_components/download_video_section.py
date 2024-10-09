@@ -6,6 +6,7 @@ from core.step1_ytdlp import download_video_ytdlp, find_video_files
 from i18n.st_i18n import get_localized_string
 from time import sleep
 import re
+import subprocess
 
 def download_video_section():
     title1 = get_localized_string("download_or_upload_video")
@@ -53,6 +54,25 @@ def download_video_section():
                 # Save uploaded video with normalized name
                 with open(os.path.join("output", normalized_name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
+
+                # Convert audio files to video if needed
+                audio_extensions = ("wav", "mp3", "flac")
+                if normalized_name.endswith(audio_extensions):
+                    convert_audio_to_video(os.path.join("output", normalized_name))
                 st.rerun()
             else:
                 return False
+
+def convert_audio_to_video(audio_file: str) -> str:
+    output_video = 'output/audio_with_black_screen.mp4'
+    if not os.path.exists(output_video):
+        print(f"🎵➡️🎬 Converting audio to video with FFmpeg ......")
+        ffmpeg_cmd = ['ffmpeg', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=640x360', '-i', audio_file, '-shortest', '-c:v', 'libx264', '-c:a', 'aac', '-pix_fmt', 'yuv420p', output_video]
+        try:
+            subprocess.run(ffmpeg_cmd, check=True, capture_output=True, text=True, encoding='utf-8')
+            print(f"🎵➡️🎬 Converted <{audio_file}> to <{output_video}> with FFmpeg\n")
+            # delete audio file
+            os.remove(audio_file)
+        except subprocess.CalledProcessError as e:
+            raise(f"❌ Failed to convert <{audio_file}> to <{output_video}>. Error: {e.stderr}")
+    return output_video

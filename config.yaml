@@ -113,6 +113,9 @@ allowed_video_formats:
 - 'flv'
 - 'wmv'
 - 'webm'
+- 'wav'
+- 'mp3'
+- 'flac'
 
 # LLMs that support returning JSON format
 llm_support_json:
