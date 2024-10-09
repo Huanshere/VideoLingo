@@ -37,7 +37,7 @@ ytb_resolution: '360'
 
 subtitle:
   # *Maximum length of each subtitle line in characters
-  max_length: 70
+  max_length: 75
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.1
 
@@ -51,7 +51,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [openai_tts, gpt_sovits, azure_tts, fish_tts]
-tts_method: 'fish_tts'
+tts_method: 'azure_tts'
 
 # OpenAI TTS-1 API configuration
 openai_tts:
