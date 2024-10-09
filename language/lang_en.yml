@@ -1,6 +1,4 @@
-ask_in_china: "Are you in China? (1 for Yes, 0 for No): "
 configuring_mirror: "Configuring PyPI mirror for China..."
-skipping_mirror: "Skipping PyPI mirror configuration."
 starting_installation: "Starting installation..."
 display_language_set: "Display language set to system language: "
 installing_dependencies: "Installing dependencies from requirements.txt..."
