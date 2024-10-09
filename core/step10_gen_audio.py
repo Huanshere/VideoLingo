@@ -151,7 +151,7 @@ def process_sovits_tasks():
     if error_tasks:
         error_msg = f"The following tasks failed to process: {', '.join(map(str, error_tasks))}"
         rprint(Panel(error_msg, title="Failed Tasks", border_style="red"))
-        raise Exception()
+        raise Exception("tasks failed to process, please check cli output for details")
     
     rprint(Panel("Task processing completed", title="Success", border_style="green"))
 
