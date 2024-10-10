@@ -123,6 +123,7 @@ allowed_audio_formats:
 llm_support_json:
 - 'deepseek-coder'
 - 'gpt-4o'
+- 'gpt-4o-mini'
 
 # Spacy models
 spacy_model_map:
