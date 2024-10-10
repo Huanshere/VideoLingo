@@ -55,8 +55,8 @@ def download_video_section():
                 with open(os.path.join("output", normalized_name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
-                # Convert audio files to video if needed
-                if normalized_name.endswith(load_key("allowed_audio_formats")):
+                # Convert audio to video if it's an audio file
+                if normalized_name.split('.')[-1] in load_key("allowed_audio_formats"):
                     convert_audio_to_video(os.path.join("output", normalized_name))
                 st.rerun()
             else:
