@@ -7,5 +7,8 @@
     },
     "tech": {
       "title": "技术文档"
+    },
+    "docker": {
+      "title": "Docker 文档"
     }
   }
