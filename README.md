@@ -101,6 +101,11 @@ Experience VideoLingo quickly in Colab in just 5 minutes:
 
 VideoLingo offers two local installation methods: **One-click Simple Package** and **Source Code Installation**. Please refer to the installation documentation: [English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
+
+### Docker Installation
+
+VideoLingo provides a Dockerfile for Docker installation. Please refer to the installation documentation: [English](/docs/pages/docs/docker.en-US.md) | [简体中文](/docs/pages/docs/docker.zh-CN.md)
+
 ## 🏭 Batch Mode
 
 Usage instructions: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
