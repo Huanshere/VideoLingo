@@ -146,7 +146,7 @@ After configuration, make sure to select `Reference Audio Mode` in the webpage s
 
 ### Download and Usage Instructions
 
-1. Download the `v1.5` one-click package (800MB): [Direct Download](https://vip.123pan.cn/1817874751/8313069) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+1. Download the `v1.6.2` one-click package (800MB): [Direct Download](https://vip.123pan.cn/1817874751/8372004) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
 
 2. After extracting, double-click `一键启动.bat` (One-click Start) in the folder
 
