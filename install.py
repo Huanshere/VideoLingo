@@ -5,7 +5,6 @@ import sys
 import zipfile
 import shutil
 import locale
-import requests
 import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -79,6 +78,7 @@ def main():
             print(strings['requirements_not_found'])
 
     def test_mirror_speed(name, base_url):
+        import requests
         test_url = f"{base_url}lj1995/VoiceConversionWebUI/resolve/main/README.md"
         max_retries = 3
         timeout = 10
@@ -99,6 +99,7 @@ def main():
         return name, float('inf')
 
     def download_uvr_model():
+        import requests
         models = {
             "HP2_all_vocals.pth": "lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
             "VR-DeEchoAggressive.pth": "lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth"
@@ -150,6 +151,7 @@ def main():
                 print(f"{model_name} {strings['model_exists']}")
 
     def download_and_extract_ffmpeg():
+        import requests
         system = platform.system()
         if system == "Windows":
             ffmpeg_exe = "ffmpeg.exe"
