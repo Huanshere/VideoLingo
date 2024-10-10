@@ -101,6 +101,20 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 VideoLingo 提供 **一键简易包** 和 **源码安装** 两种本地安装方式，请参考安装文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
+
+### 使用Docker
+
+目前VideoLingo 提供了Dockerfile，可自行使用Dockerfile打包目前VideoLingo，要求CUDA版本为12.4，NVIDIA Driver版本大于550，打包和运行方法为：
+
+```bash
+docker build -t videolingo .
+docker run -d -p 8501:8501 --gpus all videolingo
+```
+
+注：目前Docker版VideoLingo的Docker版本还有一些需要完善的地方，详情和后续规划见：[Docker](/docs/pages/docs/docker.zh-CN.md)
+
+VideoLingo 提供 
+
 ## 🏭 批量模式
 
 使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
