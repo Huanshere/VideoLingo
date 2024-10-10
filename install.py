@@ -204,8 +204,18 @@ def main():
 
     def install_noto_font():
         if platform.system() == 'Linux':
-            subprocess.run(['sudo', 'apt-get', 'install', '-y', 'fonts-noto'], check=True)
-    
+            try:
+                # Try apt-get first (Debian-based systems)
+                subprocess.run(['sudo', 'apt-get', 'install', '-y', 'fonts-noto'], check=True)
+                print("Noto fonts installed successfully using apt-get.")
+            except subprocess.CalledProcessError:
+                try:
+                    # If apt-get fails, try yum (RPM-based systems)
+                    subprocess.run(['sudo', 'yum', 'install', '-y', 'fonts-noto'], check=True)
+                    print("Noto fonts installed successfully using yum.")
+                except subprocess.CalledProcessError:
+                    print("Failed to install Noto fonts automatically. Please install them manually.")
+
     # User selects Whisper model
     table = Table(title=strings['whisper_model_selection'])
     table.add_column(strings['option'], style="cyan", no_wrap=True)
