@@ -160,6 +160,7 @@ VideoLingo 提供
 - 在 GitHub 上提交 [Issues](https://github.com/Huanshere/VideoLingo/issues) 或 [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls)
 - 关注我的 Twitter：[@Huanshere](https://twitter.com/Huanshere)
 - 访问官方网站：[videolingo.io](https://videolingo.io)
+- 联系邮箱：team@videolingo.io
 
 ## ⭐ Star History
 

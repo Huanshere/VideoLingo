@@ -151,6 +151,7 @@ We sincerely thank the following open-source projects for their contributions, w
 - Submit [Issues](https://github.com/Huanshere/VideoLingo/issues) or [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls) on GitHub
 - Follow me on Twitter: [@Huanshere](https://twitter.com/Huanshere)
 - Visit the official website: [videolingo.io](https://videolingo.io)
+- Email me at: team@videolingo.io
 
 ## ⭐ Star History
 
