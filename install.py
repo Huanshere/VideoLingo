@@ -4,7 +4,6 @@ import subprocess
 import sys
 import zipfile
 import shutil
-import locale
 import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -15,17 +14,6 @@ def install_package(*packages):
 install_package("requests", "rich", "ruamel.yaml")
 from core.pypi_autochoose.pypi_autochoose import main as choose_mirror
 
-def load_language(lang='en'):
-    from ruamel.yaml import YAML
-    yaml = YAML(typ='safe')
-    try:
-        with open(f'language/lang_{lang}.yml', 'r', encoding='utf-8') as f:
-            return yaml.load(f)
-    except FileNotFoundError:
-        print(f"Language file for {lang} not found. Falling back to English.")
-        with open('language/lang_en.yml', 'r', encoding='utf-8') as f:
-            return yaml.load(f)
-
 def main():
     from rich.console import Console
     from rich.table import Table
@@ -33,49 +21,21 @@ def main():
 
     console = Console()
 
-    # Determine language based on system locale
-    system_lang = locale.getdefaultlocale()[0]
-    lang = 'zh' if system_lang.startswith('zh') else 'en'
-    
-    # Load language strings
-    strings = load_language(lang)
+    console.print(Panel.fit("Starting installation", style="bold magenta"))
 
-    console.print(Panel.fit(strings['starting_installation'], style="bold magenta"))
-
-    # 直接执行镜像选择
-    console.print(Panel(strings['configuring_mirror'], style="bold yellow"))
+    # Execute mirror configuration
+    console.print(Panel("Configuring mirror", style="bold yellow"))
     choose_mirror()
 
-    def init_language():
-        from core.config_utils import load_key, update_key
-        system_lang = locale.getdefaultlocale()[0]
-        lang_map = {
-            'zh_CN': 'zh_CN', 'zh_TW': 'zh_CN',
-            'en_US': 'en_US', 'ja_JP': 'ja_JP'
-        }
-        display_language = lang_map.get(system_lang, 'en_US')
-        if load_key("display_language") == "auto":
-            update_key("display_language", display_language)
-            console.print(Panel.fit(f"{strings['display_language_set']}{display_language}", style="bold green"))
-
     def install_requirements():
-        if os.path.exists("requirements.txt"):
-            print(strings['converting_requirements'])
-            try:
-                with open("requirements.txt", "r", encoding="utf-8") as file:
-                    content = file.read()
-                with open("requirements.txt", "w", encoding="gbk") as file:
-                    file.write(content)
-                print(strings['conversion_completed'])
-            except UnicodeDecodeError:
-                print(strings['already_gbk'])
-            except Exception as e:
-                print(f"{strings['conversion_error']}: {str(e)}")
-            
-            print(strings['installing_dependencies'])
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-        else:
-            print(strings['requirements_not_found'])
+        try:
+            with open("requirements.txt", "r", encoding="utf-8") as file:
+                content = file.read()
+            with open("requirements.txt", "w", encoding="gbk") as file:
+                file.write(content)
+        except Exception as e:
+            print(f"Error converting requirements.txt: {str(e)}")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def test_mirror_speed(name, base_url):
         import requests
@@ -115,18 +75,18 @@ def main():
         for model_name, model_path in models.items():
             model_file_path = f"_model_cache/uvr5_weights/{model_name}"
             if not os.path.exists(model_file_path):
-                print(f"{strings['downloading_uvr_model']}{model_name}...")
+                print(f"Downloading UVR model: {model_name}...")
                 
                 # Test speed for each mirror
                 speeds = []
                 for mirror_name, mirror_url in mirrors.items():
                     name, speed = test_mirror_speed(mirror_name, mirror_url)
                     speeds.append((name, speed))
-                    print(f"{mirror_name} {strings['mirror_speed']} {speed:.2f} ms")
+                    print(f"{mirror_name} mirror speed: {speed:.2f} ms")
 
                 # Choose the fastest mirror
                 fastest_mirror = min(speeds, key=lambda x: x[1])[0]
-                print(f"{strings['choosing_mirror']} {fastest_mirror}")
+                print(f"Choosing mirror: {fastest_mirror}")
 
                 # Download from the fastest mirror
                 url = mirrors[fastest_mirror] + model_path
@@ -142,13 +102,13 @@ def main():
                             downloaded_size += size
                             if total_size:
                                 percent = (downloaded_size / total_size) * 100
-                                print(f"{strings['download_progress']} {percent:.2f}%", end="\r")
+                                print(f"Download progress: {percent:.2f}%", end="\r")
                     
-                    print(f"\n{model_name} {strings['model_downloaded']}")
+                    print(f"\n{model_name} model downloaded")
                 except requests.RequestException as e:
-                    print(f"{strings['download_failed']} {model_name}: {str(e)}")
+                    print(f"Download failed: {model_name}: {str(e)}")
             else:
-                print(f"{model_name} {strings['model_exists']}")
+                print(f"{model_name} model exists")
 
     def download_and_extract_ffmpeg():
         import requests
@@ -166,18 +126,18 @@ def main():
             return
 
         if os.path.exists(ffmpeg_exe):
-            print(f"{ffmpeg_exe} {strings['ffmpeg_exists']}")
+            print(f"{ffmpeg_exe} already exists")
             return
 
-        print(strings['downloading_ffmpeg'])
+        print("Downloading FFmpeg")
         response = requests.get(url)
         if response.status_code == 200:
             filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
             with open(filename, 'wb') as f:
                 f.write(response.content)
-            print(f"{strings['ffmpeg_downloaded']}{filename}")
+            print(f"FFmpeg downloaded: {filename}")
         
-            print(strings['extracting_ffmpeg'])
+            print("Extracting FFmpeg")
             if system == "Linux":
                 import tarfile
                 with tarfile.open(filename) as tar_ref:
@@ -192,15 +152,15 @@ def main():
                             zip_ref.extract(file)
                             shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
             
-            print(strings['cleaning_up'])
+            print("Cleaning up")
             os.remove(filename)
             if system == "Windows":
                 for item in os.listdir():
                     if os.path.isdir(item) and "ffmpeg" in item.lower():
                         shutil.rmtree(item)
-            print(strings['ffmpeg_extraction_completed'])
+            print("FFmpeg extraction completed")
         else:
-            print(strings['failed_download_ffmpeg'])
+            print("Failed to download FFmpeg")
 
     def install_noto_font():
         if platform.system() == 'Linux':
@@ -217,26 +177,26 @@ def main():
                     print("Failed to install Noto fonts automatically. Please install them manually.")
 
     # User selects Whisper model
-    table = Table(title=strings['whisper_model_selection'])
-    table.add_column(strings['option'], style="cyan", no_wrap=True)
-    table.add_column(strings['model'], style="magenta")
-    table.add_column(strings['description'], style="green")
-    table.add_row("1", "whisperX 💻", strings['whisperx_local'])
-    table.add_row("2", "whisperXapi ☁️", strings['whisperxapi_cloud'])
+    table = Table(title="Whisper Model Selection")
+    table.add_column("Option", style="cyan", no_wrap=True)
+    table.add_column("Model", style="magenta")
+    table.add_column("Description", style="green")
+    table.add_row("1", "whisperX 💻", "Local processing with whisperX")
+    table.add_row("2", "whisperXapi ☁️", "Cloud processing with whisperXapi")
     console.print(table)
 
-    console.print(strings['model_difference_info'])
+    console.print("WhisperX processes audio locally on your machine, while whisperXapi uses cloud processing.")
 
     if len(sys.argv) > 1:
         choice = sys.argv[1]
     else:
-        choice = console.input(strings['enter_option'])
+        choice = console.input("Enter your choice (1 or 2): ")
 
     if platform.system() == 'Darwin':
-        console.print(Panel(strings['installing_cpu_pytorch'], style="cyan"))
+        console.print(Panel("For MacOS, installing CPU version of PyTorch...", style="cyan"))
         subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
         if choice == '1':
-            print(strings['installing_whisperx'])
+            print("Installing whisperX...")
             current_dir = os.getcwd()
             whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
             os.chdir(whisperx_dir)
@@ -244,45 +204,44 @@ def main():
             os.chdir(current_dir)
     else:
         if choice == '1':
-            console.print(Panel(strings['installing_cuda_pytorch'], style="cyan"))
+            console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
 
-            print(strings['installing_whisperx'])
+            print("Installing whisperX...")
             current_dir = os.getcwd()
             whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
             os.chdir(whisperx_dir)
             subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
             os.chdir(current_dir)
         elif choice == '2':
-            table = Table(title=strings['pytorch_version_selection'])
-            table.add_column(strings['option'], style="cyan", no_wrap=True)
-            table.add_column(strings['model'], style="magenta")
-            table.add_column(strings['description'], style="green")
-            table.add_row("1", "CPU", strings['cpu_version'])
-            table.add_row("2", "GPU", strings['gpu_version'])
+            table = Table(title="PyTorch Version Selection")
+            table.add_column("Option", style="cyan", no_wrap=True)
+            table.add_column("Model", style="magenta")
+            table.add_column("Description", style="green")
+            table.add_row("1", "CPU", "Choose this if you're using Mac, non-NVIDIA GPU, or don't need GPU acceleration")
+            table.add_row("2", "GPU", "Significantly speeds up UVR5 voice separation. Strongly recommended if you need dubbing functionality and have an NVIDIA GPU.")
             console.print(table)
 
-            torch_choice = console.input(strings['enter_pytorch_option'])
+            torch_choice = console.input("Please enter the option number (1 for CPU or 2 for GPU): ")
             if torch_choice == '1':
-                console.print(Panel(strings['installing_cpu_pytorch_message'], style="cyan"))
+                console.print(Panel("Installing CPU version of PyTorch...", style="cyan"))
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
             elif torch_choice == '2':
-                console.print(Panel(strings['installing_gpu_pytorch_message'], style="cyan"))
+                console.print(Panel("Installing GPU version of PyTorch with CUDA 11.8...", style="cyan"))
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
             else:
-                console.print(strings['invalid_choice'])
+                console.print("Invalid choice. Defaulting to CPU version.")
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
         else:
-            raise ValueError(strings['invalid_choice_retry'])
+            raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
 
-    init_language()
     install_noto_font()
     install_requirements()
     download_uvr_model()  
     download_and_extract_ffmpeg()
     
-    console.print(Panel.fit(strings['installation_completed'], style="bold green"))
-    console.print(strings['start_streamlit_command'])
+    console.print(Panel.fit("Installation completed", style="bold green"))
+    console.print("To start the application, run:")
     console.print("[bold cyan]streamlit run st.py[/bold cyan]")
 
 if __name__ == "__main__":

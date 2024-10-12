@@ -3,19 +3,17 @@ import os, sys, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.config_utils import load_key
 from core.step1_ytdlp import download_video_ytdlp, find_video_files
-from i18n.st_i18n import get_localized_string
 from time import sleep
 import re
 import subprocess
 
 def download_video_section():
-    title1 = get_localized_string("download_or_upload_video")
-    st.header(title1)
+    st.header("Download or Upload Video")
     with st.container(border=True):
         try:
             video_file = find_video_files()
             st.video(video_file)
-            if st.button(get_localized_string("delete_and_reselect"), key="delete_video_button"):
+            if st.button("Delete and Reselect", key="delete_video_button"):
                 os.remove(video_file)
                 if os.path.exists("output"):
                     shutil.rmtree("output")
@@ -25,7 +23,7 @@ def download_video_section():
         except:
             col1, col2 = st.columns([3, 1])
             with col1:
-                url = st.text_input(get_localized_string("enter_youtube_link"))
+                url = st.text_input("Enter YouTube link:")
             with col2:
                 resolution_dict = {
                     "360p": "360",
@@ -37,13 +35,13 @@ def download_video_section():
                 default_index = list(resolution_dict.values()).index(YTB_RESOLUTION) if YTB_RESOLUTION in resolution_dict.values() else 0
                 resolution_display = st.selectbox("Resolution", options=resolution_options, index=default_index)
                 resolution = resolution_dict[resolution_display]
-            if st.button(get_localized_string("download_video"), key="download_button", use_container_width=True):
+            if st.button("Download Video", key="download_button", use_container_width=True):
                 if url:
-                    with st.spinner(get_localized_string("downloading_video")):
+                    with st.spinner("Downloading video..."):
                         download_video_ytdlp(url, resolution=resolution)
                     st.rerun()
 
-            uploaded_file = st.file_uploader(get_localized_string("or_upload_video"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
+            uploaded_file = st.file_uploader("Or upload video", type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
             if uploaded_file:
                 #delte file in output
                 if os.path.exists("output"):

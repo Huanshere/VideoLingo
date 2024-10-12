@@ -24,14 +24,6 @@ whisper:
 resolution: '640x360'
 
 ## ======================== Advanced Settings ======================== ##
-# Web display language, auto for automatic detection based on system [zh_CN, en_US, auto]
-display_language: 'auto'
-
-# * HTTP proxy settings
-http_proxy:
-  use: false
-  address: "http://127.0.0.1:7890"
-
 # *Default resolution for downloading YouTube videos [360, 1080, best]
 ytb_resolution: '360'
 
