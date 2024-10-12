@@ -208,7 +208,7 @@ Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you enc
 
    ![en_set](https://github.com/user-attachments/assets/2f32f49b-0b7a-4ff4-930f-4e5f9bac9002)
 
-8. (Optional) For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
+8. For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
 
 ## 🚨 Common Errors and Solutions
 
