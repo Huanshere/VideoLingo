@@ -10,7 +10,7 @@ api:
 replicate_api_token: 'YOUR_REPLICATE_API_TOKEN'
 
 # Language settings, written into the prompt, can be described in natural language
-target_language: '简体中文'
+target_language: 'Chinese'
 
 whisper:
   # Whisper settings [whisperx, whisperxapi]
@@ -24,14 +24,6 @@ whisper:
 resolution: '640x360'
 
 ## ======================== Advanced Settings ======================== ##
-# Web display language, auto for automatic detection based on system [zh_CN, en_US, auto]
-display_language: 'auto'
-
-# * HTTP proxy settings
-http_proxy:
-  use: false
-  address: "http://127.0.0.1:7890"
-
 # *Default resolution for downloading YouTube videos [360, 1080, best]
 ytb_resolution: '360'
 
@@ -51,7 +43,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [openai_tts, gpt_sovits, azure_tts, fish_tts]
-tts_method: 'azure_tts'
+tts_method: 'openai_tts'
 
 # OpenAI TTS-1 API configuration
 openai_tts:
@@ -77,9 +69,6 @@ fish_tts:
   character_id_dict:
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
     '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
-    '赛马娘': '0eb38bc974e1459facca38b359e13511'
-    '蔡徐坤': 'e4642e5edccd4d9ab61a69e82d4f8a14'
-    '雷军': '738d0cc1a3e9430a9de2b544a466a7fc'
 
 # *Audio speed range
 speed_factor:
@@ -149,6 +138,3 @@ language_split_with_space:
 language_split_without_space:
 - 'zh'
 - 'ja'
-
-video:
-  resolution: '0x0'

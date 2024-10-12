@@ -21,10 +21,10 @@ def main():
 
     console = Console()
 
-    console.print(Panel.fit("Starting installation", style="bold magenta"))
+    console.print(Panel.fit("开始安装", style="bold magenta"))
 
-    # Execute mirror configuration
-    console.print(Panel("Configuring mirror", style="bold yellow"))
+    # 执行镜像配置
+    console.print(Panel("配置镜像", style="bold yellow"))
     choose_mirror()
 
     def install_requirements():
@@ -34,7 +34,7 @@ def main():
             with open("requirements.txt", "w", encoding="gbk") as file:
                 file.write(content)
         except Exception as e:
-            print(f"Error converting requirements.txt: {str(e)}")
+            print(f"转换 requirements.txt 时出错: {str(e)}")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def test_mirror_speed(name, base_url):
@@ -54,7 +54,7 @@ def main():
             except requests.RequestException:
                 if attempt == max_retries - 1:
                     return name, float('inf')
-                time.sleep(1)  # Wait 1 second before retrying
+                time.sleep(1)  # 重试前等待1秒
 
         return name, float('inf')
 
@@ -66,8 +66,8 @@ def main():
         }
         
         mirrors = {
-            "Official": "https://huggingface.co/",
-            "Mirror": "https://hf-mirror.com/"
+            "官方": "https://huggingface.co/",
+            "镜像": "https://hf-mirror.com/"
         }
 
         os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
@@ -75,20 +75,20 @@ def main():
         for model_name, model_path in models.items():
             model_file_path = f"_model_cache/uvr5_weights/{model_name}"
             if not os.path.exists(model_file_path):
-                print(f"Downloading UVR model: {model_name}...")
+                print(f"正在下载 UVR 模型: {model_name}...")
                 
-                # Test speed for each mirror
+                # 测试每个镜像的速度
                 speeds = []
                 for mirror_name, mirror_url in mirrors.items():
                     name, speed = test_mirror_speed(mirror_name, mirror_url)
                     speeds.append((name, speed))
-                    print(f"{mirror_name} mirror speed: {speed:.2f} ms")
+                    print(f"{mirror_name}镜像速度: {speed:.2f} ms")
 
-                # Choose the fastest mirror
+                # 选择最快的镜像
                 fastest_mirror = min(speeds, key=lambda x: x[1])[0]
-                print(f"Choosing mirror: {fastest_mirror}")
+                print(f"选择镜像: {fastest_mirror}")
 
-                # Download from the fastest mirror
+                # 从最快的镜像下载
                 url = mirrors[fastest_mirror] + model_path
                 try:
                     response = requests.get(url, stream=True)
@@ -102,13 +102,13 @@ def main():
                             downloaded_size += size
                             if total_size:
                                 percent = (downloaded_size / total_size) * 100
-                                print(f"Download progress: {percent:.2f}%", end="\r")
+                                print(f"下载进度: {percent:.2f}%", end="\r")
                     
-                    print(f"\n{model_name} model downloaded")
+                    print(f"\n{model_name} 模型下载完成")
                 except requests.RequestException as e:
-                    print(f"Download failed: {model_name}: {str(e)}")
+                    print(f"下载失败: {model_name}: {str(e)}")
             else:
-                print(f"{model_name} model exists")
+                print(f"{model_name} 模型已存在")
 
     def download_and_extract_ffmpeg():
         import requests
@@ -126,18 +126,18 @@ def main():
             return
 
         if os.path.exists(ffmpeg_exe):
-            print(f"{ffmpeg_exe} already exists")
+            print(f"{ffmpeg_exe} 已存在")
             return
 
-        print("Downloading FFmpeg")
+        print("正在下载 FFmpeg")
         response = requests.get(url)
         if response.status_code == 200:
             filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
             with open(filename, 'wb') as f:
                 f.write(response.content)
-            print(f"FFmpeg downloaded: {filename}")
+            print(f"FFmpeg 下载完成: {filename}")
         
-            print("Extracting FFmpeg")
+            print("正在解压 FFmpeg")
             if system == "Linux":
                 import tarfile
                 with tarfile.open(filename) as tar_ref:
@@ -152,51 +152,51 @@ def main():
                             zip_ref.extract(file)
                             shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
             
-            print("Cleaning up")
+            print("清理中")
             os.remove(filename)
             if system == "Windows":
                 for item in os.listdir():
                     if os.path.isdir(item) and "ffmpeg" in item.lower():
                         shutil.rmtree(item)
-            print("FFmpeg extraction completed")
+            print("FFmpeg 解压完成")
         else:
-            print("Failed to download FFmpeg")
+            print("下载 FFmpeg 失败")
 
     def install_noto_font():
         if platform.system() == 'Linux':
             try:
-                # Try apt-get first (Debian-based systems)
+                # 首先尝试 apt-get（基于 Debian 的系统）
                 subprocess.run(['sudo', 'apt-get', 'install', '-y', 'fonts-noto'], check=True)
-                print("Noto fonts installed successfully using apt-get.")
+                print("使用 apt-get 成功安装 Noto 字体。")
             except subprocess.CalledProcessError:
                 try:
-                    # If apt-get fails, try yum (RPM-based systems)
+                    # 如果 apt-get 失败，尝试 yum（基于 RPM 的系统）
                     subprocess.run(['sudo', 'yum', 'install', '-y', 'fonts-noto'], check=True)
-                    print("Noto fonts installed successfully using yum.")
+                    print("使用 yum 成功安装 Noto 字体。")
                 except subprocess.CalledProcessError:
-                    print("Failed to install Noto fonts automatically. Please install them manually.")
+                    print("自动安装 Noto 字体失败。请手动安装。")
 
-    # User selects Whisper model
-    table = Table(title="Whisper Model Selection")
-    table.add_column("Option", style="cyan", no_wrap=True)
-    table.add_column("Model", style="magenta")
-    table.add_column("Description", style="green")
-    table.add_row("1", "whisperX 💻", "Local processing with whisperX")
-    table.add_row("2", "whisperXapi ☁️", "Cloud processing with whisperXapi")
+    # 用户选择 Whisper 模型
+    table = Table(title="Whisper 模型选择")
+    table.add_column("选项", style="cyan", no_wrap=True)
+    table.add_column("模型", style="magenta")
+    table.add_column("描述", style="green")
+    table.add_row("1", "whisperX 💻", "使用 whisperX 进行本地处理")
+    table.add_row("2", "whisperXapi ☁️", "使用 whisperXapi 进行云处理")
     console.print(table)
 
-    console.print("WhisperX processes audio locally on your machine, while whisperXapi uses cloud processing.")
+    console.print("WhisperX 在您的机器上本地处理音频，而 whisperXapi 使用云处理。")
 
     if len(sys.argv) > 1:
         choice = sys.argv[1]
     else:
-        choice = console.input("Enter your choice (1 or 2): ")
+        choice = console.input("请输入您的选择（1 或 2）：")
 
     if platform.system() == 'Darwin':
-        console.print(Panel("For MacOS, installing CPU version of PyTorch...", style="cyan"))
+        console.print(Panel("对于 MacOS，正在安装 CPU 版本的 PyTorch...", style="cyan"))
         subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
         if choice == '1':
-            print("Installing whisperX...")
+            print("正在安装 whisperX...")
             current_dir = os.getcwd()
             whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
             os.chdir(whisperx_dir)
@@ -204,44 +204,44 @@ def main():
             os.chdir(current_dir)
     else:
         if choice == '1':
-            console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
+            console.print(Panel("正在安装支持 CUDA 的 PyTorch...", style="cyan"))
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
 
-            print("Installing whisperX...")
+            print("正在安装 whisperX...")
             current_dir = os.getcwd()
             whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
             os.chdir(whisperx_dir)
             subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
             os.chdir(current_dir)
         elif choice == '2':
-            table = Table(title="PyTorch Version Selection")
-            table.add_column("Option", style="cyan", no_wrap=True)
-            table.add_column("Model", style="magenta")
-            table.add_column("Description", style="green")
-            table.add_row("1", "CPU", "Choose this if you're using Mac, non-NVIDIA GPU, or don't need GPU acceleration")
-            table.add_row("2", "GPU", "Significantly speeds up UVR5 voice separation. Strongly recommended if you need dubbing functionality and have an NVIDIA GPU.")
+            table = Table(title="PyTorch 版本选择")
+            table.add_column("选项", style="cyan", no_wrap=True)
+            table.add_column("模型", style="magenta")
+            table.add_column("描述", style="green")
+            table.add_row("1", "CPU", "如果您使用 Mac、非 NVIDIA GPU 或不需要 GPU 加速，请选择此项")
+            table.add_row("2", "GPU", "显著加快 UVR5 语音分离速度。如果您需要配音功能并拥有 NVIDIA GPU，强烈推荐。")
             console.print(table)
 
-            torch_choice = console.input("Please enter the option number (1 for CPU or 2 for GPU): ")
+            torch_choice = console.input("请输入选项编号（1 表示 CPU，2 表示 GPU）：")
             if torch_choice == '1':
-                console.print(Panel("Installing CPU version of PyTorch...", style="cyan"))
+                console.print(Panel("正在安装 CPU 版本的 PyTorch...", style="cyan"))
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
             elif torch_choice == '2':
-                console.print(Panel("Installing GPU version of PyTorch with CUDA 11.8...", style="cyan"))
+                console.print(Panel("正在安装支持 CUDA 11.8 的 GPU 版本 PyTorch...", style="cyan"))
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
             else:
-                console.print("Invalid choice. Defaulting to CPU version.")
+                console.print("无效选择。默认使用 CPU 版本。")
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
         else:
-            raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
+            raise ValueError("无效选择。请输入 1 或 2。请重试。")
 
     install_noto_font()
     install_requirements()
     download_uvr_model()  
     download_and_extract_ffmpeg()
     
-    console.print(Panel.fit("Installation completed", style="bold green"))
-    console.print("To start the application, run:")
+    console.print(Panel.fit("安装完成", style="bold green"))
+    console.print("要启动应用程序，请运行：")
     console.print("[bold cyan]streamlit run st.py[/bold cyan]")
 
 if __name__ == "__main__":

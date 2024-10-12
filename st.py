@@ -3,12 +3,6 @@ import os, sys
 from st_components.imports_and_utils import *
 from core.config_utils import load_key
 
-# SET PROXY
-proxy_set = load_key("http_proxy")
-if proxy_set["use"]:
-    os.environ['HTTP_PROXY'] = proxy_set["address"]
-    os.environ['HTTPS_PROXY'] = proxy_set["address"]
-
 # SET PATH
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
@@ -17,101 +11,101 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 st.set_page_config(page_title="VideoLingo", page_icon="st_components/icon.png")
 
 def text_processing_section():
-    st.header(gls("translate_generate_subtitle"))
+    st.header("Translate and Generate Subtitles")
     with st.container(border=True):
-        st.markdown(f"""
+        st.markdown("""
         <p style='font-size: 20px;'>
-        {gls("text_processing_steps")}
+        This stage includes the following steps:
         <p style='font-size: 20px;'>
-            {gls("step1")}<br>
-            {gls("step2")}<br>
-            {gls("step3")}<br>
-            {gls("step4")}<br>
-            {gls("step5")}<br>
-            {gls("step6")}
+            1. WhisperX word-level transcription<br>
+            2. Sentence segmentation using NLP and LLM<br>
+            3. Summarization and multi-step translation<br>
+            4. Cutting and aligning long subtitles<br>
+            5. Generating timeline and subtitles<br>
+            6. Merging subtitles into the video
         """, unsafe_allow_html=True)
 
         if not os.path.exists("output/output_video_with_subs.mp4"):
-            if st.button(gls("start_processing_subtitles"), key="text_processing_button"):
+            if st.button("Start Processing Subtitles", key="text_processing_button"):
                 process_text()
                 st.rerun()
         else:
-            st.success(gls("subtitle_translation_complete"))
+            st.success("Subtitle translation is complete! It's recommended to download the srt file and process it yourself.")
             if load_key("resolution") != "0x0":
                 st.video("output/output_video_with_subs.mp4")
-            download_subtitle_zip_button(text=gls("download_all_subtitles"))
+            download_subtitle_zip_button(text="Download All Subtitles")
             
-            if st.button(gls("archive_to_history"), key="cleanup_in_text_processing"):
+            if st.button("Archive to 'history'", key="cleanup_in_text_processing"):
                 cleanup()
                 st.rerun()
             return True
 
 def process_text():
-    with st.spinner(gls("using_whisper_transcription")):
+    with st.spinner("Using Whisper for transcription..."):
         step2_whisper.transcribe()
-    with st.spinner(gls("splitting_long_sentences")):  
+    with st.spinner("Splitting long sentences..."):  
         step3_1_spacy_split.split_by_spacy()
         step3_2_splitbymeaning.split_sentences_by_meaning()
-    with st.spinner(gls("summarizing_and_translating")):
+    with st.spinner("Summarizing and translating..."):
         step4_1_summarize.get_summary()
         if load_key("pause_before_translate"):
             input("⚠️ PAUSE_BEFORE_TRANSLATE. Go to `output/log/terminology.json` to edit terminology. Then press ENTER to continue...")
         step4_2_translate_all.translate_all()
-    with st.spinner(gls("processing_aligning_subtitles")): 
+    with st.spinner("Processing and aligning subtitles..."): 
         step5_splitforsub.split_for_sub_main()
         step6_generate_final_timeline.align_timestamp_main()
-    with st.spinner(gls("merging_subtitles_to_video")):
+    with st.spinner("Merging subtitles to video..."):
         step7_merge_sub_to_vid.merge_subtitles_to_video()
     
-    st.success(gls("subtitle_processing_complete"))
+    st.success("Subtitle processing complete! 🎉")
     st.balloons()
 
 def audio_processing_section():
-    st.header(gls("audio_dubbing_title"))
+    st.header("Dubbing (beta)")
     with st.container(border=True):
-        st.markdown(f"""
+        st.markdown("""
         <p style='font-size: 20px;'>
-        {gls("audio_processing_steps")}
+        This stage includes the following steps:
         <p style='font-size: 20px;'>
-            {gls("audio_step1")}<br>
-            {gls("audio_step2")}<br>
-            {gls("audio_step3")}<br>
-            {gls("audio_step4")}
+            1. Generate audio tasks<br>
+            2. UVR5 Process<br>
+            3. Generate audio<br>
+            4. Merge audio into the video
         """, unsafe_allow_html=True)
         if not os.path.exists("output/output_video_with_audio.mp4"):
-            if st.button(gls("start_audio_processing"), key="audio_processing_button"):
+            if st.button("Start Audio Processing", key="audio_processing_button"):
                 process_audio()
                 st.rerun()
         else:
-            st.success(gls("audio_processing_complete"))
+            st.success("Audio processing is complete! You can check the audio files in the `output` folder.")
             if load_key("resolution") != "0x0": 
                 st.video("output/output_video_with_audio.mp4") 
-            if st.button(gls("delete_dubbing_files"), key="delete_dubbing_files"):
+            if st.button("Delete dubbing files", key="delete_dubbing_files"):
                 delete_dubbing_files()
                 st.rerun()
-            if st.button(gls("archive_to_history"), key="cleanup_in_audio_processing"):
+            if st.button("Archive to 'history'", key="cleanup_in_audio_processing"):
                 cleanup()
                 st.rerun()
 
 def process_audio():
-    with st.spinner(gls("audio_step1").split(".")[1]): 
+    with st.spinner("Generate audio tasks"): 
         step8_gen_audio_task.gen_audio_task_main()
-    with st.spinner(gls("audio_step2").split(".")[1]):
+    with st.spinner("UVR5 Process"):
         step9_uvr_audio.uvr_audio_main()
-    with st.spinner(gls("audio_step3").split(".")[1]):
+    with st.spinner("Generate audio"):
         step10_gen_audio.process_sovits_tasks()
-    with st.spinner(gls("audio_step4").split(".")[1]):
+    with st.spinner("Merge audio into the video"):
         step11_merge_audio_to_vid.merge_main()
     
-    st.success(gls("audio_processing_complete_emoji"))
+    st.success("Audio processing complete! 🎇")
     st.balloons()
 
 def main():
     
     st.markdown(button_style, unsafe_allow_html=True)
 
-    st.markdown(f"<h1 style='font-size: 3rem;'>{gls('app_title')}</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size: 20px; color: #808080;'>{gls('app_description')}</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='font-size: 3rem;'>VideoLingo: Connecting Every Frame Across the World</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 20px; color: #808080;'>Hello, thank you for visiting VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also visit our website: videolingo.io</p>", unsafe_allow_html=True)
     # add settings
     with st.sidebar:
         page_setting()
