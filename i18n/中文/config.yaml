@@ -1,0 +1,138 @@
+# * 标有 * 的设置是高级设置，不会出现在 Streamlit 页面上，只能在 config.py 中手动修改
+## ======================== 基本设置 ======================== ##
+# API 设置
+api:
+  key: 'YOUR_API_KEY'
+  base_url: 'https://yunwu.zeabur.app'
+  model: 'claude-3-5-sonnet-20240620'
+
+# Replicate API 设置
+replicate_api_token: 'YOUR_REPLICATE_API_TOKEN'
+
+# 语言设置，写入提示中，可以用自然语言描述
+target_language: '简体中文'
+
+whisper:
+  # Whisper 设置 [whisperx, whisperxapi]
+  method: 'whisperx'
+  # 是否在转录前进行 UVR 处理
+  uvr_before_transcription: true
+  # Whisper 指定识别语言 [en, zh, auto] auto 为自动检测，en 为强制翻译成英语
+  language: 'en'
+
+# 视频分辨率 [0x0, 640x360, 1920x1080]  0x0 将生成一个 0 秒的黑色视频占位符
+resolution: '640x360'
+
+## ======================== 高级设置 ======================== ##
+# *下载 YouTube 视频的默认分辨率 [360, 1080, best]
+ytb_resolution: '360'
+
+subtitle:
+  # *每行字幕的最大字符长度
+  max_length: 75
+  # *翻译后的字幕略大于源字幕，影响字幕分割的参考长度
+  target_multiplier: 1.1
+
+# *LLM 多线程访问数量
+max_workers: 8
+# *第一次粗切的最大字数，低于 18 会切得太细影响翻译，高于 22 太长会导致后续字幕分割难以对齐
+max_split_length: 20
+
+# *是否在提取专业术语后、翻译前暂停，允许用户手动调整术语表 output\log\terminology.json
+pause_before_translate: false
+
+## ======================== 配音设置 ======================== ##
+# TTS 选择 [openai_tts, gpt_sovits, azure_tts, fish_tts]
+tts_method: 'azure_tts'
+
+# OpenAI TTS-1 API 配置
+openai_tts:
+  voice: 'alloy'
+  api_key: 'YOUR_OPENAI_API_KEY'
+  base_url: 'https://yunwu.zeabur.app'
+
+# Azure 配置
+azure_tts:
+  key: 'YOUR_AZURE_API_KEY'
+  region: 'eastasia'
+  voice: 'zh-CN-YunfengNeural'
+
+# SoVITS 配置
+gpt_sovits:
+  character: 'Huanyuv2'
+  refer_mode: 3
+
+# FishTTS 配置
+fish_tts:
+  api_key: 'YOUR_FISH_API_KEY'
+  character: 'AD学姐'
+  character_id_dict:
+    'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
+    '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
+    '赛马娘': '0eb38bc974e1459facca38b359e13511'
+    '蔡徐坤': 'e4642e5edccd4d9ab61a69e82d4f8a14'
+    '雷军': '738d0cc1a3e9430a9de2b544a466a7fc'
+
+# *音频速度范围
+speed_factor:
+  min: 1
+  max: 1.4
+  normal: 1.2  # *被认为是正常语速
+
+# *合并音频配置
+min_subtitle_duration: 3
+min_trim_duration: 2.50
+
+# 音量设置
+original_volume: 0.1  # 配音视频中的原声音量（0.1 = 10% 或 0）
+dub_volume: 1.5  # *配音音频音量（1.5 = 150%，大多数原始配音音频相对较安静）
+
+## ======================== 附加设置 请勿修改 ======================== ##
+# Whisper 模型目录
+model_dir: './_model_cache'
+
+# 支持上传的视频格式
+allowed_video_formats:
+- 'mp4'
+- 'mov'
+- 'avi'
+- 'mkv'
+- 'flv'
+- 'wmv'
+- 'webm'
+
+allowed_audio_formats:
+- 'wav'
+- 'mp3'
+- 'flac'
+
+# 支持返回 JSON 格式的 LLM
+llm_support_json:
+- 'deepseek-coder'
+- 'gpt-4o'
+- 'gpt-4o-mini'
+
+# Spacy 模型
+spacy_model_map:
+  en: 'en_core_web_md'
+  ru: 'ru_core_news_md'
+  fr: 'fr_core_news_md'
+  ja: 'ja_core_news_md'
+  es: 'es_core_news_md'
+  de: 'de_core_news_md'
+  it: 'it_core_news_md'
+  zh: 'zh_core_web_md'
+
+# 使用空格作为分隔符的语言
+language_split_with_space:
+- 'en'
+- 'es'
+- 'fr'
+- 'de'
+- 'it'
+- 'ru'
+
+# 不使用空格作为分隔符的语言
+language_split_without_space:
+- 'zh'
+- 'ja'
