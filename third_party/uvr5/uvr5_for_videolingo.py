@@ -45,7 +45,12 @@ def process_segment(segment_file, save_dir, device, model_dir, segment_index):
 
 def uvr5_for_videolingo(music_file, save_dir, background_file, original_vocal_file):
     MODEL_DIR = load_key("model_dir")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
     
     console.print(Panel(f"[bold green]Starting UVR5 processing[/bold green]\nDevice: {device}"))
     
