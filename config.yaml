@@ -107,6 +107,7 @@ allowed_audio_formats:
 - 'wav'
 - 'mp3'
 - 'flac'
+- 'm4a'
 
 # LLMs that support returning JSON format
 llm_support_json:
