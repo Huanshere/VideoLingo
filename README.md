@@ -28,7 +28,7 @@ VideoLingo is an all-in-one video translation, localization, and dubbing tool ai
 
 - **📚 GPT-generated terminology for coherent translation**
 
-- **🔄 2-step translation process rivaling professional quality**
+- **🔄 A 2-step translation process rivaling professional quality**
 
 - **✅ Netflix-standard single-line subtitles only**
 
@@ -95,7 +95,7 @@ Translation language support depends on the capabilities of the large language m
 
 Experience VideoLingo quickly in Colab in just 5 minutes:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
 
 ### Local Installation
 
