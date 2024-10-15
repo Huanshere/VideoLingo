@@ -121,15 +121,6 @@ def align_timestamp_main():
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
     df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
-    # check if there's empty translation
-    empty_rows = df_translate[df_translate['Translation'].str.len() == 0]
-    if not empty_rows.empty:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the following rows in `output\log\translation_results_for_subtitles.xlsx` and fill them with appropriate content, then run again:[/bold red]"))
-        console.print(empty_rows.index.tolist())
-        if 'sonnet' not in load_key("api.model"):
-            raise ValueError("Empty translation rows detected, this is likely due to weak model, please use claude-3-5-sonnet or manually adjust the empty rows.")
-        else:
-            raise ValueError("Empty translation rows detected. This is weird, please keep the `output` folder and raise an issue.")
     subtitle_output_configs = [ 
         ('src_subtitles.srt', ['Source']),
         ('trans_subtitles.srt', ['Translation']),
@@ -142,9 +133,6 @@ def align_timestamp_main():
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
-    if (df_translate_for_audio['Translation'].str.len() == 0).sum() > 0:
-        console.print(Panel("[bold red]🚫 Detected empty translation rows! Please manually check the empty rows in `output\log\translation_results.xlsx` and fill them with appropriate content, then run again.[/bold red]"))
-        raise ValueError("Empty translation rows detected")
     subtitle_output_configs = [
         ('src_subs_for_audio.srt', ['Source']),
         ('trans_subs_for_audio.srt', ['Translation'])
