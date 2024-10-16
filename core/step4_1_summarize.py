@@ -9,7 +9,7 @@ def combine_chunks():
     df = pd.read_excel('output/log/cleaned_chunks.xlsx')
     df['text'] = df['text'].str.strip('"').str.strip()
     combined_text = ' '.join(df['text'])
-    return combined_text
+    return combined_text[:4000]  #! Return only the first 4000 characters
 
 def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""
