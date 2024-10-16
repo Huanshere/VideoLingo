@@ -12,7 +12,7 @@ def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
 install_package("requests", "rich", "ruamel.yaml")
-from core.pypi_autochoose.pypi_autochoose import main as choose_mirror
+from core.pypi_autochoose import main as choose_mirror
 
 def main():
     from rich.console import Console
