@@ -78,7 +78,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 | 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
 | 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
 | 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [罗翔老师脱口秀](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
-> *中文需单独配置whisperX模型，详见源码安装，并注意在网页侧边栏指定转录语言为zh
+> *中文转录会自动下载使用微调的模型，请注意在网页侧边栏指定转录语言为zh
 
 翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
 

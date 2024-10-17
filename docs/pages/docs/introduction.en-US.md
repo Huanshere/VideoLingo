@@ -76,7 +76,7 @@ Currently supported input languages and examples:
 | Spanish | 🤩 | [Spanish to Chinese](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) | TODO |
 | Japanese | 😐 | [Japanese to Chinese](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) | TODO |
 | Chinese* | 🤩 | [Chinese to English](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) | [Professor Luo Xiang's Talk Show](https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768) |
-> *Chinese requires separate configuration of the whisperX model, see source code installation
+> *Chinese transcription will automatically download and use a fine-tuned model. Please make sure to specify the transcription language as 'zh' in the webpage sidebar.
 
 Translation languages support all languages that the large language model can handle, while dubbing languages depend on the chosen TTS method.
 

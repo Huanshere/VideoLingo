@@ -195,20 +195,16 @@ Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you enc
    ```
    Follow the prompts to choose your desired whisper method. The script will automatically install the appropriate versions of torch and whisper.
 
-5. Only for users who need Chinese transcription:
-   
-   Manually download the Belle-whisper-large-v3-zh-punct model ([Baidu link](https://pan.baidu.com/s/1NyNtkEM0EMsjdCovncsx0w?pwd=938n)), and place it in the `_model_cache` folder in the project root directory. Make sure to set the **transcription language to zh** in the webpage sidebar.
-
-6. 🎉 Start the Streamlit application by entering the command or clicking `OneKeyStart.bat`:
+5. 🎉 Start the Streamlit application by entering the command or clicking `OneKeyStart.bat`:
    ```bash
    streamlit run st.py
    ```
 
-7. Set up your API key in the sidebar of the pop-up webpage, and make sure to select the correct whisper method.
+6. Set up your API key in the sidebar of the pop-up webpage, and make sure to select the correct whisper method and language.
 
    ![en_set](https://github.com/user-attachments/assets/2f32f49b-0b7a-4ff4-930f-4e5f9bac9002)
 
-8. For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
+7. For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
 
 ## 🚨 Common Errors and Solutions
 

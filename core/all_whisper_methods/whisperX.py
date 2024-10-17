@@ -22,21 +22,24 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     rprint(f"[green]🚀 Starting WhisperX...[/green]")
     rprint(f"[cyan]Device:[/cyan] {device}")
     
-    # Adjust batch size based on GPU memory
+    # Adjust batch size and compute type based on GPU memory and capabilities
     if device == "cuda":
         gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)  # convert to GB
+        supports_float16 = torch.cuda.is_bf16_supported()
+        
         if gpu_mem <= 6:
             batch_size = 2
             compute_type = "int8"
         elif gpu_mem <= 8:
             batch_size = 4
-            compute_type = "float16"
+            compute_type = "float16" if supports_float16 else "int8"
         else:
             batch_size = 16
-            compute_type = "float16"
-        rprint(f"[cyan]GPU memory:[/cyan] {gpu_mem:.2f} GB, [cyan]Batch size:[/cyan] {batch_size}")
+            compute_type = "float16" if supports_float16 else "int8"
+        
+        rprint(f"[cyan]GPU memory:[/cyan] {gpu_mem:.2f} GB, [cyan]Batch size:[/cyan] {batch_size}, [cyan]Compute type:[/cyan] {compute_type}")
     else:
-        batch_size = 4
+        batch_size = 2
         compute_type = "int8"
     
     rprint(f"[green]Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
@@ -44,7 +47,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     try:
         whisperx_model_dir = os.path.join(MODEL_DIR, "whisperx")
         if WHISPER_LANGUAGE == 'zh':
-            model_name = "BELLE-2/Belle-whisper-large-v3-zh-punct"
+            model_name = "Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper"
         else:
             model_name = "large-v3"
         rprint(f"[green]Loading WHISPER model:[/green] {model_name} ...")
@@ -77,7 +80,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         # Save language
         save_language(result['language'])
         if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
-            raise ValueError("WhisperX-large-v3 在中文转录方面表现不佳。请改用 'BELLE-2/Belle-whisper-large-v3-zh-punct' 模型。参考 'https://github.com/Huanshere/Videolingo/' 的说明")
+            raise ValueError("WhisperX-large-v3 在中文转录方面的标点表现不佳。请改用 `Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper` 模型。参考 `https://github.com/Huanshere/Videolingo/` 的说明")
 
         # Align whisper output
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
