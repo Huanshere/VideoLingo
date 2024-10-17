@@ -61,7 +61,6 @@ docker run -d -p 8501:8501 --gpus all -v /path/to/your/model:/app/_model_cache r
 - Python版本: 3.10
 - 预装软件: git, curl, sudo, ffmpeg, fonts-noto等
 - PyTorch版本: 2.0.0 (CUDA 11.8)
-- 默认语言设置: 英语 (en_US)
 - 暴露端口: 8501 (Streamlit应用)
 
 如需更多详细信息,请参考Dockerfile。

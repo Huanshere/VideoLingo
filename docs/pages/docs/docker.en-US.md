@@ -61,7 +61,6 @@ Please replace `/path/to/your/model` with the actual local path where you downlo
 - Python version: 3.10
 - Pre-installed software: git, curl, sudo, ffmpeg, fonts-noto, etc.
 - PyTorch version: 2.0.0 (CUDA 11.8)
-- Default language setting: English (en_US)
 - Exposed port: 8501 (Streamlit application)
 
 For more detailed information, please refer to the Dockerfile.
