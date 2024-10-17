@@ -2,7 +2,7 @@
 
 <img src="/docs/logo.png" alt="VideoLingo Logo" height="140">
 
-# VideoLingo: 世界をつなぐ一コマ一コマ
+# 世界をつなぐ一コマ一コマ
 <p align="center">
   <a href="https://www.python.org" target="_blank"><img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python"></a>
   <a href="https://github.com/Huanshere/VideoLingo/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/Huanshere/VideoLingo.svg" alt="License"></a>

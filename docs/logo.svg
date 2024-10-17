@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 270">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #a8a399;
+        opacity: .9;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: #f9f7f4;
+      }
+
+      .cls-3 {
+        fill: #201e1c;
+      }
+    </style>
+  </defs>
+  <circle class="cls-2" cx="134.99" cy="135.01" r="107.99"/>
+  <g>
+    <path class="cls-3" d="m101.46,67.58l99.88,57.67c7.52,4.34,7.52,15.19,0,19.53l-99.88,57.67c-7.52,4.34-16.91-1.09-16.91-9.77v-115.33c0-8.68,9.4-14.11,16.91-9.77Z"/>
+    <path class="cls-1" d="m162.3,89.12c-19.39-11.82-41.92-8.95-50.32,6.4-3.53,6.46-3.99,14.11-1.9,21.67v43.68c0,3.09,3.34,5.02,6.01,3.47l25.8-14.9c16.59,5.75,33.33,1.63,40.31-11.13,8.4-15.35-.52-37.38-19.91-49.2Z"/>
+    <g>
+      <circle class="cls-3" cx="128.72" cy="105.69" r="4.67" transform="translate(-35.6 78.52) rotate(-30)"/>
+      <circle class="cls-3" cx="148.29" cy="116.99" r="4.67" transform="translate(-38.63 89.82) rotate(-30)"/>
+      <circle class="cls-3" cx="167.86" cy="128.29" r="4.67" transform="translate(-41.66 101.12) rotate(-30)"/>
+    </g>
+  </g>
+</svg>

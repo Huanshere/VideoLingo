@@ -101,11 +101,11 @@ def process_audio():
     st.balloons()
 
 def main():
-    
+    logo_col, _ = st.columns([2,1])
+    with logo_col:
+        st.image("docs/logo.png", use_column_width=True)
     st.markdown(button_style, unsafe_allow_html=True)
-
-    st.markdown("<h1 style='font-size: 3rem;'>VideoLingo：连接世界每一帧</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 20px; color: #808080;'>您好，感谢访问 VideoLingo。本项目目前正在建设中。如果遇到任何问题，请随时在 Github 上提问！您也可以访问我们的网站：videolingo.io</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 20px; color: #808080;'>您好，感谢访问 VideoLingo。本项目目前正在建设中。如果遇到任何问题，请随时在 Github 上提问！您也可以访问我们的网站：<a href='https://videolingo.io' target='_blank'>videolingo.io</a></p>", unsafe_allow_html=True)
     # 添加设置
     with st.sidebar:
         page_setting()

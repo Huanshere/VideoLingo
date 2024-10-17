@@ -6,7 +6,6 @@ from core.config_utils import update_key, load_key
 import requests
 
 def page_setting():
-
     with st.expander("LLM Configuration", expanded=True):
         api_key = st.text_input("API_KEY", value=load_key("api.key"))
         if api_key != load_key("api.key"):

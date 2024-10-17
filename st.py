@@ -8,7 +8,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ['PATH'] += os.pathsep + current_dir
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-st.set_page_config(page_title="VideoLingo", page_icon="st_components/icon.png")
+st.set_page_config(page_title="VideoLingo", page_icon="docs/logo.svg")
 
 def text_processing_section():
     st.header("Translate and Generate Subtitles")
@@ -101,11 +101,11 @@ def process_audio():
     st.balloons()
 
 def main():
-    
+    logo_col, _ = st.columns([2,1])
+    with logo_col:
+        st.image("docs/logo.png", use_column_width=True)
     st.markdown(button_style, unsafe_allow_html=True)
-
-    st.markdown("<h1 style='font-size: 3rem;'>VideoLingo: Connecting Every Frame Across the World</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 20px; color: #808080;'>Hello, thank you for visiting VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also visit our website: videolingo.io</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 20px; color: #808080;'>Hello, welcome to VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also visit our website: <a href='https://videolingo.io' target='_blank'>videolingo.io</a></p>", unsafe_allow_html=True)
     # add settings
     with st.sidebar:
         page_setting()
