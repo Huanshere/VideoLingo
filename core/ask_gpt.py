@@ -87,7 +87,7 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
                     print(f"❎ json_repair parsing failed. Retrying: '''{response_data}'''")
                     save_log(api_set["model"], prompt, response_data, log_title="error", message=f"json_repair parsing failed.")
                     if attempt == max_retries - 1:
-                        raise Exception(f"JSON parsing still failed after {max_retries} attempts: {e}")
+                        raise Exception(f"JSON parsing still failed after {max_retries} attempts: {e}\n Please check your network connection or API key or `output/gpt_log/error.json` to debug.")
             else:
                 response_data = response.choices[0].message.content
                 break  # Non-JSON format, break the loop directly
