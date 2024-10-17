@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="/docs/logo.png" alt="VideoLingo Logo" height="140">
+<img src="/docs/logo.svg" alt="VideoLingo Logo" height="140">
 
 # VideoLingo: Connecting the World, Frame by Frame
 <p align="center">

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.89 595.28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #a8a399;
+        opacity: .9;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke-width: 0px;
+      }
+
+      .cls-4 {
+        stroke: #231815;
+        stroke-linecap: square;
+        stroke-miterlimit: 10;
+        stroke-width: 5px;
+      }
+
+      .cls-4, .cls-3, .cls-5 {
+        fill: #201e1c;
+      }
+
+      .cls-6 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-2 {
+        fill: #f9f7f4;
+      }
+
+      .cls-7 {
+        letter-spacing: 0em;
+      }
+
+      .cls-5 {
+        font-family: ArialRoundedMTBold, 'Arial Rounded MT Bold';
+        font-size: 98.29px;
+      }
+
+      .cls-8 {
+        letter-spacing: 0em;
+      }
+    </style>
+  </defs>
+  <circle class="cls-2" cx="123.97" cy="268.56" r="107.99"/>
+  <g>
+    <text class="cls-5" transform="translate(246.46 304.75) scale(1.05 1)"><tspan class="cls-7" x="0" y="0">V</tspan><tspan class="cls-8" x="66.82" y="0">ideoLin</tspan><tspan class="cls-6" x="421.47" y="0">g</tspan><tspan class="cls-8" x="480.94" y="0">o</tspan></text>
+    <path class="cls-3" d="m497.54,269.95l15.26,8.81c.57.33.57,1.15,0,1.47l-15.26,8.81c-.57.33-1.28-.08-1.28-.74v-17.62c0-.65.71-1.06,1.28-.74Z"/>
+    <g>
+      <line class="cls-4" x1="777.39" y1="273.69" x2="777.39" y2="285.3"/>
+      <line class="cls-4" x1="788.19" y1="273.69" x2="788.19" y2="285.3"/>
+    </g>
+  </g>
+  <g>
+    <path class="cls-3" d="m90.44,201.13l99.88,57.67c7.52,4.34,7.52,15.19,0,19.53l-99.88,57.67c-7.52,4.34-16.91-1.09-16.91-9.77v-115.33c0-8.68,9.4-14.11,16.91-9.77Z"/>
+    <path class="cls-1" d="m151.28,222.67c-19.39-11.82-41.92-8.95-50.32,6.4-3.53,6.46-3.99,14.11-1.9,21.67v43.68c0,3.09,3.34,5.02,6.01,3.47l25.8-14.9c16.59,5.75,33.33,1.63,40.31-11.13,8.4-15.35-.52-37.38-19.91-49.2Z"/>
+    <g>
+      <circle class="cls-3" cx="117.7" cy="239.24" r="4.67" transform="translate(-103.85 90.9) rotate(-30)"/>
+      <circle class="cls-3" cx="137.27" cy="250.54" r="4.67" transform="translate(-106.88 102.2) rotate(-30)"/>
+      <circle class="cls-3" cx="156.84" cy="261.84" r="4.67" transform="translate(-109.91 113.5) rotate(-30)"/>
+    </g>
+  </g>
+</svg>
