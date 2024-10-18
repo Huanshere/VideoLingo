@@ -12,7 +12,7 @@ def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
 install_package("requests", "rich", "ruamel.yaml")
-from core.pypi_autochoose.pypi_autochoose import main as choose_mirror
+from core.pypi_autochoose import main as choose_mirror
 
 def main():
     from rich.console import Console
@@ -34,7 +34,7 @@ def main():
             with open("requirements.txt", "w", encoding="gbk") as file:
                 file.write(content)
         except Exception as e:
-            print(f"转换 requirements.txt 时出错: {str(e)}")
+            print(f"转换 requirements.txt 时出错：{str(e)}")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def test_mirror_speed(name, base_url):
@@ -75,18 +75,18 @@ def main():
         for model_name, model_path in models.items():
             model_file_path = f"_model_cache/uvr5_weights/{model_name}"
             if not os.path.exists(model_file_path):
-                print(f"正在下载 UVR 模型: {model_name}...")
+                print(f"正在下载 UVR 模型：{model_name}...")
                 
                 # 测试每个镜像的速度
                 speeds = []
                 for mirror_name, mirror_url in mirrors.items():
                     name, speed = test_mirror_speed(mirror_name, mirror_url)
                     speeds.append((name, speed))
-                    print(f"{mirror_name}镜像速度: {speed:.2f} ms")
+                    print(f"{mirror_name}镜像速度：{speed:.2f} 毫秒")
 
                 # 选择最快的镜像
                 fastest_mirror = min(speeds, key=lambda x: x[1])[0]
-                print(f"选择镜像: {fastest_mirror}")
+                print(f"选择镜像：{fastest_mirror}")
 
                 # 从最快的镜像下载
                 url = mirrors[fastest_mirror] + model_path
@@ -102,11 +102,11 @@ def main():
                             downloaded_size += size
                             if total_size:
                                 percent = (downloaded_size / total_size) * 100
-                                print(f"下载进度: {percent:.2f}%", end="\r")
+                                print(f"下载进度：{percent:.2f}%", end="\r")
                     
-                    print(f"\n{model_name} 模型下载完成")
+                    print(f"\n{model_name} 模型已下载")
                 except requests.RequestException as e:
-                    print(f"下载失败: {model_name}: {str(e)}")
+                    print(f"下载失败：{model_name}：{str(e)}")
             else:
                 print(f"{model_name} 模型已存在")
 
@@ -135,7 +135,7 @@ def main():
             filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
             with open(filename, 'wb') as f:
                 f.write(response.content)
-            print(f"FFmpeg 下载完成: {filename}")
+            print(f"FFmpeg 已下载：{filename}")
         
             print("正在解压 FFmpeg")
             if system == "Linux":
@@ -219,7 +219,7 @@ def main():
             table.add_column("模型", style="magenta")
             table.add_column("描述", style="green")
             table.add_row("1", "CPU", "如果您使用 Mac、非 NVIDIA GPU 或不需要 GPU 加速，请选择此项")
-            table.add_row("2", "GPU", "显著加快 UVR5 语音分离速度。如果您需要配音功能并拥有 NVIDIA GPU，强烈推荐。")
+            table.add_row("2", "GPU", "显著加快 UVR5 语音分离速度。如果您需要配音功能并且有 NVIDIA GPU，强烈推荐。")
             console.print(table)
 
             torch_choice = console.input("请输入选项编号（1 表示 CPU，2 表示 GPU）：")
