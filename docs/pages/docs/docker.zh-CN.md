@@ -45,7 +45,10 @@ VideoLingo Docker 镜像中已经包含了以下模型:
   - HP2_all_vocals.pth
   - VR-DeEchoAggressive.pth
 
-whisper模型不包含在镜像中,会在容器首次运行时自动下载。如果您希望跳过自动下载过程,可以从[这里](https://drive.google.com/file/d/10gPu6qqv92WbmIMo1iJCqQxhbd1ctyVw/view?usp=drive_link)下载模型权重。
+whisper模型不包含在镜像中,会在容器首次运行时自动下载。如果您希望跳过自动下载过程,可以从以下链接下载模型权重:
+
+- [Google Drive链接](https://drive.google.com/file/d/10gPu6qqv92WbmIMo1iJCqQxhbd1ctyVw/view?usp=drive_link)
+- [百度网盘链接](https://pan.baidu.com/s/1hZjqSGVn3z_WSg41-6hCqA?pwd=2kgs)
 
 下载后,使用以下命令运行容器,将模型文件挂载到容器中:
 
