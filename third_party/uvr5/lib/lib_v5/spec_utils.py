@@ -351,6 +351,14 @@ def spectrogram_to_wave_mt(spec, hop_length, mid_side, reverse, mid_side_b2):
 
 
 def cmb_spectrogram_to_wave(spec_m, mp, extra_bins_h=None, extra_bins=None):
+    # set spec_m nan to 0
+    spec_m = np.where(np.isnan(spec_m), 0, spec_m)
+
+    if extra_bins_h is not None:
+        extra_bins_h = np.where(np.isnan(extra_bins_h), 0, extra_bins_h)
+    if extra_bins is not None:
+        extra_bins = np.where(np.isnan(extra_bins), 0, extra_bins)
+
     wave_band = {}
     bands_n = len(mp.param["band"])
     offset = 0
