@@ -19,16 +19,7 @@ def valid_translate_result(result: dict, required_keys: list, required_sub_keys:
     for key in result:
         if not all(sub_key in result[key] for sub_key in required_sub_keys):
             return {"status": "error", "message": f"Missing required sub-key(s) in item {key}: {', '.join(set(required_sub_keys) - set(result[key].keys()))}"}
-    
-    # Check if all sub-keys values are not empty
-    def remove_punctuation(text):
-        return re.sub(r'[^\w\s]', '', text).strip()
-    for key in result:
-        for sub_key in required_sub_keys:
-            translate_result = remove_punctuation(result[key][sub_key]).strip()
-            if not translate_result:
-                return {"status": "error", "message": f"Empty value for sub-key '{sub_key}' in item {key}"}
-    
+
     return {"status": "success", "message": "Translation completed"}
 
 def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_to_note_prompt, summary_prompt, index = 0):
