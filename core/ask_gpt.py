@@ -11,7 +11,7 @@ from core.config_utils import load_key
 LOG_FOLDER = 'output/gpt_log'
 LOCK = Lock()
 
-def save_log(model, prompt, response, log_title = 'default', message = None):
+def save_log(model, prompt, response, log_title='default', message=None):
     os.makedirs(LOG_FOLDER, exist_ok=True)
     log_data = {
         "model": model,
@@ -44,28 +44,31 @@ def check_ask_gpt_history(prompt, model, log_title):
     return False
 
 def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
-    api_set = load_key("api")
-    llm_support_json = load_key("llm_support_json")
+    api_settings: dict[str, str] = load_key("api")
     with LOCK:
-        history_response = check_ask_gpt_history(prompt, api_set["model"], log_title)
+        history_response = check_ask_gpt_history(prompt, api_settings["model"], log_title)
         if history_response:
             return history_response
     
-    if not api_set["key"]:
+    if not api_settings["key"]:
         raise ValueError(f"⚠️API_KEY is missing")
     
-    messages = [{"role": "user", "content": prompt}]
+    base_url: str = api_settings["base_url"]
+    if not base_url.endswith("/v1"):
+        base_url = base_url.removesuffix("/") + "/v1"
     
-    base_url = api_set["base_url"].strip('/') + '/v1' if 'v1' not in api_set["base_url"] else api_set["base_url"]
-    client = OpenAI(api_key=api_set["key"], base_url=base_url)
-    response_format = {"type": "json_object"} if response_json and api_set["model"] in llm_support_json else None
+    client = OpenAI(api_key=api_settings["key"], base_url=base_url)
+    
+    support_return_json_llms: list[str] = load_key("llm_support_json")
+    llm_support_return_json: bool = response_json is True and api_settings["model"] in support_return_json_llms
+    response_format: dict[str, str] | None = {"type": "json_object"} if llm_support_return_json is True else None
 
     max_retries = 3
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
-                model=api_set["model"],
-                messages=messages,
+                model=api_settings["model"],
+                messages=[{"role": "user", "content": prompt}],
                 response_format=response_format,
                 timeout=150 #! set timeout
             )
@@ -78,14 +81,14 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
                     if valid_def:
                         valid_response = valid_def(response_data)
                         if valid_response['status'] != 'success':
-                            save_log(api_set["model"], prompt, response_data, log_title="error", message=valid_response['message'])
+                            save_log(api_settings["model"], prompt, response_data, log_title="error", message=valid_response['message'])
                             raise ValueError(f"❎ API response error: {valid_response['message']}")
                         
                     break  # Successfully accessed and parsed, break the loop
                 except Exception as e:
                     response_data = response.choices[0].message.content
                     print(f"❎ json_repair parsing failed. Retrying: '''{response_data}'''")
-                    save_log(api_set["model"], prompt, response_data, log_title="error", message=f"json_repair parsing failed.")
+                    save_log(api_settings["model"], prompt, response_data, log_title="error", message=f"json_repair parsing failed.")
                     if attempt == max_retries - 1:
                         raise Exception(f"JSON parsing still failed after {max_retries} attempts: {e}\n Please check your network connection or API key or `output/gpt_log/error.json` to debug.")
             else:
@@ -103,7 +106,7 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
                 raise Exception(f"Still failed after {max_retries} attempts: {e}")
     with LOCK:
         if log_title != 'None':
-            save_log(api_set["model"], prompt, response_data, log_title=log_title)
+            save_log(api_settings["model"], prompt, response_data, log_title=log_title)
 
     return response_data
 
