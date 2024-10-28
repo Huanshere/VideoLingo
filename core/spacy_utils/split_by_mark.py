@@ -1,7 +1,8 @@
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
-import os,sys
+import os, sys
 import pandas as pd
+import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from core.spacy_utils.load_nlp_model import init_nlp
 from core.step2_whisper import get_whisper_language
@@ -10,28 +11,48 @@ from rich import print
 
 def split_by_mark(nlp):
     whisper_language = load_key("whisper.language")
-    language = get_whisper_language() if whisper_language == 'auto' else whisper_language # consider force english case
+    language = get_whisper_language() if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
     print(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
+    
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"'))
     
-    # join with joiner
     input_text = joiner.join(chunks.text.to_list())
 
+    # Use spaCy for initial sentence splitting
     doc = nlp(input_text)
-    assert doc.has_annotation("SENT_START")
+    sentences = [sent.text.strip() for sent in doc.sents]
 
-    sentences_by_mark = [sent.text for sent in doc.sents]
+    # Further process sentences
+    processed_sentences = []
+    current_sentence = ""
+    for sentence in sentences:
+        if re.match(r'^[,，]$', sentence):
+            # If the sentence is just a comma, append it to the previous sentence
+            if current_sentence:
+                current_sentence += sentence
+            else:
+                current_sentence = sentence
+        elif re.search(r'[。！？…\.!?\…]$', sentence):
+            # If the sentence ends with sentence-ending punctuation
+            if current_sentence:
+                processed_sentences.append(current_sentence + sentence)
+                current_sentence = ""
+            else:
+                processed_sentences.append(sentence)
+        else:
+            # For other cases, accumulate the sentence
+            current_sentence += sentence
+
+    # Handle any remaining text
+    if current_sentence:
+        processed_sentences.append(current_sentence)
 
     with open("output/log/sentence_by_mark.txt", "w", encoding="utf-8") as output_file:
-        for i, sentence in enumerate(sentences_by_mark):
-            if i > 0 and sentence.strip() in [',', '.', '，', '。', '？', '！']:
-                # ! If the current line contains only punctuation, merge it with the previous line, this happens in Chinese, Japanese, etc.
-                output_file.seek(output_file.tell() - 1, os.SEEK_SET)  # Move to the end of the previous line
-                output_file.write(sentence)  # Add the punctuation
-            else:
-                output_file.write(sentence + "\n")
+        for sentence in processed_sentences:
+            if sentence.strip():  # Only write non-empty sentences
+                output_file.write(sentence.strip() + "\n")
     
     print("[green]💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`[/green]")
 
