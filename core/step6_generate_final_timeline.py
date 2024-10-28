@@ -34,20 +34,20 @@ def get_sentence_timestamps(df_words, df_sentences):
     whisper_language = load_key("whisper.language")
     language = get_whisper_language() if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
+    last_end_time = 0  # Used to track the end time of the previous subtitle
 
     for idx,sentence in df_sentences['Source'].items():
         sentence = remove_punctuation(sentence.lower())
         best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0}
         decreasing_count = 0
         current_phrase = ""
-        start_index = word_index  # record the index of the word where the current sentence starts
+        start_index = word_index
 
         while word_index < len(df_words):
             word = remove_punctuation(df_words['text'][word_index].lower())
-
             current_phrase += word + joiner
-
             similarity = SequenceMatcher(None, sentence, current_phrase.strip()).ratio()
+            
             if similarity > best_match['score']:
                 best_match = {
                     'score': similarity,
@@ -59,15 +59,18 @@ def get_sentence_timestamps(df_words, df_sentences):
                 decreasing_count = 0
             else:
                 decreasing_count += 1
-            # if 5 consecutive words don't match, break the loop
-            if decreasing_count >= 5:
+            
+            if decreasing_count >= 10:
                 break
             word_index += 1
         
         #! Originally 0.9, but for very short sentences, a single space can cause a difference of 0.8, so we lower the threshold
-        if best_match['score'] >= 0.75:
-            time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
-            word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
+        if best_match['score'] >= 0.85:
+            start_time = max(float(best_match['start']), last_end_time + 0.001)
+            end_time = float(best_match['end'])
+            time_stamp_list.append((start_time, end_time))
+            last_end_time = end_time
+            word_index = start_index + best_match['word_count']
         else:
             print(f"⚠️ Warning: No match found for sentence: {sentence}\nOriginal: {repr(sentence)}\nMatched: {best_match['phrase']}\nSimilarity: {best_match['score']:.2f}\n{'─' * 50}")
             raise ValueError("❎ No match found for sentence. Please delete the 'output' directory and rerun the process, ensuring UVR is activated before transcription.")
