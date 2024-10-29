@@ -26,35 +26,23 @@ def split_by_mark(nlp):
 
     # Further process sentences
     processed_sentences = []
-    current_sentence = ""
     for sentence in sentences:
-        if re.match(r'^[,，]$', sentence):
-            # If the sentence is just a comma, append it to the previous sentence
-            if current_sentence:
-                current_sentence += sentence
-            else:
-                current_sentence = sentence
-        elif re.search(r'[。！？…\.!?\…]$', sentence):
-            # If the sentence ends with sentence-ending punctuation
-            if current_sentence:
-                processed_sentences.append(current_sentence + sentence)
-                current_sentence = ""
-            else:
-                processed_sentences.append(sentence)
-        else:
-            # For other cases, accumulate the sentence
-            current_sentence += sentence
-
-    # Handle any remaining text
-    if current_sentence:
-        processed_sentences.append(current_sentence)
+        # Remove leading commas
+        sentence = re.sub(r'^[,，]+', '', sentence).strip()
+        
+        # If the sentence doesn't end with sentence-ending punctuation, add a period
+        if not re.search(r'[。！？…\.!?\…]$', sentence):
+            sentence += '.'
+        
+        if sentence:  # Only add non-empty sentences
+            processed_sentences.append(sentence)
 
     with open("output/log/sentence_by_mark.txt", "w", encoding="utf-8") as output_file:
         for sentence in processed_sentences:
-            if sentence.strip():  # Only write non-empty sentences
-                output_file.write(sentence.strip() + "\n")
+            output_file.write(sentence + "\n")
     
     print("[green]💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`[/green]")
+
 
 if __name__ == "__main__":
     nlp = init_nlp()
