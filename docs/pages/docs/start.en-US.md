@@ -164,8 +164,9 @@ Basic Python knowledge required. For any issues, ask the AI assistant at [videol
 
    ![en_set](https://github.com/user-attachments/assets/2f32f49b-0b7a-4ff4-930f-4e5f9bac9002)
 
+7. Whisper transcription will automatically download models, but for users who cannot access Huggingface through command line, you can manually download whisper models and place them in the root directory: [Baidu Drive](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
 
-7. More settings can be manually modified in `config.yaml`, watch command line output during operation
+8. More settings can be manually modified in `config.yaml`, watch command line output during operation
 
 ## 🚨 Common Errors
 

@@ -98,7 +98,7 @@ Experience VideoLingo quickly in Colab in just 5 minutes:
 
 ### Local Installation
 
-VideoLingo offers two local installation methods: **One-click Package** and **Source Code Installation**. Please refer to the installation documentation: [English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+VideoLingo supports all hardware platforms and operating systems, but performs best with GPU acceleration. For detailed installation instructions , please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 
 ### Docker Installation

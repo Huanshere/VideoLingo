@@ -100,7 +100,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 本地安装
 
-VideoLingo 提供 **一键包** 和 **源码安装** 两种本地安装方式，请参考安装文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+VideoLingo 支持所有硬件平台和操作系统，但在 GPU 加速下性能最佳。详细安装说明请参考文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 
 ### 使用Docker
