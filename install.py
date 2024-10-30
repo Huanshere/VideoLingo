@@ -4,7 +4,6 @@ import subprocess
 import sys
 import zipfile
 import shutil
-import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -36,27 +35,6 @@ def main():
         except Exception as e:
             print(f"Error converting requirements.txt: {str(e)}")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-
-    def test_mirror_speed(name, base_url):
-        import requests
-        test_url = f"{base_url}lj1995/VoiceConversionWebUI/resolve/main/README.md"
-        max_retries = 3
-        timeout = 10
-
-        for attempt in range(max_retries):
-            try:
-                start_time = time.time()
-                response = requests.head(test_url, timeout=timeout)
-                end_time = time.time()
-                if response.status_code == 200:
-                    speed = (end_time - start_time) * 1000 
-                    return name, speed
-            except requests.RequestException:
-                if attempt == max_retries - 1:
-                    return name, float('inf')
-                time.sleep(1)  # Wait 1 second before retrying
-
-        return name, float('inf')
 
     def download_and_extract_ffmpeg():
         import requests
