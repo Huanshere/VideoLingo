@@ -2,12 +2,12 @@
 ## ======================== Basic Settings ======================== ##
 # API settings
 api:
-  key: 'YOUR_API_KEY'
+  key: 'YOUR_KEY'
   base_url: 'https://yunwu.zeabur.app'
   model: 'claude-3-5-sonnet-20240620'
 
-# Replicate API settings
-replicate_api_token: 'YOUR_REPLICATE_API_TOKEN'
+# Replicate API settings, only necessary for whisperxapi
+replicate_api_token: 'YOUR_KEY'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: 'Chinese'
@@ -42,17 +42,17 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [openai_tts, gpt_sovits, azure_tts, fish_tts]
-tts_method: 'openai_tts'
+tts_method: 'azure_tts'
 
 # OpenAI TTS-1 API configuration
 openai_tts:
   voice: 'alloy'
-  api_key: 'YOUR_OPENAI_API_KEY'
+  api_key: 'YOUR_KEY'
   base_url: 'https://yunwu.zeabur.app'
 
 # Azure configuration
 azure_tts:
-  key: 'YOUR_AZURE_API_KEY'
+  key: 'YOUR_KEY'
   region: 'eastasia'
   voice: 'zh-CN-YunfengNeural'
 
