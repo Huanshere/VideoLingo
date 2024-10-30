@@ -12,7 +12,7 @@ TRANS_FONT_SIZE = 18
 FONT_NAME = 'Arial'
 TRANS_FONT_NAME = 'Arial'
 
-# Linux出现中文乱码问题，需要安装google noto字体：apt-get install fonts-noto
+# Linux need to install google noto fonts: apt-get install fonts-noto
 if platform.system() == 'Linux':
     FONT_NAME = 'NotoSansCJK-Regular'
     TRANS_FONT_NAME = 'NotoSansCJK-Regular'
@@ -25,6 +25,13 @@ TRANS_FONT_COLOR = '&H00FFFF'
 TRANS_OUTLINE_COLOR = '&H000000'
 TRANS_OUTLINE_WIDTH = 1 
 TRANS_BACK_COLOR = '&H33000000'
+
+def check_gpu_available():
+    try:
+        result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True)
+        return 'h264_nvenc' in result.stdout
+    except:
+        return False
 
 def merge_subtitles_to_video():
     RESOLUTION = load_key("resolution")
@@ -54,6 +61,11 @@ def merge_subtitles_to_video():
         print("Subtitle files not found in the 'output' directory.")
         exit(1)
 
+    # check if gpu is available
+    gpu_available = check_gpu_available()
+    if gpu_available:
+        rprint("[bold green]NVIDIA GPU encoder detected, will use GPU acceleration.[/bold green]")
+    
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (
@@ -65,10 +77,14 @@ def merge_subtitles_to_video():
             f"subtitles={trans_srt}:force_style='FontSize={TRANS_FONT_SIZE},FontName={TRANS_FONT_NAME},"
             f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
             f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=25,BorderStyle=4'"
-        ).encode('utf-8'),  # 使用 UTF-8 编码
-        '-y',
-        output_video
+        ).encode('utf-8'),
     ]
+
+    # add nvenc if gpu is available
+    if gpu_available:
+        ffmpeg_cmd.extend(['-c:v', 'h264_nvenc'])
+    
+    ffmpeg_cmd.extend(['-y', output_video])
 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
