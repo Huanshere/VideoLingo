@@ -9,11 +9,7 @@ from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
 import sys
 
 MIRRORS = {
-    "Alibaba Cloud": "https://mirrors.aliyun.com/pypi/simple",
     "Tsinghua University": "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple",
-    "Huawei Cloud": "https://repo.huaweicloud.com/repository/pypi/simple",
-    "Tencent Cloud": "https://mirrors.cloud.tencent.com/pypi/simple",
-    "163 Cloud": "https://mirrors.163.com/pypi/simple",
     "PyPI Official": "https://pypi.org/simple"
 }
 
