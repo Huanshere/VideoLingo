@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 报告 LLM 使用问题 / Report LLM Usage Issue
+    url: https://github.com/Huanshere/VideoLingo/issues/new?template=llm-problem-report.yml
+    about: 通过此模板报告在 LLM 使用中遇到的问题 / Report issues encountered while using LLM through this template.
