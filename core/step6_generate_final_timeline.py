@@ -7,6 +7,7 @@ from core.config_utils import load_key, get_joiner
 from core.step2_whisper import get_whisper_language
 from rich.panel import Panel
 from rich.console import Console
+import autocorrect_py as autocorrect
 
 console = Console()
 
@@ -116,11 +117,18 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
     
     return df_trans_time
 
+# ✨ Beautify the translation
+def clean_translation(x):
+    if pd.isna(x):
+        return ''
+    cleaned = str(x).strip('。').strip('，')
+    return autocorrect.format(cleaned)
+
 def align_timestamp_main():
     df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
-    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
+    df_translate['Translation'] = df_translate['Translation'].apply(clean_translation)
     subtitle_output_configs = [ 
         ('src_subtitles.srt', ['Source']),
         ('trans_subtitles.srt', ['Translation']),
@@ -132,7 +140,7 @@ def align_timestamp_main():
 
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
-    df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
+    df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(clean_translation)
     subtitle_output_configs = [
         ('src_subs_for_audio.srt', ['Source']),
         ('trans_subs_for_audio.srt', ['Translation'])
