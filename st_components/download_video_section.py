@@ -47,8 +47,10 @@ def download_video_section():
                 if os.path.exists("output"):
                     shutil.rmtree("output")
                 os.makedirs("output", exist_ok=True)
-                # Normalize filename
-                normalized_name = re.sub(r'[^\w\-_\.]', '', uploaded_file.name.replace(' ', '_'))
+                # Normalize filename and convert extension to lowercase
+                original_name = uploaded_file.name.replace(' ', '_')
+                name, ext = os.path.splitext(original_name)
+                normalized_name = re.sub(r'[^\w\-_\.]', '', name) + ext.lower()
                 # Save uploaded video with normalized name
                 with open(os.path.join("output", normalized_name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
@@ -61,7 +63,7 @@ def download_video_section():
                 return False
 
 def convert_audio_to_video(audio_file: str) -> str:
-    output_video = 'output/audio_with_black_screen.mp4'
+    output_video = 'output/black_screen.mp4'
     if not os.path.exists(output_video):
         print(f"🎵➡️🎬 Converting audio to video with FFmpeg ......")
         ffmpeg_cmd = ['ffmpeg', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=640x360', '-i', audio_file, '-shortest', '-c:v', 'libx264', '-c:a', 'aac', '-pix_fmt', 'yuv420p', output_video]

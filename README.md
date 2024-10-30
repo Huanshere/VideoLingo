@@ -11,8 +11,7 @@
   <a href="https://github.com/Huanshere/VideoLingo/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/Huanshere/VideoLingo.svg" alt="GitHub stars"></a>
 </p>
 
-[**English**](/README.md)｜[**中文**](/i18n/README.zh.md) | [**日本語**](/i18n/README.ja.md)
-
+[**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
 
 </div>
 
@@ -29,18 +28,17 @@ VideoLingo is an all-in-one video translation, localization, and dubbing tool ai
 
 - **📚 GPT-generated terminology for coherent translation**
 
-- **🔄 2-step translation process rivaling professional quality**
+- **🔄 3-step direct translation, reflection, and adaptation for professional-level quality**
 
 - **✅ Netflix-standard single-line subtitles only**
 
-- 🗣️ Dubbing alignment (e.g., GPT-SoVITS)
+- **🗣️ Dubbing alignment with GPT-SoVITS and other methods**
 
 - 🚀 One-click startup and output in Streamlit
 
 - 📝 Detailed logging with progress resumption
 
 - 🌐 Comprehensive multi-language support
-
 
 Difference from similar projects: **Single-line subtitles only, superior translation quality**
 
@@ -100,7 +98,7 @@ Experience VideoLingo quickly in Colab in just 5 minutes:
 
 ### Local Installation
 
-VideoLingo offers two local installation methods: **One-click Simple Package** and **Source Code Installation**. Please refer to the installation documentation: [English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+VideoLingo supports all hardware platforms and operating systems, but performs best with GPU acceleration. For detailed installation instructions , please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 
 ### Docker Installation
@@ -113,22 +111,20 @@ Usage instructions: [English](/batch/README.md) | [简体中文](/batch/README.z
 
 ## ⚠️ Current Limitations
 
-1. **UVR5 voice separation is resource-intensive** and processes slowly. It's recommended to use this feature only on devices with more than 16GB of RAM and 8GB of VRAM. Note: For videos with loud BGM, not performing voice separation before whisper may cause word-level subtitle adhesion, resulting in errors in the final alignment step.
+1. WhisperX performance varies across different devices. Version 1.7 performs demucs voice separation first, but this may result in worse transcription after separation compared to before. This is because whisper itself was trained in environments with background music - before separation it won't transcribe BGM lyrics, but after separation it might transcribe them.
 
-2. **The quality of dubbing may not be perfect** due to differences in language structure and morpheme information density between source and target languages. For best results, choose TTS with similar speech rates based on the original video's speed and content characteristics. The best practice is to train the original video's voice using GPT-SoVITS, then use "Mode 3: Use every reference audio" for dubbing. This ensures maximum consistency in voice, speech rate, and tone. See the [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e) for effects.
+2. **The dubbing feature quality may not be perfect** as it's still in testing and development stage, with plans to integrate MascGCT. For best results currently, it's recommended to choose TTS with similar speech rates based on the original video's speed and content characteristics. See the [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e) for effects.
 
-3. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, deleting unrecognized languages.
+3. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, and will delete unrecognized languages.
 
-4. **Multi-character separate dubbing is currently unavailable**. While whisperX has VAD potential, specific development is needed, and this feature is not yet implemented.
+4. **Multi-character separate dubbing is under development**. While whisperX has VAD potential, specific implementation work is needed, and this feature is not yet supported.
 
 ## 🚗 Roadmap
 
 - [ ] VAD to distinguish speakers, multi-character dubbing
 - [ ] Customizable translation styles
-- [ ] User terminology glossary
-- [ ] Provide commercial services
+- [ ] SaaS service
 - [ ] Lip sync for dubbed videos
-
 
 ## 📄 License
 
@@ -152,7 +148,7 @@ We sincerely thank the following open-source projects for their contributions, w
 - Submit [Issues](https://github.com/Huanshere/VideoLingo/issues) or [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls) on GitHub
 - Follow me on Twitter: [@Huanshere](https://twitter.com/Huanshere)
 - Visit the official website: [videolingo.io](https://videolingo.io)
-- Email me at: team@mails.videolingo.io
+- Email me at: team@videolingo.io
 
 ## ⭐ Star History
 

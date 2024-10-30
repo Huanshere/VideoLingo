@@ -34,12 +34,8 @@ def page_setting():
         selected_whisper_method = whisper_method_mapping[selected_whisper_method_display]
         if selected_whisper_method != load_key("whisper.method"):
             update_key("whisper.method", selected_whisper_method)
-
-        if selected_whisper_method == "whisperx":
-            uvr_before_transcription = st.toggle("Use UVR before transcription", value=load_key("whisper.uvr_before_transcription"), help="Use UVR before transcription")
-            if uvr_before_transcription != load_key("whisper.uvr_before_transcription"):
-                update_key("whisper.uvr_before_transcription", uvr_before_transcription)
-        elif selected_whisper_method == "whisperxapi":    
+            
+        if selected_whisper_method == "whisperxapi":    
             col1, col2 = st.columns([4, 1])
             with col1:
                 replicate_api_token = st.text_input("Replicate API Token", value=load_key("replicate_api_token"), help="Replicate API Token")
@@ -54,10 +50,23 @@ def page_setting():
             
         col1, col2 = st.columns(2)
         with col1:
-            whisper_language_options = ["en", "zh", "auto"]
-            selected_whisper_language = st.selectbox("Recognition Language:", options=whisper_language_options, index=whisper_language_options.index(load_key("whisper.language")))
-            if selected_whisper_language != load_key("whisper.language"):
-                update_key("whisper.language", selected_whisper_language)
+            whisper_language_options_dict = {
+            "🇺🇸 English": "en",
+            "🇨🇳 Chinese": "zh",
+            "🇷🇺 Russian": "ru",
+            "🇫🇷 French": "fr",
+            "🇩🇪 German": "de",
+            "🇮🇹 Italian": "it",
+            "🇪🇸 Spanish": "es",
+            "🇯🇵 Japanese": "ja"
+            }
+            selected_whisper_language = st.selectbox(
+                "Recognition Language:", 
+                options=list(whisper_language_options_dict.keys()),
+                index=list(whisper_language_options_dict.values()).index(load_key("whisper.language"))
+            )
+            if whisper_language_options_dict[selected_whisper_language] != load_key("whisper.language"):
+                update_key("whisper.language", whisper_language_options_dict[selected_whisper_language])
 
         with col2:
             target_language = st.text_input("Translation Target Language", value=load_key("target_language") , help="Translation Target Language")

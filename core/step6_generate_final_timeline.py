@@ -4,9 +4,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from difflib import SequenceMatcher
 import re
 from core.config_utils import load_key, get_joiner
-from core.step2_whisper import get_whisper_language
 from rich.panel import Panel
 from rich.console import Console
+import autocorrect_py as autocorrect
 
 console = Console()
 
@@ -32,7 +32,7 @@ def get_sentence_timestamps(df_words, df_sentences):
     time_stamp_list = []
     word_index = 0
     whisper_language = load_key("whisper.language")
-    language = get_whisper_language() if whisper_language == 'auto' else whisper_language
+    language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
 
     for idx,sentence in df_sentences['Source'].items():
@@ -70,7 +70,7 @@ def get_sentence_timestamps(df_words, df_sentences):
             word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
         else:
             print(f"⚠️ Warning: No match found for sentence: {sentence}\nOriginal: {repr(sentence)}\nMatched: {best_match['phrase']}\nSimilarity: {best_match['score']:.2f}\n{'─' * 50}")
-            raise ValueError("❎ No match found for sentence. Please delete the 'output' directory and rerun the process, ensuring UVR is activated before transcription.")
+            raise ValueError("❎ Failed to match sentence with timestamps. This typically occurs when background music is too loud or the source language is not English. Currently no workaround available. Please raise an Issue!")
         
         start_index = word_index  # update start_index for the next sentence
     
@@ -116,11 +116,18 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
     
     return df_trans_time
 
+# ✨ Beautify the translation
+def clean_translation(x):
+    if pd.isna(x):
+        return ''
+    cleaned = str(x).strip('。').strip('，')
+    return autocorrect.format(cleaned)
+
 def align_timestamp_main():
     df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
-    df_translate['Translation'] = df_translate['Translation'].apply(lambda x: str(x).strip('。').strip('，') if pd.notna(x) else '')
+    df_translate['Translation'] = df_translate['Translation'].apply(clean_translation)
     subtitle_output_configs = [ 
         ('src_subtitles.srt', ['Source']),
         ('trans_subtitles.srt', ['Translation']),
@@ -132,7 +139,7 @@ def align_timestamp_main():
 
     # for audio
     df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
-    df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(lambda x: str(x).strip('。').strip('，'))
+    df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(clean_translation)
     subtitle_output_configs = [
         ('src_subs_for_audio.srt', ['Source']),
         ('trans_subs_for_audio.srt', ['Translation'])

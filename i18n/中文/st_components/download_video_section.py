@@ -23,7 +23,7 @@ def download_video_section():
         except:
             col1, col2 = st.columns([3, 1])
             with col1:
-                url = st.text_input("输入YouTube链接：")
+                url = st.text_input("输入YouTube链接:")
             with col2:
                 resolution_dict = {
                     "360p": "360",
@@ -43,13 +43,19 @@ def download_video_section():
 
             uploaded_file = st.file_uploader("或上传视频", type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
             if uploaded_file:
+                #删除output文件夹中的文件
                 if os.path.exists("output"):
                     shutil.rmtree("output")
                 os.makedirs("output", exist_ok=True)
-                normalized_name = re.sub(r'[^\w\-_\.]', '', uploaded_file.name.replace(' ', '_'))
+                # 规范化文件名并将扩展名转换为小写
+                original_name = uploaded_file.name.replace(' ', '_')
+                name, ext = os.path.splitext(original_name)
+                normalized_name = re.sub(r'[^\w\-_\.]', '', name) + ext.lower()
+                # 使用规范化的名称保存上传的视频
                 with open(os.path.join("output", normalized_name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
+                # 如果是音频文件则转换为视频
                 if normalized_name.split('.')[-1] in load_key("allowed_audio_formats"):
                     convert_audio_to_video(os.path.join("output", normalized_name))
                 st.rerun()
@@ -57,14 +63,15 @@ def download_video_section():
                 return False
 
 def convert_audio_to_video(audio_file: str) -> str:
-    output_video = 'output/audio_with_black_screen.mp4'
+    output_video = 'output/black_screen.mp4'
     if not os.path.exists(output_video):
         print(f"🎵➡️🎬 正在使用FFmpeg将音频转换为视频......")
         ffmpeg_cmd = ['ffmpeg', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=640x360', '-i', audio_file, '-shortest', '-c:v', 'libx264', '-c:a', 'aac', '-pix_fmt', 'yuv420p', output_video]
         try:
             subprocess.run(ffmpeg_cmd, check=True, capture_output=True, text=True, encoding='utf-8')
-            print(f"🎵➡️🎬 已使用FFmpeg将 <{audio_file}> 转换为 <{output_video}>\n")
+            print(f"🎵➡️🎬 已将 <{audio_file}> 转换为 <{output_video}>\n")
+            # 删除音频文件
             os.remove(audio_file)
         except subprocess.CalledProcessError as e:
-            raise(f"❌ 无法将 <{audio_file}> 转换为 <{output_video}>。错误：{e.stderr}")
+            raise(f"❌ 将 <{audio_file}> 转换为 <{output_video}> 失败。错误: {e.stderr}")
     return output_video

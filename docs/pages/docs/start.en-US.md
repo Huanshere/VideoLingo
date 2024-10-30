@@ -1,114 +1,98 @@
-
 # 🚀 Getting Started
 
-## 📋 API Preparation
-This project requires the use of large language models, WhisperX, and TTS. Multiple options are provided for each component. **Please read the configuration guide carefully 😊**
-### 1. **Obtain API_KEY for Large Language Models**:
+## 📋 API Configuration
+This project requires Large Language Models and TTS. Multiple options are provided for each component. **Please read the configuration guide carefully 😊**
+
+### 1. **Get API_KEY for Large Language Models**:
 
 | Recommended Model | Recommended Provider | base_url | Price | Effect |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 (default) | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M tokens (1/10 of official price) | 🤩 |
+| claude-3-5-sonnet-20240620 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M tokens (1/10 of official price) | 🤩 |
 
-⚠️ Warning: The prompt involves multi-step thinking chains and complex JSON formats. Models other than Claude 3.5 Sonnet are prone to errors. The cost for a one-hour video is about ¥7.
+⚠️ Warning: The prompts involve multi-step reasoning chains and complex JSON formats. Models other than Claude 3.5 Sonnet are prone to errors. A 1-hour video costs about ¥10.
 
 > Note: Yunwu API also supports OpenAI's tts-1 interface, which can be used in the dubbing step.
 
 <details>
-<summary>How to get an API key from Yunwu API?</summary>
+<summary>How to get API key from Yunwu API?</summary>
 
-1. Click the link for the recommended provider above
-2. Register an account and recharge
-3. Create a new API key on the API key page
-4. For Yunwu API, make sure to check `Unlimited Quota`, select the `claude-3-5-sonnet-20240620` model, and it is recommended to choose the `Pure AZ 1.5x` channel. If you need to use OpenAI for dubbing, also check the `tts-1` model
+1. Go to [Yunwu API website](https://yunwu.zeabur.app/register?aff=TXMB)
+2. Register an account and top up
+3. Create a new key on the API key page
+4. Make sure to check `Unlimited quota`, recommended channel is `Pure AZ 1.5x`
 </details>
 
 <details>
 <summary>Can I use other models?</summary>
 
-- ✅ Supports OAI-Like API interfaces, but you need to change it yourself in the Streamlit sidebar.
-- ⚠️ However, other models (especially small models) have weak ability to follow instructions and are very likely to report errors during translation, which is strongly discouraged.
+- ✅ Supports OAI-Like API interfaces, you can change in the Streamlit sidebar.
+- ⚠️ However, other models (especially smaller ones) have weaker instruction following capabilities and are very likely to error during translation. Strongly not recommended. If errors occur, please switch models.
 </details>
 
-### 2. **Prepare Replicate Token** (Only when using whisperXapi ☁️)
+### 2. **TTS API**
+VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
 
-VideoLingo uses WhisperX for speech recognition, supporting both local deployment and cloud API. If you don't have a GPU or just want to quickly experience it, you can use the cloud API and the one-click easy package.
-
-#### Comparison of options:
-| Option | Disadvantages |
-|:-----|:-----|
-| **whisperX 🖥️** | • Install CUDA 🛠️<br>• Download model 📥<br>• High VRAM requirement 💾 |
-| **whisperXapi ☁️** | • Requires VPN 🕵️‍♂️<br>• Visa card 💳<br>• **Poor Chinese effect** 🚫 |
-
-<details>
-<summary>How to obtain the token</summary>
-Register at [Replicate](https://replicate.com/account/api-tokens), bind a Visa card payment method, and obtain the token. **Or join the QQ group to get a free test token from the group announcement**
-</details>
-
-### 3. **TTS API**
-VideoLingo provides multiple TTS integration methods. Here's a comparison (skip this if you're only translating without dubbing):
-
-| TTS Option | Advantages | Disadvantages | Chinese Effect | Non-Chinese Effect |
+| TTS Solution | Pros | Cons | Chinese Effect | Non-Chinese Effect |
 |:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ OpenAI TTS | Realistic emotion | Chinese sounds like a foreigner | 😕 | 🤩 |
-| 🔊 Azure TTS (Recommended) | Natural effect | Inconvenient recharge | 🤩 | 😃 |
-| 🎤 Fish TTS  | Sounds like a real local | Limited official models | 😂 | 😂 |
-| 🗣️ GPT-SoVITS (Testing) | Strongest voice cloning | Currently only supports Chinese and English, requires GPU for model inference, configuration requires relevant knowledge | 🏆 | 🚫 |
+| 🎙️ OpenAI TTS | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
+| 🔊 Azure TTS (Recommended) | Natural effect | Difficult to top up | 🤩 | 😃 |
+| 🎤 Fish TTS | Authentic native speaker | Limited official models | 😂 | 😂 |
+| 🗣️ GPT-SoVITS (Testing) | Best voice cloning | Currently only supports Chinese/English, requires NVIDIA GPU for inference, configuration requires relevant knowledge | 🏆 | 🚫 |
 
-- For OpenAI TTS, we recommend using [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB), make sure to check the `tts-1` model;
-- **Azure TTS test keys can be obtained in the QQ group announcement** or you can register and recharge yourself on the [official website](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python);
-- For Fish TTS, please register yourself on the [official website](https://fish.audio/zh-CN/go-api/) (10 USD free credit)
+- For OpenAI TTS, recommended to use [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB), make sure to select `tts-1` for the model;
+- For Azure TTS, register and top up on the [official website](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) (has free quota);
+- For Fish TTS, register on the [official website](https://fish.audio/en/go-api/) (comes with $10 credit)
 
 <details>
-<summary>How to choose an OpenAI voice?</summary>
+<summary>How to choose OpenAI voices?</summary>
 
-You can find the voice list on the [official website](https://platform.openai.com/docs/guides/text-to-speech/voice-options), such as `alloy`, `echo`, `nova`, etc. Modify `openai_tts.voice` in `config.yaml` to change the voice.
+Voice list can be found on the [official website](https://platform.openai.com/docs/guides/text-to-speech/voice-options), such as `alloy`, `echo`, `nova`, etc. Modify `openai_tts.voice` in `config.yaml`.
+
+</details>
+<details>
+<summary>How to choose Azure voices?</summary>
+
+Recommended to try voices in the [online demo](https://speech.microsoft.com/portal/voicegallery). You can find the voice code in the code on the right, e.g. `zh-CN-XiaoxiaoMultilingualNeural`
 
 </details>
 
 <details>
-<summary>How to choose an Azure voice?</summary>
+<summary>How to choose Fish TTS voices?</summary>
 
-It is recommended to listen and choose the voice you want in the [online experience](https://speech.microsoft.com/portal/voicegallery), and find the corresponding code for that voice in the right-hand code, such as `zh-CN-XiaoxiaoMultilingualNeural`
-
-</details>
-
-<details>
-<summary>How to choose a Fish TTS voice?</summary>
-
-Go to the [official website](https://fish.audio) to listen and choose the voice you want, and find the corresponding code for that voice in the URL, such as Ding Zhen is `54a5170264694bfc8e9ad98df7bd89c3`. Popular voices have been added to `config.yaml`. If you need to use other voices, please modify the `fish_tts.character_id_dict` dictionary in `config.yaml`.
+Go to the [official website](https://fish.audio/en/) to listen and choose voices. Find the voice code in the URL, e.g. Dingzhen is `54a5170264694bfc8e9ad98df7bd89c3`. Popular voices are already added in `config.yaml`. To use other voices, modify the `fish_tts.character_id_dict` dictionary in `config.yaml`.
 
 </details>
 
 <details>
-<summary>GPT-SoVITS-v2 Usage Tutorial</summary>
+<summary>GPT-SoVITS-v2 Tutorial</summary>
 
-1. Go to the [official Yuque document](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO) to check the configuration requirements and download the integrated package.
+1. Check requirements and download the package from [official Yuque docs](https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/dkxgpiy9zb96hob4#KTvnO).
 
-2. Place `GPT-SoVITS-v2-xxx` in the same directory level as `VideoLingo`. **Note that they should be parallel folders.**
+2. Place `GPT-SoVITS-v2-xxx` and `VideoLingo` in the same directory. **Note they should be parallel folders.**
 
-3. Choose one of the following methods to configure the model:
+3. Choose one of the following ways to configure the model:
 
    a. Self-trained model:
-   - After training the model, `tts_infer.yaml` under `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` will automatically be filled with your model address. Copy and rename it to `your_preferred_english_character_name.yaml`
-   - In the same directory as the `yaml` file, place the reference audio you'll use later, named `your_preferred_english_character_name_text_content_of_reference_audio.wav` or `.mp3`, for example `Huanyuv2_Hello, this is a test audio.wav`
-   - In the sidebar of the VideoLingo webpage, set `GPT-SoVITS Character` to `your_preferred_english_character_name`.
+   - After training, `tts_infer.yaml` under `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` will have your model path auto-filled. Copy and rename it to `your_preferred_english_character_name.yaml`
+   - In the same directory as the `yaml` file, place reference audio named `your_preferred_english_character_name_reference_audio_text.wav` or `.mp3`, e.g. `Huanyuv2_Hello, this is a test audio.wav`
+   - In VideoLingo's sidebar, set `GPT-SoVITS Character` to `your_preferred_english_character_name`.
 
    b. Use pre-trained model:
    - Download my model from [here](https://vip.123pan.cn/1817874751/8137723), extract and overwrite to `GPT-SoVITS-v2-xxx`.
    - Set `GPT-SoVITS Character` to `Huanyuv2`.
 
    c. Use other trained models:
-   - Place the `xxx.ckpt` model file in the `GPT_weights_v2` folder and the `xxx.pth` model file in the `SoVITS_weights_v2` folder.
-   - Refer to method a, rename the `tts_infer.yaml` file and modify the `t2s_weights_path` and `vits_weights_path` in the `custom` section of the file to point to your models, for example:
+   - Place `xxx.ckpt` in `GPT_weights_v2` folder and `xxx.pth` in `SoVITS_weights_v2` folder.
+   - Following method a, rename `tts_infer.yaml` and modify `t2s_weights_path` and `vits_weights_path` under `custom` to point to your models, e.g.:
   
       ```yaml
-      # Example configuration for method b:
+      # Example config for method b:
       t2s_weights_path: GPT_weights_v2/Huanyu_v2-e10.ckpt
       version: v2
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
       ```
-   - Refer to method a, place the reference audio you'll use later in the same directory as the `yaml` file, named `your_preferred_english_character_name_text_content_of_reference_audio.wav` or `.mp3`, for example `Huanyuv2_Hello, this is a test audio.wav`. The program will automatically recognize and use it.
-   - ⚠️ Warning: **Please use English to name the `character_name`**, otherwise errors will occur. The `text_content_of_reference_audio` can be in Chinese. It's still in beta version and may produce errors.
+   - Following method a, place reference audio in the same directory as the `yaml` file, named `your_preferred_english_character_name_reference_audio_text.wav` or `.mp3`, e.g. `Huanyuv2_Hello, this is a test audio.wav`. The program will auto-detect and use it.
+   - ⚠️ Warning: **Please use English for `character_name`** to avoid errors. `reference_audio_text` can be in Chinese. Currently in beta, may produce errors.
 
 
    ```
@@ -121,100 +105,76 @@ Go to the [official website](https://fish.audio) to listen and choose the voice 
        │   └── configs
        │       ├── tts_infer.yaml
        │       ├── your_preferred_english_character_name.yaml
-       │       └── your_preferred_english_character_name_text_content_of_reference_audio.wav
+       │       └── your_preferred_english_character_name_reference_audio_text.wav
        ├── GPT_weights_v2
-       │   └── [Your GPT model file]
+       │   └── [your GPT model file]
        └── SoVITS_weights_v2
-           └── [Your SoVITS model file]
+           └── [your SoVITS model file]
    ```
         
-After configuration, make sure to select `Reference Audio Mode` in the webpage sidebar (for detailed principles, please refer to the Yuque document). During the dubbing step, VideoLingo will automatically open the inference API port of GPT-SoVITS in the pop-up command line. You can manually close it after dubbing is complete. Note that the stability of this method depends on the chosen base model.</details>
+After configuration, select `Reference Audio Mode` in the sidebar (see Yuque docs for details). During dubbing, VideoLingo will automatically open GPT-SoVITS inference API port in the command line, which can be closed manually after completion. Note that stability depends on the base model chosen.</details>
 
-## 💨 Windows One-Click Package
+## 🛠️ Quick Start
 
-### Important Note:
+VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU. For GPU acceleration on Windows, install these dependencies:
 
-**The one-click package does not have all the features of a source code installation**. It's primarily for quick testing (we now recommend using the Colab version for trials). For processing long videos and accessing full functionality, we strongly advise using the source code installation. Here's a comparison:
+- [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
+- [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 
-| One-Click Package | Source Code Installation |
-|-------------------|--------------------------|
-| 💻 CPU version of torch, about **2.7GB** | 🖥️ Requires Nvidia GPU and **25GB** disk space |
-| 🐢 UVR5 voice separation is slow on CPU | 🚀 GPU-accelerated UVR5 |
-| ☁️ Only supports whisperXapi, no local whisperX | 🏠 Supports local whisperX |
-| 🈚 No Chinese transcription support | 🈶 Supports Chinese transcription |
-| 🎵 No voice separation in transcription, not suitable for videos with noisy BGM | 🎼 Can process videos with noisy background music |
+> Note: After installing CUDA and CUDNN, check if they're added to system path and restart computer 🔄
 
-### Download and Usage Instructions
+### Source Installation
 
-1. Download the `v1.6.2` one-click package (800MB): [Direct Download](https://vip.123pan.cn/1817874751/8372004) | [Baidu Backup](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+Before installing VideoLingo, ensure:
+1. **25GB** free disk space
+2. [Anaconda](https://www.anaconda.com/download) installed (for Python environment management)
+3. [Git](https://git-scm.com/downloads) installed (for cloning project code, or download manually)
 
-2. After extracting, double-click `一键启动.bat` (One-click Start) in the folder
+Basic Python knowledge required. For any issues, ask the AI assistant at [videolingo.io](https://videolingo.io) bottom right~
 
-3. In the browser window that opens, make necessary configurations in the sidebar, then click to produce your video!
-  ![en_cloud_set](https://github.com/user-attachments/assets/e3219a4d-bdcd-4613-b6c9-5c6577c3e032)
-
-## 🛠️ Source Code Installation Process
-
-### Windows Prerequisites
-
-Before installing VideoLingo, ensure you have **25GB** of free disk space. Install the following dependencies based on whether you're using a local whisper model:
-
-| Dependency | whisperX 🖥️ | whisperX ☁️ |
-|:-----------|:------------|:------------|
-| Anaconda 🐍 | [Download](https://www.anaconda.com/products/distribution#download-section) | [Download](https://www.anaconda.com/products/distribution#download-section) |
-| Git 🌿 | [Download](https://git-scm.com/download/win) | [Download](https://git-scm.com/download/win) |
-| CUDA Toolkit 12.6 🚀 | [Download](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
-| cuDNN 9.3.0 🧠 | [Download](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
-
-> Important: When installing Anaconda, make sure to check `Add to system PATH`. After installing CUDA and cuDNN, you need to restart your computer 🔄
-
-### Installation Steps
-
-Basic Python knowledge is required. Supports Windows, Mac, and Linux. If you encounter any issues, you can ask the AI assistant at the bottom right of the official website [videolingo.io](https://videolingo.io).
-
-1. Open Anaconda Prompt and navigate to your desktop:
+1. Open Anaconda Prompt and navigate to installation directory, e.g. desktop:
    ```bash
    cd desktop
    ```
 
-2. Clone the project and change to the project directory:
+2. Clone project and enter directory:
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-3. Create and activate a virtual environment (must use Python 3.10.0):
+3. Create and activate virtual environment (**must be 3.10.0**):
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
    ```
 
-4. Run the installation script:
+4. Run installation script:
    ```bash
    python install.py
    ```
-   Follow the prompts to choose your desired whisper method. The script will automatically install the appropriate versions of torch and whisper.
+   Script will automatically install appropriate torch version
 
-5. 🎉 Start the Streamlit application by entering the command or clicking `OneKeyStart.bat`:
+5. 🎉 Enter command or click `OneKeyStart.bat` to launch Streamlit app:
    ```bash
    streamlit run st.py
    ```
 
-6. Set up your API key in the sidebar of the pop-up webpage, and make sure to select the correct whisper method and language.
+6. Set key in sidebar of popup webpage, and note whisper method and transcription language selection
 
    ![en_set](https://github.com/user-attachments/assets/2f32f49b-0b7a-4ff4-930f-4e5f9bac9002)
 
-7. For more advanced settings, you can manually modify `config.yaml`. Pay attention to the command line output during the running process.
+7. Whisper transcription will automatically download models, but for users who cannot access Huggingface through command line, you can manually download whisper models and place them in the root directory: [Baidu Drive](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
 
-## 🚨 Common Errors and Solutions
+8. More settings can be manually modified in `config.yaml`, watch command line output during operation
 
-1. **'Empty Translation Line'**: This occurs when using a less capable LLM that omits some short phrases during translation. Solution: Please switch to Claude 3.5 Sonnet and try again.
+## 🚨 Common Errors
 
-2. **'Key Error' during translation process**: 
-   - Reason 1: As above, weaker models may have issues following JSON format.
-   - Reason 2: For sensitive content, the LLM may refuse to translate.
-   Solution: Please check the `response` and `msg` fields in `output/gpt_log/error.json`.
+1. **'Empty Translation Line'**: This occurs when using a less capable LLM that omits short phrases during translation. Solution: Please retry with Claude 3.5 Sonnet.
 
-3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: These are usually network issues. Solution: For users in mainland China, please try switching to a different network node and retry.
+2. **'Key Error' during translation**: 
+   - Reason 1: Same as above, weaker models have poor JSON format compliance.
+   - Reason 2: LLM may refuse to translate sensitive content.
+   Solution: Check `response` and `msg` fields in `output/gpt_log/error.json`.
 
-
+3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China please switch network nodes and retry.

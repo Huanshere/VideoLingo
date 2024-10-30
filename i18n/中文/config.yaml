@@ -1,26 +1,25 @@
-# * 标有 * 的设置是高级设置，不会出现在 Streamlit 页面上，只能在 config.py 中手动修改
+# * 标有 * 的设置是高级设置，不会出现在 Streamlit 页面中，只能在 config.py 中手动修改
 ## ======================== 基本设置 ======================== ##
 # API 设置
 api:
-  key: 'YOUR_API_KEY'
+  key: 'YOUR_KEY'
   base_url: 'https://yunwu.zeabur.app'
   model: 'claude-3-5-sonnet-20240620'
 
-# Replicate API 设置
-replicate_api_token: 'YOUR_REPLICATE_API_TOKEN'
+# Replicate API 设置，仅在使用 whisperxapi 时需要
+replicate_api_token: 'YOUR_KEY'
 
-# 语言设置，写入提示中，可以用自然语言描述
-target_language: '简体中文'
+# 语言设置，写入提示词，可以用自然语言描述
+target_language: 'Chinese'
 
 whisper:
   # Whisper 设置 [whisperx, whisperxapi]
   method: 'whisperx'
-  # 是否在转录前进行 UVR 处理
-  uvr_before_transcription: true
-  # Whisper 指定识别语言 [en, zh, auto] auto 为自动检测，en 为强制翻译成英语
+  # Whisper 指定识别语言 [en, zh, auto] auto 为自动检测，en 为强制翻译为英语
   language: 'en'
+  detected_language: 'en'
 
-# 视频分辨率 [0x0, 640x360, 1920x1080]  0x0 将生成一个 0 秒的黑色视频占位符
+# 视频分辨率 [0x0, 640x360, 1920x1080] 0x0 会生成一个 0 秒的黑色视频占位符
 resolution: '640x360'
 
 ## ======================== 高级设置 ======================== ##
@@ -30,15 +29,15 @@ ytb_resolution: '360'
 subtitle:
   # *每行字幕的最大字符长度
   max_length: 75
-  # *翻译后的字幕略大于源字幕，影响字幕分割的参考长度
+  # *翻译后的字幕比源字幕略大，影响字幕分割的参考长度
   target_multiplier: 1.1
 
 # *LLM 多线程访问数量
 max_workers: 8
-# *第一次粗切的最大字数，低于 18 会切得太细影响翻译，高于 22 太长会导致后续字幕分割难以对齐
+# *第一次粗分的最大字数，低于 18 会切得太细影响翻译，高于 22 太长会导致后续字幕分割难以对齐
 max_split_length: 20
 
-# *是否在提取专业术语后、翻译前暂停，允许用户手动调整术语表 output\log\terminology.json
+# *是否在提取专业术语后、翻译前暂停，让用户手动调整术语表 output\log\terminology.json
 pause_before_translate: false
 
 ## ======================== 配音设置 ======================== ##
@@ -48,12 +47,12 @@ tts_method: 'azure_tts'
 # OpenAI TTS-1 API 配置
 openai_tts:
   voice: 'alloy'
-  api_key: 'YOUR_OPENAI_API_KEY'
+  api_key: 'YOUR_KEY'
   base_url: 'https://yunwu.zeabur.app'
 
 # Azure 配置
 azure_tts:
-  key: 'YOUR_AZURE_API_KEY'
+  key: 'YOUR_KEY'
   region: 'eastasia'
   voice: 'zh-CN-YunfengNeural'
 
@@ -69,9 +68,6 @@ fish_tts:
   character_id_dict:
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
     '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
-    '赛马娘': '0eb38bc974e1459facca38b359e13511'
-    '蔡徐坤': 'e4642e5edccd4d9ab61a69e82d4f8a14'
-    '雷军': '738d0cc1a3e9430a9de2b544a466a7fc'
 
 # *音频速度范围
 speed_factor:
@@ -91,7 +87,7 @@ dub_volume: 1.5  # *配音音频音量（1.5 = 150%，大多数原始配音音�
 # Whisper 模型目录
 model_dir: './_model_cache'
 
-# 支持上传的视频格式
+# 支持的上传视频格式
 allowed_video_formats:
 - 'mp4'
 - 'mov'
@@ -101,10 +97,12 @@ allowed_video_formats:
 - 'wmv'
 - 'webm'
 
+# 支持的音频格式
 allowed_audio_formats:
 - 'wav'
 - 'mp3'
 - 'flac'
+- 'm4a'
 
 # 支持返回 JSON 格式的 LLM
 llm_support_json:

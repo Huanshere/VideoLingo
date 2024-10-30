@@ -13,7 +13,6 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动化执行视
    - `core/all_whisper_methods/whisperX.py`: 使用本地 WhisperX 模型进行转录。
    - `core/all_whisper_methods/whisperXapi.py`: 使用 replicate 的 whisperX 模型进行转录。
    - `core/step2_whisper.py`: 利用 Whisper 模型进行高精度的语音识别，生成带时间戳的文本转录结果。
-   - `core/step9_uvr_audio.py`: 降噪与提取音频段，优化音频质量。
 
 3. **文本处理与翻译模块**:
    - `core/step3_1_spacy_split.py`: 应用 SpaCy 自然语言处理工具进行初步的文本分割。

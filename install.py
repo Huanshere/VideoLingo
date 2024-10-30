@@ -4,7 +4,6 @@ import subprocess
 import sys
 import zipfile
 import shutil
-import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -12,20 +11,48 @@ def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
 install_package("requests", "rich", "ruamel.yaml")
-from core.pypi_autochoose import main as choose_mirror
+from pypi_autochoose import main as choose_mirror
+
+def check_gpu():
+    """Check if NVIDIA GPU is available"""
+    try:
+        # 🔍 Try running nvidia-smi command to detect GPU
+        subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
 
 def main():
     from rich.console import Console
-    from rich.table import Table
     from rich.panel import Panel
-
+    
     console = Console()
+    console.print(Panel.fit("🚀 Starting Installation", style="bold magenta"))
 
-    console.print(Panel.fit("Starting installation", style="bold magenta"))
-
-    # Execute mirror configuration
-    console.print(Panel("Configuring mirror", style="bold yellow"))
+    # Configure mirrors
+    console.print(Panel("⚙️ Configuring mirrors", style="bold yellow"))
     choose_mirror()
+
+    # Detect system and GPU
+    if platform.system() == 'Darwin':
+        console.print(Panel("🍎 MacOS detected, installing CPU version of PyTorch...", style="cyan"))
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+    else:
+        has_gpu = check_gpu()
+        if has_gpu:
+            console.print(Panel("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch...", style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
+        else:
+            console.print(Panel("💻 No NVIDIA GPU detected, installing CPU version of PyTorch...", style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+    
+    # Install WhisperX
+    console.print(Panel("📦 Installing WhisperX...", style="cyan"))
+    current_dir = os.getcwd()
+    whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
+    os.chdir(whisperx_dir)
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
+    os.chdir(current_dir)
 
     def install_requirements():
         try:
@@ -36,79 +63,6 @@ def main():
         except Exception as e:
             print(f"Error converting requirements.txt: {str(e)}")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-
-    def test_mirror_speed(name, base_url):
-        import requests
-        test_url = f"{base_url}lj1995/VoiceConversionWebUI/resolve/main/README.md"
-        max_retries = 3
-        timeout = 10
-
-        for attempt in range(max_retries):
-            try:
-                start_time = time.time()
-                response = requests.head(test_url, timeout=timeout)
-                end_time = time.time()
-                if response.status_code == 200:
-                    speed = (end_time - start_time) * 1000 
-                    return name, speed
-            except requests.RequestException:
-                if attempt == max_retries - 1:
-                    return name, float('inf')
-                time.sleep(1)  # Wait 1 second before retrying
-
-        return name, float('inf')
-
-    def download_uvr_model():
-        import requests
-        models = {
-            "HP2_all_vocals.pth": "lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
-            "VR-DeEchoAggressive.pth": "lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth"
-        }
-        
-        mirrors = {
-            "Official": "https://huggingface.co/",
-            "Mirror": "https://hf-mirror.com/"
-        }
-
-        os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
-
-        for model_name, model_path in models.items():
-            model_file_path = f"_model_cache/uvr5_weights/{model_name}"
-            if not os.path.exists(model_file_path):
-                print(f"Downloading UVR model: {model_name}...")
-                
-                # Test speed for each mirror
-                speeds = []
-                for mirror_name, mirror_url in mirrors.items():
-                    name, speed = test_mirror_speed(mirror_name, mirror_url)
-                    speeds.append((name, speed))
-                    print(f"{mirror_name} mirror speed: {speed:.2f} ms")
-
-                # Choose the fastest mirror
-                fastest_mirror = min(speeds, key=lambda x: x[1])[0]
-                print(f"Choosing mirror: {fastest_mirror}")
-
-                # Download from the fastest mirror
-                url = mirrors[fastest_mirror] + model_path
-                try:
-                    response = requests.get(url, stream=True)
-                    response.raise_for_status()
-                    total_size = int(response.headers.get('content-length', 0))
-                    
-                    with open(model_file_path, "wb") as file:
-                        downloaded_size = 0
-                        for data in response.iter_content(chunk_size=8192):
-                            size = file.write(data)
-                            downloaded_size += size
-                            if total_size:
-                                percent = (downloaded_size / total_size) * 100
-                                print(f"Download progress: {percent:.2f}%", end="\r")
-                    
-                    print(f"\n{model_name} model downloaded")
-                except requests.RequestException as e:
-                    print(f"Download failed: {model_name}: {str(e)}")
-            else:
-                print(f"{model_name} model exists")
 
     def download_and_extract_ffmpeg():
         import requests
@@ -176,68 +130,8 @@ def main():
                 except subprocess.CalledProcessError:
                     print("Failed to install Noto fonts automatically. Please install them manually.")
 
-    # User selects Whisper model
-    table = Table(title="Whisper Model Selection")
-    table.add_column("Option", style="cyan", no_wrap=True)
-    table.add_column("Model", style="magenta")
-    table.add_column("Description", style="green")
-    table.add_row("1", "whisperX 💻", "Local processing with whisperX")
-    table.add_row("2", "whisperXapi ☁️", "Cloud processing with whisperXapi")
-    console.print(table)
-
-    console.print("WhisperX processes audio locally on your machine, while whisperXapi uses cloud processing.")
-
-    if len(sys.argv) > 1:
-        choice = sys.argv[1]
-    else:
-        choice = console.input("Enter your choice (1 or 2): ")
-
-    if platform.system() == 'Darwin':
-        console.print(Panel("For MacOS, installing CPU version of PyTorch...", style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-        if choice == '1':
-            print("Installing whisperX...")
-            current_dir = os.getcwd()
-            whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
-            os.chdir(whisperx_dir)
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
-            os.chdir(current_dir)
-    else:
-        if choice == '1':
-            console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
-
-            print("Installing whisperX...")
-            current_dir = os.getcwd()
-            whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
-            os.chdir(whisperx_dir)
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
-            os.chdir(current_dir)
-        elif choice == '2':
-            table = Table(title="PyTorch Version Selection")
-            table.add_column("Option", style="cyan", no_wrap=True)
-            table.add_column("Model", style="magenta")
-            table.add_column("Description", style="green")
-            table.add_row("1", "CPU", "Choose this if you're using Mac, non-NVIDIA GPU, or don't need GPU acceleration")
-            table.add_row("2", "GPU", "Significantly speeds up UVR5 voice separation. Strongly recommended if you need dubbing functionality and have an NVIDIA GPU.")
-            console.print(table)
-
-            torch_choice = console.input("Please enter the option number (1 for CPU or 2 for GPU): ")
-            if torch_choice == '1':
-                console.print(Panel("Installing CPU version of PyTorch...", style="cyan"))
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-            elif torch_choice == '2':
-                console.print(Panel("Installing GPU version of PyTorch with CUDA 11.8...", style="cyan"))
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
-            else:
-                console.print("Invalid choice. Defaulting to CPU version.")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-        else:
-            raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
-
     install_noto_font()
     install_requirements()
-    download_uvr_model()  
     download_and_extract_ffmpeg()
     
     console.print(Panel.fit("Installation completed", style="bold green"))
