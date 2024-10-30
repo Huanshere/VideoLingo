@@ -41,7 +41,7 @@ def download_video_section():
                         download_video_ytdlp(url, resolution=resolution)
                     st.rerun()
 
-            uploaded_file = st.file_uploader("或上传视频", type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
+            uploaded_file = st.file_uploader("或上传音视频", type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
             if uploaded_file:
                 if os.path.exists("output"):
                     shutil.rmtree("output")
