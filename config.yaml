@@ -15,10 +15,9 @@ target_language: 'Chinese'
 whisper:
   # Whisper settings [whisperx, whisperxapi]
   method: 'whisperx'
-  # Whether to perform UVR processing before transcription
-  uvr_before_transcription: true
   # Whisper specified recognition language [en, zh, auto] auto for automatic detection, en for forced translation to English
   language: 'en'
+  detected_language: 'en'
 
 # Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
 resolution: '640x360'

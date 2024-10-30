@@ -64,9 +64,8 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     DUBBING_CHARACTER = sovits_set["character"]
     REFER_MODE = sovits_set["refer_mode"]
 
-    from core.step2_whisper import get_whisper_language
     current_dir = Path.cwd()
-    prompt_lang = get_whisper_language() if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
+    prompt_lang = load_key("whisper.detected_language") if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
     prompt_text = task_df.loc[task_df['number'] == number, 'origin'].values[0]
 
     if REFER_MODE == 1:

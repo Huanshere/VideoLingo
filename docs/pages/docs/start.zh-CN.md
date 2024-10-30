@@ -138,7 +138,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | 简易包 | 源码安装 |
 |------------|--------------|
 | 💻 CPU 版本 torch，约 **2.7G** | 🖥️ 需 Nvidia 显卡和 **25G** 硬盘 |
-| 🐢 UVR5 人声分离在 CPU 上较慢 | 🚀 GPU 加速 UVR5 |
+| 🐢 Demucs 人声分离在 CPU 上较慢 | 🚀 GPU 加速 Demucs |
 | ☁️ 仅支持 whisperXapi，不支持本地 whisperX | 🏠 支持本地 whisperX |
 | 🈚 不支持中文转录 | 🈶 支持中文转录 |
 | 🎵 转录步骤未进行人声分离，不适用于 BGM 嘈杂视频 | 🎼 可处理 BGM 嘈杂视频 |

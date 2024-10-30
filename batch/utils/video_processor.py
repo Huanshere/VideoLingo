@@ -2,7 +2,7 @@ import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from core import step2_whisper, step1_ytdlp, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline 
-from core import step7_merge_sub_to_vid, step8_gen_audio_task, step9_uvr_audio, step10_gen_audio, step11_merge_audio_to_vid
+from core import step7_merge_sub_to_vid, step8_gen_audio_task, step10_gen_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
 from core.config_utils import load_key
 import shutil
@@ -22,7 +22,6 @@ def process_video(file, dubbing=False):
     if dubbing:
         steps.extend([
             ("Generating audio tasks", step8_gen_audio_task.gen_audio_task_main),
-            ("Processing audio with UVR", step9_uvr_audio.uvr_audio_main),
             ("Generating audio using SoVITS", step10_gen_audio.process_sovits_tasks),
             ("Merging generated audio with video", step11_merge_audio_to_vid.merge_main),
         ])

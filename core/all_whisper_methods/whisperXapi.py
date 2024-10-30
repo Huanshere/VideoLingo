@@ -1,27 +1,29 @@
-import os
-import sys
+import os, sys, subprocess, base64, time
 import replicate
 import pandas as pd
-import json
-from typing import Dict, List, Tuple
-import subprocess
-import base64
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from core.config_utils import load_key
 from moviepy.editor import AudioFileClip
-import time
+from typing import Dict, List, Tuple
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from core.config_utils import load_key, update_key
+from core.all_whisper_methods.demucs_vl import demucs_main
+
+RAW_AUDIO_FILE = "raw_full_audio.mp3"
+AUDIO_DIR = "output/audio"
+BACKGROUND_AUDIO_FILE = "background.mp3"
+VOCAL_AUDIO_FILE = "vocal.mp3"
 
 def convert_video_to_audio(input_file: str) -> str:
-    audio_dir = 'output/audio'
-    os.makedirs(audio_dir, exist_ok=True)
-    audio_file = 'output/audio/raw_full_audio.wav'
+    os.makedirs(AUDIO_DIR, exist_ok=True)
+    audio_file = os.path.join(AUDIO_DIR, RAW_AUDIO_FILE)
 
     if not os.path.exists(audio_file):
         print(f"🎬➡️🎵 Converting to audio with FFmpeg ......")
         ffmpeg_cmd = [
             'ffmpeg', '-y', '-i', input_file,
-            '-vn', '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1',
+            '-vn', '-b:a', '64k',
+            '-ar', '16000', '-ac', '1',
             '-metadata', 'encoding=UTF-8',
+            '-f', 'mp3',
             audio_file
         ]
         try:
@@ -77,21 +79,12 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
 def transcribe_segment(audio_file: str, start: float, end: float) -> Dict:
     print(f"🎙️ Transcribing segment from {start:.2f}s to {end:.2f}s")
     
-    segment_file = f'output/audio/segment_{start:.2f}_{end:.2f}.mp3'
+    segment_file = os.path.join(AUDIO_DIR, f'segment_{start:.2f}_{end:.2f}.mp3')
     ffmpeg_cmd = ['ffmpeg', '-y', '-i', audio_file, '-ss', str(start), '-to', str(end), '-ar', '16000', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '24k', segment_file]
-    
-    try:
-        # Run ffmpeg command with timeout
-        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, timeout=300)
-    except subprocess.TimeoutExpired:
-        print("⚠️ ffmpeg command timed out, retrying...")
-        subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE)
+    subprocess.run(ffmpeg_cmd, check=True, stderr=subprocess.PIPE, timeout=300)
     
     # Short wait to ensure file is written
-    time.sleep(1)
-
-    if not os.path.exists(segment_file):
-        raise FileNotFoundError(f"Failed to create segment file: {segment_file}")
+    time.sleep(0.2)
 
     # Encode to base64
     with open(segment_file, 'rb') as file:
@@ -118,7 +111,7 @@ def encode_file_to_base64(file_path: str) -> str:
 def transcribe_audio(audio_base64: str) -> Dict:
     WHISPER_LANGUAGE = load_key("whisper.language")
     if WHISPER_LANGUAGE == 'zh':
-        raise Exception("WhisperX API 不支持中文，如需翻译中文视频请本地部署 whisperX 模型，参阅 'https://github.com/Huanshere/VideoLingo/' 的说明文档.")
+        raise Exception("WhisperX API 中文效果差，如需翻译中文视频请本地部署 whisperX 模型，参阅 'https://github.com/Huanshere/VideoLingo/' 的说明文档.")
     client = replicate.Client(api_token=load_key("replicate_api_token"))
     print(f"🚀 Starting WhisperX API... Sometimes it takes time for the official server to start, please wait patiently... Actual processing speed is 10s for 2min audio, costing about ¥0.1 per run")
     try:
@@ -208,48 +201,55 @@ def save_results(df: pd.DataFrame):
     print(f"📊 Excel file saved to {excel_path}")
 
 def save_language(language: str):
-    os.makedirs('output/log', exist_ok=True)
-    with open('output/log/transcript_language.json', 'w', encoding='utf-8') as f:
-        json.dump({"language": language}, f, ensure_ascii=False, indent=4)
-    
+    update_key("whisper.detected_language", language)
+
 def transcribe(video_file: str):
-    if not os.path.exists("output/log/cleaned_chunks.xlsx"):
-        audio_file = convert_video_to_audio(video_file)
-        print("!  Warning: This method does not apply UVR5 processing to the audio. Not recommended for videos with loud BGM.")
-        # step2 Extract audio
-        segments = split_audio(audio_file)
-        
-        # step3 Transcribe audio
-        all_results = []
-        for start, end in segments:
-            result = transcribe_segment(audio_file, start, end)
-            result['time_offset'] = start  # Add time offset to the result
-            all_results.append(result)
-        
-        # step4 Combine results
-        combined_result = {
-            'segments': [],
-            'detected_language': all_results[0]['detected_language']
-        }
-        for result in all_results:
-            for segment in result['segments']:
-                segment['start'] += result['time_offset']
-                segment['end'] += result['time_offset']
-                for word in segment['words']:
-                    if 'start' in word:
-                        word['start'] += result['time_offset']
-                    if 'end' in word:
-                        word['end'] += result['time_offset']
-            combined_result['segments'].extend(result['segments'])
-        
-        # step5 Save language
-        save_language(combined_result['detected_language'])
-        
-        # step6 Process transcription
-        df = process_transcription(combined_result)
-        save_results(df)
-    else:
+    if os.path.exists("output/log/cleaned_chunks.xlsx"):
         print("📊 Transcription results already exist, skipping transcription step.")
+        return
+    
+    audio_file = convert_video_to_audio(video_file)
+    # step1 Demucs vocal separation
+    demucs_main(
+        os.path.join(AUDIO_DIR, RAW_AUDIO_FILE),
+        AUDIO_DIR,
+        os.path.join(AUDIO_DIR, BACKGROUND_AUDIO_FILE),
+        os.path.join(AUDIO_DIR, VOCAL_AUDIO_FILE)
+    )
+
+    # step2 Extract audio
+    segments = split_audio(audio_file)
+    
+    # step3 Transcribe audio
+    all_results = []
+    for start, end in segments:
+        result = transcribe_segment(os.path.join(AUDIO_DIR, VOCAL_AUDIO_FILE), start, end)
+        result['time_offset'] = start  # Add time offset to the result
+        all_results.append(result)
+    
+    # step4 Combine results
+    combined_result = {
+        'segments': [],
+        'detected_language': all_results[0]['detected_language']
+    }
+    for result in all_results:
+        for segment in result['segments']:
+            segment['start'] += result['time_offset']
+            segment['end'] += result['time_offset']
+            for word in segment['words']:
+                if 'start' in word:
+                    word['start'] += result['time_offset']
+                if 'end' in word:
+                    word['end'] += result['time_offset']
+        combined_result['segments'].extend(result['segments'])
+    
+    # step5 Save language
+    save_language(combined_result['detected_language'])
+    
+    # step6 Process transcription
+    df = process_transcription(combined_result)
+    save_results(df)
+        
 
 if __name__ == "__main__":
     from core.step1_ytdlp import find_video_files

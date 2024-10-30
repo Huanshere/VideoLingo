@@ -39,12 +39,6 @@ docker run -d -p 8501:8501 --gpus all rqlove/videolingo:latest
 
 ## 模型
 
-VideoLingo Docker 镜像中已经包含了以下模型:
-
-- UVR模型:
-  - HP2_all_vocals.pth
-  - VR-DeEchoAggressive.pth
-
 whisper模型不包含在镜像中,会在容器首次运行时自动下载。如果您希望跳过自动下载过程,可以从以下链接下载模型权重:
 
 - [Google Drive链接](https://drive.google.com/file/d/10gPu6qqv92WbmIMo1iJCqQxhbd1ctyVw/view?usp=drive_link)

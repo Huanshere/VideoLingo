@@ -1,14 +1,13 @@
 import re
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from third_party.uvr5.uvr5_for_videolingo import uvr5_for_videolingo
 from rich import print as rprint
 from rich.panel import Panel
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 import pandas as pd
 import soundfile as sf
-
+from core.all_whisper_methods.whisperXapi import AUDIO_DIR, VOCAL_AUDIO_FILE
 console = Console()
 
 def parse_srt(srt_content):
@@ -36,22 +35,10 @@ def extract_audio(input_video, start_time, end_time, output_file):
         # Save extracted audio
         sf.write(output_file, extract, samplerate)
 
-def uvr_audio_main():
+def extract_refer_audio_main():
     output_dir = 'output/audio'
 
-    # step1 uvr5 降噪完整音频
-    if os.path.exists(os.path.join(output_dir, 'background.wav')):
-        rprint(Panel(f"{os.path.join(output_dir, 'background.wav')} already exists, skip uvr5 processing.", title="Info", border_style="blue"))
-    else:
-        uvr5_for_videolingo(
-            'output/audio/raw_full_audio.wav',
-            'output/audio',
-            'output/audio/background.wav',
-            'output/audio/original_vocal.wav'
-        )
-        rprint(Panel("UVR5 processing completed, original_vocal.wav and background.wav saved", title="Success", border_style="green"))
-
-    # step2 提取音频
+    # extract refer audio
     if os.path.exists(os.path.join(output_dir, 'segs', '1.wav')):
         rprint(Panel(f"{os.path.join(output_dir, 'segs', '1.wav')} already exists, skip extraction.", title="Info", border_style="blue"))
     else:
@@ -60,7 +47,7 @@ def uvr_audio_main():
         refers_dir = os.path.join(output_dir, 'refers')
         os.makedirs(refers_dir, exist_ok=True)
         
-        original_vocal_path = os.path.join(output_dir, 'original_vocal.wav')
+        original_vocal_path = os.path.join(AUDIO_DIR, VOCAL_AUDIO_FILE)
         
         progress = Progress(
             SpinnerColumn(),
@@ -95,4 +82,4 @@ def time_to_seconds(time_str):
     return int(h) * 3600 + int(m) * 60 + float(s)
 
 if __name__ == "__main__":
-    uvr_audio_main()
+    extract_refer_audio_main()

@@ -7,7 +7,6 @@ from difflib import SequenceMatcher
 import math
 from core.spacy_utils.load_nlp_model import init_nlp
 from core.config_utils import load_key, get_joiner
-from core.step2_whisper import get_whisper_language
 from rich.console import Console
 from rich.table import Table
 
@@ -23,7 +22,7 @@ def find_split_positions(original, modified):
     parts = modified.split('[br]')
     start = 0
     whisper_language = load_key("whisper.language")
-    language = get_whisper_language() if whisper_language == 'auto' else whisper_language
+    language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
 
     for i in range(len(parts) - 1):

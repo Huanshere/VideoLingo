@@ -13,7 +13,6 @@ The following are the core technical modules and workflow of the system:
    - `core/all_whisper_methods/whisperX.py`: Uses local WhisperX model for transcription.
    - `core/all_whisper_methods/whisperXapi.py`: Uses replicate's WhisperX model for transcription.
    - `core/step2_whisper.py`: Utilizes the Whisper model for high-precision speech recognition, generating text transcripts with timestamps.
-   - `core/step9_uvr_audio.py`: Performs noise reduction and audio segment extraction to optimize audio quality.
 
 3. **Text Processing and Translation Module**:
    - `core/step3_1_spacy_split.py`: Applies SpaCy natural language processing tools for initial text segmentation.

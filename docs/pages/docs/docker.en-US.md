@@ -39,12 +39,6 @@ Note:
 
 ## Models
 
-The VideoLingo Docker image includes the following models:
-
-- UVR models:
-  - HP2_all_vocals.pth
-  - VR-DeEchoAggressive.pth
-
 The Whisper model is not included in the image and will be automatically downloaded when the container is first run. If you want to skip the automatic download process, you can download the model weights from [here](https://drive.google.com/file/d/10gPu6qqv92WbmIMo1iJCqQxhbd1ctyVw/view?usp=drive_link) or [Baidu Netdisk](https://pan.baidu.com/s/1hZjqSGVn3z_WSg41-6hCqA?pwd=2kgs) (Passcode: 2kgs).
 
 After downloading, use the following command to run the container, mounting the model file into the container:

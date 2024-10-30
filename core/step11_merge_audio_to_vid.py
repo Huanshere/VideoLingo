@@ -67,10 +67,12 @@ def merge_all_audio():
 def merge_video_audio():
     """Merge video and audio, and reduce video volume"""
     video_file = "output/output_video_with_subs.mp4"
-    background_file = 'output/audio/background.wav'
-    original_vocal = 'output/audio/original_vocal.wav'
     audio_file = "output/trans_vocal_total.wav"    
     output_file = "output/output_video_with_audio.mp4"
+    from core.all_whisper_methods.whisperXapi import AUDIO_DIR, VOCAL_AUDIO_FILE, BACKGROUND_AUDIO_FILE
+    background_file = os.path.join(AUDIO_DIR, BACKGROUND_AUDIO_FILE)
+    original_vocal = os.path.join(AUDIO_DIR, VOCAL_AUDIO_FILE)
+    
 
     if os.path.exists(output_file):
         rprint(f"[bold yellow]{output_file} already exists, skipping processing.[/bold yellow]")

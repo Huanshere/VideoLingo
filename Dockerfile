@@ -44,11 +44,6 @@ RUN cd third_party/whisperX && pip install --no-cache-dir -e .
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download UVR models
-RUN mkdir -p _model_cache/uvr5_weights && \
-    wget -O _model_cache/uvr5_weights/HP2_all_vocals.pth https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth && \
-    wget -O _model_cache/uvr5_weights/VR-DeEchoAggressive.pth https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth
-
 # Set CUDA-related environment variables
 ENV CUDA_HOME=/usr/local/cuda
 ENV PATH=${CUDA_HOME}/bin:${PATH}

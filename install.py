@@ -12,7 +12,7 @@ def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
 install_package("requests", "rich", "ruamel.yaml")
-from core.pypi_autochoose import main as choose_mirror
+from pypi_autochoose import main as choose_mirror
 
 def main():
     from rich.console import Console
@@ -57,58 +57,6 @@ def main():
                 time.sleep(1)  # Wait 1 second before retrying
 
         return name, float('inf')
-
-    def download_uvr_model():
-        import requests
-        models = {
-            "HP2_all_vocals.pth": "lj1995/VoiceConversionWebUI/resolve/e992cb1bc5d777fcddce20735a899219b1d46aba/uvr5_weights/HP2_all_vocals.pth",
-            "VR-DeEchoAggressive.pth": "lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/VR-DeEchoAggressive.pth"
-        }
-        
-        mirrors = {
-            "Official": "https://huggingface.co/",
-            "Mirror": "https://hf-mirror.com/"
-        }
-
-        os.makedirs("_model_cache/uvr5_weights", exist_ok=True)
-
-        for model_name, model_path in models.items():
-            model_file_path = f"_model_cache/uvr5_weights/{model_name}"
-            if not os.path.exists(model_file_path):
-                print(f"Downloading UVR model: {model_name}...")
-                
-                # Test speed for each mirror
-                speeds = []
-                for mirror_name, mirror_url in mirrors.items():
-                    name, speed = test_mirror_speed(mirror_name, mirror_url)
-                    speeds.append((name, speed))
-                    print(f"{mirror_name} mirror speed: {speed:.2f} ms")
-
-                # Choose the fastest mirror
-                fastest_mirror = min(speeds, key=lambda x: x[1])[0]
-                print(f"Choosing mirror: {fastest_mirror}")
-
-                # Download from the fastest mirror
-                url = mirrors[fastest_mirror] + model_path
-                try:
-                    response = requests.get(url, stream=True)
-                    response.raise_for_status()
-                    total_size = int(response.headers.get('content-length', 0))
-                    
-                    with open(model_file_path, "wb") as file:
-                        downloaded_size = 0
-                        for data in response.iter_content(chunk_size=8192):
-                            size = file.write(data)
-                            downloaded_size += size
-                            if total_size:
-                                percent = (downloaded_size / total_size) * 100
-                                print(f"Download progress: {percent:.2f}%", end="\r")
-                    
-                    print(f"\n{model_name} model downloaded")
-                except requests.RequestException as e:
-                    print(f"Download failed: {model_name}: {str(e)}")
-            else:
-                print(f"{model_name} model exists")
 
     def download_and_extract_ffmpeg():
         import requests
@@ -219,7 +167,7 @@ def main():
             table.add_column("Model", style="magenta")
             table.add_column("Description", style="green")
             table.add_row("1", "CPU", "Choose this if you're using Mac, non-NVIDIA GPU, or don't need GPU acceleration")
-            table.add_row("2", "GPU", "Significantly speeds up UVR5 voice separation. Strongly recommended if you need dubbing functionality and have an NVIDIA GPU.")
+            table.add_row("2", "GPU", "Significantly speeds up Demucs voice separation. Strongly recommended if you need dubbing functionality and have an NVIDIA GPU.")
             console.print(table)
 
             torch_choice = console.input("Please enter the option number (1 for CPU or 2 for GPU): ")
@@ -237,7 +185,6 @@ def main():
 
     install_noto_font()
     install_requirements()
-    download_uvr_model()  
     download_and_extract_ffmpeg()
     
     console.print(Panel.fit("Installation completed", style="bold green"))

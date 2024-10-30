@@ -139,7 +139,7 @@ After configuration, make sure to select `Reference Audio Mode` in the webpage s
 | One-Click Package | Source Code Installation |
 |-------------------|--------------------------|
 | 💻 CPU version of torch, about **2.7GB** | 🖥️ Requires Nvidia GPU and **25GB** disk space |
-| 🐢 UVR5 voice separation is slow on CPU | 🚀 GPU-accelerated UVR5 |
+| 🐢 Demucs voice separation is slow on CPU | 🚀 GPU-accelerated Demucs |
 | ☁️ Only supports whisperXapi, no local whisperX | 🏠 Supports local whisperX |
 | 🈚 No Chinese transcription support | 🈶 Supports Chinese transcription |
 | 🎵 No voice separation in transcription, not suitable for videos with noisy BGM | 🎼 Can process videos with noisy background music |

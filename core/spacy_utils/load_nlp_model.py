@@ -3,7 +3,6 @@ import spacy
 from spacy.cli import download
 from rich import print
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from core.step2_whisper import get_whisper_language
 from core.config_utils import load_key
 
 SPACY_MODEL_MAP = load_key("spacy_model_map")
@@ -16,7 +15,7 @@ def get_spacy_model(language: str):
 
 def init_nlp():
     try:
-        language = "en" if load_key("whisper.language") == "en" else get_whisper_language()
+        language = "en" if load_key("whisper.language") == "en" else load_key("whisper.detected_language")
         model = get_spacy_model(language)
         print(f"[blue]⏳ Loading NLP Spacy model: <{model}> ...[/blue]")
         try:

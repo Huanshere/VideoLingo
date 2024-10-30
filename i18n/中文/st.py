@@ -68,7 +68,7 @@ def audio_processing_section():
         这个阶段包括以下步骤：
         <p style='font-size: 20px;'>
             1. 生成音频任务<br>
-            2. UVR5 处理<br>
+            2. Demucs 人声分离<br>
             3. 生成音频<br>
             4. 将音频合并到视频中
         """, unsafe_allow_html=True)
@@ -90,8 +90,6 @@ def audio_processing_section():
 def process_audio():
     with st.spinner("生成音频任务"): 
         step8_gen_audio_task.gen_audio_task_main()
-    with st.spinner("UVR5 处理"):
-        step9_uvr_audio.uvr_audio_main()
     with st.spinner("生成音频"):
         step10_gen_audio.process_sovits_tasks()
     with st.spinner("将音频合并到视频中"):

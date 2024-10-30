@@ -17,3 +17,4 @@ yt-dlp==2024.8.6
 json-repair
 ruamel.yaml
 autocorrect-py
+demucs[dev] @ git+https://github.com/adefossez/demucs

@@ -68,9 +68,8 @@ def audio_processing_section():
         This stage includes the following steps:
         <p style='font-size: 20px;'>
             1. Generate audio tasks<br>
-            2. UVR5 Process<br>
-            3. Generate audio<br>
-            4. Merge audio into the video
+            2. Generate audio<br>
+            3. Merge audio into the video
         """, unsafe_allow_html=True)
         if not os.path.exists("output/output_video_with_audio.mp4"):
             if st.button("Start Audio Processing", key="audio_processing_button"):
@@ -90,8 +89,8 @@ def audio_processing_section():
 def process_audio():
     with st.spinner("Generate audio tasks"): 
         step8_gen_audio_task.gen_audio_task_main()
-    with st.spinner("UVR5 Process"):
-        step9_uvr_audio.uvr_audio_main()
+    with st.spinner("Extract refer audio"):
+        step9_extract_refer_audio.extract_refer_audio_main()
     with st.spinner("Generate audio"):
         step10_gen_audio.process_sovits_tasks()
     with st.spinner("Merge audio into the video"):

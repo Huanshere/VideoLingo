@@ -15,8 +15,6 @@ target_language: '简体中文'
 whisper:
   # Whisper 设置 [whisperx, whisperxapi]
   method: 'whisperx'
-  # 是否在转录前进行 UVR 处理
-  uvr_before_transcription: true
   # Whisper 指定识别语言 [en, zh, auto] auto 为自动检测，en 为强制翻译成英语
   language: 'en'
 

@@ -81,14 +81,11 @@ Currently supported input languages and examples:
 Translation languages support all languages that the large language model can handle, while dubbing languages depend on the chosen TTS method.
 
 ## ⚠️ Current Limitations
+1. **The quality of dubbing may not be perfect** due to differences in language structure and morpheme information density between source and target languages. For best results, choose TTS with similar speech rates based on the original video's speed and content characteristics. The best practice is to train the original video's voice using GPT-SoVITS, then use "Mode 3: Use every reference audio" for dubbing. This ensures maximum consistency in voice, speech rate, and tone. See the [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e) for effects.
 
-1. **UVR5 voice separation is resource-intensive** and processes slowly. It's recommended to use this feature only on devices with more than 16GB of RAM and 8GB of VRAM. Note: For videos with loud BGM, not performing voice separation before whisper may cause word-level subtitle adhesion, resulting in errors in the final alignment step.
+2. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, deleting unrecognized languages.
 
-2. **The quality of dubbing may not be perfect** due to differences in language structure and morpheme information density between source and target languages. For best results, choose TTS with similar speech rates based on the original video's speed and content characteristics. The best practice is to train the original video's voice using GPT-SoVITS, then use "Mode 3: Use every reference audio" for dubbing. This ensures maximum consistency in voice, speech rate, and tone. See the [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e) for effects.
-
-3. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, deleting unrecognized languages.
-
-4. **Multi-character separate dubbing is currently unavailable**. While whisperX has VAD potential, specific development is needed, and this feature is not yet implemented.
+3. **Multi-character separate dubbing is currently unavailable**. While whisperX has VAD potential, specific development is needed, and this feature is not yet implemented.
 
 ## 🚗 Roadmap
 

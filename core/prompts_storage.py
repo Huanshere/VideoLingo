@@ -1,13 +1,12 @@
 import os,sys,json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.step2_whisper import get_whisper_language
 from core.config_utils import load_key
 
 ## ================================================================
 # @ step4_splitbymeaning.py
 def get_split_prompt(sentence, num_parts = 2, word_limit = 20):
     # ! only support num_parts = 2
-    language = get_whisper_language()
+    language = load_key("whisper.detected_language")
     split_prompt = f"""
 ### Role
 You are a professional and experienced Netflix subtitle splitter in {language}.
@@ -47,7 +46,7 @@ Please provide your answer in the following JSON format, <<>> represents placeho
 ## ================================================================
 # @ step4_1_summarize.py
 def get_summary_prompt(source_content):
-    src_language = get_whisper_language()
+    src_language = load_key("whisper.detected_language")
     TARGET_LANGUAGE = load_key("target_language")
     summary_prompt = f"""
 ### Role
@@ -152,7 +151,7 @@ def get_prompt_faithfulness(lines, shared_prompt):
             "direct": f"<<direct {TARGET_LANGUAGE} translation>>"
         }
     
-    src_language = get_whisper_language()
+    src_language = load_key("whisper.detected_language")
     prompt_faithfulness = f'''
 ### Role Definition
 You are a professional Netflix subtitle translator, fluent in both {src_language} and {TARGET_LANGUAGE}, as well as their respective cultures. Your expertise lies in accurately understanding the semantics and structure of the original {src_language} text and faithfully translating it into {TARGET_LANGUAGE} while preserving the original meaning.
@@ -196,7 +195,7 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
             "free": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits, DO NOT leave empty line here!>>"
         }
 
-    src_language = get_whisper_language()
+    src_language = load_key("whisper.detected_language")
     prompt_expressiveness = f'''
 ### Role Definition
 You are a professional Netflix subtitle translator and language consultant. Your expertise lies not only in accurately understanding the original {src_language} but also in optimizing the {TARGET_LANGUAGE} translation to better suit the target language's expression habits and cultural background.
@@ -243,7 +242,7 @@ Please complete the following JSON data, where << >> represents placeholders tha
 # @ step6_splitforsub.py
 def get_align_prompt(src_sub, tr_sub, src_part):
     TARGET_LANGUAGE = load_key("target_language")
-    src_language = get_whisper_language()
+    src_language = load_key("whisper.detected_language")
     src_splits = src_part.split('\n')
     num_parts = len(src_splits)
     src_part = src_part.replace('\n', ' [br] ')

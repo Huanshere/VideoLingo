@@ -36,11 +36,7 @@ def page_setting():
         if selected_whisper_method != load_key("whisper.method"):
             update_key("whisper.method", selected_whisper_method)
 
-        if selected_whisper_method == "whisperx":
-            uvr_before_transcription = st.toggle("转录前使用 UVR", value=load_key("whisper.uvr_before_transcription"), help="转录前使用 UVR")
-            if uvr_before_transcription != load_key("whisper.uvr_before_transcription"):
-                update_key("whisper.uvr_before_transcription", uvr_before_transcription)
-        elif selected_whisper_method == "whisperxapi":    
+        if selected_whisper_method == "whisperxapi":    
             col1, col2 = st.columns([4, 1])
             with col1:
                 replicate_api_token = st.text_input("Replicate API 令牌", value=load_key("replicate_api_token"), help="Replicate API 令牌")
