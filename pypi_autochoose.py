@@ -54,7 +54,8 @@ def set_pip_mirror(url):
 
 def get_current_pip_mirror():
     try:
-        result = subprocess.run(["pip", "config", "get", "global.index-url"], capture_output=True, text=True, check=True)
+        result = subprocess.run([sys.executable, "-m", "pip", "config", "get", "global.index-url"], 
+                              capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError:
         return None
