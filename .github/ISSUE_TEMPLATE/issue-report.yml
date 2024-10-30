@@ -1,6 +1,6 @@
-name: LLM 使用问题报告 / LLM Usage Problem Report
-description: 报告在使用 LLM 过程中遇到的问题 / Report issues encountered while using LLM
-labels: ["bug", "LLM"]
+name: 使用问题报告 / Usage Problem Report
+description: 报告在使用过程中遇到的问题 / Report issues encountered while using
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
