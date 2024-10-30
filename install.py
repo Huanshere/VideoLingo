@@ -13,18 +13,46 @@ def install_package(*packages):
 install_package("requests", "rich", "ruamel.yaml")
 from pypi_autochoose import main as choose_mirror
 
+def check_gpu():
+    """Check if NVIDIA GPU is available"""
+    try:
+        # 🔍 Try running nvidia-smi command to detect GPU
+        subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
 def main():
     from rich.console import Console
-    from rich.table import Table
     from rich.panel import Panel
-
+    
     console = Console()
+    console.print(Panel.fit("🚀 Starting Installation", style="bold magenta"))
 
-    console.print(Panel.fit("Starting installation", style="bold magenta"))
-
-    # Execute mirror configuration
-    console.print(Panel("Configuring mirror", style="bold yellow"))
+    # Configure mirrors
+    console.print(Panel("⚙️ Configuring mirrors", style="bold yellow"))
     choose_mirror()
+
+    # Detect system and GPU
+    if platform.system() == 'Darwin':
+        console.print(Panel("🍎 MacOS detected, installing CPU version of PyTorch...", style="cyan"))
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+    else:
+        has_gpu = check_gpu()
+        if has_gpu:
+            console.print(Panel("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch...", style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
+        else:
+            console.print(Panel("💻 No NVIDIA GPU detected, installing CPU version of PyTorch...", style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+    
+    # Install WhisperX
+    console.print(Panel("📦 Installing WhisperX...", style="cyan"))
+    current_dir = os.getcwd()
+    whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
+    os.chdir(whisperx_dir)
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
+    os.chdir(current_dir)
 
     def install_requirements():
         try:
@@ -101,65 +129,6 @@ def main():
                     print("Noto fonts installed successfully using yum.")
                 except subprocess.CalledProcessError:
                     print("Failed to install Noto fonts automatically. Please install them manually.")
-
-    # User selects Whisper model
-    table = Table(title="Whisper Model Selection")
-    table.add_column("Option", style="cyan", no_wrap=True)
-    table.add_column("Model", style="magenta")
-    table.add_column("Description", style="green")
-    table.add_row("1", "whisperX 💻", "Local processing with whisperX")
-    table.add_row("2", "whisperXapi ☁️", "Cloud processing with whisperXapi")
-    console.print(table)
-
-    console.print("WhisperX processes audio locally on your machine, while whisperXapi uses cloud processing.")
-
-    if len(sys.argv) > 1:
-        choice = sys.argv[1]
-    else:
-        choice = console.input("Enter your choice (1 or 2): ")
-
-    if platform.system() == 'Darwin':
-        console.print(Panel("For MacOS, installing CPU version of PyTorch...", style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-        if choice == '1':
-            print("Installing whisperX...")
-            current_dir = os.getcwd()
-            whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
-            os.chdir(whisperx_dir)
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
-            os.chdir(current_dir)
-    else:
-        if choice == '1':
-            console.print(Panel("Installing PyTorch with CUDA support...", style="cyan"))
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
-
-            print("Installing whisperX...")
-            current_dir = os.getcwd()
-            whisperx_dir = os.path.join(current_dir, "third_party", "whisperX")
-            os.chdir(whisperx_dir)
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
-            os.chdir(current_dir)
-        elif choice == '2':
-            table = Table(title="PyTorch Version Selection")
-            table.add_column("Option", style="cyan", no_wrap=True)
-            table.add_column("Model", style="magenta")
-            table.add_column("Description", style="green")
-            table.add_row("1", "CPU", "Choose this if you're using Mac, non-NVIDIA GPU, or don't need GPU acceleration")
-            table.add_row("2", "GPU", "Significantly speeds up Demucs voice separation. Strongly recommended if you need dubbing functionality and have an NVIDIA GPU.")
-            console.print(table)
-
-            torch_choice = console.input("Please enter the option number (1 for CPU or 2 for GPU): ")
-            if torch_choice == '1':
-                console.print(Panel("Installing CPU version of PyTorch...", style="cyan"))
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-            elif torch_choice == '2':
-                console.print(Panel("Installing GPU version of PyTorch with CUDA 11.8...", style="cyan"))
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio", "--index-url", "https://download.pytorch.org/whl/cu118"])
-            else:
-                console.print("Invalid choice. Defaulting to CPU version.")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
-        else:
-            raise ValueError("Invalid choice. Please enter 1 or 2. Try again.")
 
     install_noto_font()
     install_requirements()
