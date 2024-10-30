@@ -90,7 +90,8 @@ def merge_subtitles_to_video():
 
     try:
         for line in process.stdout:
-            print(line, end='')  # Print FFmpeg output in real-time
+            if "time=" in line:
+                print(line.strip())
         
         process.wait()
         if process.returncode == 0:
