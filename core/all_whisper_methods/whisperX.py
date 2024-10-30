@@ -7,6 +7,8 @@ from typing import Dict
 import librosa
 from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
+import subprocess
+import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from core.config_utils import load_key
 from core.all_whisper_methods.demucs_vl import demucs_main
@@ -45,10 +47,28 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         else:
             rprint(f"[green]📥 Using WHISPER model from HuggingFace:[/green] {model_name} ...")
 
-        model = whisperx.load_model(model_name, device, compute_type=compute_type, download_root=MODEL_DIR)
+        vad_options = {
+                "vad_onset": 0.500,
+                "vad_offset": 0.363
+            }
+        asr_options = {
+                "temperatures": [0],
+                "initial_prompt": "",
+            }
+        whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
+        model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
 
-        # Load audio segment using librosa
-        audio_segment, sample_rate = librosa.load(audio_file, sr=None, offset=start, duration=end-start)
+        # Create temporary file to store audio segment
+        temp_audio = tempfile.NamedTemporaryFile(suffix='.mp3', delete=False)
+        temp_audio_path = temp_audio.name
+        temp_audio.close()
+        # Use ffmpeg to cut audio
+        ffmpeg_cmd = f'ffmpeg -y -i "{audio_file}" -ss {start} -t {end-start} -vn -b:a 64k -ar 16000 -ac 1 -metadata encoding=UTF-8 -f mp3 "{temp_audio_path}"'
+        subprocess.run(ffmpeg_cmd, shell=True, check=True, capture_output=True)
+        # Load the cut audio
+        audio_segment, sample_rate = librosa.load(temp_audio_path, sr=16000)
+        # Delete temporary file
+        os.unlink(temp_audio_path)
 
         with Progress(
             SpinnerColumn(),
@@ -57,8 +77,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             transient=True
         ) as progress:
             task = progress.add_task("[cyan]Transcribing...", total=None)
-            whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
-            result = model.transcribe(audio_segment, batch_size=batch_size, language=whisper_language)
+            
+            result = model.transcribe(audio_segment, batch_size=batch_size)
             progress.update(task, completed=True)
 
         # Free GPU resources
@@ -75,8 +95,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         result = whisperx.align(result["segments"], model_a, metadata, audio_segment, device, return_char_alignments=False)
 
         # Free GPU resources again
-        del model_a
         torch.cuda.empty_cache()
+        del model_a
 
         # Adjust timestamps
         for segment in result['segments']:
@@ -110,6 +130,7 @@ def transcribe(video_file: str):
             os.path.join(AUDIO_DIR, VOCAL_AUDIO_FILE)
         )
         print("Demucs processing completed, original_vocal.mp3 and background.mp3 saved")
+    
     audio_file = os.path.join(AUDIO_DIR, VOCAL_AUDIO_FILE)
 
     # step2 Extract audio
