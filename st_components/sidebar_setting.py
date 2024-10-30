@@ -50,10 +50,23 @@ def page_setting():
             
         col1, col2 = st.columns(2)
         with col1:
-            whisper_language_options = ["en", "zh", "auto"]
-            selected_whisper_language = st.selectbox("Recognition Language:", options=whisper_language_options, index=whisper_language_options.index(load_key("whisper.language")))
-            if selected_whisper_language != load_key("whisper.language"):
-                update_key("whisper.language", selected_whisper_language)
+            whisper_language_options_dict = {
+            "🇺🇸 English": "en",
+            "🇨🇳 Chinese": "zh",
+            "🇷🇺 Russian": "ru",
+            "🇫🇷 French": "fr",
+            "🇩🇪 German": "de",
+            "🇮🇹 Italian": "it",
+            "🇪🇸 Spanish": "es",
+            "🇯🇵 Japanese": "ja"
+            }
+            selected_whisper_language = st.selectbox(
+                "Recognition Language:", 
+                options=list(whisper_language_options_dict.keys()),
+                index=list(whisper_language_options_dict.values()).index(load_key("whisper.language"))
+            )
+            if whisper_language_options_dict[selected_whisper_language] != load_key("whisper.language"):
+                update_key("whisper.language", whisper_language_options_dict[selected_whisper_language])
 
         with col2:
             target_language = st.text_input("Translation Target Language", value=load_key("target_language") , help="Translation Target Language")
