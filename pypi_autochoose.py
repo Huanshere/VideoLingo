@@ -6,6 +6,7 @@ import concurrent.futures
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
+import sys
 
 MIRRORS = {
     "Alibaba Cloud": "https://mirrors.aliyun.com/pypi/simple",
@@ -41,12 +42,14 @@ def test_mirror_speed(name, url):
     except requests.RequestException:
         return name, float('inf')
 
-def set_pip_mirror(url, host):
+def set_pip_mirror(url):
     try:
-        subprocess.run(["pip", "config", "set", "global.index-url", url], check=True, capture_output=True)
-        subprocess.run(["pip", "config", "set", "install.trusted-host", host], check=True, capture_output=True)
+        subprocess.run([sys.executable, "-m", "pip", "config", "set", "global.index-url", url], 
+                      check=True, 
+                      capture_output=True)
         return True
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to set pip mirror: {e}")
         return False
 
 def get_current_pip_mirror():
@@ -71,7 +74,7 @@ def main():
     
     if pypi_speed < FAST_THRESHOLD:
         console.print(f"PyPI official mirror is fast ({pypi_speed:.2f} ms). Using the official mirror.")
-        set_pip_mirror(pypi_url, "pypi.org")
+        set_pip_mirror(pypi_url)
         return
     elif pypi_speed < SLOW_THRESHOLD:
         console.print(f"PyPI official mirror speed is acceptable ({pypi_speed:.2f} ms). You may continue using it.")
@@ -118,7 +121,7 @@ def main():
         console.print(f"[green]Response time: {speeds[fastest_mirror]:.2f} ms[/green]")
         
         host = fastest_url.split("//")[1].split("/")[0]
-        if set_pip_mirror(fastest_url, host):
+        if set_pip_mirror(fastest_url):
             current_mirror = get_current_pip_mirror()
             console.print(f"\n[yellow]Current pip source: {current_mirror}[/yellow]")
             
