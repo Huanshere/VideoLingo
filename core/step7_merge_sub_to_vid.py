@@ -61,11 +61,6 @@ def merge_subtitles_to_video():
         print("Subtitle files not found in the 'output' directory.")
         exit(1)
 
-    # check if gpu is available
-    gpu_available = check_gpu_available()
-    if gpu_available:
-        rprint("[bold green]NVIDIA GPU encoder detected, will use GPU acceleration.[/bold green]")
-    
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (
@@ -80,15 +75,18 @@ def merge_subtitles_to_video():
         ).encode('utf-8'),
     ]
 
-    # add nvenc if gpu is available
+    gpu_available = check_gpu_available()
     if gpu_available:
+        rprint("[bold green]NVIDIA GPU encoder detected, will use GPU acceleration.[/bold green]")
         ffmpeg_cmd.extend(['-c:v', 'h264_nvenc'])
+    else:
+        rprint("[bold yellow]No NVIDIA GPU encoder detected, will use CPU instead.[/bold yellow]")
     
     ffmpeg_cmd.extend(['-y', output_video])
 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
-    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, encoding='utf-8')  # 指定 UTF-8 编码
+    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8')  # 指定 UTF-8 编码
 
     try:
         for line in process.stdout:
