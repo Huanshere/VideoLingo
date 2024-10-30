@@ -11,7 +11,7 @@
   <a href="https://github.com/Huanshere/VideoLingo/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/Huanshere/VideoLingo.svg" alt="GitHub stars"></a>
 </p>
 
-[**English**](/README.md)｜[**中文**](/i18n/README.zh.md) | [**日本語**](/i18n/README.ja.md)
+[**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
 
 **QQ群：875297969**
 
@@ -100,7 +100,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 本地安装
 
-VideoLingo 提供 **一键简易包** 和 **源码安装** 两种本地安装方式，请参考安装文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+VideoLingo 提供 **一键包** 和 **源码安装** 两种本地安装方式，请参考安装文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 
 ### 使用Docker
@@ -112,7 +112,7 @@ docker build -t videolingo .
 docker run -d -p 8501:8501 --gpus all videolingo
 ```
 
-注：目前Docker版VideoLingo的Docker版本还有一些需要完善的地方，详情和后续规划见：[Docker](/docs/pages/docs/docker.zh-CN.md)
+注：目前 Docker 版本还有一些需要完善的地方，详情和后续规划见：[Docker](/docs/pages/docs/docker.zh-CN.md)
 
 VideoLingo 提供 
 
@@ -121,19 +121,19 @@ VideoLingo 提供
 使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
 
 ## ⚠️ 当前限制
+1. 不同设备运行 whisperX 效果不同，v1.7 会先进行 demucs 人声分离，但可能会导致分离后转录效果不如分离前，原因是 whisper 本身是在带 bgm 的环境下训练的，分离前不会转录bgm的歌词，但是分离后可能会转录歌词。
 
-1. **配音功能的质量可能不完美**，归根结底是因为语言结构差异、以及源语言与目标语言之间的语素信息密度不同。为获得最佳效果，建议根据原视频的语速和内容特点，选择相近语速的 TTS。最佳实践是使用GPT-SoVITS训练原视频声音，然后采取 `模式3:使用每一条参考音频` 进行配音，这样能最大程度保证音色、语速、语气的吻合，效果见 [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e)。
+2. **配音功能的质量可能不完美**，仍处于测试开发阶段，正在尝试接入 MascGCT。目前为获得最佳效果，建议根据原视频的语速和内容特点，选择相近语速的 TTS，效果见 [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e)。
 
-2. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。
+3. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。
 
-3. **多角色分别配音暂不可用**，whisperX 具有 VAD 的潜力，但是具体需要一些施工，暂时没有开发此功能。
+3. **多角色分别配音正在开发**，whisperX 具有 VAD 的潜力，但是具体需要一些施工，暂时没有支持此功能。
 
 ## 🚗 路线图
 
 - [ ] VAD 区分说话人，多角色配音
-- [ ] 翻译风格自定义
 - [ ] 用户术语表
-- [ ] 提供商业化服务
+- [ ] SaaS 版本
 - [ ] 配音视频唇形同步
 
 ## 📄 许可证

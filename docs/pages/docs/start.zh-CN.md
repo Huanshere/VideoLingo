@@ -1,51 +1,36 @@
 # 🚀 开始使用
 
-## 📋 API 准备
-本项目需使用大语言模型、WhisperX 和 TTS ，每个环节都提供了多种选择，**请仔细阅读配置指南😊**
+## 📋 API 配置准备
+本项目需使用大模型 和 TTS ，每个环节都提供了多种选择，**请仔细阅读配置指南😊**
 ### 1. **获取大模型的 API_KEY**：
 
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 （默认） | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens（官网1/10） | 🤩 |
+| claude-3-5-sonnet-20240620 | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥15 / 1M tokens（官方的1/10） | 🤩 |
 
-⚠️ 警告：prompt 涉及多步思维链和复杂的json格式，除了 claude 3.5 sonnet 模型，其他模型均容易出错。一小时视频花费约 ￥7。
+⚠️ 警告：prompt 涉及多步思维链和复杂的json格式，除了 claude 3.5 sonnet 模型，其他模型均容易出错。1h 视频花费约 10 元。
 
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤选用。
 
 <details>
 <summary>云雾api 如何获取 api key？</summary>
 
-1. 点击上面 推荐提供商 的链接
+1. 前往 [云雾 api 官网](https://yunwu.zeabur.app/register?aff=TXMB)
 2. 注册账户并充值
-3. 在 api key 页面新建一个即可
-4. 云雾api要注意勾选 `无限额度` ，模型处选择 `claude-3-5-sonnet-20240620` 模型，渠道建议选 `纯AZ 1.5倍`，如需配音时使用 `openai`，还需要勾选 `tts-1` 模型
+3. 在 api key 页面新建一个 key
+4. 注意勾选 `无限额度` ，渠道建议选 `纯AZ 1.5倍`
 </details>
 
 <details>
 <summary>能用别的模型吗？</summary>
 
 - ✅ 支持 OAI-Like 的 API 接口，需要自行在 streamlit 侧边栏更换。
-- ⚠️ 但其他模型（尤其是小模型）遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐。
-</details>
-
-### 2. **准备 Replicate 的 Token** （仅当选用 whisperXapi ☁️ 时）
-
-VideoLingo 使用 WhisperX 进行语音识别，支持本地部署和云端api。如果你没有显卡或者仅想快速体验，可以使用云端api及一键简易包。
-
-#### 两者对比：
-| 方案 | 缺点 |
-|:-----|:-----|
-| **whisperX 🖥️** | • 安装CUDA 🛠️<br>• 需下载模型 📥<br>• 高显存 💾 |
-| **whisperXapi ☁️** | • 需梯子 🕵️‍♂️<br>• Visa卡 💳<br>• **中文效果差** 🚫 |
-
-<details>
-<summary>如何获取令牌</summary>
-在 [Replicate](https://replicate.com/account/api-tokens) 注册并绑定 Visa 卡支付方式，获取令牌。**或加入 QQ 群在群公告中免费获取测试令牌**
+- ⚠️ 但其他模型（尤其是小模型）遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐，遇到报错请更换模型。
 </details>
 
 
-### 3. **TTS 的 API**
-VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音仅翻译请跳过）
+### 2. **TTS 的 API**
+VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配音仅翻译请跳过）
 
 | TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:-----|:-----|:---------|:-----------|
@@ -55,7 +40,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
 | 🗣️ GPT-SoVITS (测试) | 最强语音克隆 | 目前只支持中英文，需要N卡推理模型，配置需要相关知识 | 🏆 | 🚫 |
 
 - OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)，注意在模型处勾选 `tts-1`；
-- **Azure TTS 可在QQ群公告获取测试 key** 或自行在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值；
+- Azure TTS 在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值（有免费额度）；
 - Fish TTS 请自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册（送10刀额度）
 
 <details>
@@ -129,49 +114,25 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
         
 配置完成后，注意在网页侧边栏选择 `参考音频模式`（具体原理可以参考语雀文档），VideoLingo 在配音步骤时会自动在弹出的命令行中打开 GPT-SoVITS 的推理 API 端口，配音完成后可手动关闭。注意，此方法的稳定性取决于选择的底模。</details>
 
-## 💨 Win 一键简易包
+## 🛠️ 快速上手
 
-### 注意事项：
+VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运行。对于 Windows 系统使用 GPU 加速，需要安装以下依赖：
 
-**简易包并不具备从源码安装的完整功能**，仅供快速体验用（现在更推荐使用colab版本进行体验），如果需要处理长视频及完整功能，建议使用源码安装。以下是两者的对比：
+- [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
+- [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 
-| 简易包 | 源码安装 |
-|------------|--------------|
-| 💻 CPU 版本 torch，约 **2.7G** | 🖥️ 需 Nvidia 显卡和 **25G** 硬盘 |
-| 🐢 Demucs 人声分离在 CPU 上较慢 | 🚀 GPU 加速 Demucs |
-| ☁️ 仅支持 whisperXapi，不支持本地 whisperX | 🏠 支持本地 whisperX |
-| 🈚 不支持中文转录 | 🈶 支持中文转录 |
-| 🎵 转录步骤未进行人声分离，不适用于 BGM 嘈杂视频 | 🎼 可处理 BGM 嘈杂视频 |
+> 注意：安装完 CUDA 和 CUDNN 后需要检查是否添加到了系统路径，并重启计算机 🔄
 
-### 下载和使用说明
+### 源码安装
 
-1. 下载 `v1.6.2` 一键简易包(800M): [直接下载](https://vip.123pan.cn/1817874751/8372004) | [度盘备用](https://pan.baidu.com/s/1H_3PthZ3R3NsjS0vrymimg?pwd=ra64)
+开始安装 VideoLingo 之前，请确保:
+1. 预留 **25G** 硬盘空间
+2. 已安装 [Anaconda](https://www.anaconda.com/download) (用于 Python 环境管理)
+3. 已安装 [Git](https://git-scm.com/downloads) (用于克隆项目代码，也可以手动下载)
 
-2. 解压后双击运行文件夹中的 `一键启动.bat`
+需要一定的 python 基础，遇到任何问题可以询问官方网站 [videolingo.io](https://videolingo.io) 右下角的AI助手~
 
-3. 在打开的浏览器窗口中，在侧边栏进行必要配置，然后一键出片！
-  ![cn_cloud_set](https://github.com/user-attachments/assets/cb25318f-54ad-404e-a864-e46059415cf9)
-
-## 🛠️ 源码安装流程
-
-### Windows 前置依赖
-
-在开始安装 VideoLingo 之前，注意预留 **25G** 硬盘空间，并根据是否使用本地运行的 whisper 模型安装列表中的依赖软件：
-
-| 依赖 | whisperX 🖥️ | whisperX ☁️ |
-|:-----|:-------------------|:----------------|
-| Anaconda 🐍 | [下载](https://www.anaconda.com/products/distribution#download-section) | [下载](https://www.anaconda.com/products/distribution#download-section) |
-| Git 🌿 | [下载](https://git-scm.com/download/win) | [下载](https://git-scm.com/download/win) |
-| Cuda Toolkit 12.6 🚀 | [下载](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) | - |
-| Cudnn 9.3.0 🧠 | [下载](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe) | - |
-
-> 注意：安装 Anaconda 时勾选 `添加到系统Path`，安装完 Cuda 和 Cudnn 后需要重启计算机 🔄
-
-### 安装步骤
-
-需要一定的 python 基础，支持Win, Mac, Linux。遇到任何问题可以询问官方网站 [videolingo.io](https://videolingo.io) 右下角的AI助手~
-
-1. 打开 Anaconda Prompt 并切换到桌面目录：
+1. 打开 Anaconda Prompt 并切换到你想安装的目录，例如桌面：
    ```bash
    cd desktop
    ```
@@ -192,14 +153,15 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    - 打开项目根目录下的 `i18n/中文` 文件夹
    - 将该文件夹中的所有内容复制到项目根目录
    - 在弹出的提示中选择"替换目标中的文件"
+   （注意：Mac系统会删除整个目标文件夹后再复制，而Windows只会替换重复的文件。Mac用户建议手动将文件逐个移动到目标位置）
 
-   这样操作将完成汉化，使界面显示为中文。
+   完成以上步骤后，界面将切换为中文显示。
 
 5. 运行安装脚本：
    ```bash
    python install.py
    ```
-   根据提示选择所需的 whisper 方法，脚本将自动安装相应的 torch 和 whisper 版本
+   脚本将自动安装相应的 torch 版本
 
 6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
@@ -211,7 +173,7 @@ VideoLingo提供了多种tts接入方式，以下是对比（如不使用配音�
    ![zh_set](https://github.com/user-attachments/assets/bb9381d0-8d99-4d8b-aaff-9846076fc7a3)
 
 
-9. 更多进阶设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
+9. 更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
 
 ## 🚨 常见报错
 
