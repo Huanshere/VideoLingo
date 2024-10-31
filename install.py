@@ -36,7 +36,7 @@ def main():
     # Detect system and GPU
     if platform.system() == 'Darwin':
         console.print(Panel("🍎 MacOS detected, installing CPU version of PyTorch...", style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.1.2", "torchaudio==2.1.2"])
     else:
         has_gpu = check_gpu()
         if has_gpu:
@@ -44,7 +44,7 @@ def main():
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
         else:
             console.print(Panel("💻 No NVIDIA GPU detected, installing CPU version of PyTorch...", style="cyan"))
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.1.2", "torchaudio==2.1.2"])
     
     # Install WhisperX
     console.print(Panel("📦 Installing WhisperX...", style="cyan"))
