@@ -11,7 +11,7 @@
   <a href="https://github.com/Huanshere/VideoLingo/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/Huanshere/VideoLingo.svg" alt="GitHub stars"></a>
 </p>
 
-[**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
+[**English**](/README.md)｜[**中文**](/i18n/README.zh.md)｜[**繁體中文**](/i18n/README.zh-TW.md)
 
 </div>
 
