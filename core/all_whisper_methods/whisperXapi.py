@@ -59,14 +59,17 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
         output = subprocess.run(ffmpeg_cmd, capture_output=True, text=True).stderr
         
         # Parse silence detection output
-        silence_end_times = [float(line.split('silence_end: ')[1].split(' ')[0]) for line in output.split('\n') if 'silence_end' in line]
+        silence_times = [float(line.split('silence_end: ')[1].split(' ')[0]) for line in output.split('\n') if 'silence_end' in line]
         
-        if silence_end_times:
-            # Find the first silence after the target duration
-            split_point = next((t for t in silence_end_times if t > target_duration), None)
+        if silence_times:
+            # Convert absolute times to relative times (relative to window_start)
+            relative_silence_times = [t - window_start for t in silence_times]
+            # Find the first silence after the target duration (relative to segment start)
+            target_relative = target_duration - (window_start - start)
+            split_point = next((t + window_start for t, rel_t in zip(silence_times, relative_silence_times) if rel_t > target_relative), None)
             if split_point:
-                segments.append((start, start + split_point))
-                start += split_point
+                segments.append((start, split_point))
+                start = split_point
                 continue
         
         # If no suitable split point found, split at the target duration
