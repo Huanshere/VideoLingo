@@ -36,7 +36,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     try:
         if WHISPER_LANGUAGE == 'zh':
             model_name = "Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper"
-            local_model = os.path.join(MODEL_DIR, "Belle-whisper-large-v3-zh-punct")
+            local_model = os.path.join(MODEL_DIR, "Belle-whisper-large-v3-zh-punct-fasterwhisper")
         else:
             model_name = "large-v3"
             local_model = os.path.join(MODEL_DIR, "large-v3")
