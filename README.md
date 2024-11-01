@@ -103,7 +103,7 @@ VideoLingo supports all hardware platforms and operating systems, but performs b
 
 ### Docker Installation
 
-VideoLingo provides a Dockerfile for Docker installation. Please refer to the installation documentation: [English](/docs/pages/docs/docker.en-US.md) | [简体中文](/docs/pages/docs/docker.zh-CN.md)
+VideoLingo provides a Dockerfile. Please refer to the installation documentation: [English](/docs/pages/docs/docker.en-US.md) | [简体中文](/docs/pages/docs/docker.zh-CN.md)
 
 ## 🏭 Batch Mode
 
@@ -147,7 +147,7 @@ We sincerely thank the following open-source projects for their contributions, w
 - Join our Discord: https://discord.gg/9F2G92CWPp
 - Submit [Issues](https://github.com/Huanshere/VideoLingo/issues) or [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls) on GitHub
 - Follow me on Twitter: [@Huanshere](https://twitter.com/Huanshere)
-- Visit the official website: [videolingo.io](https://videolingo.io)
+- Visit the official website: [docs.videolingo.io](https://docs.videolingo.io)
 - Email me at: team@videolingo.io
 
 ## ⭐ Star History
