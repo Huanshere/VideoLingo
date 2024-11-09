@@ -55,18 +55,42 @@ def split_audio(audio_file: str, target_duration: int = 20*60, window: int = 60)
         window_start = start + target_duration - window
         window_end = min(window_start + 2 * window, duration)
         
-        ffmpeg_cmd = ['ffmpeg', '-y', '-i', audio_file, '-ss', str(window_start), '-to', str(window_end), '-af', 'silencedetect=n=-30dB:d=0.5', '-f', 'null', '-']
-        output = subprocess.run(ffmpeg_cmd, capture_output=True, text=True).stderr
-        
-        # Parse silence detection output
-        silence_times = [float(line.split('silence_end: ')[1].split(' ')[0]) for line in output.split('\n') if 'silence_end' in line]
+        try:
+            ffmpeg_cmd = ['ffmpeg', '-y', '-i', audio_file, '-ss', str(window_start), 
+                         '-to', str(window_end), '-af', 'silencedetect=n=-30dB:d=0.5', 
+                         '-f', 'null', '-']
+            # Explicitly specify encoding as utf-8
+            process = subprocess.run(ffmpeg_cmd, capture_output=True, text=True, 
+                                  encoding='utf-8', errors='replace')
+            output = process.stderr
+            
+            if output is None:
+                raise Exception("FFmpeg command failed to produce output")
+            
+            # Parse silence detection output
+            silence_times = []
+            for line in output.split('\n'):
+                if 'silence_end' in line:
+                    try:
+                        time_str = line.split('silence_end: ')[1].split(' ')[0]
+                        silence_times.append(float(time_str))
+                    except (IndexError, ValueError) as e:
+                        print(f"Warning: Failed to parse line: {line}, Error: {e}")
+                        continue
+            
+        except Exception as e:
+            print(f"Warning: Error during silence detection: {e}")
+            segments.append((start, start + target_duration))
+            start += target_duration
+            continue
         
         if silence_times:
             # Convert absolute times to relative times (relative to window_start)
             relative_silence_times = [t - window_start for t in silence_times]
             # Find the first silence after the target duration (relative to segment start)
             target_relative = target_duration - (window_start - start)
-            split_point = next((t + window_start for t, rel_t in zip(silence_times, relative_silence_times) if rel_t > target_relative), None)
+            split_point = next((t + window_start for t, rel_t in zip(silence_times, relative_silence_times) 
+                              if rel_t > target_relative), None)
             if split_point:
                 segments.append((start, split_point))
                 start = split_point
