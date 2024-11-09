@@ -121,9 +121,9 @@ Usage instructions: [English](/batch/README.md) | [简体中文](/batch/README.z
 
 ## 🚗 Roadmap
 
+- [x] SaaS service at [videolingo.io](https://videolingo.io)
 - [ ] VAD to distinguish speakers, multi-character dubbing
 - [ ] Customizable translation styles
-- [ ] SaaS service
 - [ ] Lip sync for dubbed videos
 
 ## 📄 License

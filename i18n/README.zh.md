@@ -131,9 +131,9 @@ VideoLingo 提供
 
 ## 🚗 路线图
 
+- [x] SaaS 版本 at [videolingo.io](https://videolingo.io)
 - [ ] VAD 区分说话人，多角色配音
 - [ ] 用户术语表
-- [ ] SaaS 版本
 - [ ] 配音视频唇形同步
 
 ## 📄 许可证

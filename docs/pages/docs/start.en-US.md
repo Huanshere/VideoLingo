@@ -7,9 +7,12 @@ This project requires Large Language Models and TTS. Multiple options are provid
 
 | Recommended Model | Recommended Provider | base_url | Price | Effect |
 |:-----|:---------|:---------|:-----|:---------|
-| claude-3-5-sonnet-20240620 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥15 / 1M tokens (1/10 of official price) | 🤩 |
+| grok-beta | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $0.70 / 1M tokens | 🤩 |
+| claude-3-5-sonnet-20240620 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $1.40 / 1M tokens | 🤩 |
+| gemini-1.5-pro-002 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $0.70 / 1M tokens | 😃 |
+| gpt-4o | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $0.70 / 1M tokens | 🙂 |
 
-⚠️ Warning: The prompts involve multi-step reasoning chains and complex JSON formats. Models other than Claude 3.5 Sonnet are prone to errors. A 1-hour video costs about ¥10.
+⚠️ Warning: The prompts involve multi-step reasoning chains and complex JSON formats. Weak models are prone to errors. An 1-hour video costs about $1.40.
 
 > Note: Yunwu API also supports OpenAI's tts-1 interface, which can be used in the dubbing step.
 

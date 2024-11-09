@@ -4,7 +4,7 @@
 api:
   key: 'YOUR_KEY'
   base_url: 'https://yunwu.zeabur.app'
-  model: 'claude-3-5-sonnet-20240620'
+  model: 'grok-beta'
 
 # Replicate API settings, only necessary for whisperxapi
 replicate_api_token: 'YOUR_KEY'
@@ -110,9 +110,11 @@ allowed_audio_formats:
 
 # LLMs that support returning JSON format
 llm_support_json:
-- 'deepseek-coder'
 - 'gpt-4o'
 - 'gpt-4o-mini'
+- 'grok-beta'
+- 'gemini-1.5-flash-latest'
+- 'gemini-1.5-pro-latest'
 
 # Spacy models
 spacy_model_map:
