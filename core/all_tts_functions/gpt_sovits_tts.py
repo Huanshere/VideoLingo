@@ -87,12 +87,18 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         
         print(f"Detected language: {prompt_lang}")
         prompt_text = content
-    elif REFER_MODE == 2:
-        # Use only the reference audio path
-        ref_audio_path = current_dir / "output/audio/refers/1.wav"
-    elif REFER_MODE == 3:
-        # Use the provided reference audio path
-        ref_audio_path = current_dir / f"output/audio/refers/{number}.wav"
+    elif REFER_MODE in [2, 3]:
+        # Check if the reference audio file exists
+        ref_audio_path = current_dir / ("output/audio/refers/1.wav" if REFER_MODE == 2 else f"output/audio/refers/{number}.wav")
+        if not ref_audio_path.exists():
+            # If the file does not exist, try to extract the reference audio
+            try:
+                from core.step9_extract_refer_audio import extract_refer_audio_main
+                rprint(f"[yellow]参考音频文件不存在，尝试提取: {ref_audio_path}[/yellow]")
+                extract_refer_audio_main()
+            except Exception as e:
+                rprint(f"[bold red]提取参考音频失败: {str(e)}[/bold red]")
+                raise
     else:
         raise ValueError("Invalid REFER_MODE. Choose 1, 2, or 3.")
 
