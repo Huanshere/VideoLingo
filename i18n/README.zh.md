@@ -3,13 +3,8 @@
 <img src="/docs/logo.png" alt="VideoLingo Logo" height="140">
 
 # 连接世界每一帧
-<p align="center">
-  <a href="https://www.python.org" target="_blank"><img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python"></a>
-  <a href="https://github.com/Huanshere/VideoLingo/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/Huanshere/VideoLingo.svg" alt="License"></a>
-  <a href="https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
-  <a href="https://discord.gg/9F2G92CWPp" target="_blank"><img src="https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
-  <a href="https://github.com/Huanshere/VideoLingo/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/Huanshere/VideoLingo.svg" alt="GitHub stars"></a>
-</p>
+
+[Website](https://videolingo.io) | [Documentation](https://docs.videolingo.io/docs/start) | [Colab](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
 
 [**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
 
@@ -19,7 +14,7 @@
 
 ## 🌟 项目简介
 
-VideoLingo 是一站式视频翻译本地化配音工具，旨在生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的配音，让全世界的知识能够跨越语言的障碍共享。通过直观的 Streamlit 网页界面，只需点击两下就能完成从视频链接到内嵌高质量双语字幕甚至带上配音的整个流程，轻松创建 Netflix 品质的本地化视频。
+VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的配音，让全世界的知识能够跨越语言的障碍共享。
 
 主要特点和功能：
 - 🎥 使用 yt-dlp 从 Youtube 链接下载视频
@@ -94,6 +89,10 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 ### 在线体验
 
+商业版提供免费的 20min 额度，请访问 [videolingo.io](https://videolingo.io)
+
+### Colab 运行
+
 只需 5 分钟即可在 Colab 中快速体验 VideoLingo：
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
@@ -112,11 +111,9 @@ docker build -t videolingo .
 docker run -d -p 8501:8501 --gpus all videolingo
 ```
 
-注：目前 Docker 版本还有一些需要完善的地方，详情和后续规划见：[Docker](/docs/pages/docs/docker.zh-CN.md)
+详见：[Docker](/docs/pages/docs/docker.zh-CN.md)
 
-VideoLingo 提供 
-
-## 🏭 批量模式
+## 🏭 批量模式（beta）
 
 使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
 
@@ -138,26 +135,15 @@ VideoLingo 提供
 
 ## 📄 许可证
 
-本项目采用 Apache 2.0 许可证。使用本项目时，请遵循以下规定：
+本项目采用 Apache 2.0 许可证，我们衷心感谢以下开源项目的贡献：
 
-1. 发表作品时**建议（不强制要求）标注字幕由 VideoLingo 生成**。
-2. 遵循使用的大模型和TTS条约进行备注。
-3. 如拷贝代码请包含完整的 Apache 2.0 许可证副本。
-
-我们衷心感谢以下开源项目的贡献，它们为 VideoLingo 的开发提供了重要支持：
-
-- [whisperX](https://github.com/m-bain/whisperX)
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- [json_repair](https://github.com/mangiucugna/json_repair)
-- [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
-- [BELLE](https://github.com/LianjiaTech/BELLE)
+[whisperX](https://github.com/m-bain/whisperX) ｜ [yt-dlp](https://github.com/yt-dlp/yt-dlp) ｜ [json_repair](https://github.com/mangiucugna/json_repair) ｜ [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) ｜ [BELLE](https://github.com/LianjiaTech/BELLE)
 
 ## 📬 联系我们
 
 - 加入我们的 QQ 群：875297969
 - 在 GitHub 上提交 [Issues](https://github.com/Huanshere/VideoLingo/issues) 或 [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls)
 - 关注我的 Twitter：[@Huanshere](https://twitter.com/Huanshere)
-- 访问官方网站：[videolingo.io](https://videolingo.io)
 - 联系邮箱：team@videolingo.io
 
 ## ⭐ Star History

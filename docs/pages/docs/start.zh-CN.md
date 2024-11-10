@@ -7,11 +7,12 @@
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
 | grok-beta | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥5 / 1M tokens | 🤩 |
+| grok-beta | [Official](https://console.x.ai/) | https://api.x.ai | $25 free / month | 🤩 |
 | claude-3-5-sonnet-20240620 | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥10 / 1M tokens | 🤩 |
 | gemini-1.5-pro-002 | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥5 / 1M tokens | 😃 |
 | gpt-4o | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥5 / 1M tokens | 🙂 |
 
-⚠️ 警告：prompt 涉及多步思维链和复杂的json格式，弱模型容易出错。1h 视频使用 claude 花费约 10 元，其他模型约 5 元。
+⚠️ 警告：prompt 涉及多步思维链和复杂的json格式，弱模型容易出错。1h 视频使用 claude 花费约 10 元，其他模型约 5 元。如果使用 grok 官方 api，请注意在 config 中将 max_workers 调整为 1。
 
 > 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤选用。
 

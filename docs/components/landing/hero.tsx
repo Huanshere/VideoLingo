@@ -19,28 +19,16 @@ export default function Hero({ title, description, videoSrc }: HeroProps) {
 						<p className="mx-auto max-w-[700px] text-lg">{description}</p>
 					</div>
 					<div className="flex space-x-4 mt-8">
-						<Link href={'/docs/start'}>
+						<Link href="https://videolingo.io">
 							<Button className="rounded-lg" size="lg">
-								Start
+								Try Now for Free
 							</Button>
 						</Link>
-						<div
-							data-heyform-id="52QH8JAj"
-							data-heyform-type="modal"
-							data-heyform-custom-url="https://form-vl.zeabur.app/form/"
-							data-heyform-size="large"
-							data-heyform-open-trigger="click"
-							data-heyform-open-delay="5"
-							data-heyform-open-scroll-percent="30"
-							data-heyform-trigger-background="#bcf8d0"
-							data-heyform-trigger-text="Request Demo"
-							data-heyform-hide-after-submit="true"
-							data-heyform-auto-close="5"
-						>
-							<Button variant="outline" size="lg" onClick={() => (window as any).HeyForm.openModal('52QH8JAj')}>
-								Request Demo
+						<Link href={'/docs/start'}>
+							<Button variant="outline" size="lg" className="opacity-80">
+								Go to Docs
 							</Button>
-						</div>
+						</Link>
 					</div>
 					{/* 视频演示组件 */}
 					<div className="w-full max-w-6xl mt-16 mb-16">
