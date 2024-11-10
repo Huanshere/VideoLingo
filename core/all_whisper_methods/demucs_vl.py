@@ -24,7 +24,7 @@ class PreloadedSeparator(Separator):
         self._samplerate = model.samplerate
 
         self.update_parameter(
-            device="cuda" if is_cuda_available() else "cpu",
+            device="cuda" if is_cuda_available() else "mps" if torch.backends.mps.is_available() else "cpu",
             shifts=shifts,
             overlap=overlap,
             split=split,
