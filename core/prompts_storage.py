@@ -197,6 +197,7 @@ Based on the provided original {src_language} text and {TARGET_LANGUAGE} direct 
 1. Analyze the direct translation results line by line, pointing out existing issues
 2. Provide detailed modification suggestions
 3. Perform free translation based on your analysis
+4. Do not add comments or explanations in the translation, as the subtitles are for the audience to read
 
 {shared_prompt}
 
@@ -247,6 +248,7 @@ Based on the provided original {src_language} and {target_language} original sub
 1. Analyze the word order and structural correspondence between {src_language} and {target_language} subtitles
 2. Split the {target_language} subtitles according to the pre-processed {src_language} split version
 3. Never leave empty lines. If it's difficult to split based on meaning, you may appropriately rewrite the sentences that need to be aligned
+4. Do not add comments or explanations in the translation, as the subtitles are for the audience to read
 
 ### Subtitle Data
 <subtitles>
