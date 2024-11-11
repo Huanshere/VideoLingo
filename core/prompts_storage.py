@@ -5,7 +5,6 @@ from core.config_utils import load_key
 ## ================================================================
 # @ step4_splitbymeaning.py
 def get_split_prompt(sentence, num_parts = 2, word_limit = 20):
-    # ! only support num_parts = 2
     language = load_key("whisper.detected_language")
     split_prompt = f"""
 ### Role
@@ -15,29 +14,19 @@ You are a professional and experienced Netflix subtitle splitter in {language}.
 Your task is to split the given subtitle text into **{num_parts}** parts, each should be less than {word_limit} words.
 
 ### Requirements
-1. Try to maintain the coherence of the sentence meaning, split according to Netflix subtitle standards, ensuring the two parts are relatively independent.
+1. Try to maintain the coherence of the sentence meaning, split according to Netflix subtitle standards, ensuring the parts are relatively independent.
 2. The length of each part should be roughly equal, no part should be less than 3 words, but the integrity of the sentence is more important.
 3. Prioritize splitting at punctuation marks, such as periods, commas, and conjunctions (e.g., "and", "but", "because", "when", "then", "if", "so", "that").
 
-### Steps
-1. Analyze the grammar and structure of the given text.
-2. Provide 2 different ways to split the text, each with different split points, output complete sentences (do not change any letters or punctuation), insert [br] tags at the split positions.
-3. Briefly compare and evaluate the above 2 split methods, considering readability, grammatical structure, and contextual coherence, choose the best split method.
-4. Give the best split method number, 1 or 2.
-
 ### Output Format
-Please provide your answer in the following JSON format, <<>> represents placeholders:
+Please provide your answer in the following JSON format:
 {{
-    "analysis": "Brief analysis of the text structure and split strategy",
-    "split_1": "<<The first split method, output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>",
-    "split_2": "<<The second split method>>",
-    "eval": "<<Unified brief evaluation of the 2 split methods, written in one sentence, no line breaks>>",
-    "best": "<<The best split method number, 1 or 2>>"
+    "analysis": "<<Brief analysis of the text structure and split strategy>>",
+    "split": "<<Output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>"
 }}
 
 ### Given Text
 <split_this_sentence>\n{sentence}\n</split_this_sentence>
-
 """.strip()
 
     return split_prompt
@@ -256,9 +245,8 @@ We have {src_language} and {target_language} original subtitles for a Netflix pr
 ### Task Description
 Based on the provided original {src_language} and {target_language} original subtitles, as well as the pre-processed split version, you need to:
 1. Analyze the word order and structural correspondence between {src_language} and {target_language} subtitles
-2. Provide 2 different splitting schemes for the {target_language} subtitles
-3. Evaluate these schemes and select the best one
-4. Never leave empty lines. If it's difficult to split based on meaning, you may appropriately rewrite the sentences that need to be aligned
+2. Split the {target_language} subtitles according to the pre-processed {src_language} split version
+3. Never leave empty lines. If it's difficult to split based on meaning, you may appropriately rewrite the sentences that need to be aligned
 
 ### Subtitle Data
 <subtitles>
@@ -267,25 +255,13 @@ Based on the provided original {src_language} and {target_language} original sub
 Pre-processed {src_language} Subtitles ([br] indicates split points): {src_part}
 </subtitles>
 
-### Processing Steps
-Please follow these steps and provide the results for each step in the JSON output:
-1. Analysis and Comparison: Briefly analyze the word order, sentence structure, and semantic correspondence between {src_language} and {target_language} subtitles. Point out key word correspondences, similarities and differences in sentence patterns, and language features that may affect splitting.
-2. Start Alignment: Based on your analysis, provide 2 different alignment methods for {target_language} subtitles according to the format. The split positions in {src_language} must be consistent with the pre-processed {src_language} split version and cannot be changed arbitrarily.
-3. Evaluation and Selection: Examine and briefly evaluate the 2 schemes, considering factors such as sentence completeness, semantic coherence, and appropriateness of split points.
-4. Best Scheme: Select the best alignment scheme, output only a single number, 1 or 2.
-
 ### Output Format
 Please complete the following JSON data, where << >> represents placeholders, and return your results in JSON format:
 {{
-    "analysis": "<<Detailed analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles>>",
-    "align_1": [
+    "analysis": "<<Brief analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles>>",
+    "align": [
         {align_parts_json}
-    ],
-    "align_2": [
-        {align_parts_json}
-    ],
-    "comparison": "<<Brief evaluation and comparison of the 2 alignment schemes>>",
-    "best": "<<Number of the best alignment scheme, 1 or 2>>"
+    ]
 }}
 '''
 

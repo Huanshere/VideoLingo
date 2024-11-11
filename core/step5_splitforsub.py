@@ -37,15 +37,13 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     align_prompt = get_align_prompt(src_sub, tr_sub, src_part)
     
     def valid_align(response_data):
-        # check if the best is in the response_data
-        if 'best' not in response_data:
-            return {"status": "error", "message": "Missing required key: `best`"}
+        if 'align' not in response_data:
+            return {"status": "error", "message": "Missing required key: `align`"}
         return {"status": "success", "message": "Align completed"}
-    parsed = ask_gpt(align_prompt, response_json=True, valid_def=valid_align, log_title='align_subs')
 
-    best = int(parsed['best'])
-    align_data = parsed[f'align_{best}']
+    parsed = ask_gpt(align_prompt, response_json=True, valid_def=valid_align, log_title='align_subs')
     
+    align_data = parsed['align']
     src_parts = src_part.split('\n')
     tr_parts = [item[f'target_part_{i+1}'].strip() for i, item in enumerate(align_data)]
     
