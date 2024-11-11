@@ -8,9 +8,11 @@ from core.config_utils import load_key
 import shutil
 from functools import partial
 
-def process_video(file, dubbing=False):
+def process_video(file, dubbing=False, is_retry=False):
+    if not is_retry:
+        prepare_output_folder('output')
+    
     steps = [
-        ("Preparing output folder", partial(prepare_output_folder, 'output')),
         ("Processing input file", partial(process_input_file, file)),
         ("Transcribing with Whisper", partial(step2_whisper.transcribe)),
         ("Splitting sentences", split_sentences),
