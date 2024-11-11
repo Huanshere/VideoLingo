@@ -1,7 +1,6 @@
 import os,sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import glob
-from yt_dlp import YoutubeDL
 import re
 import subprocess
 from core.config_utils import load_key
@@ -17,7 +16,7 @@ def sanitize_filename(filename):
 def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time=None):
     allowed_resolutions = ['360', '1080', 'best']
     if resolution not in allowed_resolutions:
-        resolution = '1080'
+        resolution = '360'
     
     os.makedirs(save_path, exist_ok=True)
     ydl_opts = {
@@ -30,6 +29,16 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
             'format': 'jpg',
         }],
     }
+
+    # Update yt-dlp to avoid download failure due to API changes
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "yt-dlp"])
+    except subprocess.CalledProcessError as e:
+        print(f"Warning: Failed to update yt-dlp: {e}")
+    # Reload yt-dlp
+    if 'yt_dlp' in sys.modules:
+        del sys.modules['yt_dlp']
+    from yt_dlp import YoutubeDL
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
     
