@@ -6,7 +6,6 @@ from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
 from rich import box
-import re
 
 console = Console()
 
@@ -33,9 +32,9 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
             return valid_translate_result(response_data, ['1'], ['free'])
         for retry in range(3):
             if step_name == 'faithfulness':
-                result = ask_gpt(prompt, response_json=True, valid_def=valid_faith, log_title=f'translate_{step_name}')
+                result = ask_gpt(prompt+retry* " ", response_json=True, valid_def=valid_faith, log_title=f'translate_{step_name}')
             elif step_name == 'expressiveness':
-                result = ask_gpt(prompt, response_json=True, valid_def=valid_express, log_title=f'translate_{step_name}')
+                result = ask_gpt(prompt+retry* " ", response_json=True, valid_def=valid_express, log_title=f'translate_{step_name}')
             if len(lines.split('\n')) == len(result):
                 return result
             if retry != 2:
