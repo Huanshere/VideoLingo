@@ -4,7 +4,7 @@
 api:
   key: 'YOUR_KEY'
   base_url: 'https://yunwu.zeabur.app'
-  model: 'grok-beta'
+  model: 'gemini-1.5-pro-002'
 
 # Replicate API settings, only necessary for whisperxapi
 replicate_api_token: 'YOUR_KEY'
@@ -115,6 +115,7 @@ llm_support_json:
 - 'grok-beta'
 - 'gemini-1.5-flash-latest'
 - 'gemini-1.5-pro-latest'
+- 'gemini-1.5-pro-002'
 
 # Spacy models
 spacy_model_map:
