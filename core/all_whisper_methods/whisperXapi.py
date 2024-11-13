@@ -27,11 +27,18 @@ def convert_video_to_audio(input_file: str) -> str:
             audio_file
         ]
         try:
-            subprocess.run(ffmpeg_cmd, check=True, capture_output=True, text=True, encoding='utf-8')
+            process = subprocess.run(
+                ffmpeg_cmd,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                encoding='utf-8',
+                errors='replace'
+            )
             print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}> with FFmpeg\n")
         except subprocess.CalledProcessError as e:
             print(f"❌ Failed to convert <{input_file}> to <{audio_file}>.")
-            print(f"Error: {e.stderr}")
+            print(f"Error: {str(e.stderr)}")
             raise
 
     return audio_file
