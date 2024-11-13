@@ -1,9 +1,7 @@
 import pandas as pd
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from difflib import SequenceMatcher
 import re
-from core.config_utils import load_key, get_joiner
 from rich.panel import Panel
 from rich.console import Console
 import autocorrect_py as autocorrect
@@ -28,51 +26,65 @@ def remove_punctuation(text):
     text = re.sub(r'[^\w\s]', '', text)
     return text.strip()
 
+def show_difference(str1, str2):
+    """Show the difference positions between two strings"""
+    min_len = min(len(str1), len(str2))
+    diff_positions = []
+    
+    for i in range(min_len):
+        if str1[i] != str2[i]:
+            diff_positions.append(i)
+    
+    if len(str1) != len(str2):
+        diff_positions.extend(range(min_len, max(len(str1), len(str2))))
+    
+    print("Difference positions:")
+    print(f"Expected sentence: {str1}")
+    print(f"Actual match: {str2}")
+    print("Position markers: " + "".join("^" if i in diff_positions else " " for i in range(max(len(str1), len(str2)))))
+    print(f"Difference indices: {diff_positions}")
+
 def get_sentence_timestamps(df_words, df_sentences):
     time_stamp_list = []
-    word_index = 0
-    whisper_language = load_key("whisper.language")
-    language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language
-    joiner = get_joiner(language)
-
-    for idx,sentence in df_sentences['Source'].items():
-        sentence = remove_punctuation(sentence.lower())
-        best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0, 'phrase': ''}
-        decreasing_count = 0
-        current_phrase = ""
-        start_index = word_index  # record the index of the word where the current sentence starts
-
-        while word_index < len(df_words):
-            word = remove_punctuation(df_words['text'][word_index].lower())
-
-            current_phrase += word + joiner
-
-            similarity = SequenceMatcher(None, sentence, current_phrase.strip()).ratio()
-            if similarity > best_match['score']:
-                best_match = {
-                    'score': similarity,
-                    'start': df_words['start'][start_index],
-                    'end': df_words['end'][word_index],
-                    'word_count': word_index - start_index + 1,
-                    'phrase': current_phrase
-                }
-                decreasing_count = 0
-            else:
-                decreasing_count += 1
-            # if 5 consecutive words don't match, break the loop
-            if decreasing_count >= 5:
+    
+    # Build complete string and position mapping
+    full_words_str = ''
+    position_to_word_idx = {}
+    
+    for idx, word in enumerate(df_words['text']):
+        clean_word = remove_punctuation(word.lower())
+        start_pos = len(full_words_str)
+        full_words_str += clean_word
+        for pos in range(start_pos, len(full_words_str)):
+            position_to_word_idx[pos] = idx
+    
+    current_pos = 0
+    for idx, sentence in df_sentences['Source'].items():
+        clean_sentence = remove_punctuation(sentence.lower()).replace(" ", "")
+        sentence_len = len(clean_sentence)
+        
+        match_found = False
+        while current_pos <= len(full_words_str) - sentence_len:
+            if full_words_str[current_pos:current_pos+sentence_len] == clean_sentence:
+                start_word_idx = position_to_word_idx[current_pos]
+                end_word_idx = position_to_word_idx[current_pos + sentence_len - 1]
+                
+                time_stamp_list.append((
+                    float(df_words['start'][start_word_idx]),
+                    float(df_words['end'][end_word_idx])
+                ))
+                
+                current_pos += sentence_len
+                match_found = True
                 break
-            word_index += 1
-        
-        #! Originally 0.9, but for very short sentences, a single space can cause a difference of 0.8, so we lower the threshold
-        if best_match['score'] >= 0.75:
-            time_stamp_list.append((float(best_match['start']), float(best_match['end'])))
-            word_index = start_index + best_match['word_count']  # update word_index to the start of the next sentence
-        else:
-            print(f"⚠️ Warning: No match found for sentence: {sentence}\nOriginal: {repr(sentence)}\nMatched: {best_match['phrase']}\nSimilarity: {best_match['score']:.2f}\n{'─' * 50}")
-            raise ValueError("❎ Failed to match sentence with timestamps. This typically occurs when background music is too loud or the source language is not English. Currently no workaround available. Please raise an Issue!")
-        
-        start_index = word_index  # update start_index for the next sentence
+            current_pos += 1
+            
+        if not match_found:
+            print(f"\n⚠️ Warning: No exact match found for sentence: {sentence}")
+            show_difference(clean_sentence, 
+                          full_words_str[current_pos:current_pos+len(clean_sentence)])
+            print("\nOriginal sentence:", df_sentences['Source'][idx])
+            raise ValueError("❎ No match found for sentence.")
     
     return time_stamp_list
 
