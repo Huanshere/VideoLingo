@@ -37,7 +37,7 @@ def get_sentence_timestamps(df_words, df_sentences):
 
     for idx,sentence in df_sentences['Source'].items():
         sentence = remove_punctuation(sentence.lower())
-        best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0}
+        best_match = {'score': 0, 'start': 0, 'end': 0, 'word_count': 0, 'phrase': ''}
         decreasing_count = 0
         current_phrase = ""
         start_index = word_index  # record the index of the word where the current sentence starts
