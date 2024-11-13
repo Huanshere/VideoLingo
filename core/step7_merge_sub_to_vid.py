@@ -86,12 +86,12 @@ def merge_subtitles_to_video():
 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
-    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8')  # 指定 UTF-8 编码
+    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     try:
         for line in process.stdout:
-            if "time=" in line:
-                print(line.strip())
+            if "time=" in line.decode('utf-8', errors='ignore'):
+                print(line.decode('utf-8', errors='ignore').strip())
         
         process.wait()
         if process.returncode == 0:
