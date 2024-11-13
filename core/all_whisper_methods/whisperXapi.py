@@ -15,30 +15,17 @@ VOCAL_AUDIO_FILE = "vocal.mp3"
 def convert_video_to_audio(input_file: str) -> str:
     os.makedirs(AUDIO_DIR, exist_ok=True)
     audio_file = os.path.join(AUDIO_DIR, RAW_AUDIO_FILE)
-
     if not os.path.exists(audio_file):
         print(f"🎬➡️🎵 Converting to audio with FFmpeg ......")
-        ffmpeg_cmd = [
-            'ffmpeg', '-y', '-i', input_file,
-            '-vn', '-b:a', '64k',
-            '-ar', '16000', '-ac', '1',
-            '-metadata', 'encoding=UTF-8',
-            '-f', 'mp3',
-            audio_file
-        ]
         try:
-            process = subprocess.run(
-                ffmpeg_cmd,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                encoding='utf-8',
-                errors='replace'
-            )
+            subprocess.run([
+                'ffmpeg', '-y', '-i', input_file, '-vn', '-b:a', '64k',
+                '-ar', '16000', '-ac', '1', '-metadata', 'encoding=UTF-8',
+                '-f', 'mp3', audio_file
+            ], check=True, capture_output=True, text=True)
             print(f"🎬➡️🎵 Converted <{input_file}> to <{audio_file}> with FFmpeg\n")
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to convert <{input_file}> to <{audio_file}>.")
-            print(f"Error: {str(e.stderr)}")
+            print(f"❌ Failed to convert <{input_file}> to <{audio_file}>: {e.stderr}")
             raise
 
     return audio_file
