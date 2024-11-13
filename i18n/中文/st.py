@@ -30,19 +30,18 @@ def text_processing_section():
                 process_text()
                 st.rerun()
         else:
-            st.success("字幕翻译完成！建议下载 srt 文件并自行处理。")
             if load_key("resolution") != "0x0":
                 st.video("output/output_video_with_subs.mp4")
             download_subtitle_zip_button(text="下载所有字幕")
             
-            if st.button("归档到'历史记录'", key="cleanup_in_text_processing"):
+            if st.button("归档到'history'", key="cleanup_in_text_processing"):
                 cleanup()
                 st.rerun()
             return True
 
 def process_text():
     with st.spinner("使用 Whisper 进行转录中..."):
-        step2_whisper.transcribe()
+        step2_whisperX.transcribe()
     with st.spinner("分割长句中..."):  
         step3_1_spacy_split.split_by_spacy()
         step3_2_splitbymeaning.split_sentences_by_meaning()
@@ -100,11 +99,11 @@ def process_audio():
     st.balloons()
 
 def main():
-    logo_col, _ = st.columns([2,1])
+    logo_col, _ = st.columns([1,1])
     with logo_col:
         st.image("docs/logo.png", use_column_width=True)
     st.markdown(button_style, unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 20px; color: #808080;'>你好，欢迎使用 VideoLingo。本项目目前正在建设中。如果遇到任何问题，请随时在 Github 上提问！你也可以访问我们的网站：<a href='https://videolingo.io' target='_blank'>videolingo.io</a></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 20px; color: #808080;'>你好，欢迎使用 VideoLingo。本项目目前正在建设中。如果遇到任何问题，请随时在 Github 上提问！现在可以在我们的官网免费体验：<a href='https://videolingo.io' target='_blank'>videolingo.io</a></p>", unsafe_allow_html=True)
     # add settings
     with st.sidebar:
         page_setting()

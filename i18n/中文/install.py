@@ -35,7 +35,7 @@ def main():
 
     # 检测系统和 GPU
     if platform.system() == 'Darwin':
-        console.print(Panel("🍎 检测到 MacOS，正在安装 CPU 版本的 PyTorch...", style="cyan"))
+        console.print(Panel("🍎 检测到 MacOS，正在安装 CPU 版本的 PyTorch... 但速度会慢很多", style="cyan"))
         subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
     else:
         has_gpu = check_gpu()
@@ -43,7 +43,7 @@ def main():
             console.print(Panel("🎮 检测到 NVIDIA GPU，正在安装 CUDA 版本的 PyTorch...", style="cyan"))
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
         else:
-            console.print(Panel("💻 未检测到 NVIDIA GPU，正在安装 CPU 版本的 PyTorch...", style="cyan"))
+            console.print(Panel("💻 未检测到 NVIDIA GPU，正在安装 CPU 版本的 PyTorch... 但速度会慢很多", style="cyan"))
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
     
     # 安装 WhisperX

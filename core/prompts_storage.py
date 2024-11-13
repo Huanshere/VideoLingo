@@ -8,27 +8,27 @@ def get_split_prompt(sentence, num_parts = 2, word_limit = 20):
     language = load_key("whisper.detected_language")
     split_prompt = f"""
 ### Role
-You are a professional and experienced Netflix subtitle splitter in {language}.
+You are a professional Netflix subtitle splitter in {language}.
 
 ### Task
-Your task is to split the given subtitle text into **{num_parts}** parts, each should be less than {word_limit} words.
+Split the given subtitle text into {num_parts} parts, each less than {word_limit} words.
 
-### Requirements
-1. Try to maintain the coherence of the sentence meaning, split according to Netflix subtitle standards, ensuring the parts are relatively independent.
-2. The length of each part should be roughly equal, no part should be less than 3 words, but the integrity of the sentence is more important.
-3. Prioritize splitting at punctuation marks, such as periods, commas, and conjunctions (e.g., "and", "but", "because", "when", "then", "if", "so", "that").
+### Instructions
+1. Maintain sentence meaning coherence according to Netflix subtitle standards
+2. Keep parts roughly equal in length (minimum 3 words each)
+3. Split at natural points like punctuation marks or conjunctions
 
-### Output Format
-Please provide your answer in the following JSON format:
+### Output Format in JSON
 {{
-    "analysis": "<<Brief analysis of the text structure and split strategy>>",
-    "split": "<<Output complete sentences, insert [br] as a delimiter at the split position. e.g. this is the first part [br] this is the second part.>>"
+    "analysis": "Brief analysis of the text structure",
+    "split": "Complete sentence with [br] tags at split positions"
 }}
 
 ### Given Text
-<split_this_sentence>\n{sentence}\n</split_this_sentence>
+<split_this_sentence>
+{sentence}
+</split_this_sentence>
 """.strip()
-
     return split_prompt
 
 
@@ -180,8 +180,8 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
         json_format[key] = {
             "origin": value['origin'],
             "direct": value['direct'],
-            "reflection": "<<reflection on the direct translation version>>",
-            "free": f"<<retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits, DO NOT leave empty line here!>>"
+            "reflection": "reflection on the direct translation version",
+            "free": f"retranslated result, aiming for fluency and naturalness, conforming to {TARGET_LANGUAGE} expression habits, DO NOT leave empty line here!"
         }
 
     src_language = load_key("whisper.detected_language")
@@ -220,9 +220,7 @@ Please use a two-step thinking process to handle the text line by line:
 {lines}
 </subtitles>
 
-### Output Format
-Make sure to generate the correct Json format, don't output " in the value.
-Please complete the following JSON data, where << >> represents placeholders that should not appear in your answer, and return your translation results in JSON format:
+### Output in the following JSON format, repeat "origin" and "direct" in the JSON format
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 '''
     return prompt_expressiveness.strip()
@@ -257,10 +255,9 @@ Based on the provided original {src_language} and {target_language} original sub
 Pre-processed {src_language} Subtitles ([br] indicates split points): {src_part}
 </subtitles>
 
-### Output Format
-Please complete the following JSON data, where << >> represents placeholders, and return your results in JSON format:
+### Output in JSON
 {{
-    "analysis": "<<Brief analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles>>",
+    "analysis": "Brief analysis of word order, structure, and semantic correspondence between {src_language} and {target_language} subtitles",
     "align": [
         {align_parts_json}
     ]
@@ -270,8 +267,8 @@ Please complete the following JSON data, where << >> represents placeholders, an
     align_parts_json = ','.join(
         f'''
         {{
-            "src_part_{i+1}": "<<{src_splits[i]}>>",
-            "target_part_{i+1}": "<<Corresponding aligned {TARGET_LANGUAGE} subtitle part>>"
+            "src_part_{i+1}": "{src_splits[i]}",
+            "target_part_{i+1}": "Corresponding aligned {TARGET_LANGUAGE} subtitle part"
         }}''' for i in range(num_parts)
     )
 
@@ -312,11 +309,10 @@ Please follow these steps and provide the results in the JSON output:
 1. Analysis: Briefly analyze the subtitle's structure, key information, and filler words that can be omitted.
 2. Trimming: Based on the rules and analysis, optimize the subtitle by making it more concise according to the processing rules.
 
-### Output Format
-Please complete the following JSON data, where << >> represents content you need to fill in:
+### Output in JSON
 {{
-    "analysis": "<<Brief analysis of the subtitle, including structure, key information, and potential processing locations>>",
-    "trans_text_processed": "<<Optimized and shortened subtitle in the original subtitle language>>"
+    "analysis": "Brief analysis of the subtitle, including structure, key information, and potential processing locations",
+    "trans_text_processed": "Optimized and shortened subtitle in the original subtitle language"
 }}
 '''
     return trim_prompt.format(

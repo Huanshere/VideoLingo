@@ -1,6 +1,6 @@
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from core import step2_whisper, step1_ytdlp, step3_1_spacy_split, step3_2_splitbymeaning
+from core import step1_ytdlp, step2_whisperX, step3_1_spacy_split, step3_2_splitbymeaning
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline 
 from core import step7_merge_sub_to_vid, step8_gen_audio_task, step10_gen_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup
@@ -14,7 +14,7 @@ def process_video(file, dubbing=False, is_retry=False):
     
     steps = [
         ("Processing input file", partial(process_input_file, file)),
-        ("Transcribing with Whisper", partial(step2_whisper.transcribe)),
+        ("Transcribing with Whisper", partial(step2_whisperX.transcribe)),
         ("Splitting sentences", split_sentences),
         ("Summarizing and translating", summarize_and_translate),
         ("Processing and aligning subtitles", process_and_align_subtitles),

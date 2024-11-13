@@ -30,10 +30,9 @@ def text_processing_section():
                 process_text()
                 st.rerun()
         else:
-            st.success("Subtitle translation is complete! It's recommended to download the srt file and process it yourself.")
             if load_key("resolution") != "0x0":
                 st.video("output/output_video_with_subs.mp4")
-            download_subtitle_zip_button(text="Download All Subtitles")
+            download_subtitle_zip_button(text="Download All Srt Files")
             
             if st.button("Archive to 'history'", key="cleanup_in_text_processing"):
                 cleanup()
@@ -42,7 +41,7 @@ def text_processing_section():
 
 def process_text():
     with st.spinner("Using Whisper for transcription..."):
-        step2_whisper.transcribe()
+        step2_whisperX.transcribe()
     with st.spinner("Splitting long sentences..."):  
         step3_1_spacy_split.split_by_spacy()
         step3_2_splitbymeaning.split_sentences_by_meaning()
@@ -100,11 +99,11 @@ def process_audio():
     st.balloons()
 
 def main():
-    logo_col, _ = st.columns([2,1])
+    logo_col, _ = st.columns([1,1])
     with logo_col:
         st.image("docs/logo.png", use_column_width=True)
     st.markdown(button_style, unsafe_allow_html=True)
-    st.markdown("<p style='font-size: 20px; color: #808080;'>Hello, welcome to VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also visit our website: <a href='https://videolingo.io' target='_blank'>videolingo.io</a></p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 20px; color: #808080;'>Hello, welcome to VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also use VideoLingo on our website now: <a href='https://videolingo.io' target='_blank'>videolingo.io</a></p>", unsafe_allow_html=True)
     # add settings
     with st.sidebar:
         page_setting()

@@ -25,20 +25,20 @@ def download_video_section():
             with col1:
                 url = st.text_input("输入YouTube链接:")
             with col2:
-                resolution_dict = {
+                res_dict = {
                     "360p": "360",
                     "1080p": "1080",
                     "最佳": "best"
                 }
-                YTB_RESOLUTION = load_key("ytb_resolution")
-                resolution_options = list(resolution_dict.keys())
-                default_index = list(resolution_dict.values()).index(YTB_RESOLUTION) if YTB_RESOLUTION in resolution_dict.values() else 0
-                resolution_display = st.selectbox("分辨率", options=resolution_options, index=default_index)
-                resolution = resolution_dict[resolution_display]
+                target_res = load_key("ytb_resolution")
+                res_options = list(res_dict.keys())
+                default_idx = list(res_dict.values()).index(target_res) if target_res in res_dict.values() else 0
+                res_display = st.selectbox("分辨率", options=res_options, index=default_idx)
+                res = res_dict[res_display]
             if st.button("下载视频", key="download_button", use_container_width=True):
                 if url:
                     with st.spinner("正在下载视频..."):
-                        download_video_ytdlp(url, resolution=resolution)
+                        download_video_ytdlp(url, resolution=res)
                     st.rerun()
 
             uploaded_file = st.file_uploader("或上传视频", type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
@@ -48,16 +48,16 @@ def download_video_section():
                     shutil.rmtree("output")
                 os.makedirs("output", exist_ok=True)
                 # 规范化文件名并将扩展名转换为小写
-                original_name = uploaded_file.name.replace(' ', '_')
-                name, ext = os.path.splitext(original_name)
-                normalized_name = re.sub(r'[^\w\-_\.]', '', name) + ext.lower()
+                raw_name = uploaded_file.name.replace(' ', '_')
+                name, ext = os.path.splitext(raw_name)
+                clean_name = re.sub(r'[^\w\-_\.]', '', name) + ext.lower()
                 # 使用规范化的名称保存上传的视频
-                with open(os.path.join("output", normalized_name), "wb") as f:
+                with open(os.path.join("output", clean_name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
                 # 如果是音频文件则转换为视频
-                if normalized_name.split('.')[-1] in load_key("allowed_audio_formats"):
-                    convert_audio_to_video(os.path.join("output", normalized_name))
+                if clean_name.split('.')[-1] in load_key("allowed_audio_formats"):
+                    convert_audio_to_video(os.path.join("output", clean_name))
                 st.rerun()
             else:
                 return False
@@ -67,11 +67,8 @@ def convert_audio_to_video(audio_file: str) -> str:
     if not os.path.exists(output_video):
         print(f"🎵➡️🎬 正在使用FFmpeg将音频转换为视频......")
         ffmpeg_cmd = ['ffmpeg', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=640x360', '-i', audio_file, '-shortest', '-c:v', 'libx264', '-c:a', 'aac', '-pix_fmt', 'yuv420p', output_video]
-        try:
-            subprocess.run(ffmpeg_cmd, check=True, capture_output=True, text=True, encoding='utf-8')
-            print(f"🎵➡️🎬 已将 <{audio_file}> 转换为 <{output_video}>\n")
-            # 删除音频文件
-            os.remove(audio_file)
-        except subprocess.CalledProcessError as e:
-            raise(f"❌ 将 <{audio_file}> 转换为 <{output_video}> 失败。错误: {e.stderr}")
+        subprocess.run(ffmpeg_cmd, check=True, capture_output=True, text=True, encoding='utf-8')
+        print(f"🎵➡️🎬 已将 <{audio_file}> 转换为 <{output_video}>\n")
+        # 删除音频文件
+        os.remove(audio_file)
     return output_video

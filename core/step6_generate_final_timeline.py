@@ -141,10 +141,10 @@ def align_timestamp_main():
     df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
     df_translate['Translation'] = df_translate['Translation'].apply(clean_translation)
     subtitle_output_configs = [ 
-        ('src_subtitles.srt', ['Source']),
-        ('trans_subtitles.srt', ['Translation']),
-        ('bilingual_src_trans_subtitles.srt', ['Source', 'Translation']),
-        ('bilingual_trans_src_subtitles.srt', ['Translation', 'Source'])
+        ('src.srt', ['Source']),
+        ('trans.srt', ['Translation']),
+        ('src_trans.srt', ['Source', 'Translation']),
+        ('trans_src.srt', ['Translation', 'Source'])
     ]
     align_timestamp(df_text, df_translate, subtitle_output_configs, 'output')
     console.print(Panel("[bold green]🎉📝 Subtitles generation completed! Please check in the `output` folder 👀[/bold green]"))

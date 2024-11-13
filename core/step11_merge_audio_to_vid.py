@@ -9,6 +9,14 @@ from rich import print as rprint
 import numpy as np
 import soundfile as sf
 import cv2
+from core.all_whisper_methods.demucs_vl import BACKGROUND_AUDIO_FILE
+from core.step7_merge_sub_to_vid import check_gpu_available
+
+INPUT_EXCEL = 'output/audio/sovits_tasks.xlsx'
+OUTPUT_AUDIO = 'output/trans_vocal_total.wav'
+VIDEO_FILE = "output/output_video_with_subs.mp4"
+OUTPUT_VIDEO = "output/output_video_with_audio.mp4"
+TEMP_AUDIO = 'tmp_audio.wav'
 
 def time_to_datetime(time_str):
     return datetime.strptime(time_str, '%H:%M:%S.%f')
@@ -21,8 +29,8 @@ def create_silence(duration, output_file):
 
 def merge_all_audio():
     # Define input and output paths
-    input_excel = 'output/audio/sovits_tasks.xlsx'
-    output_audio = 'output/trans_vocal_total.wav'
+    input_excel = INPUT_EXCEL
+    output_audio = OUTPUT_AUDIO
         
     df = pd.read_excel(input_excel)
     
@@ -66,17 +74,11 @@ def merge_all_audio():
 
 def merge_video_audio():
     """Merge video and audio, and reduce video volume"""
-    video_file = "output/output_video_with_subs.mp4"
-    audio_file = "output/trans_vocal_total.wav"    
-    output_file = "output/output_video_with_audio.mp4"
-    from core.all_whisper_methods.whisperXapi import AUDIO_DIR, VOCAL_AUDIO_FILE, BACKGROUND_AUDIO_FILE
-    background_file = os.path.join(AUDIO_DIR, BACKGROUND_AUDIO_FILE)
-    original_vocal = os.path.join(AUDIO_DIR, VOCAL_AUDIO_FILE)
+    video_file = VIDEO_FILE
+    audio_file = OUTPUT_AUDIO
+    output_file = OUTPUT_VIDEO
     
-
-    if os.path.exists(output_file):
-        rprint(f"[bold yellow]{output_file} already exists, skipping processing.[/bold yellow]")
-        return
+    background_file = BACKGROUND_AUDIO_FILE
     
     if load_key("resolution") == '0x0':
         rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
@@ -92,19 +94,21 @@ def merge_video_audio():
         return
 
     # Merge video and audio
-    original_volume = load_key("original_volume")
     dub_volume = load_key("dub_volume")
-    cmd = ['ffmpeg', '-y', '-i', video_file, '-i', background_file, '-i', original_vocal, '-i', audio_file, '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={original_volume}[a2];[3:a]volume={dub_volume}[a3];[a1][a2][a3]amix=inputs=3:duration=first:dropout_transition=3[a]', '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', output_file]
+    cmd = ['ffmpeg', '-y', '-i', video_file, '-i', background_file, '-i', audio_file, 
+           '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={dub_volume}[a2];[a1][a2]amix=inputs=2:duration=first:dropout_transition=3[a]']
 
-    try:
-        subprocess.run(cmd, check=True)
-        rprint(f"[bold green]Video and audio successfully merged into {output_file}[/bold green]")
-    except subprocess.CalledProcessError as e:
-        rprint(f"[bold red]Error merging video and audio: {e}[/bold red]")
+    if check_gpu_available():
+        rprint("[bold green]Using GPU acceleration...[/bold green]")
+        cmd.extend(['-c:v', 'h264_nvenc'])
     
-    # Delete temporary audio file
-    if os.path.exists('tmp_audio.wav'):
-        os.remove('tmp_audio.wav')
+    cmd.extend(['-map', '0:v', '-map', '[a]', '-c:a', 'aac', '-b:a', '192k', output_file])
+    
+    subprocess.run(cmd)
+    rprint(f"[bold green]Video and audio successfully merged into {output_file}[/bold green]")
+    
+    if os.path.exists(TEMP_AUDIO):
+        os.remove(TEMP_AUDIO)
 
 def merge_main():
     merge_all_audio()

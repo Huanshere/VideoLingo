@@ -16,7 +16,7 @@ from difflib import SequenceMatcher
 console = Console()
 
 # Function to split text into chunks
-def split_chunks_by_chars(chunk_size=500, max_i=10): 
+def split_chunks_by_chars(chunk_size=400, max_i=8): 
     """Split text into chunks based on character count, return a list of multi-line text chunks"""
     with open("output/log/sentence_splitbymeaning.txt", "r", encoding="utf-8") as file:
         sentences = file.read().strip().split('\n')

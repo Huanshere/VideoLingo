@@ -6,21 +6,19 @@ api:
   base_url: 'https://yunwu.zeabur.app'
   model: 'gemini-1.5-pro-002'
 
-# Replicate API settings, only necessary for whisperxapi
-replicate_api_token: 'YOUR_KEY'
-
 # Language settings, written into the prompt, can be described in natural language
-target_language: 'Chinese'
+target_language: '简体中文'
+
+# Whether to use Demucs for vocal separation before transcription, warning this may slow down the process and cause lines missing!
+demucs: false
 
 whisper:
-  # Whisper settings [whisperx, whisperxapi]
-  method: 'whisperx'
   # Whisper specified recognition language [en, zh, auto] auto for automatic detection, en for forced translation to English
   language: 'en'
   detected_language: 'en'
 
 # Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
-resolution: '640x360'
+resolution: '1920x1080'
 
 ## ======================== Advanced Settings ======================== ##
 # *Default resolution for downloading YouTube videos [360, 1080, best]
@@ -30,7 +28,7 @@ subtitle:
   # *Maximum length of each subtitle line in characters
   max_length: 75
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
-  target_multiplier: 1.1
+  target_multiplier: 1.2
 
 # *Number of LLM multi-threaded accesses
 max_workers: 8
@@ -42,7 +40,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [openai_tts, gpt_sovits, azure_tts, fish_tts]
-tts_method: 'azure_tts'
+tts_method: 'openai_tts'
 
 # OpenAI TTS-1 API configuration
 openai_tts:
@@ -80,8 +78,7 @@ min_subtitle_duration: 3
 min_trim_duration: 2.50
 
 # Volume settings
-original_volume: 0.1  # Original voice volume in dubbed video (0.1 = 10% or 0)
-dub_volume: 1.5  # *Dubbed audio volume (1.5 = 150%, most original dubbing audio is relatively quiet)
+dub_volume: 1.3  # *Dubbed audio volume (1.3 = 130%, most original dubbing audio is relatively quiet)
 
 
 

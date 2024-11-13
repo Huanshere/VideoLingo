@@ -4,13 +4,13 @@
 api:
   key: 'YOUR_KEY'
   base_url: 'https://yunwu.zeabur.app'
-  model: 'claude-3-5-sonnet-20240620'
-
-# Replicate API 设置，仅在使用 whisperxapi 时需要
-replicate_api_token: 'YOUR_KEY'
+  model: 'gemini-1.5-pro-002'
 
 # 语言设置，写入提示词，可以用自然语言描述
 target_language: 'Chinese'
+
+# 是否在转录前进行人声分离，警告这可能会减慢过程并导致行缺失！
+demucs: false
 
 whisper:
   # Whisper 设置 [whisperx, whisperxapi]
@@ -30,7 +30,7 @@ subtitle:
   # *每行字幕的最大字符长度
   max_length: 75
   # *翻译后的字幕比源字幕略大，影响字幕分割的参考长度
-  target_multiplier: 1.1
+  target_multiplier: 1.2
 
 # *LLM 多线程访问数量
 max_workers: 8
@@ -80,8 +80,7 @@ min_subtitle_duration: 3
 min_trim_duration: 2.50
 
 # 音量设置
-original_volume: 0.1  # 配音视频中的原声音量（0.1 = 10% 或 0）
-dub_volume: 1.5  # *配音音频音量（1.5 = 150%，大多数原始配音音频相对较安静）
+dub_volume: 1.3  # *配音音频音量（1.3 = 130%，大多数原始配音音频相对较安静）
 
 ## ======================== 附加设置 请勿修改 ======================== ##
 # Whisper 模型目录
@@ -106,9 +105,12 @@ allowed_audio_formats:
 
 # 支持返回 JSON 格式的 LLM
 llm_support_json:
-- 'deepseek-coder'
 - 'gpt-4o'
 - 'gpt-4o-mini'
+- 'grok-beta'
+- 'gemini-1.5-flash-latest'
+- 'gemini-1.5-pro-latest'
+- 'gemini-1.5-pro-002'
 
 # Spacy 模型
 spacy_model_map:

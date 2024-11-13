@@ -18,6 +18,12 @@ from core.config_utils import load_key
 
 console = Console()
 
+TEMP_DIR = 'output/audio/tmp'
+SEGS_DIR = 'output/audio/segs'
+TASKS_FILE = "output/audio/sovits_tasks.xlsx"
+TEMP_FILE_TEMPLATE = f"{TEMP_DIR}/{{}}_temp.wav"
+OUTPUT_FILE_TEMPLATE = f"{SEGS_DIR}/{{}}.wav"
+
 def check_wav_duration(file_path):
     try:
         audio_info = sf.info(file_path)
@@ -43,27 +49,35 @@ def tts_main(text, save_as, number, task_df):
         azure_tts(text, save_as)
 
 def generate_audio(text, target_duration, save_as, number, task_df):
-    MIN_SPEED_FACTOR = load_key("speed_factor.min")
-    MAX_SPEED_FACTOR = load_key("speed_factor.max")
-    os.makedirs('output/audio/tmp', exist_ok=True)
-    temp_filename = f"output/audio/tmp/{number}_temp.wav"
+    MIN_SPEED = load_key("speed_factor.min")
+    MAX_SPEED = load_key("speed_factor.max")
+    os.makedirs(TEMP_DIR, exist_ok=True)
+    temp_file = TEMP_FILE_TEMPLATE.format(number)
 
-    tts_main(text, temp_filename, number, task_df)
+    # handle empty text or nan
+    if pd.isna(text) or not str(text).strip():
+        # generate silent audio
+        cmd = ['ffmpeg', '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=mono', '-t', '0.1', '-q:a', '0', '-y', save_as]
+        subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
+        rprint(f"ℹ️  {number} Generated silent audio for empty text: {save_as}")
+        return
 
-    original_duration = check_wav_duration(temp_filename)
+    tts_main(text, temp_file, number, task_df)
+
+    original_duration = check_wav_duration(temp_file)
     # -0.03 to avoid the duration is too close to the target_duration
     speed_factor = original_duration / (target_duration-0.03)
 
     # Check speed factor and adjust audio speed
-    if MIN_SPEED_FACTOR <= speed_factor <= MAX_SPEED_FACTOR:
-        change_audio_speed(temp_filename, save_as, speed_factor)
+    if MIN_SPEED <= speed_factor <= MAX_SPEED:
+        change_audio_speed(temp_file, save_as, speed_factor)
         final_duration = check_wav_duration(save_as)
         rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {speed_factor:.2f}")
-    elif speed_factor < MIN_SPEED_FACTOR:
-        change_audio_speed(temp_filename, save_as, MIN_SPEED_FACTOR)
+    elif speed_factor < MIN_SPEED:
+        change_audio_speed(temp_file, save_as, MIN_SPEED)
         final_duration = check_wav_duration(save_as)
-        rprint(f"⚠️ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED_FACTOR}")
-    else:  # speed_factor > MAX_SPEED_FACTOR
+        rprint(f"⚠️ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED}")
+    else:  # speed_factor > MAX_SPEED
         rprint(f"🚨 {number} Speed factor out of range: {speed_factor:.2f}, attempting to simplify subtitle...")
         
         original_text = text
@@ -73,32 +87,32 @@ def generate_audio(text, target_duration, save_as, number, task_df):
 
         rprint(f"Original subtitle: {original_text} | Simplified subtitle: {shortened_text}")
         
-        tts_main(shortened_text, temp_filename, number, task_df)
-        new_original_duration = check_wav_duration(temp_filename)
+        tts_main(shortened_text, temp_file, number, task_df)
+        new_original_duration = check_wav_duration(temp_file)
         new_speed_factor = new_original_duration / (target_duration-0.03)
 
-        if MIN_SPEED_FACTOR <= new_speed_factor <= MAX_SPEED_FACTOR:
-            change_audio_speed(temp_filename, save_as, new_speed_factor)
+        if MIN_SPEED <= new_speed_factor <= MAX_SPEED:
+            change_audio_speed(temp_file, save_as, new_speed_factor)
             final_duration = check_wav_duration(save_as)
             rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor:.2f}")
-        elif new_speed_factor > MAX_SPEED_FACTOR:
+        elif new_speed_factor > MAX_SPEED:
             rprint(f"🚔 {number} Speed factor still out of range after simplification: {new_speed_factor:.2f}")
-            change_audio_speed(temp_filename, save_as, new_speed_factor) #! force adjust
+            change_audio_speed(temp_file, save_as, new_speed_factor) #! force adjust
             final_duration = check_wav_duration(save_as)
             rprint(f"🚔 {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor}")
-        elif new_speed_factor < MIN_SPEED_FACTOR:
+        elif new_speed_factor < MIN_SPEED:
             rprint(f"⚠️ {number} Speed factor too low after simplification: {new_speed_factor:.2f}")
-            change_audio_speed(temp_filename, save_as, MIN_SPEED_FACTOR)
+            change_audio_speed(temp_file, save_as, MIN_SPEED)
             final_duration = check_wav_duration(save_as)
-            rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED_FACTOR}")
+            rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED}")
     
     #! check duration for safety
     if final_duration > target_duration:
         rprint(f"❎ {number} Final duration is longer than target duration: {final_duration:.2f}s | Required: {target_duration:.2f}s. This is a bug, please report it.")
         raise Exception()
     
-    if os.path.exists(temp_filename):
-        os.remove(temp_filename)
+    if os.path.exists(temp_file):
+        os.remove(temp_file)
 
 def change_audio_speed(input_file, output_file, speed_factor):
     atempo = speed_factor
@@ -118,38 +132,38 @@ def change_audio_speed(input_file, output_file, speed_factor):
                 raise e  # Re-raise the exception if all retries failed
 
 def process_sovits_tasks():
-    tasks_df = pd.read_excel("output/audio/sovits_tasks.xlsx")
-    error_tasks = []
-    os.makedirs('output/audio/segs', exist_ok=True)
+    tasks_df = pd.read_excel(TASKS_FILE)
+    errors = []
+    os.makedirs(SEGS_DIR, exist_ok=True)
 
     with console.status("[bold green]Processing tasks...") as status:
         for _, row in tqdm(tasks_df.iterrows(), total=len(tasks_df)):
-            output_file = f'output/audio/segs/{row["number"]}.wav'
-            if os.path.exists(output_file):
-                rprint(f"[yellow]File {output_file} already exists, skipping processing[/yellow]")
+            out_file = OUTPUT_FILE_TEMPLATE.format(row["number"])
+            if os.path.exists(out_file):
+                rprint(f"[yellow]File {out_file} already exists, skipping[/yellow]")
                 continue
             try:
-                generate_audio(row['text'], float(row['duration']), output_file, row['number'], tasks_df)
+                generate_audio(row['text'], float(row['duration']), out_file, row['number'], tasks_df)
             except Exception as e:
-                error_tasks.append(row['number'])
+                errors.append(row['number'])
                 rprint(Panel(f"Error processing task {row['number']}: {str(e)}", title="Error", border_style="red"))
 
-    if error_tasks:
+    if errors:
         # Retry once, sometimes there might be network issues or file I/O errors
-        rprint(Panel(f"The following tasks encountered errors, retrying: {', '.join(map(str, error_tasks))}", title="Retry", border_style="yellow"))
-        retry_tasks = error_tasks.copy()
-        error_tasks.clear()
+        rprint(Panel(f"The following tasks encountered errors, retrying: {', '.join(map(str, errors))}", title="Retry", border_style="yellow"))
+        retry_tasks = errors.copy()
+        errors.clear()
         for task_number in retry_tasks:
             row = tasks_df[tasks_df['number'] == task_number].iloc[0]
-            output_file = f'output/audio/segs/{row["number"]}.wav'
+            out_file = OUTPUT_FILE_TEMPLATE.format(row["number"])
             try:
-                generate_audio(row['text'], float(row['duration']), output_file, row['number'], tasks_df)
+                generate_audio(row['text'], float(row['duration']), out_file, row['number'], tasks_df)
             except Exception as e:
-                error_tasks.append(row['number'])
+                errors.append(row['number'])
                 rprint(Panel(f"Error retrying task {row['number']}: {str(e)}", title="Error", border_style="red"))
 
-    if error_tasks:
-        error_msg = f"The following tasks failed to process: {', '.join(map(str, error_tasks))}"
+    if errors:
+        error_msg = f"The following tasks failed to process: {', '.join(map(str, errors))}"
         rprint(Panel(error_msg, title="Failed Tasks", border_style="red"))
         raise Exception("tasks failed to process, please check cli output for details")
     
