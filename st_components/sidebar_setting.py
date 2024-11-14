@@ -76,12 +76,16 @@ def page_setting():
             update_key("resolution", resolution)
         
     with st.expander("Dubbing Settings", expanded=False):
-        tts_methods = ["openai_tts", "azure_tts", "gpt_sovits", "fish_tts"]
+        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts"]
         selected_tts_method = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if selected_tts_method != load_key("tts_method"):
             update_key("tts_method", selected_tts_method)
 
-        if selected_tts_method == "openai_tts":
+        if selected_tts_method == "sf_fish_tts":
+            config_text_input("SiliconFlow API Key", "sf_fish_tts.api_key")
+            config_text_input("Voice", "sf_fish_tts.voice")
+
+        elif selected_tts_method == "openai_tts":
             config_text_input("OpenAI Voice", "openai_tts.voice")
             config_text_input("OpenAI TTS API Key", "openai_tts.api_key")
             config_text_input("OpenAI TTS API Base URL", "openai_tts.base_url")

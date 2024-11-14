@@ -9,12 +9,14 @@ from rich.console import Console
 import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
+from core.all_tts_functions.siliconflow_fish_tts import siliconflow_fish_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
 from core.prompts_storage import get_subtitle_trim_prompt
 from core.ask_gpt import ask_gpt
 from core.config_utils import load_key
+from core.all_whisper_methods.whisperX_utils import get_audio_duration
 
 console = Console()
 
@@ -24,12 +26,12 @@ TASKS_FILE = "output/audio/sovits_tasks.xlsx"
 TEMP_FILE_TEMPLATE = f"{TEMP_DIR}/{{}}_temp.wav"
 OUTPUT_FILE_TEMPLATE = f"{SEGS_DIR}/{{}}.wav"
 
-def check_wav_duration(file_path):
-    try:
-        audio_info = sf.info(file_path)
-        return audio_info.duration
-    except Exception as e:
-        raise Exception(f"Error checking duration: {str(e)}")
+# def get_audio_duration(file_path):
+#     try:
+#         audio_info = sf.info(file_path)
+#         return audio_info.duration
+#     except Exception as e:
+#         raise Exception(f"Error checking duration: {str(e)}")
 
 def parse_srt_time(time_str):
     hours, minutes, seconds = time_str.strip().split(':')
@@ -47,6 +49,8 @@ def tts_main(text, save_as, number, task_df):
         fish_tts(text, save_as)
     elif TTS_METHOD == 'azure_tts':
         azure_tts(text, save_as)
+    elif TTS_METHOD == 'sf_fish_tts':
+        siliconflow_fish_tts_for_videolingo(text, save_as, number, task_df)
 
 def generate_audio(text, target_duration, save_as, number, task_df):
     MIN_SPEED = load_key("speed_factor.min")
@@ -64,18 +68,18 @@ def generate_audio(text, target_duration, save_as, number, task_df):
 
     tts_main(text, temp_file, number, task_df)
 
-    original_duration = check_wav_duration(temp_file)
+    original_duration = get_audio_duration(temp_file)
     # -0.03 to avoid the duration is too close to the target_duration
     speed_factor = original_duration / (target_duration-0.03)
 
     # Check speed factor and adjust audio speed
     if MIN_SPEED <= speed_factor <= MAX_SPEED:
         change_audio_speed(temp_file, save_as, speed_factor)
-        final_duration = check_wav_duration(save_as)
+        final_duration = get_audio_duration(save_as)
         rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {speed_factor:.2f}")
     elif speed_factor < MIN_SPEED:
         change_audio_speed(temp_file, save_as, MIN_SPEED)
-        final_duration = check_wav_duration(save_as)
+        final_duration = get_audio_duration(save_as)
         rprint(f"⚠️ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED}")
     else:  # speed_factor > MAX_SPEED
         rprint(f"🚨 {number} Speed factor out of range: {speed_factor:.2f}, attempting to simplify subtitle...")
@@ -88,22 +92,22 @@ def generate_audio(text, target_duration, save_as, number, task_df):
         rprint(f"Original subtitle: {original_text} | Simplified subtitle: {shortened_text}")
         
         tts_main(shortened_text, temp_file, number, task_df)
-        new_original_duration = check_wav_duration(temp_file)
+        new_original_duration = get_audio_duration(temp_file)
         new_speed_factor = new_original_duration / (target_duration-0.03)
 
         if MIN_SPEED <= new_speed_factor <= MAX_SPEED:
             change_audio_speed(temp_file, save_as, new_speed_factor)
-            final_duration = check_wav_duration(save_as)
+            final_duration = get_audio_duration(save_as)
             rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor:.2f}")
         elif new_speed_factor > MAX_SPEED:
             rprint(f"🚔 {number} Speed factor still out of range after simplification: {new_speed_factor:.2f}")
             change_audio_speed(temp_file, save_as, new_speed_factor) #! force adjust
-            final_duration = check_wav_duration(save_as)
+            final_duration = get_audio_duration(save_as)
             rprint(f"🚔 {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor}")
         elif new_speed_factor < MIN_SPEED:
             rprint(f"⚠️ {number} Speed factor too low after simplification: {new_speed_factor:.2f}")
             change_audio_speed(temp_file, save_as, MIN_SPEED)
-            final_duration = check_wav_duration(save_as)
+            final_duration = get_audio_duration(save_as)
             rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED}")
     
     #! check duration for safety
@@ -118,18 +122,29 @@ def change_audio_speed(input_file, output_file, speed_factor):
     atempo = speed_factor
     cmd = ['ffmpeg', '-i', input_file, '-filter:a', f'atempo={atempo}', '-y', output_file]
     
+    # 获取输入文件时长
+    input_duration = get_audio_duration(input_file)
+    
     max_retries = 3
     for attempt in range(max_retries):
         try:
             subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
-            return  # Success, exit the function
+            # 检查输出文件时长
+            output_duration = get_audio_duration(output_file)
+            
+            # 验证输出时长是否正确（考虑一些微小的误差）
+            if output_duration >= input_duration / speed_factor * 1.01:  # 允许1%的误差
+                raise Exception(f"输出音频时长异常: 输入={input_duration:.2f}s, 输出={output_duration:.2f}s, 期望输出<={input_duration/speed_factor:.2f}s")
+            
+            return  # 成功，退出函数
+            
         except subprocess.CalledProcessError as e:
-            if attempt < max_retries - 1:  # If it's not the last attempt
+            if attempt < max_retries - 1:  # 如果不是最后一次尝试
                 rprint(f"[yellow]Warning: Failed to change audio speed, retrying in 1 second (Attempt {attempt + 1}/{max_retries})[/yellow]")
                 time.sleep(1)
             else:
                 rprint(f"[red]Error: Failed to change audio speed, maximum retry attempts reached ({max_retries})[/red]")
-                raise e  # Re-raise the exception if all retries failed
+                raise e  # 如果所有重试都失败了，重新抛出异常
 
 def process_sovits_tasks():
     tasks_df = pd.read_excel(TASKS_FILE)
