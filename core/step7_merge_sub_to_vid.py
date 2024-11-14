@@ -87,24 +87,16 @@ def merge_subtitles_to_video():
 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
-    process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    process = subprocess.Popen(ffmpeg_cmd)
 
     try:
-        for line in process.stdout:
-            if "time=" in line.decode('utf-8', errors='ignore'):
-                print(line.decode('utf-8', errors='ignore').strip())
-        
         process.wait()
         if process.returncode == 0:
-            print(f"\n[Process completed in {time.time() - start_time:.2f} seconds.]")
-            print("🎉🎥 Subtitles merging to video completed! Please check in the `output` folder 👀")
+            print(f"\n✅ Done! Time taken: {time.time() - start_time:.2f} seconds")
         else:
-            print("\n[Error occurred during FFmpeg execution.]")
-    except KeyboardInterrupt:
-        process.kill()
-        print("\n[Process interrupted by user.]")
+            print("\n❌ FFmpeg execution error")
     except Exception as e:
-        print(f"\n[An unexpected error occurred: {e}]")
+        print(f"\n❌ Error occurred: {e}")
         if process.poll() is None:
             process.kill()
 
