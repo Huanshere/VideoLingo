@@ -10,10 +10,9 @@ console = Console()
 from core.all_whisper_methods.demucs_vl import demucs_main, VOCAL_AUDIO_FILE
 
 # Simplified path definitions
-OUT_DIR = 'output/audio'
-REF_DIR = os.path.join(OUT_DIR, 'refers')
-SEG_DIR = os.path.join(OUT_DIR, 'segs')
-TASKS_FILE = 'sovits_tasks.xlsx'
+REF_DIR = 'output/audio/refers'
+SEG_DIR = 'output/audio/segs'
+TASKS_FILE = 'output/audio/sovits_tasks.xlsx'
 
 def time_to_samples(time_str, sr):
     """Unified time conversion function"""
@@ -38,7 +37,7 @@ def extract_refer_audio_main():
     os.makedirs(REF_DIR, exist_ok=True)
     
     # Read task file and audio data
-    df = pd.read_excel(os.path.join(OUT_DIR, TASKS_FILE))
+    df = pd.read_excel(TASKS_FILE)
     data, sr = sf.read(VOCAL_AUDIO_FILE)
     
     with Progress(

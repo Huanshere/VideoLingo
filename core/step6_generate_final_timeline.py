@@ -8,6 +8,25 @@ import autocorrect_py as autocorrect
 
 console = Console()
 
+CLEANED_CHUNKS_FILE = 'output/log/cleaned_chunks.xlsx'
+TRANSLATION_RESULTS_FOR_SUBTITLES_FILE = 'output/log/translation_results_for_subtitles.xlsx'
+TRANSLATION_RESULTS_FILE = 'output/log/translation_results.xlsx'
+
+OUTPUT_DIR = 'output'
+AUDIO_OUTPUT_DIR = 'output/audio'
+
+SUBTITLE_OUTPUT_CONFIGS = [ 
+    ('src.srt', ['Source']),
+    ('trans.srt', ['Translation']),
+    ('src_trans.srt', ['Source', 'Translation']),
+    ('trans_src.srt', ['Translation', 'Source'])
+]
+
+AUDIO_SUBTITLE_OUTPUT_CONFIGS = [
+    ('src_subs_for_audio.srt', ['Source']),
+    ('trans_subs_for_audio.srt', ['Translation'])
+]
+
 def convert_to_srt_format(start_time, end_time):
     """Convert time (in seconds) to the format: hours:minutes:seconds,milliseconds"""
     def seconds_to_hmsm(seconds):
@@ -136,27 +155,19 @@ def clean_translation(x):
     return autocorrect.format(cleaned)
 
 def align_timestamp_main():
-    df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
+    df_text = pd.read_excel(CLEANED_CHUNKS_FILE)
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
-    df_translate = pd.read_excel('output/log/translation_results_for_subtitles.xlsx')
+    df_translate = pd.read_excel(TRANSLATION_RESULTS_FOR_SUBTITLES_FILE)
     df_translate['Translation'] = df_translate['Translation'].apply(clean_translation)
-    subtitle_output_configs = [ 
-        ('src.srt', ['Source']),
-        ('trans.srt', ['Translation']),
-        ('src_trans.srt', ['Source', 'Translation']),
-        ('trans_src.srt', ['Translation', 'Source'])
-    ]
-    align_timestamp(df_text, df_translate, subtitle_output_configs, 'output')
+    
+    align_timestamp(df_text, df_translate, SUBTITLE_OUTPUT_CONFIGS, OUTPUT_DIR)
     console.print(Panel("[bold green]🎉📝 Subtitles generation completed! Please check in the `output` folder 👀[/bold green]"))
 
     # for audio
-    df_translate_for_audio = pd.read_excel('output/log/translation_results.xlsx')
+    df_translate_for_audio = pd.read_excel(TRANSLATION_RESULTS_FILE)
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(clean_translation)
-    subtitle_output_configs = [
-        ('src_subs_for_audio.srt', ['Source']),
-        ('trans_subs_for_audio.srt', ['Translation'])
-    ]
-    align_timestamp(df_text, df_translate_for_audio, subtitle_output_configs, 'output/audio')
+    
+    align_timestamp(df_text, df_translate_for_audio, AUDIO_SUBTITLE_OUTPUT_CONFIGS, AUDIO_OUTPUT_DIR)
     console.print(Panel("[bold green]🎉📝 Audio subtitles generation completed! Please check in the `output/audio` folder 👀[/bold green]"))
     
 

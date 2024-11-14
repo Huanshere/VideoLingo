@@ -16,7 +16,6 @@ INPUT_EXCEL = 'output/audio/sovits_tasks.xlsx'
 OUTPUT_AUDIO = 'output/trans_vocal_total.wav'
 VIDEO_FILE = "output/output_video_with_subs.mp4"
 OUTPUT_VIDEO = "output/output_video_with_audio.mp4"
-TEMP_AUDIO = 'tmp_audio.wav'
 
 def time_to_datetime(time_str):
     return datetime.strptime(time_str, '%H:%M:%S.%f')
@@ -74,10 +73,6 @@ def merge_all_audio():
 
 def merge_video_audio():
     """Merge video and audio, and reduce video volume"""
-    video_file = VIDEO_FILE
-    audio_file = OUTPUT_AUDIO
-    output_file = OUTPUT_VIDEO
-    
     background_file = BACKGROUND_AUDIO_FILE
     
     if load_key("resolution") == '0x0':
@@ -86,7 +81,7 @@ def merge_video_audio():
         # Create a black frame
         frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_file, fourcc, 1, (1920, 1080))
+        out = cv2.VideoWriter(OUTPUT_VIDEO, fourcc, 1, (1920, 1080))
         out.write(frame)
         out.release()
 
@@ -95,20 +90,17 @@ def merge_video_audio():
 
     # Merge video and audio
     dub_volume = load_key("dub_volume")
-    cmd = ['ffmpeg', '-y', '-i', video_file, '-i', background_file, '-i', audio_file, 
+    cmd = ['ffmpeg', '-y', '-i', VIDEO_FILE, '-i', background_file, '-i', OUTPUT_AUDIO, 
            '-filter_complex', f'[1:a]volume=1[a1];[2:a]volume={dub_volume}[a2];[a1][a2]amix=inputs=2:duration=first:dropout_transition=3[a]']
 
     if check_gpu_available():
         rprint("[bold green]Using GPU acceleration...[/bold green]")
         cmd.extend(['-c:v', 'h264_nvenc'])
     
-    cmd.extend(['-map', '0:v', '-map', '[a]', '-c:a', 'aac', '-b:a', '192k', output_file])
+    cmd.extend(['-map', '0:v', '-map', '[a]', '-c:a', 'aac', '-b:a', '192k', OUTPUT_VIDEO])
     
     subprocess.run(cmd)
-    rprint(f"[bold green]Video and audio successfully merged into {output_file}[/bold green]")
-    
-    if os.path.exists(TEMP_AUDIO):
-        os.remove(TEMP_AUDIO)
+    rprint(f"[bold green]Video and audio successfully merged into {OUTPUT_VIDEO}[/bold green]")
 
 def merge_main():
     merge_all_audio()

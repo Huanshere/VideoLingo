@@ -15,10 +15,15 @@ from difflib import SequenceMatcher
 
 console = Console()
 
+SENTENCE_SPLIT_FILE = "output/log/sentence_splitbymeaning.txt"
+TRANSLATION_RESULTS_FILE = "output/log/translation_results.xlsx"
+TERMINOLOGY_FILE = "output/log/terminology.json"
+CLEANED_CHUNKS_FILE = "output/log/cleaned_chunks.xlsx"
+
 # Function to split text into chunks
 def split_chunks_by_chars(chunk_size=400, max_i=8): 
     """Split text into chunks based on character count, return a list of multi-line text chunks"""
-    with open("output/log/sentence_splitbymeaning.txt", "r", encoding="utf-8") as file:
+    with open(SENTENCE_SPLIT_FILE, "r", encoding="utf-8") as file:
         sentences = file.read().strip().split('\n')
 
     chunks = []
@@ -56,13 +61,13 @@ def similar(a, b):
 # 🚀 Main function to translate all chunks
 def translate_all():
     # Check if the file exists
-    if os.path.exists("output/log/translation_results.xlsx"):
+    if os.path.exists(TRANSLATION_RESULTS_FILE):
         console.print(Panel("🚨 File `translation_results.xlsx` already exists, skipping TRANSLATE ALL.", title="Warning", border_style="yellow"))
         return
     
     console.print("[bold green]Start Translating All...[/bold green]")
     chunks = split_chunks_by_chars(chunk_size=500, max_i=10)
-    with open('output/log/terminology.json', 'r', encoding='utf-8') as file:
+    with open(TERMINOLOGY_FILE, 'r', encoding='utf-8') as file:
         theme_prompt = json.load(file).get('theme')
 
     # 🔄 Use concurrent execution for translation
@@ -107,7 +112,7 @@ def translate_all():
         trans_text.extend(best_match[0][2].split('\n'))
     
     # Trim long translation text
-    df_text = pd.read_excel('output/log/cleaned_chunks.xlsx')
+    df_text = pd.read_excel(CLEANED_CHUNKS_FILE)
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     df_translate = pd.DataFrame({'Source': src_text, 'Translation': trans_text})
     subtitle_output_configs = [('trans_subs_for_audio.srt', ['Translation'])]
@@ -117,7 +122,7 @@ def translate_all():
     df_time['Translation'] = df_time.apply(lambda x: check_len_then_trim(x['Translation'], x['duration']) if x['duration'] > load_key("min_trim_duration") else x['Translation'], axis=1)
     console.print(df_time)
     
-    df_time.to_excel("output/log/translation_results.xlsx", index=False)
+    df_time.to_excel(TRANSLATION_RESULTS_FILE, index=False)
     console.print("[bold green]✅ Translation completed and results saved.[/bold green]")
 
 if __name__ == '__main__':

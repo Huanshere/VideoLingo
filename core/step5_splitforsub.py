@@ -14,6 +14,9 @@ from rich.table import Table
 
 console = Console()
 
+TRANSLATION_RESULTS_FILE = "output/log/translation_results.xlsx"
+TRANSLATION_RESULTS_FOR_SUBTITLES_FILE = "output/log/translation_results_for_subtitles.xlsx"
+
 # ! You can modify your own weights here
 # Chinese and Japanese 2.5 characters, Korean 2 characters, Thai 1.5 characters, full-width symbols 2 characters, other English-based and half-width symbols 1 character
 def calc_len(text: str) -> float:
@@ -92,16 +95,16 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> 
     return src_lines, tr_lines
 
 def split_for_sub_main():
-    if os.path.exists("output/log/translation_results_for_subtitles.xlsx"):
+    if os.path.exists(TRANSLATION_RESULTS_FOR_SUBTITLES_FILE):
         console.print("[yellow]🚨 File `translation_results_for_subtitles.xlsx` already exists, skipping this step.[/yellow]")
         return
 
     console.print("[bold green]🚀 Start splitting subtitles...[/bold green]")
-    df = pd.read_excel("output/log/translation_results.xlsx")
+    df = pd.read_excel(TRANSLATION_RESULTS_FILE)
     src_lines = df['Source'].tolist()
     tr_lines = df['Translation'].tolist()
     src_lines, tr_lines = split_align_subs(src_lines, tr_lines, max_retry=5)
-    pd.DataFrame({'Source': src_lines, 'Translation': tr_lines}).to_excel("output/log/translation_results_for_subtitles.xlsx", index=False)
+    pd.DataFrame({'Source': src_lines, 'Translation': tr_lines}).to_excel(TRANSLATION_RESULTS_FOR_SUBTITLES_FILE, index=False)
     console.print("[bold green]✅ Subtitles splitting completed![/bold green]")
 
 if __name__ == '__main__':
