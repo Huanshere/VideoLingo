@@ -10,7 +10,7 @@ console = Console()
 
 CLEANED_CHUNKS_FILE = 'output/log/cleaned_chunks.xlsx'
 TRANSLATION_RESULTS_FOR_SUBTITLES_FILE = 'output/log/translation_results_for_subtitles.xlsx'
-TRANSLATION_RESULTS_FILE = 'output/log/translation_results.xlsx'
+TRANSLATION_RESULTS_REMERGED_FILE = 'output/log/translation_results_remerged.xlsx'
 
 OUTPUT_DIR = 'output'
 AUDIO_OUTPUT_DIR = 'output/audio'
@@ -164,7 +164,7 @@ def align_timestamp_main():
     console.print(Panel("[bold green]🎉📝 Subtitles generation completed! Please check in the `output` folder 👀[/bold green]"))
 
     # for audio
-    df_translate_for_audio = pd.read_excel(TRANSLATION_RESULTS_FILE)
+    df_translate_for_audio = pd.read_excel(TRANSLATION_RESULTS_REMERGED_FILE) # use remerged file to avoid unmatched lines when dubbing
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(clean_translation)
     
     align_timestamp(df_text, df_translate_for_audio, AUDIO_SUBTITLE_OUTPUT_CONFIGS, AUDIO_OUTPUT_DIR)

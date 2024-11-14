@@ -7,15 +7,17 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step3_2_splitbymeaning import split_sentence
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_align_prompt
-from core.config_utils import load_key
+from core.config_utils import load_key, get_joiner
 from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
 
 console = Console()
 
-TRANSLATION_RESULTS_FILE = "output/log/translation_results.xlsx"
-TRANSLATION_RESULTS_FOR_SUBTITLES_FILE = "output/log/translation_results_for_subtitles.xlsx"
+# Constants
+INPUT_FILE = "output/log/translation_results.xlsx"
+OUTPUT_SPLIT_FILE = "output/log/translation_results_for_subtitles.xlsx"
+OUTPUT_REMERGED_FILE = "output/log/translation_results_remerged.xlsx"
 
 # ! You can modify your own weights here
 # Chinese and Japanese 2.5 characters, Korean 2 characters, Thai 1.5 characters, full-width symbols 2 characters, other English-based and half-width symbols 1 character
@@ -36,7 +38,7 @@ def calc_len(text: str) -> float:
 
     return sum(char_weight(char) for char in text)
 
-def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], List[str]]:
+def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], List[str], str]:
     align_prompt = get_align_prompt(src_sub, tr_sub, src_part)
     
     def valid_align(response_data):
@@ -50,19 +52,27 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     src_parts = src_part.split('\n')
     tr_parts = [item[f'target_part_{i+1}'].strip() for i, item in enumerate(align_data)]
     
+    whisper_language = load_key("whisper.language")
+    language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language
+    joiner = get_joiner(language)
+    tr_remerged = joiner.join(tr_parts)
+    
     table = Table(title="🔗 Aligned parts")
     table.add_column("Language", style="cyan")
     table.add_column("Parts", style="magenta")
     table.add_row("SRC_LANG", "\n".join(src_parts))
     table.add_row("TARGET_LANG", "\n".join(tr_parts))
+    table.add_row("REMERGED", tr_remerged)
     console.print(table)
     
-    return src_parts, tr_parts
+    return src_parts, tr_parts, tr_remerged
 
-def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> Tuple[List[str], List[str]]:
+def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> Tuple[List[str], List[str], List[str]]:
     subtitle_set = load_key("subtitle")
     MAX_SUB_LENGTH = subtitle_set["max_length"]
     TARGET_SUB_MULTIPLIER = subtitle_set["target_multiplier"]
+    remerged_tr_lines = tr_lines.copy()
+    
     for attempt in range(max_retry):
         console.print(Panel(f"🔄 Split attempt {attempt + 1}", expand=False))
         to_split = []
@@ -80,7 +90,10 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> 
         
         def process(i):
             split_src = split_sentence(src_lines[i], num_parts=2).strip()
-            src_lines[i], tr_lines[i] = align_subs(src_lines[i], tr_lines[i], split_src)
+            src_parts, tr_parts, tr_remerged = align_subs(src_lines[i], tr_lines[i], split_src)
+            src_lines[i] = src_parts
+            tr_lines[i] = tr_parts
+            remerged_tr_lines[i] = tr_remerged
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
             executor.map(process, to_split)
@@ -92,20 +105,21 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> 
         if all(len(src) <= MAX_SUB_LENGTH for src in src_lines) and all(calc_len(tr) * TARGET_SUB_MULTIPLIER <= MAX_SUB_LENGTH for tr in tr_lines):
             break
     
-    return src_lines, tr_lines
+    return src_lines, tr_lines, remerged_tr_lines
 
 def split_for_sub_main():
-    if os.path.exists(TRANSLATION_RESULTS_FOR_SUBTITLES_FILE):
-        console.print("[yellow]🚨 File `translation_results_for_subtitles.xlsx` already exists, skipping this step.[/yellow]")
-        return
-
     console.print("[bold green]🚀 Start splitting subtitles...[/bold green]")
-    df = pd.read_excel(TRANSLATION_RESULTS_FILE)
-    src_lines = df['Source'].tolist()
-    tr_lines = df['Translation'].tolist()
-    src_lines, tr_lines = split_align_subs(src_lines, tr_lines, max_retry=5)
-    pd.DataFrame({'Source': src_lines, 'Translation': tr_lines}).to_excel(TRANSLATION_RESULTS_FOR_SUBTITLES_FILE, index=False)
-    console.print("[bold green]✅ Subtitles splitting completed![/bold green]")
+    
+    df = pd.read_excel(INPUT_FILE)
+    src = df['Source'].tolist()
+    trans = df['Translation'].tolist()
+    
+    split_src, split_trans, remerged = split_align_subs(src.copy(), trans, max_retry=3)
+    
+    pd.DataFrame({'Source': split_src, 'Translation': split_trans}).to_excel(OUTPUT_SPLIT_FILE, index=False)
+    pd.DataFrame({'Source': src, 'Translation': remerged}).to_excel(OUTPUT_REMERGED_FILE, index=False)
+    
+    console.print("[bold green]✅ Subtitles splitting and remerging completed![/bold green]")
 
 if __name__ == '__main__':
     split_for_sub_main()
