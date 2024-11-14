@@ -83,7 +83,7 @@ def generate_audio(text, target_duration, save_as, number, task_df):
         original_text = text
         prompt = get_subtitle_trim_prompt(text, target_duration)
         response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
-        shortened_text = response['trans_text_processed']
+        shortened_text = response['result']
 
         rprint(f"Original subtitle: {original_text} | Simplified subtitle: {shortened_text}")
         

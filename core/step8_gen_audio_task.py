@@ -44,12 +44,12 @@ def check_len_then_trim(text, duration):
         original_text = text
         prompt = get_subtitle_trim_prompt(text, duration)
         def valid_trim(response):
-            if 'trans_text_processed' not in response:
-                return {'status': 'error', 'message': 'No trans_text_processed in response'}
+            if 'result' not in response:
+                return {'status': 'error', 'message': 'No result in response'}
             return {'status': 'success', 'message': ''}
         try:    
             response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim', valid_def=valid_trim)
-            shortened_text = response['trans_text_processed']
+            shortened_text = response['result']
         except Exception:
             rprint("[bold red]🚫 AI refused to answer due to sensitivity, so manually remove punctuation[/bold red]")
             shortened_text = re.sub(r'[,.!?;:，。！？；：]', ' ', text).strip()

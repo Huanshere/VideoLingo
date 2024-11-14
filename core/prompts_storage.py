@@ -35,78 +35,63 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 ## ================================================================
 # @ step4_1_summarize.py
 def get_summary_prompt(source_content):
-    src_language = load_key("whisper.detected_language")
-    TARGET_LANGUAGE = load_key("target_language")
+    src_lang = load_key("whisper.detected_language")
+    tgt_lang = load_key("target_language")
     summary_prompt = f"""
 ### Role
-You are a professional video translation expert and terminology consultant. Your expertise lies not only in accurately understanding the original {src_language} text but also in extracting key professional terms and optimizing the translation to better suit the expression habits and cultural background of {TARGET_LANGUAGE}.
+You are a video translation expert and terminology consultant, specializing in {src_lang} comprehension and {tgt_lang} expression optimization.
 
-### Task Description 
-For the provided original {src_language} video text, you need to:
-1. Summarize the video's main topic in one sentence
-2. Extract professional terms and names that appear in the video, and provide {TARGET_LANGUAGE} translations or suggest keeping the original language terms. Avoid extracting simple, common words.
-3. For each translated term or name, provide a brief explanation
+### Task
+For the provided {src_lang} video text:
+1. Summarize main topic in two sentences
+2. Extract professional terms/names with {tgt_lang} translations
+3. Provide brief explanation for each term
 
-### Analysis and Summary Steps
-Please think in two steps, processing the text line by line:  
-1. Topic summarization:
-   - Quickly skim through the entire text to understand the general idea
-   - Summarize the topic in one concise sentence
-2. Term and name extraction:
-   - Carefully read the entire text, marking professional terms and names
-   - For each term or name, provide a {TARGET_LANGUAGE} translation or suggest keeping the original, only the word itself is needed, not the pronunciation
-   - Add a brief explanation for each term or name to help the translator understand
-   - If the word is a fixed abbreviation or a proper name, please keep the original.
+### Steps
+1. Topic Summary:
+   - Quick scan for general understanding
+   - Write two sentences: first for main topic, second for key point
+2. Term Extraction:
+   - Mark professional terms and names
+   - Provide {tgt_lang} translation or keep original
+   - Add brief explanation
+   - Keep abbreviations and proper nouns unchanged
 
 ### Output Format
-Please output your analysis results in the following JSON format, where <> represents placeholders:
 {{
-    "theme": "<Briefly summarize the theme of this video in 1 sentence>",
+    "topic": "Two-sentence video summary",
     "terms": [
         {{
-            "original": "<Term or name 1 in the {src_language}>",
-            "translation": "<{TARGET_LANGUAGE} translation or keep original>",
-            "explanation": "<Brief explanation of the term or name>"
-        }},
-        {{
-            "original": "<Term or name 2 in the {src_language}>",
-            "translation": "<{TARGET_LANGUAGE} translation or keep original>",
-            "explanation": "<Brief explanation of the term or name>"
+            "src": "{src_lang} term",
+            "tgt": "{tgt_lang} translation or original",
+            "note": "Brief explanation"
         }},
         ...
     ]
 }}
 
-### Single Output Example (Using French as an example)
-
+### Example
 {{
-    "theme": "Ce vidéo résume le musée du Louvre à Paris.",
+    "topic": "本视频介绍人工智能在医疗领域的应用现状。重点展示了AI在医学影像诊断和药物研发中的突破性进展。",
     "terms": [
         {{
-            "original": "Mona Lisa",
-            "translation": "La Joconde",
-            "explanation": "Le tableau le plus célèbre du Louvre, un portrait de Léonard de Vinci"
+            "src": "Machine Learning",
+            "tgt": "机器学习",
+            "note": "AI的核心技术，通过数据训练实现智能决策"
         }},
         {{
-            "original": "pyramid",
-            "translation": "la pyramide",
-            "explanation": "Une grande structure en verre et métal en forme de pyramide située à l'entrée principale du Louvre"
-        }},
-        {{
-            "original": "I.M. Pei",
-            "translation": "I.M. Pei",
-            "explanation": "L'architecte américain d'origine chinoise qui a conçu la pyramide du Louvre"
-        }},
-        ...
+            "src": "CNN",
+            "tgt": "CNN",
+            "note": "卷积神经网络，用于医学图像识别的深度学习模型"
+        }}
     ]
 }}
 
-### Video text data to be processed
-<video_text_to_summarize>
+### Source Text
+<text>
 {source_content}
-</video_text_to_summarize>
+</text>
 """.strip()
-
     return summary_prompt
 
 ## ================================================================
@@ -283,7 +268,7 @@ Pre-processed {src_language} Subtitles ([br] indicates split points): {src_part}
 
 ## ================================================================
 # @ step8_gen_audio_task.py @ step10_gen_audio.py
-def get_subtitle_trim_prompt(trans_text, duration):
+def get_subtitle_trim_prompt(text, duration):
  
     rule = '''Consider a. Reducing filler words without modifying meaningful content. b. Omitting unnecessary modifiers or pronouns, for example:
     - "Please explain your thought process" can be shortened to "Please explain thought process"
@@ -297,7 +282,7 @@ You are a professional subtitle editor, editing and optimizing lengthy subtitles
 
 ### Subtitle Data
 <subtitles>
-Subtitle: "{trans_text}"
+Subtitle: "{text}"
 Duration: {duration} seconds
 </subtitles>
 
@@ -312,11 +297,11 @@ Please follow these steps and provide the results in the JSON output:
 ### Output in JSON
 {{
     "analysis": "Brief analysis of the subtitle, including structure, key information, and potential processing locations",
-    "trans_text_processed": "Optimized and shortened subtitle in the original subtitle language"
+    "result": "Optimized and shortened subtitle in the original subtitle language"
 }}
 '''
     return trim_prompt.format(
-        trans_text=trans_text,
+        text=text,
         duration=duration,
         rule=rule
     )
