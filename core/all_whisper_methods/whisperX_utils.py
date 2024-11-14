@@ -1,7 +1,7 @@
 import os, sys, subprocess
 import pandas as pd
-from moviepy.editor import AudioFileClip
 from typing import Dict, List, Tuple
+from rich import print
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from core.config_utils import update_key
 from core.all_whisper_methods.demucs_vl import RAW_AUDIO_FILE, AUDIO_DIR
@@ -33,11 +33,24 @@ def _detect_silence(audio_file: str, start: float, end: float) -> List[float]:
             for line in output.split('\n')
             if 'silence_end' in line]
 
-def split_audio(audio_file: str, target_len: int = 50*60, win: int = 60) -> List[Tuple[float, float]]:
-    print("🔪 Starting audio segmentation...")
+def get_audio_duration(audio_file: str) -> float:
+    """Get the duration of an audio file using ffmpeg."""
+    cmd = ['ffmpeg', '-i', audio_file]
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _, stderr = process.communicate()
+    output = stderr.decode('utf-8', errors='ignore')
     
-    with AudioFileClip(audio_file) as audio:
-        duration = audio.duration
+    duration_str = [line for line in output.split('\n') if 'Duration' in line][0]
+    duration_parts = duration_str.split('Duration: ')[1].split(',')[0].split(':')
+    duration = float(duration_parts[0])*3600 + float(duration_parts[1])*60 + float(duration_parts[2])
+    print(f"🔪 Audio duration: {duration:.2f}s")
+    return duration
+
+def split_audio(audio_file: str, target_len: int = 50*60, win: int = 60) -> List[Tuple[float, float]]:
+    print("[bold blue]🔪 Starting audio segmentation...[/]")
+    
+    duration = get_audio_duration(audio_file)
+    
     segments = []
     pos = 0
     while pos < duration:
