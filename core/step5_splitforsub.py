@@ -2,7 +2,6 @@ import sys, os
 import pandas as pd
 from typing import List, Tuple
 import concurrent.futures
-import re  # 在文件顶部添加此导入
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.step3_2_splitbymeaning import split_sentence

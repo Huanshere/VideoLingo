@@ -43,7 +43,6 @@ def get_audio_duration(audio_file: str) -> float:
     duration_str = [line for line in output.split('\n') if 'Duration' in line][0]
     duration_parts = duration_str.split('Duration: ')[1].split(',')[0].split(':')
     duration = float(duration_parts[0])*3600 + float(duration_parts[1])*60 + float(duration_parts[2])
-    print(f"🔪 Audio duration: {duration:.2f}s")
     return duration
 
 def split_audio(audio_file: str, target_len: int = 50*60, win: int = 60) -> List[Tuple[float, float]]:

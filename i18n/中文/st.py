@@ -87,7 +87,7 @@ def audio_processing_section():
 
 def process_audio():
     with st.spinner("生成音频任务中"): 
-        step8_gen_audio_task.gen_audio_task_main()
+        step8_1_gen_audio_task.gen_audio_task_main()
     with st.spinner("提取参考音频中"):
         step9_extract_refer_audio.extract_refer_audio_main()
     with st.spinner("生成音频中"):

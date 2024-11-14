@@ -65,6 +65,12 @@ def main():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def download_and_extract_ffmpeg():
+        # 使用conda安装ffmpeg，这是因为pydub似乎还需要依赖于conda的ffmpeg
+        try:
+            subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
+            print("成功通过conda安装ffmpeg")
+        except Exception as e:
+            print(f"通过conda安装ffmpeg失败: {str(e)}")
         import requests
         system = platform.system()
         if system == "Windows":

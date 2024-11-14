@@ -19,3 +19,7 @@ json-repair
 ruamel.yaml
 autocorrect-py
 demucs[dev] @ git+https://github.com/adefossez/demucs
+
+syllables
+pypinyin
+g2p-en

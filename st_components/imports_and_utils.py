@@ -1,8 +1,8 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core import step1_ytdlp, step2_whisperX, step3_1_spacy_split, step3_2_splitbymeaning, step9_extract_refer_audio
+from core import step1_ytdlp, step2_whisperX, step3_1_spacy_split, step3_2_splitbymeaning, step8_1_gen_audio_task, step9_extract_refer_audio
 from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline 
-from core import step7_merge_sub_to_vid, step8_gen_audio_task, step10_gen_audio, step11_merge_audio_to_vid
+from core import step7_merge_sub_to_vid, step10_gen_audio, step11_merge_audio_to_vid
 from core.onekeycleanup import cleanup  
 from core.delete_retry_dubbing import delete_dubbing_files
 from core.ask_gpt import ask_gpt

@@ -87,7 +87,7 @@ def audio_processing_section():
 
 def process_audio():
     with st.spinner("Generate audio tasks"): 
-        step8_gen_audio_task.gen_audio_task_main()
+        step8_1_gen_audio_task.gen_audio_task_main()
     with st.spinner("Extract refer audio"):
         step9_extract_refer_audio.extract_refer_audio_main()
     with st.spinner("Generate audio"):
