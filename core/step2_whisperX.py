@@ -9,7 +9,6 @@ import torch
 from typing import Dict
 import librosa
 from rich import print as rprint
-from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 import subprocess
 import tempfile
 
@@ -59,6 +58,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
                 "initial_prompt": "",
             }
         whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
+        rprint("[bold yellow]**You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`**[/bold yellow]")
         model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
 
         # Create temporary file to store audio segment
@@ -73,16 +73,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         # Delete temporary file
         os.unlink(temp_audio_path)
 
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            TimeElapsedColumn(),
-            transient=True
-        ) as progress:
-            task = progress.add_task("[cyan]Transcribing...", total=None)
-            
-            result = model.transcribe(audio_segment, batch_size=batch_size)
-            progress.update(task, completed=True)
+        rprint("[bold green]note: You will see Progress if working correctly[/bold green]")
+        result = model.transcribe(audio_segment, batch_size=batch_size, print_progress=True)
 
         # Free GPU resources
         del model
