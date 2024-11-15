@@ -6,7 +6,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from core.config_utils import update_key
 
 AUDIO_DIR = "output/audio"
-RAW_AUDIO_FILE = os.path.join(AUDIO_DIR, "raw.mp3")
+RAW_AUDIO_FILE = "output/audio/raw.mp3"
+CLEANED_CHUNKS_EXCEL_PATH = "output/log/cleaned_chunks.xlsx"
 
 def compress_audio(input_file: str, output_file: str):
     """将输入音频文件压缩为低质量音频文件，用于转录"""
@@ -23,11 +24,14 @@ def compress_audio(input_file: str, output_file: str):
 
 def convert_video_to_audio(video_file: str):
     os.makedirs(AUDIO_DIR, exist_ok=True)
-    # Convert to high quality audio, copying original audio codec parameters
+    # Convert to high quality audio, using libmp3lame encoder
     if not os.path.exists(RAW_AUDIO_FILE):
         print(f"🎬➡️🎵 Converting to high quality audio with FFmpeg ......")
         subprocess.run([
-            'ffmpeg', '-y', '-i', video_file, '-vn', '-c:a', 'copy',
+            'ffmpeg', '-y', '-i', video_file, '-vn',
+            '-c:a', 'libmp3lame', '-q:a', '0',  # 最高质量MP3编码
+            '-ar', '44100',  # 标准采样率
+            '-ac', '2',      # 双声道
             '-metadata', 'encoding=UTF-8', RAW_AUDIO_FILE
         ], check=True, stderr=subprocess.PIPE)
         print(f"🎬➡️🎵 Converted <{video_file}> to <{RAW_AUDIO_FILE}> with FFmpeg\n")
@@ -134,8 +138,7 @@ def process_transcription(result: Dict) -> pd.DataFrame:
 
 def save_results(df: pd.DataFrame):
     os.makedirs('output/log', exist_ok=True)
-    excel_path = os.path.join('output/log', "cleaned_chunks.xlsx")
-    
+
     # Remove rows where 'text' is empty
     initial_rows = len(df)
     df = df[df['text'].str.len() > 0]
@@ -150,8 +153,8 @@ def save_results(df: pd.DataFrame):
         df = df[df['text'].str.len() <= 20]
     
     df['text'] = df['text'].apply(lambda x: f'"{x}"')
-    df.to_excel(excel_path, index=False)
-    print(f"📊 Excel file saved to {excel_path}")
+    df.to_excel(CLEANED_CHUNKS_EXCEL_PATH, index=False)
+    print(f"📊 Excel file saved to {CLEANED_CHUNKS_EXCEL_PATH}")
 
 def save_language(language: str):
     update_key("whisper.detected_language", language)

@@ -14,7 +14,7 @@ import tempfile
 
 from core.config_utils import load_key
 from core.all_whisper_methods.demucs_vl import demucs_main, RAW_AUDIO_FILE, VOCAL_AUDIO_FILE
-from core.all_whisper_methods.whisperX_utils import process_transcription, convert_video_to_audio, split_audio, save_results, save_language, compress_audio
+from core.all_whisper_methods.whisperX_utils import process_transcription, convert_video_to_audio, split_audio, save_results, save_language, compress_audio, CLEANED_CHUNKS_EXCEL_PATH
 from core.step1_ytdlp import find_video_files
 
 MODEL_DIR = load_key("model_dir")
@@ -103,7 +103,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         raise
 
 def transcribe():
-    if os.path.exists("output/log/cleaned_chunks.xlsx"):
+    if os.path.exists(CLEANED_CHUNKS_EXCEL_PATH):
         rprint("[yellow]⚠️ Transcription results already exist, skipping transcription step.[/yellow]")
         return
     

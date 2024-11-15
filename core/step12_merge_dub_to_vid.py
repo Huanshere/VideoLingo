@@ -1,18 +1,21 @@
-import os, sys
+import os
+import sys
+import platform
+import subprocess
+
+import numpy as np
+import cv2
+from rich import print as rprint
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.all_whisper_methods.demucs_vl import BACKGROUND_AUDIO_FILE
 from core.step7_merge_sub_to_vid import check_gpu_available
 from core.config_utils import load_key
 from core.step1_ytdlp import find_video_files
-import numpy as np
-import cv2
-import subprocess
-from rich import print as rprint
-import platform
 
-OUTPUT_VIDEO = "output/output_video_with_audio.mp4"
-DUB_SUB_FILE = 'output/dub_sub.srt'
-DUB_AUDIO = 'output/trans_vocal_total.wav'
+DUB_VIDEO = "output/output_dub.mp4"
+DUB_SUB_FILE = 'output/dub.srt'
+DUB_AUDIO = 'output/dub.wav'
 
 TRANS_FONT_SIZE = 20
 TRANS_FONT_NAME = 'Arial'
@@ -35,7 +38,7 @@ def merge_video_audio():
         # Create a black frame
         frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(OUTPUT_VIDEO, fourcc, 1, (1920, 1080))
+        out = cv2.VideoWriter(DUB_VIDEO, fourcc, 1, (1920, 1080))
         out.write(frame)
         out.release()
 
@@ -70,10 +73,10 @@ def merge_video_audio():
     else:
         cmd.extend(['-map', '[v]', '-map', '[a]'])
     
-    cmd.extend(['-c:a', 'aac', '-b:a', '192k', OUTPUT_VIDEO])
+    cmd.extend(['-c:a', 'aac', '-b:a', '192k', DUB_VIDEO])
     
     subprocess.run(cmd)
-    rprint(f"[bold green]Video and audio successfully merged into {OUTPUT_VIDEO}[/bold green]")
+    rprint(f"[bold green]Video and audio successfully merged into {DUB_VIDEO}[/bold green]")
 
 if __name__ == '__main__':
     merge_video_audio()

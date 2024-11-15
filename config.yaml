@@ -4,7 +4,7 @@
 api:
   key: 'YOUR_KEY'
   base_url: 'https://api.siliconflow.cn'
-  model: 'Qwen/Qwen2.5-72B-Instruct-128K'
+  model: 'Qwen/Qwen2.5-Coder-32B-Instruct'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -18,7 +18,7 @@ whisper:
   detected_language: 'en'
 
 # Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
-resolution: '640x360'
+resolution: '1920x1080'
 
 ## ======================== Advanced Settings ======================== ##
 # *Default resolution for downloading YouTube videos [360, 1080, best]
@@ -49,8 +49,8 @@ sf_fish_tts:
   # only for mode "preset"
   voice: 'anna'
   # *only for mode "custom", dont set manually
-  custom_name: 'eb0f4928'
-  voice_id: 'speech:eb0f4928:clyyeevbv00054z8xyc19d9ua:goilrleomtguuacayczn'
+  custom_name: ''
+  voice_id: ''
   # preset, custom, dynamic
   mode: "custom"
 

@@ -11,6 +11,10 @@ from core.step1_ytdlp import find_video_files
 from core.all_whisper_methods.whisperX_utils import get_audio_duration
 import hashlib
 from rich import print as rprint
+from pydub import AudioSegment
+import time
+from rich.panel import Panel
+from rich.text import Text
 
 API_URL_SPEECH = "https://api.siliconflow.cn/v1/audio/speech"
 API_URL_VOICE = "https://api.siliconflow.cn/v1/uploads/audio/voice"
@@ -49,21 +53,32 @@ def siliconflow_fish_tts(text, save_path, mode="preset", voice_id=None, ref_audi
         }
     else: raise ValueError("Invalid mode")
 
-    response = requests.post(API_URL_SPEECH, json=payload, headers=headers)
-    if response.status_code == 200:
-        wav_file_path = Path(save_path).with_suffix('.wav')
-        wav_file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(wav_file_path, 'wb') as f: f.write(response.content)
-        
-        if check_duration:
-            duration = get_audio_duration(wav_file_path)
-            rprint(f"[blue]音频时长：{duration:.2f}秒")
+    max_retries = 3
+    retry_delay = 1
+    
+    for attempt in range(max_retries):
+        response = requests.post(API_URL_SPEECH, json=payload, headers=headers)
+        if response.status_code == 200:
+            wav_file_path = Path(save_path).with_suffix('.wav')
+            wav_file_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(wav_file_path, 'wb') as f: f.write(response.content)
             
-        rprint(f"[green]成功生成语音文件：{wav_file_path}")
-        return True
+            if check_duration:
+                duration = get_audio_duration(wav_file_path)
+                rprint(f"[blue]Audio Duration: {duration:.2f} seconds")
+                
+            rprint(f"[green]Successfully generated audio file: {wav_file_path}")
+            return True
+            
+        error_msg = response.json()
+        rprint(f"[red]Failed to generate audio | HTTP {response.status_code} (Attempt {attempt + 1}/{max_retries})")
+        rprint(f"[red]Text: {text}")
+        rprint(f"[red]Error details: {error_msg}")
         
-    error_msg = response.json()
-    rprint(f"[red]生成语音失败：HTTP {response.status_code} | 错误详情：{error_msg}")
+        if attempt < max_retries - 1:
+            time.sleep(retry_delay)
+            rprint(f"[yellow]Retrying in {retry_delay} second...")
+            
     return False
 
 def create_custom_voice(audio_path, text, custom_name=None):
@@ -72,8 +87,9 @@ def create_custom_voice(audio_path, text, custom_name=None):
     
     try:
         audio_base64 = f"data:audio/wav;base64,{base64.b64encode(open(audio_path, 'rb').read()).decode('utf-8')}"
+        rprint(f"[yellow]✅ Successfully encoded audio file")
     except Exception as e:
-        rprint(f"[red]Error reading file: {str(e)}")
+        rprint(f"[red]❌ Error reading file: {str(e)}")
         raise
     
     payload = {
@@ -83,73 +99,111 @@ def create_custom_voice(audio_path, text, custom_name=None):
         "text": text
     }
     
+    rprint(f"[yellow]🚀 Sending request to create voice...")
     response = requests.post(API_URL_VOICE, json=payload, headers=_get_headers())
     response_json = response.json()
     
     if response.status_code == 200:
-        rprint(f"[green]Successfully created custom voice 🎙️ Voice ID: {response_json.get('uri')}")
-        return response_json.get('uri')
+        voice_id = response_json.get('uri')
+        status_text = Text()
+        status_text.append("✨ Successfully created custom voice!\n", style="green")
+        status_text.append(f"🎙️ Voice ID: {voice_id}\n", style="green")
+        status_text.append(f"⌛ Creation Time: {time.strftime('%Y-%m-%d %H:%M:%S')}", style="green")
+        rprint(Panel(status_text, title="Voice Creation Status"))
+        return voice_id
+        
+    error_text = Text()
+    error_text.append("❌ Failed to create custom voice\n", style="red")
+    error_text.append(f"⚠️ HTTP Status: {response.status_code}\n", style="red")
+    error_text.append(f"💬 Error Details: {response_json}", style="red")
+    rprint(Panel(error_text, title="Error", border_style="red"))
     raise ValueError(f"Failed to create custom voice 🚫 HTTP {response.status_code}, Error details: {response_json}")
 
 def merge_audio(files: List[str], output: str) -> bool:
-    """合并音频文件，添加短暂静音，并重新编码"""
-    temp_output = output + ".temp.wav"
-    
-    # 准备输入文件和静音源
-    inputs = sum([['-i', f] for f in files], []) + ['-f', 'lavfi', '-i', 'anullsrc=duration=0.1']
-    
-    # 合并音频
-    if subprocess.run(['ffmpeg', '-y'] + inputs + [
-        '-filter_complex', f'[0:a][{len(files)}:a][1:a]concat=n=3:v=0:a=1[merged]',
-        '-map', '[merged]', temp_output
-    ], capture_output=True).returncode != 0:
-        rprint(f"[red]合并音频失败")
-        return False
-    
-    # 重新编码
-    success = subprocess.run([
-        'ffmpeg', '-y', '-i', temp_output,
-        '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '1', output
-    ], capture_output=True).returncode == 0
-    
-    try: os.remove(temp_output)
-    except: pass
-    
-    if not success or os.path.getsize(output) == 0:
-        rprint(f"[red]{'重新编码失败' if not success else '输出文件大小为0'}")
-        return False
+    """Merge audio files, add a brief silence"""
+    try:
+        # Create an empty audio segment
+        combined = AudioSegment.empty()
+        silence = AudioSegment.silent(duration=100)  # 100ms silence
         
-    return True
+        # Add audio files one by one
+        for file in files:
+            audio = AudioSegment.from_wav(file)
+            combined += audio + silence
+        
+        # Export the combined file
+        combined.export(output, format="wav", parameters=[
+            "-acodec", "pcm_s16le",
+            "-ar", "44100",
+            "-ac", "1"
+        ])
+        
+        if os.path.getsize(output) == 0:
+            rprint(f"[red]Output file size is 0")
+            return False
+            
+        rprint(f"[green]Successfully merged audio files")
+        return True
+        
+    except Exception as e:
+        rprint(f"[red]Failed to merge audio: {str(e)}")
+        return False
 
 def get_ref_audio(task_df) -> Tuple[str, str]:
-    """获取参考音频和文本，确保合并后的文本长度不超过100个字符"""
+    """Get reference audio and text, ensuring the combined text length does not exceed 100 characters"""
+    rprint(f"[blue]🎯 Starting reference audio selection process...")
+    
     duration = 0
     selected = []
     combined_text = ""
+    found_first = False
     
     for _, row in task_df.iterrows():
-        new_text = combined_text + " " + row['origin'] if combined_text else row['origin']
+        current_text = row['origin']
+        
+        # If no valid record has been found yet
+        if not found_first:
+            if len(current_text) <= 100:
+                selected.append(row)
+                combined_text = current_text
+                duration += row['duration']
+                found_first = True
+                rprint(f"[yellow]📝 Found first valid row: {current_text[:50]}...")
+            else:
+                rprint(f"[yellow]⏭️ Skipping long row: {current_text[:50]}... ({len(current_text)} chars)")
+            continue
+            
+        # Check subsequent rows
+        new_text = combined_text + " " + current_text
         if len(new_text) > 100:
             break
             
         selected.append(row)
         combined_text = new_text
         duration += row['duration']
+        rprint(f"[yellow]📝 Added row: {current_text[:50]}...")
+        
         if duration > 10:
             break
     
+    if not selected:
+        rprint(f"[red]❌ No valid segments found (all texts exceed 100 characters)")
+        return None, None
+        
+    rprint(f"[blue]📊 Selected {len(selected)} segments, total duration: {duration:.2f}s")
+    
     audio_files = [f"{AUDIO_REFERS_DIR}/{row['number']}.wav" for row in selected]
-    rprint(f"[yellow]Debug - Audio files to merge: {audio_files}")
+    rprint(f"[yellow]🎵 Audio files to merge: {audio_files}")
     
     combined_audio = f"{AUDIO_REFERS_DIR}/combined_reference.wav"
     success = merge_audio(audio_files, combined_audio)
     
     if not success:
-        rprint(f"[red]Error: Failed to merge audio files")
+        rprint(f"[red]❌ Error: Failed to merge audio files")
         return None, None
         
-    rprint(f"[green]Successfully created combined audio: {combined_audio}")
-    rprint(f"[green]Combined text: {combined_text} | Length: {len(combined_text)}")
+    rprint(f"[green]✅ Successfully created combined audio: {combined_audio}")
+    rprint(f"[green]📝 Final combined text: {combined_text} | Length: {len(combined_text)}")
     
     return combined_audio, combined_text
 
@@ -166,7 +220,7 @@ def siliconflow_fish_tts_for_videolingo(text, save_as, number, task_df):
         log_name = load_key("sf_fish_tts.custom_name")
         
         if log_name != custom_name:
-            # 获取合并后的参考音频和文本
+            # Get the merged reference audio and text
             ref_audio, ref_text = get_ref_audio(task_df)
             if ref_audio is None or ref_text is None:
                 rprint(f"[red]Failed to get reference audio and text, falling back to preset mode")

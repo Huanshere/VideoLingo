@@ -48,7 +48,7 @@ def check_len_then_trim(text, duration):
         return text
 
 def time_diff_seconds(t1, t2, base_date):
-    """计算两个 time 对象之间的秒数差值"""
+    """Calculate the difference in seconds between two time objects"""
     dt1 = datetime.datetime.combine(base_date, t1)
     dt2 = datetime.datetime.combine(base_date, t2)
     return (dt2 - dt1).total_seconds()
@@ -130,7 +130,7 @@ def process_srt():
     df['start_time'] = df['start_time'].apply(lambda x: x.strftime('%H:%M:%S.%f')[:-3])
     df['end_time'] = df['end_time'].apply(lambda x: x.strftime('%H:%M:%S.%f')[:-3])
 
-    ## 不再进行二次trim
+    ##! No longer perform secondary trim
     # check and trim subtitle length, for twice to ensure the subtitle length is within the limit, 允许tolerance
     # df['text'] = df.apply(lambda x: check_len_then_trim(x['text'], x['duration']+x['tolerance']), axis=1)
 

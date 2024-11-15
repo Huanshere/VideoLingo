@@ -1,188 +1,193 @@
-import os, sys
-import pandas as pd
-from tqdm import tqdm
-import soundfile as sf
-import subprocess
-from rich import print as rprint
-from rich.panel import Panel
-from rich.console import Console
+import os
+import sys
 import time
+import shutil
+import subprocess
+from typing import Tuple
+
+import pandas as pd
+from pydub import AudioSegment
+from rich import print as rprint
+from rich.console import Console
+from rich.progress import Progress
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
-from core.all_tts_functions.siliconflow_fish_tts import siliconflow_fish_tts_for_videolingo
-from core.all_tts_functions.openai_tts import openai_tts
-from core.all_tts_functions.fish_tts import fish_tts
-from core.all_tts_functions.azure_tts import azure_tts
-from core.prompts_storage import get_subtitle_trim_prompt
-from core.ask_gpt import ask_gpt
 from core.config_utils import load_key
 from core.all_whisper_methods.whisperX_utils import get_audio_duration
+from core.all_tts_functions.tts_main import tts_main
 
 console = Console()
 
 TEMP_DIR = 'output/audio/tmp'
 SEGS_DIR = 'output/audio/segs'
-TASKS_FILE = "output/audio/sovits_tasks.xlsx"
+TASKS_FILE = "output/audio/tts_tasks.xlsx"
+OUTPUT_FILE = "output/audio/tts_tasks.xlsx"
 TEMP_FILE_TEMPLATE = f"{TEMP_DIR}/{{}}_temp.wav"
 OUTPUT_FILE_TEMPLATE = f"{SEGS_DIR}/{{}}.wav"
 
-# def get_audio_duration(file_path):
-#     try:
-#         audio_info = sf.info(file_path)
-#         return audio_info.duration
-#     except Exception as e:
-#         raise Exception(f"Error checking duration: {str(e)}")
-
-def parse_srt_time(time_str):
+def parse_df_srt_time(time_str: str) -> float:
+    """Convert SRT time format to seconds"""
     hours, minutes, seconds = time_str.strip().split(':')
-    seconds, milliseconds = seconds.split(',')
+    seconds, milliseconds = seconds.split('.')
     return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
 
-def tts_main(text, save_as, number, task_df):
-    TTS_METHOD = load_key("tts_method")
-    if TTS_METHOD == 'openai_tts':
-        openai_tts(text, save_as)
-    elif TTS_METHOD == 'gpt_sovits':
-        #! 注意 gpt_sovits_tts 只支持输出中文，输入中文或英文
-        gpt_sovits_tts_for_videolingo(text, save_as, number, task_df)
-    elif TTS_METHOD == 'fish_tts':
-        fish_tts(text, save_as)
-    elif TTS_METHOD == 'azure_tts':
-        azure_tts(text, save_as)
-    elif TTS_METHOD == 'sf_fish_tts':
-        siliconflow_fish_tts_for_videolingo(text, save_as, number, task_df)
-
-def generate_audio(text, target_duration, save_as, number, task_df):
-    MIN_SPEED = load_key("speed_factor.min")
-    MAX_SPEED = load_key("speed_factor.max")
-    os.makedirs(TEMP_DIR, exist_ok=True)
-    temp_file = TEMP_FILE_TEMPLATE.format(number)
-
-    # handle empty text or nan
-    if pd.isna(text) or not str(text).strip():
-        # generate silent audio
-        cmd = ['ffmpeg', '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=mono', '-t', '0.1', '-q:a', '0', '-y', save_as]
-        subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
-        rprint(f"ℹ️  {number} Generated silent audio for empty text: {save_as}")
+def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float) -> None:
+    """Adjust audio speed and handle edge cases"""
+    # If the speed factor is close to 1, directly copy the file
+    if abs(speed_factor - 1.0) < 0.001:
+        shutil.copy2(input_file, output_file)
         return
-
-    tts_main(text, temp_file, number, task_df)
-
-    original_duration = get_audio_duration(temp_file)
-    # -0.03 to avoid the duration is too close to the target_duration
-    speed_factor = original_duration / (target_duration-0.03)
-
-    # Check speed factor and adjust audio speed
-    if MIN_SPEED <= speed_factor <= MAX_SPEED:
-        change_audio_speed(temp_file, save_as, speed_factor)
-        final_duration = get_audio_duration(save_as)
-        rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {speed_factor:.2f}")
-    elif speed_factor < MIN_SPEED:
-        change_audio_speed(temp_file, save_as, MIN_SPEED)
-        final_duration = get_audio_duration(save_as)
-        rprint(f"⚠️ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED}")
-    else:  # speed_factor > MAX_SPEED
-        rprint(f"🚨 {number} Speed factor out of range: {speed_factor:.2f}, attempting to simplify subtitle...")
         
-        original_text = text
-        prompt = get_subtitle_trim_prompt(text, target_duration)
-        response = ask_gpt(prompt, response_json=True, log_title='subtitle_trim')
-        shortened_text = response['result']
-
-        rprint(f"Original subtitle: {original_text} | Simplified subtitle: {shortened_text}")
-        
-        tts_main(shortened_text, temp_file, number, task_df)
-        new_original_duration = get_audio_duration(temp_file)
-        new_speed_factor = new_original_duration / (target_duration-0.03)
-
-        if MIN_SPEED <= new_speed_factor <= MAX_SPEED:
-            change_audio_speed(temp_file, save_as, new_speed_factor)
-            final_duration = get_audio_duration(save_as)
-            rprint(f"✅ {number} Adjusted audio: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor:.2f}")
-        elif new_speed_factor > MAX_SPEED:
-            rprint(f"🚔 {number} Speed factor still out of range after simplification: {new_speed_factor:.2f}")
-            change_audio_speed(temp_file, save_as, new_speed_factor) #! force adjust
-            final_duration = get_audio_duration(save_as)
-            rprint(f"🚔 {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {new_speed_factor}")
-        elif new_speed_factor < MIN_SPEED:
-            rprint(f"⚠️ {number} Speed factor too low after simplification: {new_speed_factor:.2f}")
-            change_audio_speed(temp_file, save_as, MIN_SPEED)
-            final_duration = get_audio_duration(save_as)
-            rprint(f"⚠️ {number} Forced adjustment: {save_as} | Duration: {final_duration:.2f}s | Required: {target_duration:.2f}s | Speed factor: {MIN_SPEED}")
-    
-    #! check duration for safety
-    if final_duration > target_duration:
-        rprint(f"❎ {number} Final duration is longer than target duration: {final_duration:.2f}s | Required: {target_duration:.2f}s. This is a bug, please report it.")
-        raise Exception()
-    
-    if os.path.exists(temp_file):
-        os.remove(temp_file)
-
-def change_audio_speed(input_file, output_file, speed_factor):
     atempo = speed_factor
     cmd = ['ffmpeg', '-i', input_file, '-filter:a', f'atempo={atempo}', '-y', output_file]
-    
-    # 获取输入文件时长
     input_duration = get_audio_duration(input_file)
-    
-    max_retries = 3
+    max_retries = 2
     for attempt in range(max_retries):
         try:
             subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
-            # 检查输出文件时长
             output_duration = get_audio_duration(output_file)
-            
-            # 验证输出时长是否正确（考虑一些微小的误差）
-            if output_duration >= input_duration / speed_factor * 1.01:  # 允许1%的误差
-                raise Exception(f"输出音频时长异常: 输入={input_duration:.2f}s, 输出={output_duration:.2f}s, 期望输出<={input_duration/speed_factor:.2f}s")
-            
-            return  # 成功，退出函数
-            
+            expected_duration = input_duration / speed_factor
+            diff = output_duration - expected_duration
+            # If the output duration exceeds the expected duration, but the input audio is less than 3 seconds, and the error is within 0.1 seconds, truncate to the expected length
+            if output_duration >= expected_duration * 1.01 and input_duration < 3 and diff <= 0.1:
+                audio = AudioSegment.from_wav(output_file)
+                trimmed_audio = audio[:(expected_duration * 1000)]  # pydub uses milliseconds
+                trimmed_audio.export(output_file, format="wav")
+                print(f"✂️ Trimmed to expected duration: {expected_duration:.2f} seconds")
+                return
+            elif output_duration >= expected_duration * 1.01:
+                raise Exception(f"Audio duration abnormal: input file={input_file}, output file={output_file}, speed factor={speed_factor}, input duration={input_duration:.2f}s, output duration={output_duration:.2f}s")
+            return
         except subprocess.CalledProcessError as e:
-            if attempt < max_retries - 1:  # 如果不是最后一次尝试
-                rprint(f"[yellow]Warning: Failed to change audio speed, retrying in 1 second (Attempt {attempt + 1}/{max_retries})[/yellow]")
+            if attempt < max_retries - 1:
+                rprint(f"[yellow]⚠️ Audio speed adjustment failed, retrying in 1s ({attempt + 1}/{max_retries})[/yellow]")
                 time.sleep(1)
             else:
-                rprint(f"[red]Error: Failed to change audio speed, maximum retry attempts reached ({max_retries})[/red]")
-                raise e  # 如果所有重试都失败了，重新抛出异常
+                rprint(f"[red]❌ Audio speed adjustment failed, max retries reached ({max_retries})[/red]")
+                raise e
 
-def process_sovits_tasks():
-    tasks_df = pd.read_excel(TASKS_FILE)
-    errors = []
-    os.makedirs(SEGS_DIR, exist_ok=True)
+def process_row(row: pd.Series, tasks_df: pd.DataFrame) -> Tuple[int, float]:
+    """Helper function for processing single row data"""
+    number = row['number']
+    lines = eval(row['lines']) if isinstance(row['lines'], str) else row['lines']
+    real_dur = 0
+    for line_index, line in enumerate(lines):
+        temp_file = TEMP_FILE_TEMPLATE.format(f"{number}_{line_index}")
+        tts_main(line, temp_file, number, tasks_df)
+        real_dur += get_audio_duration(temp_file)
+    return number, real_dur
 
-    with console.status("[bold green]Processing tasks...") as status:
-        for _, row in tqdm(tasks_df.iterrows(), total=len(tasks_df)):
-            out_file = OUTPUT_FILE_TEMPLATE.format(row["number"])
-            if os.path.exists(out_file):
-                rprint(f"[yellow]File {out_file} already exists, skipping[/yellow]")
-                continue
-            try:
-                generate_audio(row['text'], float(row['duration']), out_file, row['number'], tasks_df)
-            except Exception as e:
-                errors.append(row['number'])
-                rprint(Panel(f"Error processing task {row['number']}: {str(e)}", title="Error", border_style="red"))
-
-    if errors:
-        # Retry once, sometimes there might be network issues or file I/O errors
-        rprint(Panel(f"The following tasks encountered errors, retrying: {', '.join(map(str, errors))}", title="Retry", border_style="yellow"))
-        retry_tasks = errors.copy()
-        errors.clear()
-        for task_number in retry_tasks:
-            row = tasks_df[tasks_df['number'] == task_number].iloc[0]
-            out_file = OUTPUT_FILE_TEMPLATE.format(row["number"])
-            try:
-                generate_audio(row['text'], float(row['duration']), out_file, row['number'], tasks_df)
-            except Exception as e:
-                errors.append(row['number'])
-                rprint(Panel(f"Error retrying task {row['number']}: {str(e)}", title="Error", border_style="red"))
-
-    if errors:
-        error_msg = f"The following tasks failed to process: {', '.join(map(str, errors))}"
-        rprint(Panel(error_msg, title="Failed Tasks", border_style="red"))
-        raise Exception("tasks failed to process, please check cli output for details")
+def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
+    """Generate TTS audio sequentially and calculate actual duration"""
+    tasks_df['real_dur'] = 0
+    rprint("[bold green]🎯 Starting TTS audio generation...[/bold green]")
     
-    rprint(Panel("Task processing completed", title="Success", border_style="green"))
+    with Progress() as progress:
+        task = progress.add_task("[cyan]🔄 Generating TTS audio...", total=len(tasks_df))
+        
+        for _, row in tasks_df.iterrows():
+            try:
+                number, real_dur = process_row(row, tasks_df)
+                tasks_df.loc[tasks_df['number'] == number, 'real_dur'] = real_dur
+                progress.advance(task)
+            except Exception as e:
+                rprint(f"[red]❌ Error processing task: {str(e)}[/red]")
+                raise e
+
+    rprint("[bold green]✨ TTS audio generation completed![/bold green]")
+    return tasks_df
+
+def process_chunk(chunk_df: pd.DataFrame, accept: float, min_speed: float) -> tuple[float, bool]:
+    """Process audio chunk and calculate speed factor"""
+    chunk_durs = chunk_df['real_dur'].sum()
+    tol_durs = chunk_df['tol_dur'].sum()
+    durations = tol_durs - chunk_df.iloc[-1]['tolerance']
+    all_gaps = chunk_df['gap'].sum() - chunk_df.iloc[-1]['gap']
+    
+    keep_gaps = True
+    speed_var_error = 0.1
+
+    if (chunk_durs + all_gaps) / accept < durations:
+        speed_factor = max(min_speed, (chunk_durs + all_gaps) / (durations-speed_var_error))
+    elif chunk_durs / accept < durations:
+        speed_factor = max(min_speed, chunk_durs / (durations-speed_var_error))
+        keep_gaps = False
+    elif (chunk_durs + all_gaps) / accept < tol_durs:
+        speed_factor = max(min_speed, (chunk_durs + all_gaps) / (tol_durs-speed_var_error))
+    else:
+        speed_factor = chunk_durs / (tol_durs-speed_var_error)
+        keep_gaps = False
+        
+    return round(speed_factor, 3), keep_gaps
+
+def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
+    """Merge audio chunks and adjust timeline"""
+    rprint("[bold blue]🔄 Starting audio chunks processing...[/bold blue]")
+    accept = load_key("speed_factor.accept")
+    min_speed = load_key("speed_factor.min")
+    chunk_start = 0
+    
+    tasks_df['new_sub_times'] = None
+    
+    for index, row in tasks_df.iterrows():
+        if row['cut_off'] == 1:
+            chunk_df = tasks_df.iloc[chunk_start:index+1].reset_index(drop=True)
+            speed_factor, keep_gaps = process_chunk(chunk_df, accept, min_speed)
+            
+            # 🎯 Step1: Start processing new timeline
+            chunk_start_time = parse_df_srt_time(chunk_df.iloc[0]['start_time'])
+            chunk_end_time = parse_df_srt_time(chunk_df.iloc[-1]['end_time']) + chunk_df.iloc[-1]['tolerance'] # 加上tolerance才是这一块的结束
+            cur_time = chunk_start_time
+            for i, row in chunk_df.iterrows():
+                # If i is not 0, which is not the first row of the chunk, cur_time needs to be added with the gap of the previous row, remember to divide by speed_factor
+                if i != 0 and keep_gaps:
+                    cur_time += chunk_df.iloc[i-1]['gap']/speed_factor
+                new_sub_times = []
+                number = row['number']
+                lines = eval(row['lines']) if isinstance(row['lines'], str) else row['lines']
+                for line_index, line in enumerate(lines):
+                    # 🔄 Step2: Start speed change and save as OUTPUT_FILE_TEMPLATE
+                    temp_file = TEMP_FILE_TEMPLATE.format(f"{number}_{line_index}")
+                    output_file = OUTPUT_FILE_TEMPLATE.format(f"{number}_{line_index}")
+                    adjust_audio_speed(temp_file, output_file, speed_factor)
+                    ad_dur = get_audio_duration(output_file)
+                    new_sub_times.append([cur_time, cur_time+ad_dur])
+                    cur_time += ad_dur
+                # 🔄 Step3: Find corresponding main DataFrame index and update new_sub_times
+                main_df_idx = tasks_df[tasks_df['number'] == row['number']].index[0]
+                tasks_df.at[main_df_idx, 'new_sub_times'] = new_sub_times
+                # 🎯 Step4: Choose emoji based on speed_factor and accept comparison
+                emoji = "⚡" if speed_factor <= accept else "⚠️"
+                rprint(f"[cyan]{emoji} Processed chunk {chunk_start} to {index} with speed factor {speed_factor}[/cyan]")
+            # 🔄 Step5: Check if the last row exceeds the range
+            if cur_time > chunk_end_time:
+                raise Exception(f"Chunk {chunk_start} to {index} exceeds the chunk end time {chunk_end_time:.2f} seconds with current time {cur_time:.2f} seconds")
+            chunk_start = index+1
+    
+    rprint("[bold green]✅ Audio chunks processing completed![/bold green]")
+    return tasks_df
+
+def gen_audio() -> None:
+    """Main function: Generate audio and process timeline"""
+    rprint("[bold magenta]🚀 Starting audio generation process...[/bold magenta]")
+    
+    # 🎯 Step1: Create necessary directories
+    os.makedirs(TEMP_DIR, exist_ok=True)
+    os.makedirs(SEGS_DIR, exist_ok=True)
+    
+    # 📝 Step2: Load task file
+    tasks_df = pd.read_excel(TASKS_FILE)
+    rprint("[green]📊 Loaded task file successfully[/green]")
+    
+    # 🔊 Step3: Generate TTS audio
+    tasks_df = generate_tts_audio(tasks_df)
+    
+    # 🔄 Step4: Merge audio chunks
+    tasks_df = merge_chunks(tasks_df)
+    
+    # 💾 Step5: Save results
+    tasks_df.to_excel(OUTPUT_FILE, index=False)
+    rprint("[bold green]🎉 Audio generation completed successfully![/bold green]")
 
 if __name__ == "__main__":
-    process_sovits_tasks()
+    gen_audio()
