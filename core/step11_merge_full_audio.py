@@ -9,7 +9,7 @@ from rich.console import Console
 console = Console()
 
 INPUT_EXCEL = 'output/audio/tts_tasks.xlsx'
-DUB_VOCAL_FILE = 'output/dub.wav'
+DUB_VOCAL_FILE = 'output/dub.mp3'
 
 DUB_SUB_FILE = 'output/dub.srt'
 SEGS_DIR = 'output/audio/segs'
@@ -37,19 +37,19 @@ def get_audio_files(df):
             audios.append(temp_file)
     return audios
 
-def process_audio_segment(audio_file, sample_rate):
-    """Process a single audio segment"""
-    temp_file = f"{audio_file}_temp.wav"
+def process_audio_segment(audio_file):
+    """Process a single audio segment with MP3 compression"""
+    temp_file = f"{audio_file}_temp.mp3"
     ffmpeg_cmd = [
         'ffmpeg', '-y',
         '-i', audio_file,
-        '-ar', str(sample_rate),
-        '-ac', '1',
-        '-acodec', 'pcm_s16le',
+        '-ar', '16000',  # 固定采样率为16kHz
+        '-ac', '1',      # 单声道
+        '-b:a', '64k',   # 比特率64kbps
         temp_file
     ]
     subprocess.run(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    audio_segment = AudioSegment.from_wav(temp_file)
+    audio_segment = AudioSegment.from_mp3(temp_file)
     os.remove(temp_file)
     return audio_segment
 
@@ -70,7 +70,7 @@ def merge_audio_segments(audios, new_sub_times, sample_rate):
                 progress.advance(merge_task)
                 continue
                 
-            audio_segment = process_audio_segment(audio_file, sample_rate)
+            audio_segment = process_audio_segment(audio_file)
             start_time, end_time = time_range
             
             # Add silence segment
@@ -123,14 +123,20 @@ def merge_full_audio():
         return
     
     with console.status("[bold cyan]🎚️ Getting sample rate...[/bold cyan]"):
-        sample_rate = AudioSegment.from_wav(audios[0]).frame_rate
-    console.print(f"[bold green]✅ Sample rate: {sample_rate}Hz[/bold green]")
+        detected_rate = AudioSegment.from_wav(audios[0]).frame_rate
+        sample_rate = min(16000, detected_rate)
+    console.print(f"[bold green]✅ Sample rate: {sample_rate}Hz (detected: {detected_rate}Hz)[/bold green]")
 
     console.print("[bold cyan]🔄 Starting audio merge process...[/bold cyan]")
     merged_audio = merge_audio_segments(audios, new_sub_times, sample_rate)
     
     with console.status("[bold cyan]💾 Exporting final audio file...[/bold cyan]"):
-        merged_audio.export(DUB_VOCAL_FILE, format="wav")
+        merged_audio = merged_audio.set_frame_rate(16000).set_channels(1)
+        merged_audio.export(
+            DUB_VOCAL_FILE, 
+            format="mp3",
+            parameters=["-b:a", "64k"]
+        )
     console.print(f"[bold green]✅ Audio file successfully merged![/bold green]")
     console.print(f"[bold green]📁 Output file: {DUB_VOCAL_FILE}[/bold green]")
 

@@ -10,6 +10,7 @@ from pydub import AudioSegment
 from rich import print as rprint
 from rich.console import Console
 from rich.progress import Progress
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.config_utils import load_key
@@ -85,14 +86,34 @@ def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
     with Progress() as progress:
         task = progress.add_task("[cyan]🔄 Generating TTS audio...", total=len(tasks_df))
         
-        for _, row in tasks_df.iterrows():
+        # warm up for first 10 rows
+        warmup_size = min(10, len(tasks_df))
+        for _, row in tasks_df.head(warmup_size).iterrows():
             try:
                 number, real_dur = process_row(row, tasks_df)
                 tasks_df.loc[tasks_df['number'] == number, 'real_dur'] = real_dur
                 progress.advance(task)
             except Exception as e:
-                rprint(f"[red]❌ Error processing task: {str(e)}[/red]")
+                rprint(f"[red]❌ Error in warmup: {str(e)}[/red]")
                 raise e
+        
+        # parallel processing for remaining tasks
+        if len(tasks_df) > warmup_size:
+            remaining_tasks = tasks_df.iloc[warmup_size:].copy()
+            with ThreadPoolExecutor() as executor:
+                futures = [
+                    executor.submit(process_row, row, tasks_df.copy())
+                    for _, row in remaining_tasks.iterrows()
+                ]
+                
+                for future in as_completed(futures):
+                    try:
+                        number, real_dur = future.result()
+                        tasks_df.loc[tasks_df['number'] == number, 'real_dur'] = real_dur
+                        progress.advance(task)
+                    except Exception as e:
+                        rprint(f"[red]❌ Error: {str(e)}[/red]")
+                        raise e
 
     rprint("[bold green]✨ TTS audio generation completed![/bold green]")
     return tasks_df

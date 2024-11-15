@@ -12,7 +12,7 @@ def combine_chunks():
         sentences = file.readlines()
     cleaned_sentences = [line.strip() for line in sentences]
     combined_text = ' '.join(cleaned_sentences)
-    return combined_text[:16000]  #! Return only the first 16000 characters
+    return combined_text[:32000]  #! Return only the first 32000 characters
 
 def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""

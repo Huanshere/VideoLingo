@@ -24,14 +24,13 @@ def compress_audio(input_file: str, output_file: str):
 
 def convert_video_to_audio(video_file: str):
     os.makedirs(AUDIO_DIR, exist_ok=True)
-    # Convert to high quality audio, using libmp3lame encoder
     if not os.path.exists(RAW_AUDIO_FILE):
         print(f"🎬➡️🎵 Converting to high quality audio with FFmpeg ......")
         subprocess.run([
             'ffmpeg', '-y', '-i', video_file, '-vn',
-            '-c:a', 'libmp3lame', '-q:a', '0',  # 最高质量MP3编码
-            '-ar', '44100',  # 标准采样率
-            '-ac', '2',      # 双声道
+            '-c:a', 'libmp3lame', '-b:a', '128k',
+            '-ar', '32000',
+            '-ac', '1', 
             '-metadata', 'encoding=UTF-8', RAW_AUDIO_FILE
         ], check=True, stderr=subprocess.PIPE)
         print(f"🎬➡️🎵 Converted <{video_file}> to <{RAW_AUDIO_FILE}> with FFmpeg\n")
@@ -57,9 +56,13 @@ def get_audio_duration(audio_file: str) -> float:
     _, stderr = process.communicate()
     output = stderr.decode('utf-8', errors='ignore')
     
-    duration_str = [line for line in output.split('\n') if 'Duration' in line][0]
-    duration_parts = duration_str.split('Duration: ')[1].split(',')[0].split(':')
-    duration = float(duration_parts[0])*3600 + float(duration_parts[1])*60 + float(duration_parts[2])
+    try:
+        duration_str = [line for line in output.split('\n') if 'Duration' in line][0]
+        duration_parts = duration_str.split('Duration: ')[1].split(',')[0].split(':')
+        duration = float(duration_parts[0])*3600 + float(duration_parts[1])*60 + float(duration_parts[2])
+    except Exception as e:
+        print(f"[red]❌ Error: Failed to get audio duration: {e}[/red]")
+        duration = 0
     return duration
 
 def split_audio(audio_file: str, target_len: int = 30*60, win: int = 60) -> List[Tuple[float, float]]:

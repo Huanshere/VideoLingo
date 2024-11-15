@@ -3,7 +3,6 @@ from pathlib import Path
 import os, sys
 import base64
 import uuid
-import subprocess
 from typing import List, Tuple
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key, update_key
@@ -53,7 +52,7 @@ def siliconflow_fish_tts(text, save_path, mode="preset", voice_id=None, ref_audi
         }
     else: raise ValueError("Invalid mode")
 
-    max_retries = 3
+    max_retries = 2
     retry_delay = 1
     
     for attempt in range(max_retries):

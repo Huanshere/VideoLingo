@@ -4,7 +4,7 @@
 api:
   key: 'YOUR_KEY'
   base_url: 'https://api.siliconflow.cn'
-  model: 'Qwen/Qwen2.5-Coder-32B-Instruct'
+  model: 'Qwen/Qwen2.5-72B-Instruct'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -45,14 +45,14 @@ tts_method: 'sf_fish_tts'
 # SiliconFlow FishTTS
 sf_fish_tts:
   # SiliconFlow API key
-  api_key: 'YOUR_KEY'
+  api_key: 'YOUR_API_KEY'
   # only for mode "preset"
   voice: 'anna'
   # *only for mode "custom", dont set manually
   custom_name: ''
   voice_id: ''
   # preset, custom, dynamic
-  mode: "custom"
+  mode: "preset"
 
 # OpenAI TTS-1 API configuration
 openai_tts:
@@ -84,15 +84,14 @@ speed_factor:
   min: 1
   accept: 1.2 # 可以接受的最大速度
   max: 1.4
-  normal: 1  # *Considered normal speech rate 弃用
 
 # *Merge audio configuration
-min_subtitle_duration: 2.50 # 最小字幕出现时间 会强制扩展
-min_trim_duration: 2.50 # 小于这个值的字幕不会切割
+min_subtitle_duration: 2.5 # 最小字幕出现时间 会强制扩展
+min_trim_duration: 3.5 # 小于这个值的字幕不会切割
 tolerance: 1.5 # 允许向后延申的时间
 
 # Volume settings
-dub_volume: 1.3  # *Dubbed audio volume (1.3 = 130%, most original dubbing audio is relatively quiet)
+dub_volume: 1.5  # *Dubbed audio volume (1.5 = 150%, most original dubbing audio is relatively quiet)
 
 
 
@@ -127,7 +126,11 @@ llm_support_json:
 - 'gemini-1.5-flash-latest'
 - 'gemini-1.5-pro-latest'
 - 'gemini-1.5-pro-002'
-- 'Qwen/Qwen2.5-72B-Instruct'
+
+# have problems
+# - 'Qwen/Qwen2.5-72B-Instruct'
+# - 'Qwen/Qwen2.5-Coder-32B-Instruct'
+# - 'Qwen/Qwen2.5-Chat-72B-Instruct-128K'
 
 # Spacy models
 spacy_model_map:

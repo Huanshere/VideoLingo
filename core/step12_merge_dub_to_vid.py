@@ -15,7 +15,7 @@ from core.step1_ytdlp import find_video_files
 
 DUB_VIDEO = "output/output_dub.mp4"
 DUB_SUB_FILE = 'output/dub.srt'
-DUB_AUDIO = 'output/dub.wav'
+DUB_AUDIO = 'output/dub.mp3'
 
 TRANS_FONT_SIZE = 20
 TRANS_FONT_NAME = 'Arial'
