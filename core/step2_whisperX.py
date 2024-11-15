@@ -14,10 +14,11 @@ import tempfile
 
 from core.config_utils import load_key
 from core.all_whisper_methods.demucs_vl import demucs_main, RAW_AUDIO_FILE, VOCAL_AUDIO_FILE
-from core.all_whisper_methods.whisperX_utils import process_transcription, convert_video_to_audio, split_audio, save_results, save_language
+from core.all_whisper_methods.whisperX_utils import process_transcription, convert_video_to_audio, split_audio, save_results, save_language, compress_audio
 from core.step1_ytdlp import find_video_files
 
 MODEL_DIR = load_key("model_dir")
+WHISPER_FILE = "output/audio/for_whisper.mp3"
 
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
     WHISPER_LANGUAGE = load_key("whisper.language")
@@ -49,14 +50,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         else:
             rprint(f"[green]📥 Using WHISPER model from HuggingFace:[/green] {model_name} ...")
 
-        vad_options = {
-                "vad_onset": 0.500,
-                "vad_offset": 0.363
-            }
-        asr_options = {
-                "temperatures": [0],
-                "initial_prompt": "",
-            }
+        vad_options = {"vad_onset": 0.500,"vad_offset": 0.363}
+        asr_options = {"temperatures": [0],"initial_prompt": "",}
         whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
         rprint("[bold yellow]**You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`**[/bold yellow]")
         model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
@@ -120,22 +115,25 @@ def transcribe():
     if load_key("demucs"):
         demucs_main()
     
-    whisper_file = VOCAL_AUDIO_FILE if load_key("demucs") else RAW_AUDIO_FILE
+    # step2 Compress audio
+    choose_audio = VOCAL_AUDIO_FILE if load_key("demucs") else RAW_AUDIO_FILE
+    whisper_audio = compress_audio(choose_audio, WHISPER_FILE)
 
-    # step2 Extract audio
-    segments = split_audio(whisper_file)
+    # step3 Extract audio
+    segments = split_audio(whisper_audio)
     
-    # step3 Transcribe audio
+    # step4 Transcribe audio
     all_results = []
     for start, end in segments:
-        result = transcribe_audio(whisper_file, start, end)
+        result = transcribe_audio(whisper_audio, start, end)
         all_results.append(result)
     
-    # step4 Combine results
+    # step5 Combine results
     combined_result = {'segments': []}
     for result in all_results:
         combined_result['segments'].extend(result['segments'])
     
+    # step6 Process df
     df = process_transcription(combined_result)
     save_results(df)
         

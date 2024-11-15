@@ -4,20 +4,33 @@ from typing import Dict, List, Tuple
 from rich import print
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from core.config_utils import update_key
-from core.all_whisper_methods.demucs_vl import RAW_AUDIO_FILE, AUDIO_DIR
 
-def convert_video_to_audio(input_file: str) -> str:
-    os.makedirs(AUDIO_DIR, exist_ok=True)
-    if not os.path.exists(RAW_AUDIO_FILE):
-        print(f"🎬➡️🎵 Converting to audio with FFmpeg ......")
+AUDIO_DIR = "output/audio"
+RAW_AUDIO_FILE = os.path.join(AUDIO_DIR, "raw.mp3")
+
+def compress_audio(input_file: str, output_file: str):
+    """将输入音频文件压缩为低质量音频文件，用于转录"""
+    if not os.path.exists(output_file):
+        print(f"🗜️ Converting to low quality audio with FFmpeg ......")
+        # 16000 Hz, 1 channel, (Whisper default) , 96kbps to keep more details as well as smaller file size
         subprocess.run([
-            'ffmpeg', '-y', '-i', input_file, '-vn', '-b:a', '64k',
+            'ffmpeg', '-y', '-i', input_file, '-vn', '-b:a', '96k',
             '-ar', '16000', '-ac', '1', '-metadata', 'encoding=UTF-8',
-            '-f', 'mp3', RAW_AUDIO_FILE
+            '-f', 'mp3', output_file
         ], check=True, stderr=subprocess.PIPE)
-        print(f"🎬➡️🎵 Converted <{input_file}> to <{RAW_AUDIO_FILE}> with FFmpeg\n")
+        print(f"🗜️ Converted <{input_file}> to <{output_file}> with FFmpeg")
+    return output_file
 
-    return RAW_AUDIO_FILE
+def convert_video_to_audio(video_file: str):
+    os.makedirs(AUDIO_DIR, exist_ok=True)
+    # Convert to high quality audio, copying original audio codec parameters
+    if not os.path.exists(RAW_AUDIO_FILE):
+        print(f"🎬➡️🎵 Converting to high quality audio with FFmpeg ......")
+        subprocess.run([
+            'ffmpeg', '-y', '-i', video_file, '-vn', '-c:a', 'copy',
+            '-metadata', 'encoding=UTF-8', RAW_AUDIO_FILE
+        ], check=True, stderr=subprocess.PIPE)
+        print(f"🎬➡️🎵 Converted <{video_file}> to <{RAW_AUDIO_FILE}> with FFmpeg\n")
 
 def _detect_silence(audio_file: str, start: float, end: float) -> List[float]:
     """Detect silence points in the given audio segment"""
@@ -45,7 +58,8 @@ def get_audio_duration(audio_file: str) -> float:
     duration = float(duration_parts[0])*3600 + float(duration_parts[1])*60 + float(duration_parts[2])
     return duration
 
-def split_audio(audio_file: str, target_len: int = 50*60, win: int = 60) -> List[Tuple[float, float]]:
+def split_audio(audio_file: str, target_len: int = 30*60, win: int = 60) -> List[Tuple[float, float]]:
+    # 30 min 16000 Hz 96kbps ~ 22MB < 25MB required by whisper
     print("[bold blue]🔪 Starting audio segmentation...[/]")
     
     duration = get_audio_duration(audio_file)
