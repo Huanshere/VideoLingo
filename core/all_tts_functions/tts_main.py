@@ -13,16 +13,13 @@ from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
 
 def tts_main(text, save_as, number, task_df):
-    # 检查文本是否为空（去除标点符号和空白字符后）
+        # 检查文本是否为空或单字符，单字符配音容易触发bug
     cleaned_text = re.sub(r'[^\w\s]', '', text).strip()
-    if not cleaned_text:
+    if not cleaned_text or len(cleaned_text) <= 1:
         silence = AudioSegment.silent(duration=100)  # 100ms = 0.1s
         silence.export(save_as, format="wav")
-        rprint(f"Created silent audio for empty text: {save_as}")
+        rprint(f"Created silent audio for empty/single-char text: {save_as}")
         return
-    # 如果文本长度小于等于1，则添加句号
-    if len(cleaned_text) <=1:
-        text = cleaned_text + "。"
     
     # 如果文件存在，跳过
     if os.path.exists(save_as):
