@@ -25,6 +25,7 @@ TASKS_FILE = "output/audio/tts_tasks.xlsx"
 OUTPUT_FILE = "output/audio/tts_tasks.xlsx"
 TEMP_FILE_TEMPLATE = f"{TEMP_DIR}/{{}}_temp.wav"
 OUTPUT_FILE_TEMPLATE = f"{SEGS_DIR}/{{}}.wav"
+WARMUP_SIZE = 5
 
 def parse_df_srt_time(time_str: str) -> float:
     """Convert SRT time format to seconds"""
@@ -86,8 +87,8 @@ def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
     with Progress() as progress:
         task = progress.add_task("[cyan]🔄 Generating TTS audio...", total=len(tasks_df))
         
-        # warm up for first 10 rows
-        warmup_size = min(10, len(tasks_df))
+        # warm up for first 5 rows
+        warmup_size = min(WARMUP_SIZE, len(tasks_df))
         for _, row in tasks_df.head(warmup_size).iterrows():
             try:
                 number, real_dur = process_row(row, tasks_df)
