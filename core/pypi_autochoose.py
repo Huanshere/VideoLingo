@@ -16,8 +16,8 @@ MIRRORS = {
 
 console = Console()
 
-FAST_THRESHOLD = 1000  # ms
-SLOW_THRESHOLD = 1500  # ms
+FAST_THRESHOLD = 3000  # ms
+SLOW_THRESHOLD = 5000  # ms
 
 def get_optimal_thread_count():
     try:

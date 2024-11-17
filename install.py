@@ -80,12 +80,25 @@ def main():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def download_and_extract_ffmpeg():
-        # requires both conda-ffmpeg and ffmpeg.exe
-        console.print(Panel("📦 Installing ffmpeg through conda...", style="cyan"))
-        subprocess.check_call(["conda", "install", "-y", "ffmpeg"], shell=True)
+        # VL requires both conda/system ffmpeg and ffmpeg.exe...
+        system = platform.system()
+        if system == "Linux":
+            # Linux: use apt or yum to install ffmpeg
+            try:
+                console.print(Panel("📦 Installing ffmpeg through apt...", style="cyan"))
+                subprocess.check_call(["sudo", "apt", "install", "-y", "ffmpeg"])
+            except subprocess.CalledProcessError:
+                try:
+                    console.print(Panel("📦 Installing ffmpeg through yum...", style="cyan"))
+                    subprocess.check_call(["sudo", "yum", "install", "-y", "ffmpeg"], shell=True)
+                except subprocess.CalledProcessError:
+                    console.print(Panel("❌ Failed to install ffmpeg through package manager", style="red"))
+        else:
+            # Windows/MacOS: use conda to install ffmpeg
+            console.print(Panel("📦 Installing ffmpeg through conda...", style="cyan"))
+            subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
 
         import requests
-        system = platform.system()
         if system == "Windows":
             ffmpeg_exe = "ffmpeg.exe"
             url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"

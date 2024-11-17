@@ -8,9 +8,10 @@
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
 | Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M tokens | 😃 |
-| claude-3-5-sonnet-20240620 | / | / | $15 / 1M tokens | 🤩 |
+| claude-3-5-sonnet | [Deepbricks](https://deepbricks.ai/) | https://api.deepbricks.ai | $10 / 1M tokens | 🤩 |
+| gemini-1.5-pro-latest | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥10 / 1M tokens | 😄 |
 
-注：支持 Openai 接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
+注：支持 Openai 格式接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
 
 
 ### 2. **TTS 的 API**
@@ -18,7 +19,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 | TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ SiliconFlow FishTTS (推荐) | 支持克隆 | 不是最好 | 😃 | 😃 |
+| 🎙️ SiliconFlow FishTTS (推荐) | 支持克隆配置简单 | 克隆效果不稳定 | 😃 | 😃 |
 | 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
 | 🔊 Azure TTS | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
 | 🎤 Fish TTS  | 真是本地人 | 官方模型有限 | 😂 | 😂 |
@@ -35,7 +36,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 目前支持 3 种模式：
 
 1. `preset`: 使用固定音色，可以在 [官网Playground](https://cloud.siliconflow.cn/playground/text-to-speech/17885302608) 试听，默认 `anna`。
-2. `clone(stable)`: 对应 fishtts api 的 `custom`，使用一段上传音频的音色，会自动采集视频前十秒声音作为音色使用，比较稳定。
+2. `clone(stable)`: 对应 fishtts api 的 `custom`，使用一段上传音频的音色，会自动采集视频前十秒声音作为音色使用，音色一致性更好。
 3. `clone(dynamic)`: 对应 fishtts api 的 `dynamic`，在 tts 过程使用每一句作为参考音频，可能出现音色不一致，但效果更好。
 
 </details>

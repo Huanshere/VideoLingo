@@ -34,7 +34,7 @@ subtitle:
   target_multiplier: 1.2
 
 # *Number of LLM multi-threaded accesses
-max_workers: 8
+max_workers: 5
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
 
