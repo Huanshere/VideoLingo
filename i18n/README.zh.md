@@ -4,7 +4,7 @@
 
 # 连接世界每一帧
 
-[Website](https://videolingo.io) | [Documentation](https://docs.videolingo.io/docs/start) | [Colab](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
+[Website](https://videolingo.io) | [Documentation](https://docs.videolingo.io/docs/start)
 
 [**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
 
@@ -89,11 +89,7 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 商业版（beta）提供免费的 20min 额度，请访问 [videolingo.io](https://videolingo.io)
 
-### Colab 运行
-
-只需 5 分钟的安装即可在 Colab 中快速体验 VideoLingo：
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
+### Colab 运行 (当前暂不可用)
 
 ### 本地安装
 

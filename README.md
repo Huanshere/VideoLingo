@@ -4,7 +4,7 @@
 
 # Connect the World, Frame by Frame
 
-[Website](https://videolingo.io) | [Documentation](https://docs.videolingo.io/docs/start) | [Colab](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
+[Website](https://videolingo.io) | [Documentation](https://docs.videolingo.io/docs/start)
 
 [**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
 
@@ -89,11 +89,11 @@ Translation language support depends on the capabilities of the large language m
 
 Commercial version provides free 20min credits, visit [videolingo.io](https://videolingo.io)
 
-### Colab
+### Colab (Currently not available)
 
-Experience VideoLingo quickly in Colab in just 5 minutes:
+<!-- Experience VideoLingo quickly in Colab in just 5 minutes:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb) -->
 
 ### Local Installation
 
