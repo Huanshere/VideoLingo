@@ -31,7 +31,7 @@ Example:
 
 ### 3. Executing Batch Processing
 
-1. Double-click to run `OneKeyBatch.bat` in the root directory
+1. Double-click to run `OneKeyBatch.bat`
 2. Output files will be saved in the `output` folder
 3. Task status can be monitored in the `Status` column of `tasks_setting.xlsx`
 

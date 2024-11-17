@@ -31,7 +31,7 @@
 
 ### 3. 运行批处理
 
-1. 双击运行根目录的 `OneKeyBatch.bat`
+1. 双击运行 `OneKeyBatch.bat`
 2. 输出文件将保存在 `output` 文件夹
 3. 任务状态可在 `tasks_setting.xlsx` 的 `Status` 列查看
 
