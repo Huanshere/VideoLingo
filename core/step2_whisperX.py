@@ -11,6 +11,7 @@ import librosa
 from rich import print as rprint
 import subprocess
 import tempfile
+import time
 
 from core.config_utils import load_key
 from core.all_whisper_methods.demucs_vl import demucs_main, RAW_AUDIO_FILE, VOCAL_AUDIO_FILE
@@ -20,7 +21,38 @@ from core.step1_ytdlp import find_video_files
 MODEL_DIR = load_key("model_dir")
 WHISPER_FILE = "output/audio/for_whisper.mp3"
 
+def check_hf_mirror() -> str:
+    """Check and return the fastest HF mirror"""
+    mirrors = {
+        'Official': 'huggingface.co',
+        'Mirror': 'hf-mirror.com'
+    }
+    fastest_url = f"https://{mirrors['Official']}"
+    best_time = float('inf')
+    rprint("[cyan]🔍 Checking HuggingFace mirrors...[/cyan]")
+    for name, domain in mirrors.items():
+        try:
+            if os.name == 'nt':
+                cmd = ['ping', '-n', '1', '-w', '3000', domain]
+            else:
+                cmd = ['ping', '-c', '1', '-W', '3', domain]
+            start = time.time()
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            response_time = time.time() - start
+            if result.returncode == 0:
+                if response_time < best_time:
+                    best_time = response_time
+                    fastest_url = f"https://{domain}"
+                rprint(f"[green]✓ {name}:[/green] {response_time:.2f}s")
+        except:
+            rprint(f"[red]✗ {name}:[/red] Failed to connect")
+    if best_time == float('inf'):
+        rprint("[yellow]⚠️ All mirrors failed, using default[/yellow]")
+    rprint(f"[cyan]🚀 Selected mirror:[/cyan] {fastest_url} ({best_time:.2f}s)")
+    return fastest_url
+
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
+    os.environ['HF_ENDPOINT'] = check_hf_mirror()
     WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     rprint(f"🚀 Starting WhisperX using device: {device} ...")
