@@ -96,7 +96,7 @@ def main():
         else:
             # Windows/MacOS: use conda to install ffmpeg
             console.print(Panel("📦 Installing ffmpeg through conda...", style="cyan"))
-            subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
+            subprocess.check_call(["conda", "install", "-y", "ffmpeg"], shell=True)
 
         import requests
         if system == "Windows":
