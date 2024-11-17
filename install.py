@@ -82,7 +82,7 @@ def main():
     def download_and_extract_ffmpeg():
         # requires both conda-ffmpeg and ffmpeg.exe
         console.print(Panel("📦 Installing ffmpeg through conda...", style="cyan"))
-        subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
+        subprocess.check_call(["conda", "install", "-y", "ffmpeg"], shell=True)
 
         import requests
         system = platform.system()
