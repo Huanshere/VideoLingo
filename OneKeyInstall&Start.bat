@@ -57,16 +57,6 @@ set "CUDA_HOME=%CUDA_PATH%"
 @rem activate installer env
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 
-@REM @rem detect system language
-@REM for /f "tokens=2 delims==" %%a in ('wmic os get OSLanguage /value') do set OSLanguage=%%a
-@REM if "%OSLanguage%"=="2052" (
-@REM     echo 检测到中文系统，正在进行汉化...
-    
-@REM     @rem Copy Chinese files from 'i18n/中文' folder to current directory
-@REM     xcopy /E /I /Y "%~dp0i18n\中文\*" "%~dp0"
-@REM     echo 汉化完成！
-@REM )
-
 @rem Run pip setup
 call python pip_setup.py
 

@@ -6,8 +6,6 @@
 
 ## 使用方法
 
-> 注：以下所说文件除了 `config.yaml` 以外都在 `batch` 文件夹下。
-
 ### 1. 准备视频文件
 
 - 将要处理的视频文件放入 `input` 文件夹
@@ -20,7 +18,7 @@
 | 字段 | 说明 | 可选值 |
 |------|------|--------|
 | Video File | 视频文件名（无需 `input/` 前缀）或 YouTube 链接 | - |
-| Source Language | 源语言 | 'en', 'zh', 'auto'，或留空使用默认设置 |
+| Source Language | 源语言 | 'en', 'zh', ... 或留空使用默认设置 |
 | Target Language | 翻译语言 | 使用自然语言描述，或留空使用默认设置 |
 | Dubbing | 是否配音 | 0 或留空：不配音；1：配音 |
 
@@ -33,7 +31,7 @@
 
 ### 3. 运行批处理
 
-1. 双击运行 `OneKeyBatch.bat`
+1. 双击运行根目录的 `OneKeyBatch.bat`
 2. 输出文件将保存在 `output` 文件夹
 3. 任务状态可在 `tasks_setting.xlsx` 的 `Status` 列查看
 

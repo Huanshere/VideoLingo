@@ -52,7 +52,7 @@ def check_hf_mirror() -> str:
     return fastest_url
 
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
-    os.environ['HF_ENDPOINT'] = check_hf_mirror()
+    os.environ['HF_ENDPOINT'] = check_hf_mirror() #? don't know if it's working...
     WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     rprint(f"🚀 Starting WhisperX using device: {device} ...")
@@ -73,8 +73,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             model_name = "Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper"
             local_model = os.path.join(MODEL_DIR, "Belle-whisper-large-v3-zh-punct-fasterwhisper")
         else:
-            model_name = "large-v3"
-            local_model = os.path.join(MODEL_DIR, "large-v3")
+            model_name = load_key("whisper.model")
+            local_model = os.path.join(MODEL_DIR, model_name)
             
         if os.path.exists(local_model):
             rprint(f"[green]📥 Loading local WHISPER model:[/green] {local_model} ...")

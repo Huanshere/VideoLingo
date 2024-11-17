@@ -40,7 +40,7 @@ def check_gpu_win():
     if not sys.platform.startswith('win'):
         return
     
-    CUDNN_PATH = "C:/Program Files/NVIDIA/CUDNN/v9.3/bin/12.6"
+    CUDNN_PATH = "C:\\Program Files\\NVIDIA\\CUDNN\\v9.3\\bin\\12.6"
 
     def check_gpu():
         try:
@@ -49,14 +49,13 @@ def check_gpu_win():
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
     
-    # 如果GPU可用，检查CUDNN路径
     if check_gpu():
         if CUDNN_PATH not in os.environ.get('PATH', ''):
-            print(f"警告: CUDNN路径未在系统环境变量中找到。")
-            print(f"请将以下路径添加到系统环境变量: {CUDNN_PATH}")
+            print("🚨 Warning: CUDNN path not found in system environment!")
+            print(f"⚡ Please add the following path to system PATH:\n{CUDNN_PATH}")
             sys.exit(1)
         else:
-            print("Cudnn 存在系统路径 没问题")
+            print("✅ CUDNN found in system PATH - All good!")
 
 def install_dependencies():
     run_cmd("python install.py", assert_success=True, environment=True)

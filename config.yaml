@@ -3,7 +3,7 @@ version: "2.0.0"
 ## ======================== Basic Settings ======================== ##
 # API settings
 api:
-  key: 'YOUR_KEY'
+  key: 'sk-hhfvwvtaqcbsshswzeyuvvxwpgnskrjqnvxhcxzjlzripizd'
   base_url: 'https://api.siliconflow.cn'
   model: 'Qwen/Qwen2.5-72B-Instruct'
 
@@ -14,6 +14,8 @@ target_language: '简体中文'
 demucs: false
 
 whisper:
+  # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
+  model: 'large-v3'
   # Whisper specified recognition language [en, zh, ...]
   language: 'en'
   detected_language: 'en'
