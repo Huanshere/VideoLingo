@@ -57,7 +57,7 @@ For the provided {src_lang} video text:
    - Add brief explanation
    - Keep abbreviations and proper nouns unchanged
 
-### Output Format
+### Output in Json Format
 {{
     "topic": "Two-sentence video summary",
     "terms": [
