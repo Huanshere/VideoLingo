@@ -180,7 +180,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 7. 在弹出网页的侧边栏中设置key，开始使用~
 
-   ![zh_set](https://github.com/user-attachments/assets/bb9381d0-8d99-4d8b-aaff-9846076fc7a3)
+   ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
 
 8. 转录步骤会自动从 huggingface 下载模型，也可以手动下载，将 `_model_cache` 文件夹放置在 VideoLingo 目录下：[百度网盘](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
 

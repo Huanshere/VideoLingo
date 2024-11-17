@@ -168,7 +168,7 @@ Basic Python knowledge required. For any issues, ask the AI assistant at [videol
 
 6. Set key in sidebar of popup webpage and start using~
 
-   ![zh_set](https://github.com/user-attachments/assets/bb9381d0-8d99-4d8b-aaff-9846076fc7a3)
+   ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
 
 7. Transcription step will automatically download models from huggingface, or you can download manually and place `_model_cache` folder in VideoLingo directory: [Baidu Drive](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
 
