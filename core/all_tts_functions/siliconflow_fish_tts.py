@@ -20,6 +20,7 @@ API_URL_VOICE = "https://api.siliconflow.cn/v1/uploads/audio/voice"
 
 AUDIO_REFERS_DIR = "output/audio/refers"
 MODEL_NAME = "fishaudio/fish-speech-1.4"
+REFER_MAX_LENGTH = 90
 
 def _get_headers():
     return {"Authorization": f'Bearer {load_key("sf_fish_tts.api_key")}', "Content-Type": "application/json"}
@@ -162,7 +163,7 @@ def get_ref_audio(task_df) -> Tuple[str, str]:
         
         # If no valid record has been found yet
         if not found_first:
-            if len(current_text) <= 100:
+            if len(current_text) <= REFER_MAX_LENGTH:
                 selected.append(row)
                 combined_text = current_text
                 duration += row['duration']
@@ -174,7 +175,7 @@ def get_ref_audio(task_df) -> Tuple[str, str]:
             
         # Check subsequent rows
         new_text = combined_text + " " + current_text
-        if len(new_text) > 100:
+        if len(new_text) > REFER_MAX_LENGTH:
             break
             
         selected.append(row)
@@ -186,7 +187,7 @@ def get_ref_audio(task_df) -> Tuple[str, str]:
             break
     
     if not selected:
-        rprint(f"[red]❌ No valid segments found (all texts exceed 100 characters)")
+        rprint(f"[red]❌ No valid segments found (all texts exceed {REFER_MAX_LENGTH} characters)")
         return None, None
         
     rprint(f"[blue]📊 Selected {len(selected)} segments, total duration: {duration:.2f}s")
