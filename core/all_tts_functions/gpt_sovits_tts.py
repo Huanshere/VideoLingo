@@ -126,6 +126,15 @@ def find_and_check_config_path(dubbing_character):
     return gpt_sovits_dir, config_path
 
 def start_gpt_sovits_server():
+    current_dir = Path(__file__).resolve().parent.parent.parent
+    # Check if port 9880 is already in use
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1', 9880))
+    if result == 0:
+        sock.close()
+        return None
+    sock.close()
+
     rprint("[bold yellow]🚀 Initializing GPT-SoVITS Server...[/bold yellow]")
     rprint("[bold yellow]🚀 正在初始化 GPT-SoVITS 服务器...[/bold yellow]")
     
@@ -135,16 +144,7 @@ def start_gpt_sovits_server():
     rprint("""[bold red]⏳ 请等待大约1分钟
   • GPT-SoVITS API 将会打开一个新的命令提示符窗口
   • 启动过程中出现 `404 not found` 警告是正常的，请耐心等待[/bold red]""")
-    current_dir = Path(__file__).resolve().parent.parent.parent
-    # Check if port 9880 is already in use
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(('127.0.0.1', 9880))
-    if result == 0:
-        sock.close()
-        return None
-
-    sock.close()
-
+    
     # Find and check config path
     gpt_sovits_dir, config_path = find_and_check_config_path(load_key("gpt_sovits.character"))
 
