@@ -73,7 +73,7 @@ def page_setting():
         if resolution != load_key("resolution"):
             update_key("resolution", resolution)
         
-    with st.expander("Dubbing Settings", expanded=False):
+    with st.expander("Dubbing Settings", expanded=True):
         tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts"]
         selected_tts_method = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if selected_tts_method != load_key("tts_method"):

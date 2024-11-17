@@ -3,7 +3,7 @@ version: "2.0.0"
 ## ======================== Basic Settings ======================== ##
 # API settings
 api:
-  key: 'sk-hhfvwvtaqcbsshswzeyuvvxwpgnskrjqnvxhcxzjlzripizd'
+  key: 'YOUR_API_KEY'
   base_url: 'https://api.siliconflow.cn'
   model: 'Qwen/Qwen2.5-72B-Instruct'
 
@@ -25,7 +25,7 @@ resolution: '1920x1080'
 
 ## ======================== Advanced Settings ======================== ##
 # *Default resolution for downloading YouTube videos [360, 1080, best]
-ytb_resolution: '360'
+ytb_resolution: '1080'
 
 subtitle:
   # *Maximum length of each subtitle line in characters

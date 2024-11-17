@@ -1,30 +1,31 @@
 # * 标有 * 的设置是高级设置，不会出现在 Streamlit 页面中，只能在 config.py 中手动修改
+version: "2.0.0"
 ## ======================== 基本设置 ======================== ##
 # API 设置
 api:
-  key: 'YOUR_KEY'
-  base_url: 'https://yunwu.zeabur.app'
-  model: 'gemini-1.5-pro-002'
+  key: 'YOUR_API_KEY'
+  base_url: 'https://api.siliconflow.cn'
+  model: 'Qwen/Qwen2.5-72B-Instruct'
 
 # 语言设置，写入提示词，可以用自然语言描述
-target_language: 'Chinese'
+target_language: '简体中文'
 
 # 是否在转录前进行人声分离，警告这可能会减慢过程并导致行缺失！
 demucs: false
 
 whisper:
-  # Whisper 设置 [whisperx, whisperxapi]
-  method: 'whisperx'
-  # Whisper 指定识别语言 [en, zh, auto] auto 为自动检测，en 为强制翻译为英语
+  # ["medium", "large-v3", "large-v3-turbo"]. 注意：对于中文模型将强制使用 Belle/large-v3
+  model: 'large-v3'
+  # Whisper 指定识别语言 [en, zh, ...]
   language: 'en'
   detected_language: 'en'
 
 # 视频分辨率 [0x0, 640x360, 1920x1080] 0x0 会生成一个 0 秒的黑色视频占位符
-resolution: '640x360'
+resolution: '1920x1080'
 
 ## ======================== 高级设置 ======================== ##
 # *下载 YouTube 视频的默认分辨率 [360, 1080, best]
-ytb_resolution: '360'
+ytb_resolution: '1080'
 
 subtitle:
   # *每行字幕的最大字符长度
@@ -41,8 +42,20 @@ max_split_length: 20
 pause_before_translate: false
 
 ## ======================== 配音设置 ======================== ##
-# TTS 选择 [openai_tts, gpt_sovits, azure_tts, fish_tts]
-tts_method: 'azure_tts'
+# TTS 选择 [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts]
+tts_method: 'sf_fish_tts'
+
+# SiliconFlow FishTTS
+sf_fish_tts:
+  # SiliconFlow API key
+  api_key: 'YOUR_API_KEY'
+  # 仅用于 "preset" 模式
+  voice: 'anna'
+  # *仅用于 "custom" 模式，不要手动设置
+  custom_name: ''
+  voice_id: ''
+  # preset, custom, dynamic
+  mode: "preset"
 
 # OpenAI TTS-1 API 配置
 openai_tts:
@@ -72,15 +85,21 @@ fish_tts:
 # *音频速度范围
 speed_factor:
   min: 1
+  accept: 1.2 # 可以接受的最大速度
   max: 1.4
-  normal: 1.2  # *被认为是正常语速
 
 # *合并音频配置
-min_subtitle_duration: 3
-min_trim_duration: 2.50
+min_subtitle_duration: 2.5 # 最小字幕出现时间 会强制扩展
+min_trim_duration: 3.5 # 小于这个值的字幕不会切割
+tolerance: 1.5 # 允许向后延申的时间
 
 # 音量设置
-dub_volume: 1.3  # *配音音频音量（1.3 = 130%，大多数原始配音音频相对较安静）
+dub_volume: 1.5  # *配音音频音量（1.5 = 150%，大多数原始配音音频相对较安静）
+
+
+
+
+
 
 ## ======================== 附加设置 请勿修改 ======================== ##
 # Whisper 模型目录
@@ -96,7 +115,6 @@ allowed_video_formats:
 - 'wmv'
 - 'webm'
 
-# 支持的音频格式
 allowed_audio_formats:
 - 'wav'
 - 'mp3'
@@ -111,6 +129,11 @@ llm_support_json:
 - 'gemini-1.5-flash-latest'
 - 'gemini-1.5-pro-latest'
 - 'gemini-1.5-pro-002'
+
+# 存在问题
+# - 'Qwen/Qwen2.5-72B-Instruct'
+# - 'Qwen/Qwen2.5-Coder-32B-Instruct'
+# - 'Qwen/Qwen2.5-Chat-72B-Instruct-128K'
 
 # Spacy 模型
 spacy_model_map:
