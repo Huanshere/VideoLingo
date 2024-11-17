@@ -11,7 +11,7 @@ def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
 install_package("requests", "rich", "ruamel.yaml")
-from pypi_autochoose import main as choose_mirror
+from core.pypi_autochoose import main as choose_mirror
 
 def check_gpu():
     """检查是否有 NVIDIA GPU 可用"""

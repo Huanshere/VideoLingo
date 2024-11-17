@@ -1,4 +1,5 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
+version: "2.0.0"
 ## ======================== Basic Settings ======================== ##
 # API settings
 api:
@@ -13,7 +14,7 @@ target_language: '简体中文'
 demucs: false
 
 whisper:
-  # Whisper specified recognition language [en, zh, auto] auto for automatic detection, en for forced translation to English
+  # Whisper specified recognition language [en, zh, ...]
   language: 'en'
   detected_language: 'en'
 

@@ -4,32 +4,48 @@ import subprocess
 import sys
 import zipfile
 import shutil
-
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+ascii_logo = """
+__     ___     _            _     _                    
+\ \   / (_) __| | ___  ___ | |   (_)_ __   __ _  ___  
+ \ \ / /| |/ _` |/ _ \/ _ \| |   | | '_ \ / _` |/ _ \ 
+  \ V / | | (_| |  __/ (_) | |___| | | | | (_| | (_) |
+   \_/  |_|\__,_|\___|\___/|_____|_|_| |_|\__, |\___/ 
+                                          |___/        
+"""
 
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
-install_package("requests", "rich", "ruamel.yaml")
-from pypi_autochoose import main as choose_mirror
-
 def check_gpu():
-    """Check if NVIDIA GPU is available"""
     try:
-        # 🔍 Try running nvidia-smi command to detect GPU
         subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
 def main():
+    install_package("requests", "rich", "ruamel.yaml")
     from rich.console import Console
     from rich.panel import Panel
-    
+    from rich.box import box
     console = Console()
+    
+    width = max(len(line) for line in ascii_logo.splitlines()) + 4
+    welcome_panel = Panel(
+        ascii_logo,
+        width=width,
+        box=box.DOUBLE,
+        title="[bold green]🌏[/bold green]",
+        border_style="bright_blue"
+    )
+    console.print(welcome_panel)
+    
     console.print(Panel.fit("🚀 Starting Installation", style="bold magenta"))
 
     # Configure mirrors
+    from core.pypi_autochoose import main as choose_mirror
     console.print(Panel("⚙️ Configuring mirrors", style="bold yellow"))
     choose_mirror()
 
@@ -65,12 +81,10 @@ def main():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def download_and_extract_ffmpeg():
-        # 使用conda安装ffmpeg，这是因为pydub似乎还需要依赖于conda的ffmpeg
-        try:
-            subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
-            print("成功通过conda安装ffmpeg")
-        except Exception as e:
-            print(f"通过conda安装ffmpeg失败: {str(e)}")
+        # requires both conda-ffmpeg and ffmpeg.exe
+        console.print(Panel("📦 Installing ffmpeg through conda...", style="cyan"))
+        subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
+
         import requests
         system = platform.system()
         if system == "Windows":
@@ -89,15 +103,15 @@ def main():
             print(f"{ffmpeg_exe} already exists")
             return
 
-        print("Downloading FFmpeg")
+        console.print(Panel("📦 Downloading FFmpeg...", style="cyan"))
         response = requests.get(url)
         if response.status_code == 200:
             filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
             with open(filename, 'wb') as f:
                 f.write(response.content)
-            print(f"FFmpeg downloaded: {filename}")
+            console.print(Panel(f"FFmpeg downloaded: {filename}", style="cyan"))
         
-            print("Extracting FFmpeg")
+            console.print(Panel("📦 Extracting FFmpeg...", style="cyan"))
             if system == "Linux":
                 import tarfile
                 with tarfile.open(filename) as tar_ref:
@@ -112,15 +126,15 @@ def main():
                             zip_ref.extract(file)
                             shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
             
-            print("Cleaning up")
+            console.print(Panel("📦 Cleaning up...", style="cyan"))
             os.remove(filename)
             if system == "Windows":
                 for item in os.listdir():
                     if os.path.isdir(item) and "ffmpeg" in item.lower():
                         shutil.rmtree(item)
-            print("FFmpeg extraction completed")
+            console.print(Panel("FFmpeg extraction completed", style="cyan"))
         else:
-            print("Failed to download FFmpeg")
+            console.print(Panel("❌ Failed to download FFmpeg", style="red"))
 
     def install_noto_font():
         if platform.system() == 'Linux':
