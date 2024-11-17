@@ -29,14 +29,14 @@ def main():
     install_package("requests", "rich", "ruamel.yaml")
     from rich.console import Console
     from rich.panel import Panel
-    from rich.box import box
+    from rich.box import DOUBLE
     console = Console()
     
     width = max(len(line) for line in ascii_logo.splitlines()) + 4
     welcome_panel = Panel(
         ascii_logo,
         width=width,
-        box=box.DOUBLE,
+        box=DOUBLE,
         title="[bold green]🌏[/bold green]",
         border_style="bright_blue"
     )
@@ -46,7 +46,6 @@ def main():
 
     # Configure mirrors
     from core.pypi_autochoose import main as choose_mirror
-    console.print(Panel("⚙️ Configuring mirrors", style="bold yellow"))
     choose_mirror()
 
     # Detect system and GPU
