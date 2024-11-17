@@ -126,6 +126,7 @@ def find_and_check_config_path(dubbing_character):
     return gpt_sovits_dir, config_path
 
 def start_gpt_sovits_server():
+    print("Starting GPT-SoVITS server. Please wait for at least 1 min...")
     current_dir = Path(__file__).resolve().parent.parent.parent
     # Check if port 9880 is already in use
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -98,10 +98,12 @@ def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
                 rprint(f"[red]❌ Error in warmup: {str(e)}[/red]")
                 raise e
         
+        # for gpt_sovits, do not use parallel to avoid mistakes
+        max_workers = load_key("max_workers") if load_key("tts_method") != "gpt_sovits" else 1
         # parallel processing for remaining tasks
         if len(tasks_df) > warmup_size:
             remaining_tasks = tasks_df.iloc[warmup_size:].copy()
-            with ThreadPoolExecutor() as executor:
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 futures = [
                     executor.submit(process_row, row, tasks_df.copy())
                     for _, row in remaining_tasks.iterrows()
