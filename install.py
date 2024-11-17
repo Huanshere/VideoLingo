@@ -90,7 +90,7 @@ def main():
             except subprocess.CalledProcessError:
                 try:
                     console.print(Panel("📦 Installing ffmpeg through yum...", style="cyan"))
-                    subprocess.check_call(["sudo", "yum", "install", "-y", "ffmpeg"])
+                    subprocess.check_call(["sudo", "yum", "install", "-y", "ffmpeg"], shell=True)
                 except subprocess.CalledProcessError:
                     console.print(Panel("❌ Failed to install ffmpeg through package manager", style="red"))
         else:
