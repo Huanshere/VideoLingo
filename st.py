@@ -100,7 +100,7 @@ def process_audio():
     with st.spinner("Merge full audio"):
         step11_merge_full_audio.merge_full_audio()
     with st.spinner("Merge dubbing to the video"):
-        step12_merge_dub_to_vid.merge_dub_to_vid()
+        step12_merge_dub_to_vid.merge_video_audio()
     
     st.success("Audio processing complete! 🎇")
     st.balloons()
