@@ -4,47 +4,62 @@ import subprocess
 import sys
 import zipfile
 import shutil
-
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+ascii_logo = """
+__     ___     _            _     _                    
+\ \   / (_) __| | ___  ___ | |   (_)_ __   __ _  ___  
+ \ \ / /| |/ _` |/ _ \/ _ \| |   | | '_ \ / _` |/ _ \ 
+  \ V / | | (_| |  __/ (_) | |___| | | | | (_| | (_) |
+   \_/  |_|\__,_|\___|\___/|_____|_|_| |_|\__, |\___/ 
+                                          |___/        
+"""
 
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
-install_package("requests", "rich", "ruamel.yaml")
-from pypi_autochoose import main as choose_mirror
-
 def check_gpu():
-    """检查是否有 NVIDIA GPU 可用"""
     try:
-        # 🔍 尝试运行 nvidia-smi 命令来检测 GPU
         subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
 def main():
+    install_package("requests", "rich", "ruamel.yaml")
     from rich.console import Console
     from rich.panel import Panel
-    
+    from rich.box import DOUBLE
     console = Console()
+    
+    width = max(len(line) for line in ascii_logo.splitlines()) + 4
+    welcome_panel = Panel(
+        ascii_logo,
+        width=width,
+        box=DOUBLE,
+        title="[bold green]🌏[/bold green]",
+        border_style="bright_blue"
+    )
+    console.print(welcome_panel)
+    
     console.print(Panel.fit("🚀 开始安装", style="bold magenta"))
 
     # 配置镜像源
-    console.print(Panel("⚙️ 正在配置镜像源", style="bold yellow"))
+    from core.pypi_autochoose import main as choose_mirror
     choose_mirror()
 
-    # 检测系统和 GPU
+    # 检测系统和GPU
     if platform.system() == 'Darwin':
-        console.print(Panel("🍎 检测到 MacOS，正在安装 CPU 版本的 PyTorch... 但速度会慢很多", style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+        console.print(Panel("🍎 检测到 MacOS，正在安装 CPU 版本的 PyTorch... 但转写速度会慢很多", style="cyan"))
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.1.2", "torchaudio==2.1.2"])
     else:
         has_gpu = check_gpu()
         if has_gpu:
             console.print(Panel("🎮 检测到 NVIDIA GPU，正在安装 CUDA 版本的 PyTorch...", style="cyan"))
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
         else:
-            console.print(Panel("💻 未检测到 NVIDIA GPU，正在安装 CPU 版本的 PyTorch... 但速度会慢很多", style="cyan"))
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch", "torchaudio"])
+            console.print(Panel("💻 未检测到 NVIDIA GPU，正在安装 CPU 版本的 PyTorch... 但转写速度会慢很多", style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.1.2", "torchaudio==2.1.2"])
     
     # 安装 WhisperX
     console.print(Panel("📦 正在安装 WhisperX...", style="cyan"))
@@ -65,6 +80,10 @@ def main():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def download_and_extract_ffmpeg():
+        # 需要同时安装 conda-ffmpeg 和 ffmpeg.exe
+        console.print(Panel("📦 正在通过 conda 安装 ffmpeg...", style="cyan"))
+        subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
+
         import requests
         system = platform.system()
         if system == "Windows":
@@ -83,15 +102,15 @@ def main():
             print(f"{ffmpeg_exe} 已存在")
             return
 
-        print("正在下载 FFmpeg")
+        console.print(Panel("📦 正在下载 FFmpeg...", style="cyan"))
         response = requests.get(url)
         if response.status_code == 200:
             filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
             with open(filename, 'wb') as f:
                 f.write(response.content)
-            print(f"FFmpeg 下载完成: {filename}")
+            console.print(Panel(f"FFmpeg 下载完成: {filename}", style="cyan"))
         
-            print("正在解压 FFmpeg")
+            console.print(Panel("📦 正在解压 FFmpeg...", style="cyan"))
             if system == "Linux":
                 import tarfile
                 with tarfile.open(filename) as tar_ref:
@@ -106,15 +125,15 @@ def main():
                             zip_ref.extract(file)
                             shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
             
-            print("正在清理")
+            console.print(Panel("📦 正在清理...", style="cyan"))
             os.remove(filename)
             if system == "Windows":
                 for item in os.listdir():
                     if os.path.isdir(item) and "ffmpeg" in item.lower():
                         shutil.rmtree(item)
-            print("FFmpeg 解压完成")
+            console.print(Panel("FFmpeg 解压完成", style="cyan"))
         else:
-            print("FFmpeg 下载失败")
+            console.print(Panel("❌ FFmpeg 下载失败", style="red"))
 
     def install_noto_font():
         if platform.system() == 'Linux':

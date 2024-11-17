@@ -10,6 +10,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 st.set_page_config(page_title="VideoLingo", page_icon="docs/logo.svg")
 
+SUB_VIDEO = "output/output_sub.mp4"
+DUB_VIDEO = "output/output_dub.mp4"
+
 def text_processing_section():
     st.header("Translate and Generate Subtitles")
     with st.container(border=True):
@@ -25,13 +28,13 @@ def text_processing_section():
             6. Merging subtitles into the video
         """, unsafe_allow_html=True)
 
-        if not os.path.exists("output/output_video_with_subs.mp4"):
+        if not os.path.exists(SUB_VIDEO):
             if st.button("Start Processing Subtitles", key="text_processing_button"):
                 process_text()
                 st.rerun()
         else:
             if load_key("resolution") != "0x0":
-                st.video("output/output_video_with_subs.mp4")
+                st.video(SUB_VIDEO)
             download_subtitle_zip_button(text="Download All Srt Files")
             
             if st.button("Archive to 'history'", key="cleanup_in_text_processing"):
@@ -60,24 +63,25 @@ def process_text():
     st.balloons()
 
 def audio_processing_section():
-    st.header("Dubbing (beta)")
+    st.header("Dubbing")
     with st.container(border=True):
         st.markdown("""
         <p style='font-size: 20px;'>
         This stage includes the following steps:
         <p style='font-size: 20px;'>
-            1. Generate audio tasks<br>
-            2. Generate audio<br>
-            3. Merge audio into the video
+            1. Generate audio tasks and chunks<br>
+            2. Extract reference audio<br>
+            3. Generate and merge audio files<br>
+            4. Merge final audio into video
         """, unsafe_allow_html=True)
-        if not os.path.exists("output/output_video_with_audio.mp4"):
+        if not os.path.exists(DUB_VIDEO):
             if st.button("Start Audio Processing", key="audio_processing_button"):
                 process_audio()
                 st.rerun()
         else:
             st.success("Audio processing is complete! You can check the audio files in the `output` folder.")
             if load_key("resolution") != "0x0": 
-                st.video("output/output_video_with_audio.mp4") 
+                st.video(DUB_VIDEO) 
             if st.button("Delete dubbing files", key="delete_dubbing_files"):
                 delete_dubbing_files()
                 st.rerun()
@@ -87,13 +91,16 @@ def audio_processing_section():
 
 def process_audio():
     with st.spinner("Generate audio tasks"): 
-        step8_gen_audio_task.gen_audio_task_main()
+        step8_1_gen_audio_task.gen_audio_task_main()
+        step8_2_gen_dub_chunks.gen_dub_chunks()
     with st.spinner("Extract refer audio"):
         step9_extract_refer_audio.extract_refer_audio_main()
-    with st.spinner("Generate audio"):
-        step10_gen_audio.process_sovits_tasks()
-    with st.spinner("Merge audio into the video"):
-        step11_merge_audio_to_vid.merge_main()
+    with st.spinner("Generate all audio"):
+        step10_gen_audio.gen_audio()
+    with st.spinner("Merge full audio"):
+        step11_merge_full_audio.merge_full_audio()
+    with st.spinner("Merge dubbing to the video"):
+        step12_merge_dub_to_vid.merge_video_audio()
     
     st.success("Audio processing complete! 🎇")
     st.balloons()

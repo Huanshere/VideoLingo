@@ -1,53 +1,74 @@
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from core import step1_ytdlp, step2_whisperX, step3_1_spacy_split, step3_2_splitbymeaning
-from core import step4_1_summarize, step4_2_translate_all, step5_splitforsub, step6_generate_final_timeline 
-from core import step7_merge_sub_to_vid, step8_gen_audio_task, step10_gen_audio, step11_merge_audio_to_vid
+from st_components.imports_and_utils import *
 from core.onekeycleanup import cleanup
 from core.config_utils import load_key
 import shutil
 from functools import partial
+from rich.panel import Panel
+from rich.console import Console
+
+console = Console()
+
+INPUT_DIR = 'batch/input'
+OUTPUT_DIR = 'output'
+SAVE_DIR = 'batch/output'
+ERROR_OUTPUT_DIR = 'batch/output/ERROR'
+YTB_RESOLUTION_KEY = "ytb_resolution"
 
 def process_video(file, dubbing=False, is_retry=False):
     if not is_retry:
-        prepare_output_folder('output')
+        prepare_output_folder(OUTPUT_DIR)
     
-    steps = [
-        ("Processing input file", partial(process_input_file, file)),
-        ("Transcribing with Whisper", partial(step2_whisperX.transcribe)),
-        ("Splitting sentences", split_sentences),
-        ("Summarizing and translating", summarize_and_translate),
-        ("Processing and aligning subtitles", process_and_align_subtitles),
-        ("Merging subtitles to video", step7_merge_sub_to_vid.merge_subtitles_to_video),
+    text_steps = [
+        ("🎥 Processing input file", partial(process_input_file, file)),
+        ("🎙️ Transcribing with Whisper", partial(step2_whisperX.transcribe)),
+        ("✂️ Splitting sentences", split_sentences),
+        ("📝 Summarizing and translating", summarize_and_translate),
+        ("⚡ Processing and aligning subtitles", process_and_align_subtitles),
+        ("🎬 Merging subtitles to video", step7_merge_sub_to_vid.merge_subtitles_to_video),
     ]
     
     if dubbing:
-        steps.extend([
-            ("Generating audio tasks", step8_gen_audio_task.gen_audio_task_main),
-            ("Generating audio using SoVITS", step10_gen_audio.process_sovits_tasks),
-            ("Merging generated audio with video", step11_merge_audio_to_vid.merge_main),
-        ])
+        dubbing_steps = [
+            ("🔊 Generating audio tasks", gen_audio_tasks),
+            ("🎵 Extracting reference audio", step9_extract_refer_audio.extract_refer_audio_main),
+            ("🗣️ Generating audio", step10_gen_audio.gen_audio),
+            ("🔄 Merging full audio", step11_merge_full_audio.merge_full_audio),
+            ("🎞️ Merging dubbing to video", step12_merge_dub_to_vid.merge_video_audio),
+        ]
+        text_steps.extend(dubbing_steps)
     
     current_step = ""
-    for step_name, step_func in steps:
+    for step_name, step_func in text_steps:
         current_step = step_name
         for attempt in range(3):
             try:
-                print(f"Executing: {step_name}...")
+                console.print(Panel(
+                    f"[bold green]{step_name}[/]",
+                    subtitle=f"Attempt {attempt + 1}/3" if attempt > 0 else None,
+                    border_style="blue"
+                ))
                 result = step_func()
                 if result is not None:
                     globals().update(result)
                 break
             except Exception as e:
                 if attempt == 2:
-                    error_message = f"Error in step '{current_step}': {str(e)}"
-                    print(error_message)
-                    cleanup("batch/output/ERROR")
-                    return False, current_step, error_message
-                print(f"Attempt {attempt + 1} failed. Retrying...")
+                    error_panel = Panel(
+                        f"[bold red]Error in step '{current_step}':[/]\n{str(e)}",
+                        border_style="red"
+                    )
+                    console.print(error_panel)
+                    cleanup(ERROR_OUTPUT_DIR)
+                    return False, current_step, str(e)
+                console.print(Panel(
+                    f"[yellow]Attempt {attempt + 1} failed. Retrying...[/]",
+                    border_style="yellow"
+                ))
     
-    print("All steps completed successfully!")
-    cleanup("batch/output")
+    console.print(Panel("[bold green]All steps completed successfully! 🎉[/]", border_style="green"))
+    cleanup(SAVE_DIR)
     return True, "", ""
 
 def prepare_output_folder(output_folder):
@@ -57,11 +78,11 @@ def prepare_output_folder(output_folder):
 
 def process_input_file(file):
     if file.startswith('http'):
-        step1_ytdlp.download_video_ytdlp(file, resolution=load_key("ytb_resolution"), cutoff_time=None)
+        step1_ytdlp.download_video_ytdlp(file, resolution=load_key(YTB_RESOLUTION_KEY), cutoff_time=None)
         video_file = step1_ytdlp.find_video_files()
     else:
         input_file = os.path.join('batch', 'input', file)
-        output_file = os.path.join('output', file)
+        output_file = os.path.join(OUTPUT_DIR, file)
         shutil.copy(input_file, output_file)
         video_file = output_file
     return {'video_file': video_file}
@@ -77,3 +98,7 @@ def summarize_and_translate():
 def process_and_align_subtitles():
     step5_splitforsub.split_for_sub_main()
     step6_generate_final_timeline.align_timestamp_main()
+
+def gen_audio_tasks():
+    step8_1_gen_audio_task.gen_audio_task_main()
+    step8_2_gen_dub_chunks.gen_dub_chunks()

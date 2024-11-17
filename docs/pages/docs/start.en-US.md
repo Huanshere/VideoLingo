@@ -1,49 +1,43 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-This project requires Large Language Models and TTS. Multiple options are provided for each component. **Please read the configuration guide carefully 😊**
+This project requires Large Language Models and TTS. **Recommended to use [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE)**, which offers free credits upon registration and only needs one key for all features.
 
 ### 1. **Get API_KEY for Large Language Models**:
 
 | Recommended Model | Recommended Provider | base_url | Price | Effect |
 |:-----|:---------|:---------|:-----|:---------|
-| gemini-1.5-pro-002 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $0.70 / 1M tokens | 🤩 |
-| claude-3-5-sonnet-20240620 | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $1.40 / 1M tokens | 🤩 |
-| gpt-4o | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | $0.70 / 1M tokens | 😃 |
+| Qwen/Qwen2.5-72B-Instruct | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ¥4 / 1M tokens | 😃 |
+| claude-3-5-sonnet-20240620 | / | / | $15 / 1M tokens | 🤩 |
 
-⚠️ Warning: The prompts involve multi-step reasoning chains and complex JSON formats. Weak models are prone to errors. An 1-hour video costs about $1.40 using Claude, and about $0.70 with other models. If using the official Grok API, please note to adjust max_workers to 1 in the config.
-
-> Note: Yunwu API also supports OpenAI's tts-1 interface, which can be used in the dubbing step.
-
-<details>
-<summary>How to get API key from Yunwu API?</summary>
-
-1. Go to [Yunwu API website](https://yunwu.zeabur.app/register?aff=TXMB)
-2. Register an account and top up
-3. Create a new key on the API key page
-4. Make sure to check `Unlimited quota`, recommended channel is `Pure AZ 1.5x`
-</details>
-
-<details>
-<summary>Can I use other models?</summary>
-
-- ✅ Supports OAI-Like API interfaces, you can change in the Streamlit sidebar.
-- ⚠️ However, other models (especially smaller ones) have weaker instruction following capabilities and are very likely to error during translation. Strongly not recommended. If errors occur, please switch models.
-</details>
+Note: Supports OpenAI interface, you can try different models. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
 
 ### 2. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
 
 | TTS Solution | Pros | Cons | Chinese Effect | Non-Chinese Effect |
 |:---------|:-----|:-----|:---------|:-----------|
+| 🎙️ SiliconFlow FishTTS (Recommended) | Supports cloning | Not the best | 😃 | 😃 |
 | 🎙️ OpenAI TTS | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
-| 🔊 Azure TTS (Recommended) | Natural effect | Difficult to top up | 🤩 | 😃 |
-| 🎤 Fish TTS | Authentic native speaker | Limited official models | 😂 | 😂 |
-| 🗣️ GPT-SoVITS (Testing) | Best voice cloning | Currently only supports Chinese/English, requires NVIDIA GPU for inference, configuration requires relevant knowledge | 🏆 | 🚫 |
+| 🔊 Azure TTS | Natural effect | Limited emotions | 🤩 | 😃 |
+| 🎤 Fish TTS | Authentic native | Limited official models | 😂 | 😂 |
+| 🗣️ GPT-SoVITS | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
-- For OpenAI TTS, recommended to use [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB), make sure to select `tts-1` for the model;
-- For Azure TTS, register and top up on the [official website](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) (has free quota);
-- For Fish TTS, register on the [official website](https://fish.audio/en/go-api/) (comes with $10 credit)
+- For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
+- For OpenAI TTS, recommended to use [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB);
+- For Azure TTS, register on official website or purchase from third parties;
+- For Fish TTS, register on [official website](https://fish.audio/en/go-api/) (comes with $10 credit)
+
+<details>
+<summary>SiliconFlow FishTTS Tutorial</summary>
+
+Currently supports 3 modes:
+
+1. `preset`: Uses fixed voice, can preview on [Official Playground](https://cloud.siliconflow.cn/playground/text-to-speech/17885302608), default is `anna`.
+2. `clone(stable)`: Corresponds to fishtts api's `custom`, uses voice from uploaded audio, automatically samples first 10 seconds of video for voice, more stable.
+3. `clone(dynamic)`: Corresponds to fishtts api's `dynamic`, uses each sentence as reference audio during TTS, may have inconsistent voice but better effect.
+
+</details>
 
 <details>
 <summary>How to choose OpenAI voices?</summary>
@@ -118,12 +112,22 @@ After configuration, select `Reference Audio Mode` in the sidebar (see Yuque doc
 
 ## 🛠️ Quick Start
 
-VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU. For GPU acceleration on Windows, install these dependencies:
+VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
+
+For GPU acceleration on Windows, install these dependencies:
 
 - [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
 - [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 
-> Note: After installing CUDA and CUDNN, check if they're added to system path and restart computer 🔄
+> Note: After installing, add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to system path and restart computer 🔄
+
+### Windows One-Click Install
+
+Make sure [Git](https://git-scm.com/downloads) is installed,
+
+1. Download source code locally
+
+2. Double click `OneKeyInstall&Start.bat` to complete installation and launch webpage
 
 ### Source Installation
 
@@ -157,26 +161,24 @@ Basic Python knowledge required. For any issues, ask the AI assistant at [videol
    ```
    Script will automatically install appropriate torch version
 
-5. 🎉 Enter command or click `OneKeyStart.bat` to launch Streamlit app:
+5. 🎉 Enter command to launch Streamlit app:
    ```bash
    streamlit run st.py
    ```
 
-6. Set key in sidebar of popup webpage, and note whisper method and transcription language selection
+6. Set key in sidebar of popup webpage and start using~
 
-   ![en_set](https://github.com/user-attachments/assets/2f32f49b-0b7a-4ff4-930f-4e5f9bac9002)
+   ![zh_set](https://github.com/user-attachments/assets/bb9381d0-8d99-4d8b-aaff-9846076fc7a3)
 
-7. Whisper transcription will automatically download models, but for users who cannot access Huggingface through command line, you can manually download whisper models and place them in the root directory: [Baidu Drive](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
+7. Transcription step will automatically download models from huggingface, or you can download manually and place `_model_cache` folder in VideoLingo directory: [Baidu Drive](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
 
-8. More settings can be manually modified in `config.yaml`, watch command line output during operation
+8. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation
 
 ## 🚨 Common Errors
 
-1. **'Empty Translation Line'**: This occurs when using a less capable LLM that omits short phrases during translation. Solution: Please retry with Claude 3.5 Sonnet.
-
-2. **'Key Error' during translation**: 
+1. **'Key Error' during translation**: 
    - Reason 1: Same as above, weaker models have poor JSON format compliance.
    - Reason 2: LLM may refuse to translate sensitive content.
    Solution: Check `response` and `msg` fields in `output/gpt_log/error.json`.
 
-3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China please switch network nodes and retry.
+2. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China please switch network nodes and retry.

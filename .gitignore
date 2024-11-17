@@ -171,3 +171,4 @@ config.backup.yaml
 # runtime
 runtime/
 dev/
+installer_files/

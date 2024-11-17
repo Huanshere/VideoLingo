@@ -11,15 +11,48 @@ import librosa
 from rich import print as rprint
 import subprocess
 import tempfile
+import time
 
 from core.config_utils import load_key
 from core.all_whisper_methods.demucs_vl import demucs_main, RAW_AUDIO_FILE, VOCAL_AUDIO_FILE
-from core.all_whisper_methods.whisperX_utils import process_transcription, convert_video_to_audio, split_audio, save_results, save_language
+from core.all_whisper_methods.whisperX_utils import process_transcription, convert_video_to_audio, split_audio, save_results, save_language, compress_audio, CLEANED_CHUNKS_EXCEL_PATH
 from core.step1_ytdlp import find_video_files
 
 MODEL_DIR = load_key("model_dir")
+WHISPER_FILE = "output/audio/for_whisper.mp3"
+
+def check_hf_mirror() -> str:
+    """Check and return the fastest HF mirror"""
+    mirrors = {
+        'Official': 'huggingface.co',
+        'Mirror': 'hf-mirror.com'
+    }
+    fastest_url = f"https://{mirrors['Official']}"
+    best_time = float('inf')
+    rprint("[cyan]🔍 Checking HuggingFace mirrors...[/cyan]")
+    for name, domain in mirrors.items():
+        try:
+            if os.name == 'nt':
+                cmd = ['ping', '-n', '1', '-w', '3000', domain]
+            else:
+                cmd = ['ping', '-c', '1', '-W', '3', domain]
+            start = time.time()
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            response_time = time.time() - start
+            if result.returncode == 0:
+                if response_time < best_time:
+                    best_time = response_time
+                    fastest_url = f"https://{domain}"
+                rprint(f"[green]✓ {name}:[/green] {response_time:.2f}s")
+        except:
+            rprint(f"[red]✗ {name}:[/red] Failed to connect")
+    if best_time == float('inf'):
+        rprint("[yellow]⚠️ All mirrors failed, using default[/yellow]")
+    rprint(f"[cyan]🚀 Selected mirror:[/cyan] {fastest_url} ({best_time:.2f}s)")
+    return fastest_url
 
 def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
+    os.environ['HF_ENDPOINT'] = check_hf_mirror() #? don't know if it's working...
     WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     rprint(f"🚀 Starting WhisperX using device: {device} ...")
@@ -40,8 +73,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             model_name = "Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper"
             local_model = os.path.join(MODEL_DIR, "Belle-whisper-large-v3-zh-punct-fasterwhisper")
         else:
-            model_name = "large-v3"
-            local_model = os.path.join(MODEL_DIR, "large-v3")
+            model_name = load_key("whisper.model")
+            local_model = os.path.join(MODEL_DIR, model_name)
             
         if os.path.exists(local_model):
             rprint(f"[green]📥 Loading local WHISPER model:[/green] {local_model} ...")
@@ -49,14 +82,8 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         else:
             rprint(f"[green]📥 Using WHISPER model from HuggingFace:[/green] {model_name} ...")
 
-        vad_options = {
-                "vad_onset": 0.500,
-                "vad_offset": 0.363
-            }
-        asr_options = {
-                "temperatures": [0],
-                "initial_prompt": "",
-            }
+        vad_options = {"vad_onset": 0.500,"vad_offset": 0.363}
+        asr_options = {"temperatures": [0],"initial_prompt": "",}
         whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
         rprint("[bold yellow]**You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`**[/bold yellow]")
         model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
@@ -108,7 +135,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         raise
 
 def transcribe():
-    if os.path.exists("output/log/cleaned_chunks.xlsx"):
+    if os.path.exists(CLEANED_CHUNKS_EXCEL_PATH):
         rprint("[yellow]⚠️ Transcription results already exist, skipping transcription step.[/yellow]")
         return
     
@@ -120,22 +147,25 @@ def transcribe():
     if load_key("demucs"):
         demucs_main()
     
-    whisper_file = VOCAL_AUDIO_FILE if load_key("demucs") else RAW_AUDIO_FILE
+    # step2 Compress audio
+    choose_audio = VOCAL_AUDIO_FILE if load_key("demucs") else RAW_AUDIO_FILE
+    whisper_audio = compress_audio(choose_audio, WHISPER_FILE)
 
-    # step2 Extract audio
-    segments = split_audio(whisper_file)
+    # step3 Extract audio
+    segments = split_audio(whisper_audio)
     
-    # step3 Transcribe audio
+    # step4 Transcribe audio
     all_results = []
     for start, end in segments:
-        result = transcribe_audio(whisper_file, start, end)
+        result = transcribe_audio(whisper_audio, start, end)
         all_results.append(result)
     
-    # step4 Combine results
+    # step5 Combine results
     combined_result = {'segments': []}
     for result in all_results:
         combined_result['segments'].extend(result['segments'])
     
+    # step6 Process df
     df = process_transcription(combined_result)
     save_results(df)
         

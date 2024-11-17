@@ -14,12 +14,12 @@
 
 ## 🌟 项目简介
 
-VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的配音，让全世界的知识能够跨越语言的障碍共享。
+VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的克隆配音，让全世界的知识能够跨越语言的障碍共享。
 
 主要特点和功能：
 - 🎥 使用 yt-dlp 从 Youtube 链接下载视频
 
-- 🎙️ 使用 WhisperX 进行单词级时间轴字幕识别
+- **🎙️ 使用 WhisperX 进行单词级时间轴字幕识别**
 
 - **📝 使用 NLP 和 GPT 根据句意进行字幕分割**
 
@@ -29,15 +29,13 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 - **✅ 按照 Netflix 标准检查单行长度，绝无双行字幕**
 
-- **🗣️ 使用 GPT-SoVITS 等方法对齐配音**
+- **🗣️ 使用 FishTTS 等方法对齐克隆配音**
 
 - 🚀 整合包一键启动，在 streamlit 中一键出片
 
 - 📝 详细记录每步操作日志，支持随时中断和恢复进度
 
-- 🌐 全面的多语言支持，轻松实现跨语言视频本地化
-
-与同类项目的主要区别：**绝无多行字幕，最佳的翻译质量**
+与同类项目相比的优势：**绝无多行字幕，最佳的翻译质量，无缝的配音体验**
 
 ## 🎥 效果演示
 
@@ -80,26 +78,26 @@ https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 | 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) |
 | 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) |
 | 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) |
-| 中文* | 🤩 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) |
-> *中文需单独配置whisperX模型，仅适用于本地源码安装，配置过程见安装文档，并注意在网页侧边栏指定转录语言为zh
+| 中文* | 😊 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) |
+> *中文需单独配置标点增强后的 whisper 模型，详见安装文档。但效果一般，因为 faster-whisper 加速的 whisper 失去了原有的好的断句，且识别得到的中文没有标点符号，难以断句。同样问题出现在日语上。
 
-翻译语言支持大模型会的所有语言，配音语言取决于选取的TTS方法。
+翻译语言支持所有语言，配音语言取决于选取的TTS。
 
 ## 🚀 快速开始
 
 ### 在线体验
 
-商业版提供免费的 20min 额度，请访问 [videolingo.io](https://videolingo.io)
+商业版（beta）提供免费的 20min 额度，请访问 [videolingo.io](https://videolingo.io)
 
 ### Colab 运行
 
-只需 5 分钟即可在 Colab 中快速体验 VideoLingo：
+只需 5 分钟的安装即可在 Colab 中快速体验 VideoLingo：
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Huanshere/VideoLingo/blob/main/VideoLingo_colab.ipynb)
 
 ### 本地安装
 
-VideoLingo 支持所有硬件平台和操作系统，但在 GPU 加速下性能最佳。详细安装说明请参考文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+VideoLingo 支持所有硬件平台和操作系统，但在 GPU 加速下性能最佳。文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 
 ### 使用Docker
@@ -118,30 +116,23 @@ docker run -d -p 8501:8501 --gpus all videolingo
 使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
 
 ## ⚠️ 当前限制
-1. 不同设备运行 whisperX 效果不同，v1.7 会先进行 demucs 人声分离，但可能会导致分离后转录效果不如分离前，原因是 whisper 本身是在带 bgm 的环境下训练的，分离前不会转录bgm的歌词，但是分离后可能会转录歌词。
+1. WhisperX 转录效果可能受到视频背景声影响，因为使用了 wav2vac 模型进行对齐，但尽管如此，WhisperX 已经能在 99% 情况下解决 Whisper 本身的幻觉问题。
 
-2. **配音功能的质量可能不完美**，仍处于测试开发阶段，正在尝试接入 MascGCT。目前为获得最佳效果，建议根据原视频的语速和内容特点，选择相近语速的 TTS，效果见 [demo](https://www.bilibili.com/video/BV1mt1QYyERR/?share_source=copy_web&vd_source=fa92558c28cd668d33dabaddb17e2f9e)。
+2. 配音功能由于不同语言的语速和语调差异，还受到前置处理字幕的影响，可能不能 100% 完美，但本项目做了非常多的语速上的工程处理，尽可能保证配音效果。
 
-3. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。
+3. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。有些商用api可以进行机器自动转换，但实测效果非常一般，因此这个问题目前只能依靠人为切段处理。
 
-3. **多角色分别配音正在开发**，whisperX 具有 VAD 的潜力，但是具体需要一些施工，暂时没有支持此功能。
-
-## 🚗 路线图
-
-- [x] SaaS 版本 at [videolingo.io](https://videolingo.io)
-- [ ] VAD 区分说话人，多角色配音
-- [ ] 用户术语表
-- [ ] 配音视频唇形同步
+4. **多角色分别配音仍在开发**，whisperX 具有 VAD 的潜力（尽管官方承认效果一般），但是具体需要一些施工，暂时没有支持此功能。
 
 ## 📄 许可证
 
-本项目采用 Apache 2.0 许可证，我们衷心感谢以下开源项目的贡献：
+本项目采用 Apache 2.0 许可证，衷心感谢以下开源项目的贡献：
 
-[whisperX](https://github.com/m-bain/whisperX) ｜ [yt-dlp](https://github.com/yt-dlp/yt-dlp) ｜ [json_repair](https://github.com/mangiucugna/json_repair) ｜ [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) ｜ [BELLE](https://github.com/LianjiaTech/BELLE)
+[whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
 
 ## 📬 联系我们
 
-- 加入我们的 QQ 群：875297969
+- 加入我们的 QQ 群寻求解答：875297969
 - 在 GitHub 上提交 [Issues](https://github.com/Huanshere/VideoLingo/issues) 或 [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls)
 - 关注我的 Twitter：[@Huanshere](https://twitter.com/Huanshere)
 - 联系邮箱：team@videolingo.io

@@ -4,11 +4,17 @@ import pandas as pd
 from rich.console import Console
 from rich.panel import Panel
 
+# Constants
+SETTINGS_FILE = 'batch/tasks_setting.xlsx'
+INPUT_FOLDER = os.path.join('batch', 'input')
+VALID_DUBBING_VALUES = [0, 1]
+
 console = Console()
 
 def check_settings():
-    df = pd.read_excel('batch/tasks_setting.xlsx')
-    input_files = set(os.listdir(os.path.join('batch', 'input')))
+    os.makedirs(INPUT_FOLDER, exist_ok=True)
+    df = pd.read_excel(SETTINGS_FILE)
+    input_files = set(os.listdir(INPUT_FOLDER))
     excel_files = set(df['Video File'].tolist())
     files_not_in_excel = input_files - excel_files
 
@@ -31,19 +37,14 @@ def check_settings():
 
         if video_file.startswith('http'):
             url_tasks += 1
-        elif os.path.isfile(os.path.join('batch', 'input', video_file)):
+        elif os.path.isfile(os.path.join(INPUT_FOLDER, video_file)):
             local_video_tasks += 1
         else:
             console.print(Panel(f"Invalid video file or URL 「{video_file}」", title=f"[bold red]Error in row {index + 2}", expand=False))
             all_passed = False
 
-        if not pd.isna(source_language):
-            if source_language.lower() not in ['en', 'zh', 'auto']:
-                console.print(Panel(f"Invalid source language 「{source_language}」", title=f"[bold red]Error in row {index + 2}", expand=False))
-                all_passed = False
-
         if not pd.isna(dubbing):
-            if int(dubbing) not in [0, 1]:
+            if int(dubbing) not in VALID_DUBBING_VALUES:
                 console.print(Panel(f"Invalid dubbing value 「{dubbing}」", title=f"[bold red]Error in row {index + 2}", expand=False))
                 all_passed = False
 

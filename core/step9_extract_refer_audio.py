@@ -12,7 +12,7 @@ from core.all_whisper_methods.demucs_vl import demucs_main, VOCAL_AUDIO_FILE
 # Simplified path definitions
 REF_DIR = 'output/audio/refers'
 SEG_DIR = 'output/audio/segs'
-TASKS_FILE = 'output/audio/sovits_tasks.xlsx'
+TASKS_FILE = 'output/audio/tts_tasks.xlsx'
 
 def time_to_samples(time_str, sr):
     """Unified time conversion function"""

@@ -67,43 +67,37 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     
     return src_parts, tr_parts, tr_remerged
 
-def split_align_subs(src_lines: List[str], tr_lines: List[str], max_retry=5) -> Tuple[List[str], List[str], List[str]]:
+def split_align_subs(src_lines: List[str], tr_lines: List[str]) -> Tuple[List[str], List[str], List[str]]:
     subtitle_set = load_key("subtitle")
     MAX_SUB_LENGTH = subtitle_set["max_length"]
     TARGET_SUB_MULTIPLIER = subtitle_set["target_multiplier"]
     remerged_tr_lines = tr_lines.copy()
     
-    for attempt in range(max_retry):
-        console.print(Panel(f"🔄 Split attempt {attempt + 1}", expand=False))
-        to_split = []
-        
-        for i, (src, tr) in enumerate(zip(src_lines, tr_lines)):
-            src, tr = str(src), str(tr)
-            if len(src) > MAX_SUB_LENGTH or calc_len(tr) * TARGET_SUB_MULTIPLIER > MAX_SUB_LENGTH:
-                to_split.append(i)
-                table = Table(title=f"📏 Line {i} needs to be split")
-                table.add_column("Type", style="cyan")
-                table.add_column("Content", style="magenta")
-                table.add_row("Source Line", src)
-                table.add_row("Target Line", tr)
-                console.print(table)
-        
-        def process(i):
-            split_src = split_sentence(src_lines[i], num_parts=2).strip()
-            src_parts, tr_parts, tr_remerged = align_subs(src_lines[i], tr_lines[i], split_src)
-            src_lines[i] = src_parts
-            tr_lines[i] = tr_parts
-            remerged_tr_lines[i] = tr_remerged
-        
-        with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
-            executor.map(process, to_split)
-        
-        # Flatten `src_lines` and `tr_lines`
-        src_lines = [item for sublist in src_lines for item in (sublist if isinstance(sublist, list) else [sublist])]
-        tr_lines = [item for sublist in tr_lines for item in (sublist if isinstance(sublist, list) else [sublist])]
-        
-        if all(len(src) <= MAX_SUB_LENGTH for src in src_lines) and all(calc_len(tr) * TARGET_SUB_MULTIPLIER <= MAX_SUB_LENGTH for tr in tr_lines):
-            break
+    to_split = []
+    for i, (src, tr) in enumerate(zip(src_lines, tr_lines)):
+        src, tr = str(src), str(tr)
+        if len(src) > MAX_SUB_LENGTH or calc_len(tr) * TARGET_SUB_MULTIPLIER > MAX_SUB_LENGTH:
+            to_split.append(i)
+            table = Table(title=f"📏 Line {i} needs to be split")
+            table.add_column("Type", style="cyan")
+            table.add_column("Content", style="magenta")
+            table.add_row("Source Line", src)
+            table.add_row("Target Line", tr)
+            console.print(table)
+    
+    def process(i):
+        split_src = split_sentence(src_lines[i], num_parts=2).strip()
+        src_parts, tr_parts, tr_remerged = align_subs(src_lines[i], tr_lines[i], split_src)
+        src_lines[i] = src_parts
+        tr_lines[i] = tr_parts
+        remerged_tr_lines[i] = tr_remerged
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
+        executor.map(process, to_split)
+    
+    # Flatten `src_lines` and `tr_lines`
+    src_lines = [item for sublist in src_lines for item in (sublist if isinstance(sublist, list) else [sublist])]
+    tr_lines = [item for sublist in tr_lines for item in (sublist if isinstance(sublist, list) else [sublist])]
     
     return src_lines, tr_lines, remerged_tr_lines
 
@@ -114,12 +108,25 @@ def split_for_sub_main():
     src = df['Source'].tolist()
     trans = df['Translation'].tolist()
     
-    split_src, split_trans, remerged = split_align_subs(src.copy(), trans, max_retry=3)
+    subtitle_set = load_key("subtitle")
+    MAX_SUB_LENGTH = subtitle_set["max_length"]
+    TARGET_SUB_MULTIPLIER = subtitle_set["target_multiplier"]
     
+    for attempt in range(3):  # 使用固定的3次重试
+        console.print(Panel(f"🔄 Split attempt {attempt + 1}", expand=False))
+        split_src, split_trans, remerged = split_align_subs(src.copy(), trans)
+        
+        # 检查是否所有字幕都符合长度要求
+        if all(len(src) <= MAX_SUB_LENGTH for src in split_src) and \
+           all(calc_len(tr) * TARGET_SUB_MULTIPLIER <= MAX_SUB_LENGTH for tr in split_trans):
+            break
+        
+        # 更新源数据继续下一轮分割
+        src = split_src
+        trans = split_trans
+
     pd.DataFrame({'Source': split_src, 'Translation': split_trans}).to_excel(OUTPUT_SPLIT_FILE, index=False)
     pd.DataFrame({'Source': src, 'Translation': remerged}).to_excel(OUTPUT_REMERGED_FILE, index=False)
-    
-    console.print("[bold green]✅ Subtitles splitting and remerging completed![/bold green]")
 
 if __name__ == '__main__':
     split_for_sub_main()

@@ -10,6 +10,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 st.set_page_config(page_title="VideoLingo", page_icon="docs/logo.svg")
 
+SUB_VIDEO = "output/output_sub.mp4"
+DUB_VIDEO = "output/output_dub.mp4"
+
 def text_processing_section():
     st.header("翻译和生成字幕")
     with st.container(border=True):
@@ -25,16 +28,16 @@ def text_processing_section():
             6. 将字幕合并到视频中
         """, unsafe_allow_html=True)
 
-        if not os.path.exists("output/output_video_with_subs.mp4"):
+        if not os.path.exists(SUB_VIDEO):
             if st.button("开始处理字幕", key="text_processing_button"):
                 process_text()
                 st.rerun()
         else:
             if load_key("resolution") != "0x0":
-                st.video("output/output_video_with_subs.mp4")
+                st.video(SUB_VIDEO)
             download_subtitle_zip_button(text="下载所有字幕")
             
-            if st.button("归档到'history'", key="cleanup_in_text_processing"):
+            if st.button("归档到'历史记录'", key="cleanup_in_text_processing"):
                 cleanup()
                 st.rerun()
             return True
@@ -60,24 +63,25 @@ def process_text():
     st.balloons()
 
 def audio_processing_section():
-    st.header("配音（测试版）")
+    st.header("配音")
     with st.container(border=True):
         st.markdown("""
         <p style='font-size: 20px;'>
         此阶段包含以下步骤：
         <p style='font-size: 20px;'>
-            1. 生成音频任务<br>
-            2. 生成音频<br>
-            3. 将音频合并到视频中
+            1. 生成音频任务和分段<br>
+            2. 提取参考音频<br>
+            3. 生成和合并音频文件<br>
+            4. 将最终音频合并到视频中
         """, unsafe_allow_html=True)
-        if not os.path.exists("output/output_video_with_audio.mp4"):
+        if not os.path.exists(DUB_VIDEO):
             if st.button("开始处理音频", key="audio_processing_button"):
                 process_audio()
                 st.rerun()
         else:
             st.success("音频处理完成！你可以在 `output` 文件夹中查看音频文件。")
             if load_key("resolution") != "0x0": 
-                st.video("output/output_video_with_audio.mp4") 
+                st.video(DUB_VIDEO) 
             if st.button("删除配音文件", key="delete_dubbing_files"):
                 delete_dubbing_files()
                 st.rerun()
@@ -87,13 +91,16 @@ def audio_processing_section():
 
 def process_audio():
     with st.spinner("生成音频任务中"): 
-        step8_gen_audio_task.gen_audio_task_main()
+        step8_1_gen_audio_task.gen_audio_task_main()
+        step8_2_gen_dub_chunks.gen_dub_chunks()
     with st.spinner("提取参考音频中"):
         step9_extract_refer_audio.extract_refer_audio_main()
-    with st.spinner("生成音频中"):
-        step10_gen_audio.process_sovits_tasks()
-    with st.spinner("将音频合并到视频中"):
-        step11_merge_audio_to_vid.merge_main()
+    with st.spinner("生成所有音频中"):
+        step10_gen_audio.gen_audio()
+    with st.spinner("合并完整音频中"):
+        step11_merge_full_audio.merge_full_audio()
+    with st.spinner("将配音合并到视频中"):
+        step12_merge_dub_to_vid.merge_video_audio()
     
     st.success("音频处理完成！🎇")
     st.balloons()

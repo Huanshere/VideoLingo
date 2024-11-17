@@ -5,7 +5,7 @@ import json
 import concurrent.futures
 from core.translate_once import translate_lines
 from core.step4_1_summarize import search_things_to_note_in_prompt
-from core.step8_gen_audio_task import check_len_then_trim
+from core.step8_1_gen_audio_task import check_len_then_trim
 from core.step6_generate_final_timeline import align_timestamp
 from core.config_utils import load_key
 from rich.console import Console

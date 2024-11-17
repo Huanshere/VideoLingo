@@ -1,34 +1,16 @@
 # 🚀 开始使用
 
-## 📋 API 配置准备
-本项目需使用大模型 和 TTS ，每个环节都提供了多种选择，**请仔细阅读配置指南😊**
+## 📋 API 配置指南
+本项目需使用大模型 和 TTS ，**推荐使用 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE)**，注册送积分，只需要一个 Key 即可体验全部功能。
+
 ### 1. **获取大模型的 API_KEY**：
 
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
-| gemini-1.5-pro-002 | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥7 / 1M tokens | 🤩 |
-| claude-3-5-sonnet-20240620 | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥10 / 1M tokens | 🤩 |
-| gpt-4o | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥7 / 1M tokens | 😃 |
+| Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M tokens | 😃 |
+| claude-3-5-sonnet-20240620 | / | / | $15 / 1M tokens | 🤩 |
 
-⚠️ 警告：prompt 涉及多步思维链和复杂的json格式，弱模型容易出错。1h 视频使用 claude 花费约 10 元。
-
-> 注：云雾api 还支持 openai 的 tts-1 接口，可在配音步骤选用。
-
-<details>
-<summary>云雾api 如何获取 api key？</summary>
-
-1. 前往 [云雾 api 官网](https://yunwu.zeabur.app/register?aff=TXMB)
-2. 注册账户并充值
-3. 在 api key 页面新建一个 key
-4. 注意勾选 `无限额度` ，渠道建议选 `纯AZ 1.5倍`
-</details>
-
-<details>
-<summary>能用别的模型吗？</summary>
-
-- ✅ 支持 OAI-Like 的 API 接口，需要自行在 streamlit 侧边栏更换。
-- ⚠️ 但其他模型（尤其是小模型）遵循指令要求能力弱，非常容易在翻译过程报错，强烈不推荐，遇到报错请更换模型。
-</details>
+注：支持 Openai 接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
 
 
 ### 2. **TTS 的 API**
@@ -36,14 +18,27 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 | TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:-----|:-----|:---------|:-----------|
+| 🎙️ SiliconFlow FishTTS (推荐) | 支持克隆 | 不是最好 | 😃 | 😃 |
 | 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🔊 Azure TTS (推荐)  | 效果自然 | 充值不方便 | 🤩 | 😃 |
+| 🔊 Azure TTS | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
 | 🎤 Fish TTS  | 真是本地人 | 官方模型有限 | 😂 | 😂 |
-| 🗣️ GPT-SoVITS (测试) | 最强语音克隆 | 目前只支持中英文，需要N卡推理模型，配置需要相关知识 | 🏆 | 🚫 |
+| 🗣️ GPT-SoVITS | 最强语音克隆 | 只支持中英文，需要本地推理，配置麻烦 | 🏆 | 🚫 |
 
-- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)，注意在模型处勾选 `tts-1`；
-- Azure TTS 在 [官网](https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=windows%2Cterminal&pivots=programming-language-python) 注册充值（有免费额度）；
-- Fish TTS 请自行在 [官网](https://fish.audio/zh-CN/go-api/) 注册（送10刀额度）
+- SiliconFlow FishTTS 请在 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) 获取key，注意克隆功能需要付费充值积分；
+- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)；
+- Azure TTS 可以在官网注册获取key，也可以淘宝购买；
+- Fish TTS 可以在 [官网](https://fish.audio/zh-CN/go-api/) 注册（送10刀额度）
+
+<details>
+<summary>SiliconFlow FishTTS 使用教程</summary>
+
+目前支持 3 种模式：
+
+1. `preset`: 使用固定音色，可以在 [官网Playground](https://cloud.siliconflow.cn/playground/text-to-speech/17885302608) 试听，默认 `anna`。
+2. `clone(stable)`: 对应 fishtts api 的 `custom`，使用一段上传音频的音色，会自动采集视频前十秒声音作为音色使用，比较稳定。
+3. `clone(dynamic)`: 对应 fishtts api 的 `dynamic`，在 tts 过程使用每一句作为参考音频，可能出现音色不一致，但效果更好。
+
+</details>
 
 <details>
 <summary>OpenAI 声音怎么选？</summary>
@@ -61,7 +56,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 <details>
 <summary>Fish TTS 声音怎么选？</summary>
 
-前往 [官网](https://fish.audio/zh-CN/) 中试听��择你想要的声音，��� URL 中可以找到该声音对应的代号，例如丁真是 `54a5170264694bfc8e9ad98df7bd89c3`，热门的几种声音已添加在 `config.yaml` 中。如需使用其他声音，请在 `config.yaml` 中修改 `fish_tts.character_id_dict` 字典。
+前往 [官网](https://fish.audio/zh-CN/) 中试听选择你想要的声音，在 URL 中可以找到该声音对应的代号，例如丁真是 `54a5170264694bfc8e9ad98df7bd89c3`，热门的几种声音已添加在 `config.yaml` 中。如需使用其他声音，请在 `config.yaml` 中修改 `fish_tts.character_id_dict` 字典。
 
 </details>
 
@@ -118,12 +113,27 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 ## 🛠️ 快速上手
 
-VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运行。对于 Windows 系统使用 GPU 加速，需要安装以下依赖：
+VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运行。
+
+对于 Windows 系统使用 GPU 加速，需要安装以下依赖：
 
 - [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
 - [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 
-> 注意：安装完 CUDA 和 CUDNN 后需要检查是否添加到了系统路径，并重启计算机 🔄
+> 注意：安装后需要将 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加至系统环境变量，并重启计算机 🔄
+
+### Windows 一键安装
+
+请确保已安装 [Git](https://git-scm.com/downloads)，
+
+1. 下载源码到本地
+
+2. （可选）应用汉化补丁：
+   - 打开项目根目录下的 `i18n/中文` 文件夹
+   - 将该文件夹中的所有内容复制到项目根目录
+   - 在弹出的提示中选择"替换目标中的文件"
+
+3. 双击 `OneKeyInstall&Start.bat` 即可完成安装并启动网页
 
 ### 源码安装
 
@@ -134,7 +144,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 需要一定的 python 基础，遇到任何问题可以询问官方网站 [videolingo.io](https://videolingo.io) 右下角的AI助手~
 
-1. 打开 Anaconda Prompt 并切换到你想安装的目录，例如桌面：
+1. 打开 `Anaconda Prompt` 并切换到你想安装的目录，例如桌面：
    ```bash
    cd desktop
    ```
@@ -151,13 +161,11 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
    conda activate videolingo
    ```
 
-4. 应用汉化补丁：
-   - 打开项目根目录下的 `i18n/中文` 文件夹
-   - 将该文件夹中的所有内容复制到项目根目录
-   - 在弹出的提示中选择"替换目标中的文件"
-   （注意：Mac系统会删除整个目标文件夹后再复制，而Windows只会替换重复的文件。Mac用户建议手动将文件逐个移动到目标位置）
+4. （可选）应用汉化补丁：
 
-   完成以上步骤后，界面将切换为中文显示。
+    参照 **一键安装** 中的说明
+
+   （注意：Mac系统会删除整个目标文件夹后再复制，而Windows只会替换重复的文件。Mac用户建议手动将文件逐个移动到目标位置）
 
 5. 运行安装脚本：
    ```bash
@@ -174,17 +182,15 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
    ![zh_set](https://github.com/user-attachments/assets/bb9381d0-8d99-4d8b-aaff-9846076fc7a3)
 
-8. whisper 转录步骤会自动下载模型，但是对于命令行无法访问 huggingface 的用户，也可以手动下载 whisper 模型放置在根目录下：[百度网盘](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
+8. 转录步骤会自动从 huggingface 下载模型，也可以手动下载，将 `_model_cache` 文件夹放置在 VideoLingo 目录下：[百度网盘](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
 
-9. 更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
+9. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
 
 ## 🚨 常见报错
 
-1. **'Empty Translation Line'**: 这是由于选用了较笨的LLM，在翻译时把一些短语句直接省略了。解决方案：请换用Claude 3.5 Sonnet重试。
-
-2. **翻译过程的 'Key Error'**: 
+1. **翻译过程的 'Key Error'**: 
    - 原因1：同上，弱模型遵循JSON格式能力有误。
    - 原因2：对于敏感内容，LLM可能拒绝翻译。
    解决方案：请检查 `output/gpt_log/error.json` 的 `response` 和 `msg` 字段。
 
-3. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: 通常是网络问题。解决方案：中国大陆用户请切换网络节点重试。
+2. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: 通常是网络问题。解决方案：中国大陆用户请切换网络节点重试。
