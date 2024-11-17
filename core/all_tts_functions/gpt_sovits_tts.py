@@ -46,14 +46,14 @@ def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prom
             full_save_path = current_dir / save_path
             full_save_path.parent.mkdir(parents=True, exist_ok=True)
             full_save_path.write_bytes(response.content)
-            rprint(f"[bold green]音频保存成功:[/bold green] {full_save_path}")
+            rprint(f"[bold green]Audio saved successfully:[/bold green] {full_save_path}")
         return True
 
     response = requests.post('http://127.0.0.1:9880/tts', json=payload)
     if response.status_code == 200:
         return save_audio(response, save_path, current_dir)
     else:
-        rprint(f"[bold red]TTS请求失败，状态码:[/bold red] {response.status_code}")
+        rprint(f"[bold red]TTS request failed, status code:[/bold red] {response.status_code}")
         return False
 
 def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
@@ -94,17 +94,17 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
             # If the file does not exist, try to extract the reference audio
             try:
                 from core.step9_extract_refer_audio import extract_refer_audio_main
-                rprint(f"[yellow]参考音频文件不存在，尝试提取: {ref_audio_path}[/yellow]")
+                rprint(f"[yellow]Reference audio file does not exist, attempting extraction: {ref_audio_path}[/yellow]")
                 extract_refer_audio_main()
             except Exception as e:
-                rprint(f"[bold red]提取参考音频失败: {str(e)}[/bold red]")
+                rprint(f"[bold red]Failed to extract reference audio: {str(e)}[/bold red]")
                 raise
     else:
         raise ValueError("Invalid REFER_MODE. Choose 1, 2, or 3.")
 
     success = gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
     if not success and REFER_MODE == 3:
-        rprint(f"[bold red]TTS请求失败，切换回模式2重试[/bold red]")
+        rprint(f"[bold red]TTS request failed, switching back to mode 2 and retrying[/bold red]")
         ref_audio_path = current_dir / "output/audio/refers/1.wav"
         gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
 
@@ -126,7 +126,15 @@ def find_and_check_config_path(dubbing_character):
     return gpt_sovits_dir, config_path
 
 def start_gpt_sovits_server():
-    print("Starting GPT-SoVITS server. Please wait for at least 1 min...")
+    rprint("[bold yellow]🚀 Initializing GPT-SoVITS Server...[/bold yellow]")
+    rprint("[bold yellow]🚀 正在初始化 GPT-SoVITS 服务器...[/bold yellow]")
+    
+    rprint("""[bold red]⏳ Please wait approximately 1 minute
+  • A new command prompt will appear for the GPT-SoVITS API
+  • Any `404 not found` warnings during startup are normal, please be patient[/bold red]""")
+    rprint("""[bold red]⏳ 请等待大约1分钟
+  • GPT-SoVITS API 将会打开一个新的命令提示符窗口
+  • 启动过程中出现 `404 not found` 警告是正常的，请耐心等待[/bold red]""")
     current_dir = Path(__file__).resolve().parent.parent.parent
     # Check if port 9880 is already in use
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
