@@ -80,9 +80,23 @@ def main():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     def download_and_extract_ffmpeg():
-        # 需要同时安装 conda-ffmpeg 和 ffmpeg.exe
-        console.print(Panel("📦 正在通过 conda 安装 ffmpeg...", style="cyan"))
-        subprocess.check_call(["conda", "install", "-y", "ffmpeg"])
+        # VL requires both conda/system ffmpeg and ffmpeg.exe...
+        system = platform.system()
+        if system == "Linux":
+            # Linux: use apt or yum to install ffmpeg
+            try:
+                console.print(Panel("📦 正在通过 apt 安装 ffmpeg...", style="cyan"))
+                subprocess.check_call(["sudo", "apt", "install", "-y", "ffmpeg"])
+            except subprocess.CalledProcessError:
+                try:
+                    console.print(Panel("📦 正在通过 yum 安装 ffmpeg...", style="cyan"))
+                    subprocess.check_call(["sudo", "yum", "install", "-y", "ffmpeg"], shell=True)
+                except subprocess.CalledProcessError:
+                    console.print(Panel("❌ 通过包管理器安装 ffmpeg 失败", style="red"))
+        else:
+            # Windows/MacOS: use conda to install ffmpeg
+            console.print(Panel("📦 正在通过 conda 安装 ffmpeg...", style="cyan"))
+            subprocess.check_call(["conda", "install", "-y", "ffmpeg"], shell=True)
 
         import requests
         system = platform.system()
