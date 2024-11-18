@@ -1,15 +1,14 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-This project requires Large Language Models and TTS. **Recommended to use [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE)**, which offers free credits upon registration and only needs one key for all features.
+This project requires Large Language Models and TTS. For best quality, please use claude-3-5-sonnet-20240620 with Azure TTS. For quick testing, you can use [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), which offers free credits upon registration and only needs one key for all features.
 
 ### 1. **Get API_KEY for Large Language Models**:
 
 | Recommended Model | Recommended Provider | base_url | Price | Effect |
 |:-----|:---------|:---------|:-----|:---------|
+| claude-3-5-sonnet-20240620 | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $7.5 / 1M tokens | 🤩 |
 | Qwen/Qwen2.5-72B-Instruct | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ¥4 / 1M tokens | 😃 |
-| claude-3-5-sonnet | [Deepbricks](https://deepbricks.ai/) | https://api.deepbricks.ai | $10 / 1M tokens | 🤩 |
-| gemini-1.5-pro-latest | [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ¥10 / 1M tokens | 😄 |
 
 Note: Supports OpenAI interface, you can try different models. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
 
@@ -18,9 +17,9 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 
 | TTS Solution | Pros | Cons | Chinese Effect | Non-Chinese Effect |
 |:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ SiliconFlow FishTTS (Recommended) | Supports cloning, simple setup | Unstable cloning effect | 😃 | 😃 |
+| 🎙️ SiliconFlow FishTTS | Supports cloning, simple setup | Unstable cloning effect | 😃 | 😃 |
 | 🎙️ OpenAI TTS | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
-| 🔊 Azure TTS | Natural effect | Limited emotions | 🤩 | 😃 |
+| 🔊 Azure TTS(recommended) | Natural effect | Limited emotions | 🤩 | 😃 |
 | 🎤 Fish TTS | Authentic native | Limited official models | 😂 | 😂 |
 | 🗣️ GPT-SoVITS | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
@@ -178,7 +177,7 @@ Basic Python knowledge required. For any issues, ask the AI assistant at [videol
 ## 🚨 Common Errors
 
 1. **'Key Error' during translation**: 
-   - Reason 1: Same as above, weaker models have poor JSON format compliance.
+   - Reason 1: weaker models have poor JSON format compliance.
    - Reason 2: LLM may refuse to translate sensitive content.
    Solution: Check `response` and `msg` fields in `output/gpt_log/error.json`.
 

@@ -1,15 +1,14 @@
 # 🚀 开始使用
 
 ## 📋 API 配置指南
-本项目需使用大模型 和 TTS ，**推荐使用 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE)**，注册送积分，只需要一个 Key 即可体验全部功能。
+本项目需使用大模型 和 TTS 。为确保最佳质量请使用 claude-3-5-sonnet-20240620 与 Azure TTS。如需快速体验可以使用 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE)，注册送积分，只需要一个 Key 即可体验全部功能。
 
-### 1. **获取大模型的 API_KEY**：
+### 1. **大模型的 API_KEY**：
 
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
+| claude-3-5-sonnet-20240620 | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $7.5 / 1M tokens | 🤩 |
 | Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M tokens | 😃 |
-| claude-3-5-sonnet | [Deepbricks](https://deepbricks.ai/) | https://api.deepbricks.ai | $10 / 1M tokens | 🤩 |
-| gemini-1.5-pro-latest | [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB) | https://yunwu.zeabur.app | ￥10 / 1M tokens | 😄 |
 
 注：支持 Openai 格式接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
 
@@ -19,9 +18,9 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 | TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ SiliconFlow FishTTS (推荐) | 支持克隆配置简单 | 克隆效果不稳定 | 😃 | 😃 |
+| 🎙️ SiliconFlow FishTTS | 支持克隆配置简单 | 克隆效果不稳定 | 😃 | 😃 |
 | 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🔊 Azure TTS | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
+| 🔊 Azure TTS(推荐) | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
 | 🎤 Fish TTS  | 真是本地人 | 官方模型有限 | 😂 | 😂 |
 | 🗣️ GPT-SoVITS | 最强语音克隆 | 只支持中英文，需要本地推理，配置麻烦 | 🏆 | 🚫 |
 
@@ -190,7 +189,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 ## 🚨 常见报错
 
 1. **翻译过程的 'Key Error'**: 
-   - 原因1：同上，弱模型遵循JSON格式能力有误。
+   - 原因1：弱模型遵循JSON格式能力有误。
    - 原因2：对于敏感内容，LLM可能拒绝翻译。
    解决方案：请检查 `output/gpt_log/error.json` 的 `response` 和 `msg` 字段。
 
