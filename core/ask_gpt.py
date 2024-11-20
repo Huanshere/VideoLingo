@@ -39,7 +39,7 @@ def check_ask_gpt_history(prompt, model, log_title):
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             for item in data:
-                if item["prompt"] == prompt and item["model"] == model:
+                if item["prompt"] == prompt:
                     return item["response"]
     return False
 
