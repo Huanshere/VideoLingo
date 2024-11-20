@@ -6,7 +6,12 @@ from core.config_utils import update_key, load_key
 
 def config_input(label, key, help=None):
     """Generic config input handler"""
-    val = st.text_input(label, value=load_key(key), help=help)
+    val = st.text_input(
+        label, 
+        value=load_key(key), 
+        help=help,
+        key=f"config_input_{key}"
+    )
     if val != load_key(key):
         update_key(key, val)
     return val
