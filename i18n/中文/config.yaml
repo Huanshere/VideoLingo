@@ -1,11 +1,28 @@
 # * 标有 * 的设置是高级设置，不会出现在 Streamlit 页面中，只能在 config.py 中手动修改
 version: "2.0.0"
 ## ======================== 基本设置 ======================== ##
-# API 设置
-api:
-  key: 'YOUR_API_KEY'
-  base_url: 'https://api.siliconflow.cn'
-  model: 'Qwen/Qwen2.5-72B-Instruct'
+# LLM 模型配置部分
+llm_models:
+  default_model:  # 默认模型配置
+    key: 'YOUR_API_KEY'
+    base_url: 'https://api.302.ai'
+    model: 'claude-3-5-sonnet-20240620'
+  fast_model:  # 快速模型配置
+    key: 'YOUR_API_KEY'
+    base_url: 'https://api.302.ai'
+    model: 'Yi-Lightning'
+
+
+# 各阶段使用的模型配置
+llm_stages:
+  all: 'default_model'  # 默认全部使用
+  align: 'fast_model'  # 字幕对齐
+  split: 'fast_model'  # 字幕分割
+  summarize: 'default_model'  # 字幕总结
+  translate_faithfulness: 'default_model'  # 字幕翻译（精确）
+  translate_expressiveness: 'default_model'  # 字幕翻译（信达雅）
+  reduce: 'fast_model'  # 字幕缩减
+
 
 # 语言设置，写入提示词，可以用自然语言描述
 target_language: '简体中文'
@@ -129,6 +146,7 @@ llm_support_json:
 - 'gemini-1.5-flash-latest'
 - 'gemini-1.5-pro-latest'
 - 'gemini-1.5-pro-002'
+- 'Yi-Lightning'
 
 # 存在问题
 # - 'Qwen/Qwen2.5-72B-Instruct'

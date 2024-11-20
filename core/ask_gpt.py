@@ -30,7 +30,7 @@ def save_log(model, prompt, response, log_title = 'default', message = None):
     with open(log_file, 'w', encoding='utf-8') as f:
         json.dump(logs, f, ensure_ascii=False, indent=4)
         
-def check_ask_gpt_history(prompt, model, log_title):
+def check_ask_gpt_history(prompt, log_title):
     # check if the prompt has been asked before
     if not os.path.exists(LOG_FOLDER):
         return False
@@ -43,11 +43,27 @@ def check_ask_gpt_history(prompt, model, log_title):
                     return item["response"]
     return False
 
-def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
-    api_set = load_key("api")
+def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default', check_api=False, api_set=None):
     llm_support_json = load_key("llm_support_json")
+    if check_api:   
+        api_set = api_set
+    else:
+        api_set = load_key(f"llm_models.{load_key('llm_stages')['all']}")
+        if log_title == 'sentence_splitbymeaning':
+           api_set = load_key(f"llm_models.{load_key('llm_stages')['split']}")
+        elif log_title == 'align_subs':
+           api_set = load_key(f"llm_models.{load_key('llm_stages')['align']}")
+        elif log_title == 'summary':
+           api_set = load_key(f"llm_models.{load_key('llm_stages')['summarize']}")
+        elif log_title == 'translate_faithfulness':
+           api_set = load_key(f"llm_models.{load_key('llm_stages')['translate_faithfulness']}")
+        elif log_title == 'translate_expressiveness':
+           api_set = load_key(f"llm_models.{load_key('llm_stages')['translate_expressiveness']}")
+        elif log_title == 'subtitle_trim':
+           api_set = load_key(f"llm_models.{load_key('llm_stages')['reduce']}")
+        
     with LOCK:
-        history_response = check_ask_gpt_history(prompt, api_set["model"], log_title)
+        history_response = check_ask_gpt_history(prompt, log_title)
         if history_response:
             return history_response
     
@@ -109,4 +125,4 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
 
 
 if __name__ == '__main__':
-    print(ask_gpt('hi there hey response in json format, just return 200.' , response_json=True, log_title=None))
+    print(ask_gpt('hi there hey response in json format, just return 200.' , response_json=True, log_title='None', api_set=load_key("llm_models.default_model"), check_api=True))
