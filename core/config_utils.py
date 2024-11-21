@@ -26,25 +26,37 @@ def load_key(key: str) -> Any:
     return value
 
 def update_key(key: str, new_value: Any) -> bool:
+    """Update a key in the config file. If the key doesn't exist, it will be created.
+    
+    Args:
+        key: Dot-separated key path (e.g. "llm_models.default_model.key")
+        new_value: Value to set
+        
+    Returns:
+        bool: True if successful
+    """
     with config_lock:
         with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
             data = yaml.load(file)
 
         keys = key.split('.')
         current = data
+        
+        # 遍历除最后一个key外的所有key
         for k in keys[:-1]:
-            if isinstance(current, dict) and k in current:
-                current = current[k]
-            else:
-                return False
+            # 如果key不存在，创建一个新的字典
+            if k not in current:
+                current[k] = {}
+            current = current[k]
+                
+        # 设置最终的值
+        current[keys[-1]] = new_value
+        
+        # 保存更新后的配置
+        with open(CONFIG_PATH, 'w', encoding='utf-8') as file:
+            yaml.dump(data, file)
+        return True
 
-        if isinstance(current, dict) and keys[-1] in current:
-            current[keys[-1]] = new_value
-            with open(CONFIG_PATH, 'w', encoding='utf-8') as file:
-                yaml.dump(data, file)
-            return True
-        else:
-            raise KeyError(f"Key '{keys[-1]}' not found in configuration")
         
 # basic utils
 def get_joiner(language):

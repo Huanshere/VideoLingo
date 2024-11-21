@@ -6,24 +6,91 @@ from core.config_utils import update_key, load_key
 
 def config_input(label, key, help=None):
     """Generic config input handler"""
-    val = st.text_input(label, value=load_key(key), help=help)
+    val = st.text_input(
+        label, 
+        value=load_key(key), 
+        help=help,
+        key=f"config_input_{key}"
+    )
     if val != load_key(key):
         update_key(key, val)
     return val
 
 def page_setting():
-    with st.expander("LLM 配置", expanded=True):
-        config_input("API_KEY", "api.key")
-        config_input("BASE_URL", "api.base_url", help="API请求的基础URL")
-        
-        c1, c2 = st.columns([4, 1])
-        with c1:
-            config_input("模型", "api.model")
-        with c2:
-            if st.button("📡", key="api"):
-                st.toast("API密钥有效" if check_api() else "API密钥无效", 
-                        icon="✅" if check_api() else "❌")
+    # LLM配置部分
+    st.subheader("LLM配置")
     
+    # 模型配置管理
+    st.subheader("模型配置")
+    
+    # 获取现有模型列表
+    models = load_key("llm_models")
+    
+    # 添加新模型按钮
+    if st.button("➕ 添加新模型"):
+        new_model_name = f"model_{len(models)}"
+        update_key(f"llm_models.{new_model_name}", {
+            "key": "",
+            "base_url": "",
+            "model": ""
+        })
+        st.rerun()
+
+    # 显示现有模型配置
+    for model_name in models:
+        st.markdown(f"### 📑 {model_name}")
+        # 模型名称编辑（可选）
+        new_name = st.text_input("模型名称", value=model_name, key=f"name_{model_name}")
+        
+        # 基础配置
+        config_input(f"API密钥", f"llm_models.{model_name}.key")
+        config_input(f"基础URL", f"llm_models.{model_name}.base_url")
+        config_input(f"模型", f"llm_models.{model_name}.model")
+        
+        # 测试和删除按钮
+        c1, c2, c3 = st.columns([3, 1, 1])
+        with c2:
+            if st.button("🔍 测试", key=f"test_{model_name}"):
+                api_set = load_key(f"llm_models.{model_name}")
+                st.toast(
+                    "API密钥有效" if check_api(api_set) else "API密钥无效",
+                    icon="✅" if check_api(api_set) else "❌"
+                )
+        with c3:
+            if len(models) > 1 and st.button("🗑️ 删除", key=f"delete_{model_name}"):
+                models_dict = load_key("llm_models")
+                del models_dict[model_name]
+                update_key("llm_models", models_dict)
+                st.rerun()
+        st.divider()
+
+    # 阶段配置
+    st.subheader("阶段配置")
+    stages = {
+        "align": "字幕对齐",
+        "split": "字幕分割",
+        "summarize": "总结",
+        "translate_faithfulness": "翻译（精确）",
+        "translate_expressiveness": "翻译（优雅）",
+        "reduce": "字幕缩减"
+    }
+    
+    for stage_key, stage_name in stages.items():
+        col1, col2 = st.columns([3, 2])
+        with col1:
+            st.write(stage_name)
+        with col2:
+            current_model = load_key(f"llm_stages.{stage_key}")
+            selected_model = st.selectbox(
+                "模型",
+                options=list(models.keys()),
+                index=list(models.keys()).index(current_model),
+                key=f"stage_{stage_key}",
+                label_visibility="collapsed"
+            )
+            if selected_model != current_model:
+                update_key(f"llm_stages.{stage_key}", selected_model)
+
     with st.expander("转写和字幕设置", expanded=True):
         c1, c2 = st.columns(2)
         with c1:
@@ -131,10 +198,16 @@ def page_setting():
             if selected_refer_mode != load_key("gpt_sovits.refer_mode"):
                 update_key("gpt_sovits.refer_mode", selected_refer_mode)
 
-def check_api():
+def check_api(api_set):
+    """检查API配置是否有效"""
     try:
-        resp = ask_gpt("This is a test, response 'message':'success' in json format.", 
-                      response_json=True, log_title='None')
+        resp = ask_gpt(
+            "This is a test, response 'message':'success' in json format.",
+            response_json=True,
+            log_title='None',
+            check_api=True,
+            api_set=api_set
+        )
         return resp.get('message') == 'success'
     except Exception:
         return False

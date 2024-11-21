@@ -1,11 +1,25 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
 version: "2.0.0"
 ## ======================== Basic Settings ======================== ##
-# API settings
-api:
-  key: 'YOUR_API_KEY'
-  base_url: 'https://api.302.ai'
-  model: 'claude-3-5-sonnet-20240620'
+# LLM 模型配置部分
+llm_models:
+  default_model:  # 默认模型配置
+    key: 'YOUR_API_KEY'
+    base_url: 'https://api.302.ai'
+    model: 'claude-3-5-sonnet-20240620'
+  fast_model:  # 快速模型配置
+    key: 'YOUR_API_KEY'
+    base_url: 'https://api.302.ai'
+    model: 'Yi-Lightning'
+
+# 各阶段使用的模型配置
+llm_stages:
+  align: 'fast_model'  # 字幕对齐
+  split: 'fast_model'  # 字幕分割
+  summarize: 'default_model'  # 字幕总结
+  translate_faithfulness: 'default_model'  # 字幕翻译（精确）
+  translate_expressiveness: 'default_model'  # 字幕翻译（信达雅）
+  reduce: 'fast_model'  # 字幕缩减
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -34,7 +48,7 @@ subtitle:
   target_multiplier: 1.2
 
 # *Number of LLM multi-threaded accesses
-max_workers: 5
+max_workers: 8
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
 
@@ -129,6 +143,7 @@ llm_support_json:
 - 'gemini-1.5-flash-latest'
 - 'gemini-1.5-pro-latest'
 - 'gemini-1.5-pro-002'
+- 'Yi-Lightning'
 
 # have problems
 # - 'Qwen/Qwen2.5-72B-Instruct'
