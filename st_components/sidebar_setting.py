@@ -67,7 +67,6 @@ def page_setting():
     # 阶段配置
     st.subheader("Stage Configurations")
     stages = {
-        "all": "All Stages",
         "align": "Subtitle Alignment",
         "split": "Subtitle Splitting",
         "summarize": "Summarization",

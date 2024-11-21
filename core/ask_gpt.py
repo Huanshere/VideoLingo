@@ -48,7 +48,6 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default', che
     if check_api:   
         api_set = api_set
     else:
-        api_set = load_key(f"llm_models.{load_key('llm_stages')['all']}")
         if log_title == 'sentence_splitbymeaning':
            api_set = load_key(f"llm_models.{load_key('llm_stages')['split']}")
         elif log_title == 'align_subs':

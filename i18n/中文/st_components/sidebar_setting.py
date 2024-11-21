@@ -67,7 +67,6 @@ def page_setting():
     # 阶段配置
     st.subheader("阶段配置")
     stages = {
-        "all": "所有阶段",
         "align": "字幕对齐",
         "split": "字幕分割",
         "summarize": "总结",

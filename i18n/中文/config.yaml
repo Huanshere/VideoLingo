@@ -15,7 +15,6 @@ llm_models:
 
 # 各阶段使用的模型配置
 llm_stages:
-  all: 'default_model'  # 默认全部使用
   align: 'fast_model'  # 字幕对齐
   split: 'fast_model'  # 字幕分割
   summarize: 'default_model'  # 字幕总结
