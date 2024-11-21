@@ -32,9 +32,6 @@ RUN git clone https://github.com/Huanshere/VideoLingo.git .
 # Install PyTorch and torchaudio
 RUN pip install torch==2.0.0 torchaudio==2.0.0 --index-url https://download.pytorch.org/whl/cu118
 
-# Clean up unnecessary files
-RUN rm -rf .git
-
 # Upgrade pip and install basic dependencies
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
     pip install --no-cache-dir --upgrade pip requests rich ruamel.yaml
