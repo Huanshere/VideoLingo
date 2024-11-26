@@ -6,7 +6,7 @@ from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
 from rich import box
-from core.config_utils import load_config
+from core.config_utils import load_key
 
 console = Console()
 
@@ -50,8 +50,8 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
         faith_result[i]["direct"] = faith_result[i]["direct"].replace('\n', ' ')
 
     # If reflect_translate is False or not set, use faithful translation directly
-    config = load_config()
-    if not config.get('reflect_translate', False):
+    reflect_translate = load_key('reflect_translate')
+    if not reflect_translate:
         # If reflect_translate is False or not set, use faithful translation directly
         translate_result = "\n".join([faith_result[i]["direct"].strip() for i in faith_result])
         
