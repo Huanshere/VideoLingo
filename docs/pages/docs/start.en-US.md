@@ -174,6 +174,10 @@ Basic Python knowledge required. For any issues, ask the AI assistant at [videol
 
 8. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation
 
+## 🏭 Batch Mode (beta)
+
+Documentation: [English](/batch/README.md) | [Chinese](/batch/README.zh.md)
+
 ## 🚨 Common Errors
 
 1. **'Key Error' during translation**: 

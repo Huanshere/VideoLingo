@@ -1,5 +1,5 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
-version: "2.0.0"
+version: "2.0.1"
 ## ======================== Basic Settings ======================== ##
 # API settings
 api:
@@ -34,7 +34,7 @@ subtitle:
   target_multiplier: 1.2
 
 # *Number of LLM multi-threaded accesses
-max_workers: 5
+max_workers: 4
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
 

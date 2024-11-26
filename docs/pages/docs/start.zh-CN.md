@@ -186,6 +186,10 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 9. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
 
+## 🏭 批量模式（beta）
+
+使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
+
 ## 🚨 常见报错
 
 1. **翻译过程的 'Key Error'**: 
