@@ -38,6 +38,9 @@ max_workers: 4
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
 
+# *Whether to reflect the translation result in the original text
+reflect_translate: true
+
 # *Whether to pause after extracting professional terms and before translation, allowing users to manually adjust the terminology table output\log\terminology.json
 pause_before_translate: false
 
