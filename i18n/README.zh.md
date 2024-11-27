@@ -70,32 +70,38 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-Windows 用户可以双击运行 `OneKeyInstall&Start.bat` 一键安装（确保 Git 已安装），该脚本会下载 Miniconda 并安装完整环境。对于使用 NVIDIA GPU 的用户，还需要先安装 [CUDA 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) 和 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)，并在安装完成后添加 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 到系统环境变量并重启。
+### Windows
+直接双击运行 `OneKeyInstall&Start.bat` 即可开始安装。该脚本会：
+- 自动下载并安装 Miniconda
+- 安装所有 GPU 或 CPU 所需的依赖
 
-MacOS/Linux 用户请从源码安装，需要 `python=3.10.0` 环境。
+前置要求：系统需已安装 Git。
 
-1. 下载项目代码
+### macOS/Linux 
+
+1. 克隆仓库
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. 安装依赖
+2. 安装依赖（需要 `python=3.10.0`）
 
 ```bash
-conda create -n videolingo python=3.10.0
+conda create -n videolingo python=3.10.0 -y
 conda activate videolingo
 python install.py
 ```
 
-3. 启动
+3. 启动应用
 
 ```bash
 streamlit run st.py
 ```
 
-还可以选择使用 Docker，要求CUDA版本为12.4，NVIDIA Driver版本大于550，详见[Docker文档](/docs/pages/docs/docker.zh-CN.md)：
+### Docker
+还可以选择使用 Docker（要求 CUDA 12.4 和 NVIDIA Driver 版本 >550），详见[Docker文档](/docs/pages/docs/docker.zh-CN.md)：
 
 ```bash
 docker build -t videolingo .
