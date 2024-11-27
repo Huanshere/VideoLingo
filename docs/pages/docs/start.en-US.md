@@ -114,13 +114,6 @@ After configuration, select `Reference Audio Mode` in the sidebar (see Yuque doc
 
 VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 
-For GPU acceleration on Windows, install these dependencies:
-
-- [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-- [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-
-> Note: After installing, add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to system path and restart computer 🔄
-
 ### Windows One-Click Install
 
 Make sure [Git](https://git-scm.com/downloads) is installed,
@@ -131,48 +124,37 @@ Make sure [Git](https://git-scm.com/downloads) is installed,
 
 ### Source Installation
 
-Before installing VideoLingo, ensure:
-1. **25GB** free disk space
-2. [Anaconda](https://www.anaconda.com/download) installed (for Python environment management)
-3. [Git](https://git-scm.com/downloads) installed (for cloning project code, or download manually)
+Before installing VideoLingo, ensure you have **25GB** free disk space and installed Git and Anaconda.
 
-Basic Python knowledge required. For any issues, ask the AI assistant at [videolingo.io](https://videolingo.io) bottom right~
 
-1. Open Anaconda Prompt and navigate to installation directory, e.g. desktop:
-   ```bash
-   cd desktop
-   ```
-
-2. Clone project and enter directory:
+1. Clone the project:
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-3. Create and activate virtual environment (**must be 3.10.0**):
+2. Create and activate virtual environment (**must be python=3.10.0**):
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
    ```
 
-4. Run installation script:
+3. Run installation script:
    ```bash
    python install.py
    ```
    Script will automatically install appropriate torch version
 
-5. 🎉 Enter command to launch Streamlit app:
+4. 🎉 Launch Streamlit app:
    ```bash
    streamlit run st.py
    ```
 
-6. Set key in sidebar of popup webpage and start using~
+5. Set key in sidebar of popup webpage and start using~
 
    ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
 
-7. Transcription step will automatically download models from huggingface, or you can download manually and place `_model_cache` folder in VideoLingo directory: [Baidu Drive](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
-
-8. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation
+6. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation
 
 ## 🏭 Batch Mode (beta)
 

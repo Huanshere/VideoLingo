@@ -68,9 +68,14 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Installation
 
-Windows users can double-click `OneKeyInstall&Start.bat` to install (requires Git). The script will download Miniconda and install the complete environment. For NVIDIA GPU users, you need to first install [CUDA 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) and [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe), then add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to system environment variables and restart.
+### Windows
+Simply double-click `OneKeyInstall&Start.bat` to get started. The script will:
+- Download and install Miniconda automatically
+- Install all required dependencies for both GPU and CPU
 
-MacOS/Linux users should install from source, requiring `python=3.10.0` environment.
+Prerequisites: Git must be installed on your system.
+
+### macOS/Linux 
 
 1. Clone the repository
 
@@ -79,10 +84,10 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. Install dependencies
+2. Install dependencies(requires `python=3.10.0`)
 
 ```bash
-conda create -n videolingo python=3.10.0
+conda create -n videolingo python=3.10.0 -y
 conda activate videolingo
 python install.py
 ```
@@ -93,6 +98,7 @@ python install.py
 streamlit run st.py
 ```
 
+### Docker
 Alternatively, you can use Docker (requires CUDA 12.4 and NVIDIA Driver version >550), see [Docker docs](/docs/pages/docs/docker.en-US.md):
 
 ```bash
