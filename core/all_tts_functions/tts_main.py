@@ -43,7 +43,7 @@ def tts_main(text, save_as, number, task_df):
         try:
             if attempt >= max_retries - 1:
                 print("Asking GPT to correct text...")
-                correct_text = ask_gpt(get_correct_text_prompt(text),log_title='tts_correct_text', mode='clever')
+                correct_text = ask_gpt(get_correct_text_prompt(text),log_title='tts_correct_text')
                 text = correct_text['text']
             if TTS_METHOD == 'openai_tts':
                 openai_tts(text, save_as)
