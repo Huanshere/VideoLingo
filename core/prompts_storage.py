@@ -305,3 +305,24 @@ Please follow these steps and provide the results in the JSON output:
         duration=duration,
         rule=rule
     )
+
+## ================================================================
+# @ tts_main
+def get_correct_text_prompt(text):
+    return f'''
+### Role
+You are a text cleaning expert for TTS (Text-to-Speech) systems.
+
+### Task
+Clean the given text by:
+1. Keep only basic punctuation (.,?!)
+2. Preserve the original meaning
+
+### Input Text
+{text}
+
+### Output Format
+{{
+    "text": "cleaned text here"
+}}
+'''.strip()
