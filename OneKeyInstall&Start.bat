@@ -67,7 +67,14 @@ if not exist "%INSTALL_ENV_DIR%" (
 if not exist "%INSTALL_ENV_DIR%\python.exe" ( echo. && echo Conda environment is empty. && goto end )
 
 :start
-call python pip_setup.py
+@rem Activate environment
+call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
+if exist "pip_setup.py" (
+    python pip_setup.py
+) else (
+    echo Error: pip_setup.py not found
+    goto end
+)
 
 echo.
 echo ✅ Done!
