@@ -40,27 +40,6 @@ def check_env():
         print("Create an environment for this project and activate it. Exiting...")
         sys.exit()
 
-def check_gpu_win():
-    if not sys.platform.startswith('win'):
-        return
-    
-    CUDNN_PATH = "C:\\Program Files\\NVIDIA\\CUDNN\\v9.3\\bin\\12.6"
-
-    def check_gpu():
-        try:
-            subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-            return True
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            return False
-    
-    if check_gpu():
-        if CUDNN_PATH not in os.environ.get('PATH', ''):
-            print("🚨 Warning: CUDNN path not found in system environment!")
-            print(f"⚡ Please add the following path to system PATH:\n{CUDNN_PATH}")
-            sys.exit(1)
-        else:
-            print("✅ CUDNN found in system PATH - All good!")
-
 def install_dependencies():
     run_cmd("python install.py", assert_success=True, environment=True)
 
@@ -70,5 +49,4 @@ def run_model():
 if __name__ == "__main__":
     check_env()
     install_dependencies()
-    check_gpu_win()
     run_model()

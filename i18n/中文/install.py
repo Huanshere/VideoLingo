@@ -105,6 +105,12 @@ def main():
     console.print(Panel.fit("安装完成", style="bold green"))
     console.print("要启动应用程序，请运行：")
     console.print("[bold cyan]streamlit run st.py[/bold cyan]")
+    
+    # 添加故障排除提示
+    console.print("\n[yellow]如果应用程序启动失败:[/yellow]")
+    console.print("1. [yellow]检查网络连接[/yellow]")
+    console.print("2. [yellow]重新运行安装程序: [bold]python install.py[/bold][/yellow] 或 `OneKeyInstall&Start.bat`")
+    console.print("3. [yellow]确保 whisperX 和 demucs 安装正确[/yellow]")
 
 if __name__ == "__main__":
     main()

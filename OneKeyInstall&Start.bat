@@ -11,16 +11,20 @@ set PYTHONHOME=
 set "CUDA_PATH=%INSTALL_ENV_DIR%"
 set "CUDA_HOME=%CUDA_PATH%"
 
-@rem Check if conda environment exists
+@REM Check if conda environment exists
 if exist "%INSTALL_ENV_DIR%\python.exe" (
-    echo Conda environment found, starting directly...
-    echo If startup fails, please delete the 'installer_files' folder and reinstall.
-    @rem Activate environment
-    call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
-    python -m streamlit run st.py
-    goto end
+    echo Found existing conda environment at: %INSTALL_ENV_DIR%
+    choice /c 12 /n /m "1.Start streamlit  2.Reinstall streamlit > "
+    if errorlevel 2 (
+        goto continue_install
+    ) else (
+        call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
+        python -m streamlit run st.py
+        goto end
+    )
 )
 
+:continue_install
 @rem Original installation path continues...
 set PATH=%PATH%;%SystemRoot%\system32
 
@@ -59,7 +63,7 @@ if "%conda_exists%" == "F" (
 
 @rem create the installer env
 if not exist "%INSTALL_ENV_DIR%" (
-  echo Packages to install: python=3.10.0 requests rich ruamel.yaml
+  echo Packages to install: python=3.10.0
   call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.10.0 requests rich ruamel.yaml || ( echo. && echo Conda environment creation failed. && goto end )
 )
 

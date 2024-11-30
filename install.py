@@ -105,6 +105,12 @@ def main():
     console.print(Panel.fit("Installation completed", style="bold green"))
     console.print("To start the application, run:")
     console.print("[bold cyan]streamlit run st.py[/bold cyan]")
+    
+    # Add troubleshooting tips
+    console.print("\n[yellow]If the application fails to start:[/yellow]")
+    console.print("1. [yellow]Check your network connection[/yellow]")
+    console.print("2. [yellow]Re-run the installer: [bold]python install.py[/bold][/yellow] or `OneKeyInstall&Start.bat`")
+    console.print("3. [yellow]Ensure whisperX and demucs are installed correctly[/yellow]")
 
 if __name__ == "__main__":
     main()
