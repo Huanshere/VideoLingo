@@ -321,7 +321,7 @@ Clean the given text by:
 ### Input Text
 {text}
 
-### Output Format
+### Output in JSON FORMAT
 {{
     "text": "cleaned text here"
 }}
