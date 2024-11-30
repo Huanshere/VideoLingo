@@ -23,6 +23,17 @@ def check_gpu():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
+def install_whisperx():
+    from rich.console import Console
+    from rich.panel import Panel
+    console = Console()
+    try:
+        whisperx_path = os.path.join("third_party", "whisperX")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", whisperx_path])
+        console.print(Panel("✅ WhisperX installed successfully!", style="green"))
+    except Exception as e:
+        console.print(Panel(f"❌ WhisperX installation failed: {str(e)}", style="red"))
+
 def main():
     install_package("requests", "rich", "ruamel.yaml")
     from rich.console import Console
@@ -99,7 +110,9 @@ def main():
 
     if platform.system() == 'Linux':
         install_noto_font()
+    
     install_requirements()
+    install_whisperx()
     install_ffmpeg()
     
     console.print(Panel.fit("Installation completed", style="bold green"))
