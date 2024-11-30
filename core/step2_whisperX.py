@@ -93,12 +93,12 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
             temp_audio_path = temp_audio.name
         
         # Extract audio segment using ffmpeg
-        ffmpeg_cmd = f'ffmpeg -y -i "{audio_file}" -ss {start} -t {end-start} -vn -ar 16000 -ac 1 "{temp_audio_path}"'
+        ffmpeg_cmd = f'ffmpeg -y -i "{audio_file}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_audio_path}"'
         subprocess.run(ffmpeg_cmd, shell=True, check=True, capture_output=True)
         
         try:
             # Load audio segment with librosa
-            audio_segment, sample_rate = librosa.load(temp_audio_path, sr=16000)
+            audio_segment, sample_rate = librosa.load(temp_audio_path, sr=32000)
         finally:
             # Clean up temp file
             if os.path.exists(temp_audio_path):
