@@ -51,13 +51,13 @@ def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float) -
             expected_duration = input_duration / speed_factor
             diff = output_duration - expected_duration
             # If the output duration exceeds the expected duration, but the input audio is less than 3 seconds, and the error is within 0.1 seconds, truncate to the expected length
-            if output_duration >= expected_duration * 1.01 and input_duration < 3 and diff <= 0.1:
+            if output_duration >= expected_duration * 1.02 and input_duration < 3 and diff <= 0.1:
                 audio = AudioSegment.from_wav(output_file)
                 trimmed_audio = audio[:(expected_duration * 1000)]  # pydub uses milliseconds
                 trimmed_audio.export(output_file, format="wav")
                 print(f"✂️ Trimmed to expected duration: {expected_duration:.2f} seconds")
                 return
-            elif output_duration >= expected_duration * 1.01:
+            elif output_duration >= expected_duration * 1.02:
                 raise Exception(f"Audio duration abnormal: input file={input_file}, output file={output_file}, speed factor={speed_factor}, input duration={input_duration:.2f}s, output duration={output_duration:.2f}s")
             return
         except subprocess.CalledProcessError as e:
