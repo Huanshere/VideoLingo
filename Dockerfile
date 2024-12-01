@@ -37,7 +37,9 @@ RUN rm -rf .git
 
 # Upgrade pip and install basic dependencies
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install --no-cache-dir --upgrade pip requests rich ruamel.yaml
+    pip install --no-cache-dir --upgrade pip requests rich ruamel.yaml && \
+    pip install --no-cache-dir "demucs[dev] @ git+https://github.com/adefossez/demucs" && \
+    pip install --no-cache-dir "whisperx @ git+https://github.com/m-bain/whisperx.git"
 
 # Install dependencies
 COPY requirements.txt .
