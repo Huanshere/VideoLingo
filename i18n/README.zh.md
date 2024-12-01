@@ -70,14 +70,15 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-### Windows
-直接双击运行 `OneKeyInstall&Start.bat` 即可开始安装。该脚本会：
-- 自动下载并安装 Miniconda
-- 安装所有 GPU 或 CPU 所需的依赖
+> **注意:** 在 Windows 上使用 NVIDIA GPU 加速需要先完成以下步骤:
+> 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
+> 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
+> 3. 将 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` 添加到系统环境变量 PATH 中
+> 4. 重启电脑
 
-前置要求：系统需已安装 Git。
-
-### macOS/Linux 
+> **注意:** Windows 和 macOS 用户建议通过包管理器（Chocolatey/Homebrew）安装 FFmpeg：
+> ```choco install ffmpeg```（Windows）或 ```brew install ffmpeg```（macOS）。
+> 如果未安装，程序会在本地下载 FFmpeg。
 
 1. 克隆仓库
 
@@ -86,7 +87,7 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. 安装依赖（需要 `python=3.10.0`）
+2. 安装依赖（需要 `python=3.10`）
 
 ```bash
 conda create -n videolingo python=3.10.0 -y

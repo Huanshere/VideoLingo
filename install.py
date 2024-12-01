@@ -23,6 +23,110 @@ def check_gpu():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
+def install_thirdparty():
+    from rich.console import Console
+    from rich.panel import Panel
+    console = Console()
+    
+    # Get the current directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Install whisperX
+    whisperx_path = os.path.join(current_dir, "thirdparty", "whisperX")
+    if os.path.exists(whisperx_path):
+        console.print(Panel("📦 Installing whisperX...", style="cyan"))
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", whisperx_path])
+            console.print(Panel("✅ whisperX installation completed", style="green"))
+        except subprocess.CalledProcessError:
+            console.print(Panel("❌ Failed to install whisperX", style="red"))
+    
+    # Install demucs
+    demucs_path = os.path.join(current_dir, "thirdparty", "demucs")
+    if os.path.exists(demucs_path):
+        console.print(Panel("📦 Installing demucs...", style="cyan"))
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", demucs_path])
+            console.print(Panel("✅ demucs installation completed", style="green"))
+        except subprocess.CalledProcessError:
+            console.print(Panel("❌ Failed to install demucs", style="red"))
+
+def install_ffmpeg():
+    from rich.console import Console
+    from rich.panel import Panel
+    console = Console()
+    
+    system = platform.system()
+    
+    if system == "Linux":
+        console.print(Panel("📦 Installing FFmpeg...", style="cyan"))
+        try:
+            subprocess.check_call(["sudo", "apt", "install", "-y", "ffmpeg"])
+        except subprocess.CalledProcessError:
+            try:
+                subprocess.check_call(["sudo", "yum", "install", "-y", "ffmpeg"], shell=True)
+            except subprocess.CalledProcessError:
+                console.print(Panel("❌ Failed to install FFmpeg via package manager", style="red"))
+    else:
+        console.print(Panel("📦 Installing FFmpeg...", style="cyan"))
+        download_and_extract_ffmpeg()
+
+def download_and_extract_ffmpeg():
+    import requests
+    import zipfile
+    import shutil
+    from rich.console import Console
+    from rich.panel import Panel
+    console = Console()
+    
+    system = platform.system()
+    if system == "Windows":
+        ffmpeg_exe = "ffmpeg.exe"
+        url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+    elif system == "Darwin":
+        ffmpeg_exe = "ffmpeg"
+        url = "https://evermeet.cx/ffmpeg/getrelease/zip"
+    else:
+        console.print(Panel("❌ Unsupported system for manual FFmpeg installation", style="red"))
+        return
+
+    if os.path.exists(ffmpeg_exe):
+        console.print(f"✅ {ffmpeg_exe} already exists")
+        return
+
+    # Download and extract logic
+    console.print(Panel("📦 Downloading FFmpeg...", style="cyan"))
+    response = requests.get(url)
+    if response.status_code == 200:
+        filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+        
+        console.print(Panel("📦 Extracting FFmpeg...", style="cyan"))
+        if system == "Linux":
+            import tarfile
+            with tarfile.open(filename) as tar_ref:
+                for member in tar_ref.getmembers():
+                    if member.name.endswith("ffmpeg"):
+                        member.name = os.path.basename(member.name)
+                        tar_ref.extract(member)
+        else:
+            with zipfile.ZipFile(filename, 'r') as zip_ref:
+                for file in zip_ref.namelist():
+                    if file.endswith(ffmpeg_exe):
+                        zip_ref.extract(file)
+                        shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
+        
+        # Clean up temporary files
+        os.remove(filename)
+        if system == "Windows":
+            for item in os.listdir():
+                if os.path.isdir(item) and "ffmpeg" in item.lower():
+                    shutil.rmtree(item)
+        console.print(Panel("✅ FFmpeg installation completed", style="green"))
+    else:
+        console.print(Panel("❌ FFmpeg download failed", style="red"))
+
 def main():
     install_package("requests", "rich", "ruamel.yaml")
     from rich.console import Console
@@ -50,7 +154,7 @@ def main():
     has_gpu = platform.system() != 'Darwin' and check_gpu()
     if has_gpu:
         console.print(Panel("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch...", style="cyan"))
-        subprocess.check_call(["conda", "install", "-y", "pytorch==2.0.0", "torchaudio==2.0.0", "pytorch-cuda=11.8", "-c", "pytorch", "-c", "nvidia"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
     else:
         system_name = "🍎 MacOS" if platform.system() == 'Darwin' else "💻 No NVIDIA GPU"
         console.print(Panel(f"{system_name} detected, installing CPU version of PyTorch... However, it would be extremely slow for transcription.", style="cyan"))
@@ -68,14 +172,6 @@ def main():
             ], env={**os.environ, "PIP_NO_CACHE_DIR": "0", "PYTHONIOENCODING": "utf-8"})
         except subprocess.CalledProcessError as e:
             console.print(Panel(f"❌ Failed to install requirements: {str(e)}", style="red"))
-
-    def install_ffmpeg():
-        console.print(Panel("📦 Installing ffmpeg through conda...", style="cyan"))
-        try:
-            subprocess.check_call(["conda", "install", "-y", "ffmpeg"], shell=True)
-            console.print(Panel("✅ FFmpeg installation completed", style="green"))
-        except subprocess.CalledProcessError:
-            console.print(Panel("❌ Failed to install FFmpeg through conda", style="red"))
 
     def install_noto_font():
         # Detect Linux distribution type
@@ -99,18 +195,23 @@ def main():
 
     if platform.system() == 'Linux':
         install_noto_font()
+    
+    install_thirdparty()
     install_requirements()
     install_ffmpeg()
     
     console.print(Panel.fit("Installation completed", style="bold green"))
     console.print("To start the application, run:")
     console.print("[bold cyan]streamlit run st.py[/bold cyan]")
+    console.print("[yellow]Note: First startup may take up to 1 minute[/yellow]")
     
     # Add troubleshooting tips
     console.print("\n[yellow]If the application fails to start:[/yellow]")
     console.print("1. [yellow]Check your network connection[/yellow]")
-    console.print("2. [yellow]Re-run the installer: [bold]python install.py[/bold][/yellow] or `OneKeyInstall&Start.bat`")
-    console.print("3. [yellow]Ensure whisperX and demucs are installed correctly[/yellow]")
+    console.print("2. [yellow]Re-run the installer: [bold]python install.py[/bold][/yellow]")
+
+    # start the application
+    subprocess.Popen(["streamlit", "run", "st.py"])
 
 if __name__ == "__main__":
     main()

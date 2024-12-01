@@ -3,7 +3,6 @@ librosa==0.10.2.post1
 pytorch-lightning==2.3.3
 lightning==2.3.3
 transformers==4.39.3
-# moviepy only in fishtts
 moviepy==1.0.3
 numpy==1.26.4
 openai==1.55.3
@@ -15,6 +14,7 @@ PyYAML==6.0.2
 replicate==0.33.0
 requests==2.32.3
 resampy==0.4.3
+typer==0.9.4
 spacy==3.7.4
 streamlit==1.38.0
 yt-dlp
@@ -22,8 +22,8 @@ json-repair
 ruamel.yaml
 autocorrect-py
 
-demucs[dev] @ git+https://github.com/adefossez/demucs
-whisperx @ git+https://github.com/m-bain/whisperx.git
+# demucs[dev] @ git+https://github.com/adefossez/demucs
+# whisperx @ git+https://github.com/m-bain/whisperx.git
 
 syllables
 pypinyin
