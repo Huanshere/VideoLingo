@@ -51,6 +51,82 @@ def install_thirdparty():
         except subprocess.CalledProcessError:
             console.print(Panel("❌ Failed to install demucs", style="red"))
 
+def install_ffmpeg():
+    from rich.console import Console
+    from rich.panel import Panel
+    console = Console()
+    
+    system = platform.system()
+    
+    if system == "Linux":
+        console.print(Panel("📦 Installing FFmpeg...", style="cyan"))
+        try:
+            subprocess.check_call(["sudo", "apt", "install", "-y", "ffmpeg"])
+        except subprocess.CalledProcessError:
+            try:
+                subprocess.check_call(["sudo", "yum", "install", "-y", "ffmpeg"], shell=True)
+            except subprocess.CalledProcessError:
+                console.print(Panel("❌ Failed to install FFmpeg via package manager", style="red"))
+    else:
+        console.print(Panel("📦 Installing FFmpeg...", style="cyan"))
+        download_and_extract_ffmpeg()
+
+def download_and_extract_ffmpeg():
+    import requests
+    import zipfile
+    import shutil
+    from rich.console import Console
+    from rich.panel import Panel
+    console = Console()
+    
+    system = platform.system()
+    if system == "Windows":
+        ffmpeg_exe = "ffmpeg.exe"
+        url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+    elif system == "Darwin":
+        ffmpeg_exe = "ffmpeg"
+        url = "https://evermeet.cx/ffmpeg/getrelease/zip"
+    else:
+        console.print(Panel("❌ Unsupported system for manual FFmpeg installation", style="red"))
+        return
+
+    if os.path.exists(ffmpeg_exe):
+        console.print(f"✅ {ffmpeg_exe} already exists")
+        return
+
+    # Download and extract logic
+    console.print(Panel("📦 Downloading FFmpeg...", style="cyan"))
+    response = requests.get(url)
+    if response.status_code == 200:
+        filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+        
+        console.print(Panel("📦 Extracting FFmpeg...", style="cyan"))
+        if system == "Linux":
+            import tarfile
+            with tarfile.open(filename) as tar_ref:
+                for member in tar_ref.getmembers():
+                    if member.name.endswith("ffmpeg"):
+                        member.name = os.path.basename(member.name)
+                        tar_ref.extract(member)
+        else:
+            with zipfile.ZipFile(filename, 'r') as zip_ref:
+                for file in zip_ref.namelist():
+                    if file.endswith(ffmpeg_exe):
+                        zip_ref.extract(file)
+                        shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
+        
+        # Clean up temporary files
+        os.remove(filename)
+        if system == "Windows":
+            for item in os.listdir():
+                if os.path.isdir(item) and "ffmpeg" in item.lower():
+                    shutil.rmtree(item)
+        console.print(Panel("✅ FFmpeg installation completed", style="green"))
+    else:
+        console.print(Panel("❌ FFmpeg download failed", style="red"))
+
 def main():
     install_package("requests", "rich", "ruamel.yaml")
     from rich.console import Console
@@ -96,14 +172,6 @@ def main():
             ], env={**os.environ, "PIP_NO_CACHE_DIR": "0", "PYTHONIOENCODING": "utf-8"})
         except subprocess.CalledProcessError as e:
             console.print(Panel(f"❌ Failed to install requirements: {str(e)}", style="red"))
-
-    def install_ffmpeg():
-        console.print(Panel("📦 Installing ffmpeg through conda...", style="cyan"))
-        try:
-            subprocess.check_call(["conda", "install", "-y", "ffmpeg"], shell=True)
-            console.print(Panel("✅ FFmpeg installation completed", style="green"))
-        except subprocess.CalledProcessError:
-            console.print(Panel("❌ Failed to install FFmpeg through conda", style="red"))
 
     def install_noto_font():
         # Detect Linux distribution type

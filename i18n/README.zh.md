@@ -76,6 +76,10 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > 3. 将 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` 添加到系统环境变量 PATH 中
 > 4. 重启电脑
 
+> **注意:** Windows 和 macOS 用户建议通过包管理器（Chocolatey/Homebrew）安装 FFmpeg：
+> ```choco install ffmpeg```（Windows）或 ```brew install ffmpeg```（macOS）。
+> 如果未安装，程序会在本地下载 FFmpeg。
+
 1. 克隆仓库
 
 ```bash

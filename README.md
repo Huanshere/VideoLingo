@@ -74,6 +74,10 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > 3. Add `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` to your system PATH
 > 4. Restart your computer
 
+> **Note:** For Windows and macOS users, it's recommended to install FFmpeg via package managers (Chocolatey/Homebrew):
+> ```choco install ffmpeg``` (Windows) or ```brew install ffmpeg``` (macOS). 
+> If not installed, the program will download FFmpeg locally.
+
 1. Clone the repository
 
 ```bash
