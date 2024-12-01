@@ -7,6 +7,18 @@ api:
   base_url: 'https://api.302.ai'
   model: 'claude-3-5-sonnet-20240620'
 
+# *Model selection, the model name is the same as the model file name in the model directory
+
+# claude-3-5-sonnet-20240620, gemini-1.5-pro-002, gpt-4o, qwen2.5-72b-instruct, deepseek-coder
+
+model_options:
+  gpt-4o: 'GPT-4o'
+  gemini-1.5-pro-002: 'Gemini 1.5 Pro'
+  claude-3-5-sonnet-20240620: 'Claude 3.5 Sonnet'
+  qwen2.5-72b-instruct: 'Qwen 2.5 72b Instruct'
+  deepseek-coder: 'Deepseek Coder'
+
+
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
 

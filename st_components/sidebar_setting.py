@@ -11,6 +11,25 @@ def config_input(label, key, help=None):
         update_key(key, val)
     return val
 
+def config_select(label, key, options, help=None):
+    """Generic config select handler"""
+    # Load the value from the configuration
+    current_value = load_key(key)
+    
+    # If the current value is invalid (empty or not in options), use the first option as a default
+    if current_value not in options:
+        current_value = options[0]
+    
+    # Get the index for the current value
+    val = st.selectbox(label, options, index=options.index(current_value), help=help)
+    
+    # Update the key if the value has changed
+    if val != current_value:
+        update_key(key, val)
+    
+    return val
+
+
 def page_setting():
     with st.expander("LLM Configuration", expanded=True):
         config_input("API_KEY", "api.key")
@@ -18,7 +37,14 @@ def page_setting():
         
         c1, c2 = st.columns([4, 1])
         with c1:
-            config_input("MODEL", "api.model")
+            # config_input("MODEL", "api.model")
+            # Corrected key to load model options
+            model_options = load_key("model_options")  # Corrected key path here
+            if isinstance(model_options, dict):
+                model_choices = list(model_options.keys())  # Get model IDs (keys)
+                config_select("MODEL", "api.model", options=model_choices, help="Model to use for LLM")
+            else:
+                st.error("Model options not loaded correctly.")
         with c2:
             if st.button("📡", key="api"):
                 st.toast("API Key is valid" if check_api() else "API Key is invalid", 
