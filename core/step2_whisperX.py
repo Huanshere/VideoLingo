@@ -98,7 +98,7 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         
         try:
             # Load audio segment with librosa
-            audio_segment, sample_rate = librosa.load(temp_audio_path, sr=32000)
+            audio_segment, sample_rate = librosa.load(temp_audio_path, sr=16000)
         finally:
             # Clean up temp file
             if os.path.exists(temp_audio_path):
