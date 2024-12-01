@@ -140,8 +140,10 @@ def main():
     # Add troubleshooting tips
     console.print("\n[yellow]If the application fails to start:[/yellow]")
     console.print("1. [yellow]Check your network connection[/yellow]")
-    console.print("2. [yellow]Re-run the installer: [bold]python install.py[/bold][/yellow] or `OneKeyInstall&Start.bat`")
-    console.print("3. [yellow]Ensure whisperX and demucs are installed correctly[/yellow]")
+    console.print("2. [yellow]Re-run the installer: [bold]python install.py[/bold][/yellow]")
+
+    # start the application
+    subprocess.Popen(["streamlit", "run", "st.py"])
 
 if __name__ == "__main__":
     main()

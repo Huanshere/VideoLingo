@@ -70,33 +70,11 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-> **警告:** 安装路径不能包含中文字符或空格
-
 > **注意:** 在 Windows 上使用 NVIDIA GPU 加速需要先完成以下步骤:
 > 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
 > 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 > 3. 将 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` 添加到系统环境变量 PATH 中
 > 4. 重启电脑
-
-### Windows/macOS 一键安装
-
-Windows 用户直接双击运行 `Windows_OneKey.bat` 即可开始。
-
-macOS 用户:
-1. 打开终端并进入 VideoLingo 目录
-2. 运行以下命令授予执行权限:
-
-```bash
-chmod +x MacOS_OneKey.command
-```
-3. 然后双击 `MacOS_OneKey.command` 开始
-
-该脚本会：
-- 自动下载并安装 Miniconda
-- 安装 GPU 或 CPU 所需的依赖
-- 启动 Streamlit 应用
-
-### Windows/macOS/Linux 从源码安装
 
 1. 克隆仓库
 

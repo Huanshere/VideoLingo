@@ -14,6 +14,7 @@ PyYAML==6.0.2
 replicate==0.33.0
 requests==2.32.3
 resampy==0.4.3
+typer==0.9.4
 spacy==3.7.4
 streamlit==1.38.0
 yt-dlp
