@@ -118,7 +118,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 > **注意:** 在 Windows 上使用 NVIDIA GPU 加速，请先完成以下步骤:
 > 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
 > 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. 将 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` 添加到系统 PATH
+> 3. 将 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加到系统 PATH
 > 4. 重启电脑
 
 开始安装 VideoLingo 之前，请确保安装了 Git 和 Anaconda。
