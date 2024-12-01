@@ -121,24 +121,25 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 > 3. 将 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` 添加到系统 PATH
 > 4. 重启电脑
 
-### Windows 一键安装
-
-双击 `OneKeyInstall&Start.bat` 即可开始。脚本将:
+### Windows/macOS 一键安装
 
 1. 下载源码到本地
 
-2. （可选）应用汉化补丁：
-   - 打开项目根目录下的 `i18n/中文` 文件夹
-   - 将该文件夹中的所有内容复制到项目根目录
-   - 在弹出的提示中选择"替换目标中的文件"
+2. Windows 用户：
+   - 直接双击运行 `Windows_OneKey.bat` 即可开始
 
-3. 双击 `OneKeyInstall&Start.bat` 即可完成安装并启动网页，脚本将：
+   macOS 用户：
+   - 打开终端并进入 VideoLingo 目录
+   - 运行 `chmod +x MacOS_OneKey.command` 授予执行权限
+   - 双击 `MacOS_OneKey.command` 开始
+
+该脚本会：
 - 自动下载并安装 Miniconda
 - 安装所有 GPU 或 CPU 所需依赖
-- 立即启动 Streamlit!
+- 立即启动 Streamlit！
 
 
-### macOS/Linux 源码安装
+### 源码安装
 
 开始安装 VideoLingo 之前，请确保预留 **25G** 硬盘空间，并安装了 Git 和 Anaconda。
 
