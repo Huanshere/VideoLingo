@@ -39,10 +39,9 @@ RUN rm -rf .git
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
     pip install --no-cache-dir --upgrade pip requests rich ruamel.yaml
 
-# Install WhisperX and other dependencies
+# Install dependencies
 COPY requirements.txt .
-RUN cd third_party/whisperX && pip install -e . && cd ../.. && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Set CUDA-related environment variables
 ENV CUDA_HOME=/usr/local/cuda

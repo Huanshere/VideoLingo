@@ -22,8 +22,8 @@ json-repair
 ruamel.yaml
 autocorrect-py
 
-demucs>=4.0.0
-# whisperx @ git+https://github.com/m-bain/whisperx.git
+demucs[dev] @ git+https://github.com/adefossez/demucs
+whisperx @ git+https://github.com/m-bain/whisperx.git
 
 syllables
 pypinyin
