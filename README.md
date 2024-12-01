@@ -62,11 +62,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 English 🤩 | 🇷🇺 Russian 😊 | 🇫🇷 French 🤩 | 🇩🇪 German 🤩 | 🇮🇹 Italian 🤩 | 🇪🇸 Spanish 🤩 | 🇯🇵 Japanese 😐 | 🇨🇳 Chinese* 😊
 
-> *Chinese uses a separate punctuation-enhanced whisper model
+> *Chinese uses a separate punctuation-enhanced whisper model, for now...
 
 **Translation supports all languages, while dubbing language depends on the chosen TTS method.**
 
 ## Installation
+
+> **Warning:** The installation path must not contain Chinese characters or spaces.
 
 > **Note:** To use NVIDIA GPU acceleration on Windows, please complete the following steps first:
 > 1. Install [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
