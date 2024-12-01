@@ -114,13 +114,20 @@ After configuration, select `Reference Audio Mode` in the sidebar (see Yuque doc
 
 VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 
-### Windows One-Click Install
+> **Note:** To use NVIDIA GPU acceleration on Windows, please complete the following steps first:
+> 1. Install [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
+> 2. Install [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
+> 3. Add `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` to your system PATH
+> 4. Restart your computer
 
-Make sure [Git](https://git-scm.com/downloads) is installed,
+### Windows One-Key Install
 
 1. Download source code locally
 
 2. Double click `OneKeyInstall&Start.bat` to complete installation and launch webpage
+- Download and install Miniconda automatically
+- Install all required dependencies for GPU or CPU
+- Start Streamlit right away!
 
 ### Source Installation
 
@@ -143,7 +150,6 @@ Before installing VideoLingo, ensure you have **25GB** free disk space and insta
    ```bash
    python install.py
    ```
-   Script will automatically install appropriate torch version
 
 4. 🎉 Launch Streamlit app:
    ```bash

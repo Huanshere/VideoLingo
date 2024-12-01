@@ -115,9 +115,15 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运行。
 
+> **注意:** 在 Windows 上使用 NVIDIA GPU 加速，请先完成以下步骤:
+> 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
+> 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
+> 3. 将 `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin` 添加到系统 PATH
+> 4. 重启电脑
+
 ### Windows 一键安装
 
-请确保已安装 [Git](https://git-scm.com/downloads)，
+双击 `OneKeyInstall&Start.bat` 即可开始。脚本将:
 
 1. 下载源码到本地
 
@@ -126,7 +132,11 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
    - 将该文件夹中的所有内容复制到项目根目录
    - 在弹出的提示中选择"替换目标中的文件"
 
-3. 双击 `OneKeyInstall&Start.bat` 即可完成安装并启动网页
+3. 双击 `OneKeyInstall&Start.bat` 即可完成安装并启动网页，脚本将：
+- 自动下载并安装 Miniconda
+- 安装所有 GPU 或 CPU 所需依赖
+- 立即启动 Streamlit!
+
 
 ### macOS/Linux 源码安装
 
@@ -154,7 +164,6 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
    ```bash
    python install.py
    ```
-   脚本将自动安装相应的 torch 版本
 
 5. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash

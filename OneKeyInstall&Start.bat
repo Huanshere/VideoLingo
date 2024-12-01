@@ -2,30 +2,6 @@
 
 cd /D "%~dp0"
 
-set INSTALL_ENV_DIR=%cd%\installer_files\env
-set CONDA_ROOT_PREFIX=%cd%\installer_files\conda
-
-set PYTHONNOUSERSITE=1
-set PYTHONPATH=
-set PYTHONHOME=
-set "CUDA_PATH=%INSTALL_ENV_DIR%"
-set "CUDA_HOME=%CUDA_PATH%"
-
-@REM Check if conda environment exists
-if exist "%INSTALL_ENV_DIR%\python.exe" (
-    echo Found existing conda environment at: %INSTALL_ENV_DIR%
-    choice /c 12 /n /m "1.Start streamlit  2.Reinstall streamlit > "
-    if errorlevel 2 (
-        goto continue_install
-    ) else (
-        call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
-        python -m streamlit run st.py
-        goto end
-    )
-)
-
-:continue_install
-@rem Original installation path continues...
 set PATH=%PATH%;%SystemRoot%\system32
 
 echo "%CD%"| findstr /C:" " >nul && echo This script relies on Miniconda which can not be silently installed under a path with spaces. && goto end
@@ -63,25 +39,28 @@ if "%conda_exists%" == "F" (
 
 @rem create the installer env
 if not exist "%INSTALL_ENV_DIR%" (
-  echo Packages to install: python=3.10.0
-  call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.10.0 || ( echo. && echo Conda environment creation failed. && goto end )
+  echo Packages to install: %PACKAGES_TO_INSTALL%
+  call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.10 requests || ( echo. && echo Conda environment creation failed. && goto end )
 )
 
 @rem check if conda environment was actually created
 if not exist "%INSTALL_ENV_DIR%\python.exe" ( echo. && echo Conda environment is empty. && goto end )
 
-:start
-@rem Activate environment
+@rem environment isolation
+set PYTHONNOUSERSITE=1
+set PYTHONPATH=
+set PYTHONHOME=
+set "CUDA_PATH=%INSTALL_ENV_DIR%"
+set "CUDA_HOME=%CUDA_PATH%"
+
+@rem activate installer env
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
-if exist "pip_setup.py" (
-    python pip_setup.py
-) else (
-    echo Error: pip_setup.py not found
-    goto end
-)
+
+@rem setup installer env
+call python pip_setup.py
 
 echo.
-echo ✅ Done!
+echo Done!
 
 :end
 pause

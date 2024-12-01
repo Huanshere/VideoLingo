@@ -41,7 +41,8 @@ RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && 
 
 # Install WhisperX and other dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN cd third_party/whisperX && pip install -e . && cd ../.. && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Set CUDA-related environment variables
 ENV CUDA_HOME=/usr/local/cuda
