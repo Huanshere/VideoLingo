@@ -23,6 +23,34 @@ def check_gpu():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
+def install_thirdparty():
+    from rich.console import Console
+    from rich.panel import Panel
+    console = Console()
+    
+    # Get the current directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Install whisperX
+    whisperx_path = os.path.join(current_dir, "thirdparty", "whisperX")
+    if os.path.exists(whisperx_path):
+        console.print(Panel("📦 Installing whisperX...", style="cyan"))
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", whisperx_path])
+            console.print(Panel("✅ whisperX installation completed", style="green"))
+        except subprocess.CalledProcessError:
+            console.print(Panel("❌ Failed to install whisperX", style="red"))
+    
+    # Install demucs
+    demucs_path = os.path.join(current_dir, "thirdparty", "demucs")
+    if os.path.exists(demucs_path):
+        console.print(Panel("📦 Installing demucs...", style="cyan"))
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", demucs_path])
+            console.print(Panel("✅ demucs installation completed", style="green"))
+        except subprocess.CalledProcessError:
+            console.print(Panel("❌ Failed to install demucs", style="red"))
+
 def main():
     install_package("requests", "rich", "ruamel.yaml")
     from rich.console import Console
@@ -101,6 +129,7 @@ def main():
         install_noto_font()
     
     install_requirements()
+    install_thirdparty()
     install_ffmpeg()
     
     console.print(Panel.fit("Installation completed", style="bold green"))
