@@ -28,6 +28,8 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 <split_this_sentence>
 {sentence}
 </split_this_sentence>
+
+### Your Answer, Provide ONLY a valid JSON object:
 """.strip()
     return split_prompt
 
@@ -247,6 +249,8 @@ Pre-processed {src_language} Subtitles ([br] indicates split points): {src_part}
         {align_parts_json}
     ]
 }}
+
+### Your Answer, Provide ONLY a valid JSON object:
 '''
 
     align_parts_json = ','.join(
@@ -299,7 +303,9 @@ Please follow these steps and provide the results in the JSON output:
     "analysis": "Brief analysis of the subtitle, including structure, key information, and potential processing locations",
     "result": "Optimized and shortened subtitle in the original subtitle language"
 }}
-'''
+
+### Your Answer, Provide ONLY a valid JSON object:
+'''.strip()
     return trim_prompt.format(
         text=text,
         duration=duration,
@@ -325,4 +331,6 @@ Clean the given text by:
 {{
     "text": "cleaned text here"
 }}
+
+### Your Answer, Provide ONLY a valid JSON object:
 '''.strip()
