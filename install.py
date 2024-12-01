@@ -128,13 +128,14 @@ def main():
     if platform.system() == 'Linux':
         install_noto_font()
     
-    install_requirements()
     install_thirdparty()
+    install_requirements()
     install_ffmpeg()
     
     console.print(Panel.fit("Installation completed", style="bold green"))
     console.print("To start the application, run:")
     console.print("[bold cyan]streamlit run st.py[/bold cyan]")
+    console.print("[yellow]Note: First startup may take up to 1 minute[/yellow]")
     
     # Add troubleshooting tips
     console.print("\n[yellow]If the application fails to start:[/yellow]")
