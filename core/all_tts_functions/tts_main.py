@@ -11,12 +11,23 @@ from core.all_tts_functions.siliconflow_fish_tts import siliconflow_fish_tts_for
 from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
+from core.ask_gpt import ask_gpt
+from core.prompts_storage import get_correct_text_prompt
 from core.all_tts_functions.cosyvoice_tts import cosyvoice_tts
 from core.all_tts_functions.cosyvoice_cloud import cosyvoice_cloud
 from core.all_tts_functions.sambert_cloud import sambert_cloud
 
+def clean_text_for_tts(text):
+    """Remove problematic characters for TTS"""
+    chars_to_remove = ['&', '®', '™', '©']
+    for char in chars_to_remove:
+        text = text.replace(char, '')
+    return text.strip()
+
+
 def tts_main(text, save_as, number, task_df):
-        # 检查文本是否为空或单字符，单字符配音容易触发bug
+    text = clean_text_for_tts(text)
+    # 检查文本是否为空或单字符，单字符配音容易触发bug
     cleaned_text = re.sub(r'[^\w\s]', '', text).strip()
     if not cleaned_text or len(cleaned_text) <= 1:
         silence = AudioSegment.silent(duration=100)  # 100ms = 0.1s
@@ -34,6 +45,10 @@ def tts_main(text, save_as, number, task_df):
     max_retries = 3
     for attempt in range(max_retries):
         try:
+            if attempt >= max_retries - 1:
+                print("Asking GPT to correct text...")
+                correct_text = ask_gpt(get_correct_text_prompt(text),log_title='tts_correct_text')
+                text = correct_text['text']
             if TTS_METHOD == 'openai_tts':
                 openai_tts(text, save_as)
             elif TTS_METHOD == 'gpt_sovits':

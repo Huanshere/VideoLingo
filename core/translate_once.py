@@ -6,6 +6,7 @@ from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
 from rich import box
+from core.config_utils import load_key
 
 console = Console()
 
@@ -47,6 +48,23 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
 
     for i in faith_result:
         faith_result[i]["direct"] = faith_result[i]["direct"].replace('\n', ' ')
+
+    # If reflect_translate is False or not set, use faithful translation directly
+    reflect_translate = load_key('reflect_translate')
+    if not reflect_translate:
+        # If reflect_translate is False or not set, use faithful translation directly
+        translate_result = "\n".join([faith_result[i]["direct"].strip() for i in faith_result])
+        
+        table = Table(title="Translation Results", show_header=False, box=box.ROUNDED)
+        table.add_column("Translations", style="bold")
+        for i, key in enumerate(faith_result):
+            table.add_row(f"[cyan]Origin:  {faith_result[key]['origin']}[/cyan]")
+            table.add_row(f"[magenta]Direct:  {faith_result[key]['direct']}[/magenta]")
+            if i < len(faith_result) - 1:
+                table.add_row("[yellow]" + "-" * 50 + "[/yellow]")
+        
+        console.print(table)
+        return translate_result, lines
 
     ## Step 2: Express Smoothly  
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)

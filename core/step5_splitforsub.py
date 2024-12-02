@@ -44,6 +44,8 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     def valid_align(response_data):
         if 'align' not in response_data:
             return {"status": "error", "message": "Missing required key: `align`"}
+        if len(response_data['align']) != 2:
+            return {"status": "error", "message": "Align does not contain 2 parts as expected!"}
         return {"status": "success", "message": "Align completed"}
 
     parsed = ask_gpt(align_prompt, response_json=True, valid_def=valid_align, log_title='align_subs')

@@ -1,4 +1,5 @@
 import os, sys
+import gc
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from batch.utils.settings_check import check_settings
 from batch.utils.video_processor import process_video
@@ -71,7 +72,6 @@ def process_batch():
             
             try:
                 dubbing = 0 if pd.isna(row['Dubbing']) else int(row['Dubbing'])
-                # Pass the is_retry parameter
                 is_retry = not pd.isna(row['Status']) and 'Error' in str(row['Status'])
                 status, error_step, error_message = process_video(video_file, dubbing, is_retry)
                 status_msg = "Done" if status else f"Error: {error_step} - {error_message}"
@@ -84,6 +84,8 @@ def process_batch():
                 
                 df.at[index, 'Status'] = status_msg
                 df.to_excel('batch/tasks_setting.xlsx', index=False)
+                
+                gc.collect()
                 
                 time.sleep(1)
         else:

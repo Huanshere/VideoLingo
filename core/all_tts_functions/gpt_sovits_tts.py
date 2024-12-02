@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 
 def check_lang(text_lang, prompt_lang):
-    #TODO 可以考虑用ask gpt来判断语言
+    # only support zh and en
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文', 'chinese']):
         text_lang = 'zh'
     elif any(lang in text_lang.lower() for lang in ['英文', '英语', 'english']):
@@ -18,7 +18,7 @@ def check_lang(text_lang, prompt_lang):
     else:
         raise ValueError("Unsupported text language. Only Chinese and English are supported.")
     
-    if 'en' in prompt_lang.lower():
+    if any(lang in prompt_lang.lower() for lang in ['en', 'english', '英文', '英语']):
         prompt_lang = 'en'
     elif any(lang in prompt_lang.lower() for lang in ['zh', 'cn', '中文', 'chinese']):
         prompt_lang = 'zh'

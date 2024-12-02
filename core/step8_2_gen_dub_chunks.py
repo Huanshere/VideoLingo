@@ -11,7 +11,8 @@ from rich import print as rprint
 
 INPUT_EXCEL = "output/audio/tts_tasks.xlsx"
 OUTPUT_EXCEL = "output/audio/tts_tasks.xlsx"
-TRANSCRIPT_FILE = "output/trans.srt"
+SRC_SRT = "output/src.srt"
+TRANS_SRT = "output/trans.srt"
 MAX_MERGE_COUNT = 5
 AUDIO_FILE = 'output/audio/raw.mp3'
 ESTIMATOR = None
@@ -143,35 +144,55 @@ def gen_dub_chunks():
     rprint("[✂️ Processing] Processing cutoffs...")
     df = process_cutoffs(df)
 
-    rprint("[📝 Reading] Loading transcript file...")
-    content = open(TRANSCRIPT_FILE, "r", encoding="utf-8").read()
-
+    rprint("[📝 Reading] Loading transcript files...")
+    content = open(TRANS_SRT, "r", encoding="utf-8").read()
+    ori_content = open(SRC_SRT, "r", encoding="utf-8").read()
+    
     # Process subtitle content
     content_lines = []
+    ori_content_lines = []
+    
+    # Process translated subtitles
     for block in content.strip().split('\n\n'):
         lines = [line.strip() for line in block.split('\n') if line.strip()]
         if len(lines) >= 3:
             text = ' '.join(lines[2:])
-            # Clean text
             text = re.sub(r'\([^)]*\)|（[^）]*）', '', text).strip().replace('-', '')
             content_lines.append(text)
+            
+    # Process source subtitles (same structure)
+    for block in ori_content.strip().split('\n\n'):
+        lines = [line.strip() for line in block.split('\n') if line.strip()]
+        if len(lines) >= 3:
+            text = ' '.join(lines[2:])
+            text = re.sub(r'\([^)]*\)|（[^）]*）', '', text).strip().replace('-', '')
+            ori_content_lines.append(text)
 
     # Match processing
     df['lines'] = None
+    df['src_lines'] = None
     last_idx = 0
 
+    def clean_text(text):
+        """清洗文本：删除所有标点符号和空格"""
+        return re.sub(r'[^\w\s]|[\s]', '', text)
+
     for idx, row in df.iterrows():
-        target = row['text'].replace(' ', '')
+        target = clean_text(row['text'])
         matches = []
         current = ''
+        match_indices = []  # Store indices for matching lines
         
         for i in range(last_idx, len(content_lines)):
-            line = content_lines[i].replace(' ', '')
-            current += line
-            matches.append(content_lines[i])
+            line = content_lines[i]
+            cleaned_line = clean_text(line)
+            current += cleaned_line
+            matches.append(line)  # 存储原始文本
+            match_indices.append(i)
             
             if current == target:
                 df.at[idx, 'lines'] = matches
+                df.at[idx, 'src_lines'] = [ori_content_lines[i] for i in match_indices]
                 last_idx = i + 1
                 break
         else:  # If no match is found
