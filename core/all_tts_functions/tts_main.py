@@ -6,7 +6,7 @@ from pydub import AudioSegment
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 from core.all_whisper_methods.whisperX_utils import get_audio_duration
-from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo, remote_gpt_sovits_tts
+from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
 from core.all_tts_functions.siliconflow_fish_tts import siliconflow_fish_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.fish_tts import fish_tts
