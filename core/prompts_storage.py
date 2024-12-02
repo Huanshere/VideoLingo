@@ -195,10 +195,9 @@ Please use a two-step thinking process to handle the text line by line:
    - Check the conciseness of the subtitles, point out where the translation is too wordy, the translation should be close to the original text in length
 
 2. {TARGET_LANGUAGE} Free Translation:
-   - Based on the reflection in step 1, perform free translation
    - Aim for contextual smoothness and naturalness, conforming to {TARGET_LANGUAGE} expression habits
    - Ensure it's easy for {TARGET_LANGUAGE} audience to understand and accept
-   - Keep the subtitles concise, with a plain and natural language style, and maintain consistency in structure between the free translation and the {src_language} original
+   - Keep the subtitles concise and adapt the language style to match the video's theme (e.g., use casual language for tutorials, professional terminology for technical content, formal language for documentaries)
 
 ### Subtitle Data
 <subtitles>
