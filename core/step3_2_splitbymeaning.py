@@ -19,6 +19,7 @@ def tokenize_sentence(sentence, nlp):
 
 def find_split_positions(original, modified):
     split_positions = []
+    modified = modified.replace('<br>', '[br]')
     parts = modified.split('[br]')
     start = 0
     whisper_language = load_key("whisper.language")
