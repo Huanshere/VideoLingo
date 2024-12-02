@@ -82,6 +82,21 @@ fish_tts:
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
     '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
 
+cosyvoice:
+  api_url: ''
+  speaker: "英文女"
+  speed: '0.7'
+
+cosyvoice_cloud:
+  api_key: ''
+  model: ''
+  speaker: 'longfei'
+  speed: '1.0'
+
+sambert:
+  api_key: ''
+  speaker: 'sambert-zhihao-v1'
+
 # *Audio speed range
 speed_factor:
   min: 1

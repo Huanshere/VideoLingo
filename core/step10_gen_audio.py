@@ -39,6 +39,9 @@ def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float) -
     if abs(speed_factor - 1.0) < 0.001:
         shutil.copy2(input_file, output_file)
         return
+    
+    if os.path.exists(output_file):
+        return
         
     atempo = speed_factor
     cmd = ['ffmpeg', '-i', input_file, '-filter:a', f'atempo={atempo}', '-y', output_file]
@@ -99,7 +102,7 @@ def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
                 raise e
         
         # for gpt_sovits, do not use parallel to avoid mistakes
-        max_workers = load_key("max_workers") if load_key("tts_method") != "gpt_sovits" else 1
+        max_workers = int(load_key("max_workers")) if load_key("tts_method") != "gpt_sovits" else 1
         # parallel processing for remaining tasks
         if len(tasks_df) > warmup_size:
             remaining_tasks = tasks_df.iloc[warmup_size:].copy()

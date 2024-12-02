@@ -6,11 +6,14 @@ from pydub import AudioSegment
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 from core.all_whisper_methods.whisperX_utils import get_audio_duration
-from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
+from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo, remote_gpt_sovits_tts
 from core.all_tts_functions.siliconflow_fish_tts import siliconflow_fish_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
+from core.all_tts_functions.cosyvoice_tts import cosyvoice_tts
+from core.all_tts_functions.cosyvoice_cloud import cosyvoice_cloud
+from core.all_tts_functions.sambert_cloud import sambert_cloud
 
 def tts_main(text, save_as, number, task_df):
         # 检查文本是否为空或单字符，单字符配音容易触发bug
@@ -27,7 +30,7 @@ def tts_main(text, save_as, number, task_df):
     
     print(f"Generating <{text}...>")
     TTS_METHOD = load_key("tts_method")
-    
+
     max_retries = 3
     for attempt in range(max_retries):
         try:
@@ -41,6 +44,12 @@ def tts_main(text, save_as, number, task_df):
                 azure_tts(text, save_as)
             elif TTS_METHOD == 'sf_fish_tts':
                 siliconflow_fish_tts_for_videolingo(text, save_as, number, task_df)
+            elif TTS_METHOD == 'cosyvoice':
+                cosyvoice_tts(text, save_as)
+            elif TTS_METHOD == 'cosyvoice_cloud':
+                cosyvoice_cloud(text, save_as)
+            elif TTS_METHOD == 'sambert':
+                sambert_cloud(text, save_as)
             
             # 检查生成的音频时长
             duration = get_audio_duration(save_as)

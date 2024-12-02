@@ -74,7 +74,8 @@ def page_setting():
             update_key("resolution", resolution)
         
     with st.expander("Dubbing Settings", expanded=True):
-        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts"]
+        config_input("Max Workers", "max_workers")
+        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts", "cosyvoice", "cosyvoice_cloud", "sambert"]
         selected_tts_method = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if selected_tts_method != load_key("tts_method"):
             update_key("tts_method", selected_tts_method)
@@ -130,6 +131,41 @@ def page_setting():
             )
             if selected_refer_mode != load_key("gpt_sovits.refer_mode"):
                 update_key("gpt_sovits.refer_mode", selected_refer_mode)
+        elif selected_tts_method == "cosyvoice":
+            config_input("API URL", "cosyvoice.api_url")
+            speakers = ["中文男","中文女","英文男","英文女","粤语女","日语男","韩语女"]
+            speaker = st.selectbox("发音人", options=speakers, index=speakers.index(load_key("cosyvoice.speaker")))
+            if speaker != load_key("cosyvoice.speaker"):
+                update_key("cosyvoice.speaker", speaker)
+            config_input("语速", "cosyvoice.speed")
+        elif selected_tts_method == "cosyvoice_cloud":
+            config_input("API KEY", "cosyvoice_cloud.api_key", help="Dashscope API KEY")
+            speakers = ["longwan","longcheng","longhua","longxiaochun","longxiaoxia","longxiaocheng","longxiaobai",
+            "longlaotie","longshu","longshuo","longjing","longmiao","longyue","longyuan","longfei","longjielidou",
+            "longtong","longxiang","loongstella","loongbella"]
+            speaker = st.selectbox("发音人", options=speakers, index=speakers.index(load_key("cosyvoice_cloud.speaker")), help="可以在 https://help.aliyun.com/zh/model-studio/developer-reference/timbre-list 查看不同发音人效果")
+            if speaker != load_key("cosyvoice_cloud.speaker"):
+                update_key("cosyvoice_cloud.speaker", speaker)
+            config_input("语速", "cosyvoice_cloud.speed")
+        elif selected_tts_method == "sambert":
+            st.info("Sambert语音合成API基于达摩院改良的自回归韵律模型，支持文本至语音的实时流式合成。")
+            speakers = ["sambert-zhinan-v1","sambert-zhiqi-v1","sambert-zhichu-v1","sambert-zhide-v1","sambert-zhijia-v1",
+            "sambert-zhiru-v1","sambert-zhiqian-v1","sambert-zhixiang-v1","sambert-zhiwei-v1",
+            "sambert-zhihao-v1","sambert-zhijing-v1","sambert-zhiming-v1","sambert-zhimo-v1",
+            "sambert-zhina-v1","sambert-zhishu-v1","sambert-zhistella-v1","sambert-zhiting-v1",
+            "sambert-zhixiao-v1","sambert-zhiya-v1","sambert-zhiye-v1","sambert-zhiying-v1",
+            "sambert-zhiyuan-v1","sambert-zhiyue-v1","sambert-zhigui-v1","sambert-zhishuo-v1",
+            "sambert-zhimiao-emo-v1","sambert-zhimao-v1","sambert-zhilun-v1","sambert-zhifei-v1",
+            "sambert-zhida-v1","sambert-camila-v1","sambert-perla-v1","sambert-indah-v1","sambert-clara-v1",
+            "sambert-hanna-v1","sambert-beth-v1","sambert-betty-v1","sambert-cally-v1","sambert-cindy-v1",
+            "sambert-eva-v1","sambert-donna-v1","sambert-brian-v1","sambert-waan-v1"]
+            config_input("API KEY", "sambert.api_key", help="Dashscope API KEY")
+            # config_input("音色", "sambert.speaker")
+            speaker = st.selectbox("发音人", options=speakers, index=speakers.index(load_key("sambert.speaker")),
+                help="访问 https://help.aliyun.com/zh/model-studio/developer-reference/model-list 查看不同说话人特性")
+            if speaker != load_key("sambert.speaker"):
+                update_key("sambert.speaker", speaker)
+            
 
 def check_api():
     try:

@@ -23,6 +23,9 @@ def time_to_samples(time_str, sr):
 
 def extract_audio(audio_data, sr, start_time, end_time, out_file):
     """Simplified audio extraction function"""
+    if os.path.exists(out_file):
+        rprint(f"Output file {out_file} exists, skipping.")
+        return
     start = time_to_samples(start_time, sr)
     end = time_to_samples(end_time, sr)
     sf.write(out_file, audio_data[start:end], sr)
