@@ -126,7 +126,7 @@ def main():
     has_gpu = platform.system() != 'Darwin' and check_gpu()
     if has_gpu:
         console.print(Panel("🎮 检测到 NVIDIA GPU，正在安装 CUDA 版本的 PyTorch...", style="cyan"))
-        subprocess.check_call(["conda", "install", "-y", "pytorch==2.0.0", "torchaudio==2.0.0", "pytorch-cuda=11.8", "-c", "pytorch", "-c", "nvidia"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
     else:
         system_name = "🍎 MacOS" if platform.system() == 'Darwin' else "💻 未检测到 NVIDIA GPU"
         console.print(Panel(f"{system_name}，正在安装 CPU 版本的 PyTorch... 但转写速度会慢很多", style="cyan"))
