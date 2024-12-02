@@ -197,7 +197,7 @@ Please use a two-step thinking process to handle the text line by line:
 2. {TARGET_LANGUAGE} Free Translation:
    - Aim for contextual smoothness and naturalness, conforming to {TARGET_LANGUAGE} expression habits
    - Ensure it's easy for {TARGET_LANGUAGE} audience to understand and accept
-   - Keep the subtitles concise and adapt the language style to match the video's theme (e.g., use casual language for tutorials, professional terminology for technical content, formal language for documentaries)
+   - Adapt the language style to match the video's theme (e.g., use casual language for tutorials, professional terminology for technical content, formal language for documentaries)
 
 ### Subtitle Data
 <subtitles>
