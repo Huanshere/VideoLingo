@@ -136,7 +136,6 @@ You are a professional Netflix subtitle translator, fluent in both {src_language
 We have a segment of original {src_language} subtitles that need to be directly translated into {TARGET_LANGUAGE}. These subtitles come from a specific context and may contain specific themes and terminology.
 
 ### Task Description
-Based on the provided original {src_language} subtitles, you need to:
 1. Translate the original {src_language} subtitles into {TARGET_LANGUAGE} line by line
 2. Ensure the translation is faithful to the original, accurately conveying the original meaning
 3. Consider the context and professional terminology
@@ -180,7 +179,6 @@ You are a professional Netflix subtitle translator and language consultant. Your
 We already have a direct translation version of the original {src_language} subtitles. Now we need you to reflect on and improve these direct translations to create more natural and fluent {TARGET_LANGUAGE} subtitles.
 
 ### Task Description
-Based on the provided original {src_language} text and {TARGET_LANGUAGE} direct translation, you need to:
 1. Analyze the direct translation results line by line, pointing out existing issues
 2. Provide detailed modification suggestions
 3. Perform free translation based on your analysis
@@ -223,13 +221,12 @@ def get_align_prompt(src_sub, tr_sub, src_part):
     src_part = src_part.replace('\n', ' [br] ')
     align_prompt = '''
 ### Role Definition
-You are a Netflix subtitle alignment expert fluent in both {src_language} and {target_language}. Your expertise lies in accurately understanding the semantics and structure of both languages, enabling you to flexibly split sentences while preserving the original meaning.
+You are a Netflix subtitle alignment expert fluent in both {src_language} and {target_language}.
 
 ### Task Background
 We have {src_language} and {target_language} original subtitles for a Netflix program, as well as a pre-processed split version of {src_language} subtitles. Your task is to create the best splitting scheme for the {target_language} subtitles based on this information.
 
 ### Task Description
-Based on the provided original {src_language} and {target_language} original subtitles, as well as the pre-processed split version, you need to:
 1. Analyze the word order and structural correspondence between {src_language} and {target_language} subtitles
 2. Split the {target_language} subtitles according to the pre-processed {src_language} split version
 3. Never leave empty lines. If it's difficult to split based on meaning, you may appropriately rewrite the sentences that need to be aligned
