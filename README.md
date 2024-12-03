@@ -116,7 +116,7 @@ For detailed installation, API configuration, and batch mode instructions, pleas
 
 ## Current Limitations
 
-1. WhisperX transcription performance may be affected by video background noise, as it uses wav2vac model for alignment. However, WhisperX can still solve 99% of Whisper's hallucination issues.
+1. WhisperX transcription performance may be affected by video background noise, as it uses wav2vac model for alignment. For videos with loud background music, please enable Voice Separation Enhancement. Additionally, subtitles ending with numbers or special characters may be truncated early due to wav2vac's inability to map numeric characters (e.g., "1") to their spoken form ("one").
 
 2. Using weaker models can lead to errors during intermediate processes due to strict JSON format requirements for responses. If this error occurs, please delete the `output` folder and retry with a different LLM, otherwise repeated execution will read the previous erroneous response causing the same error.
 
