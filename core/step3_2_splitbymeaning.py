@@ -19,7 +19,6 @@ def tokenize_sentence(sentence, nlp):
 
 def find_split_positions(original, modified):
     split_positions = []
-    modified = modified.replace('<br>', '[br]')
     parts = modified.split('[br]')
     start = 0
     whisper_language = load_key("whisper.language")
@@ -56,6 +55,8 @@ def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0
     def valid_split(response_data):
         if 'split' not in response_data:
             return {"status": "error", "message": "Missing required key: `split`"}
+        if "[br]" not in response_data["split"]:
+            return {"status": "error", "message": "Split failed, no [br] found"}
         return {"status": "success", "message": "Split completed"}
     
     response_data = ask_gpt(split_prompt + ' ' * retry_attempt, response_json=True, valid_def=valid_split, log_title='sentence_splitbymeaning')
