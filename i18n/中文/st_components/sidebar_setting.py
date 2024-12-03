@@ -50,25 +50,26 @@ def page_setting():
             if target_language != load_key("target_language"):
                 update_key("target_language", target_language)
 
-        c1, c2 = st.columns(2)
-        with c1:
-            burn_subtitles = st.toggle("烧录字幕", value=load_key("resolution") != "0x0")
+        demucs = st.toggle("人声分离增强", value=load_key("demucs"), help="推荐用于背景噪音较大的视频，但会增加处理时间")
+        if demucs != load_key("demucs"):
+            update_key("demucs", demucs)
+
+        burn_subtitles = st.toggle("烧录字幕", value=load_key("resolution") != "0x0")
         
         resolution_options = {
             "1080p": "1920x1080",
             "360p": "640x360"
         }
-        
-        with c2:
-            if burn_subtitles:
-                selected_resolution = st.selectbox(
-                    "视频分辨率",
-                    options=list(resolution_options.keys()),
-                    index=list(resolution_options.values()).index(load_key("resolution")) if load_key("resolution") != "0x0" else 0
-                )
-                resolution = resolution_options[selected_resolution]
-            else:
-                resolution = "0x0"
+            
+        if burn_subtitles:
+            selected_resolution = st.selectbox(
+                "视频分辨率",
+                options=list(resolution_options.keys()),
+                index=list(resolution_options.values()).index(load_key("resolution")) if load_key("resolution") != "0x0" else 0
+            )
+            resolution = resolution_options[selected_resolution]
+        else:
+            resolution = "0x0"
 
         if resolution != load_key("resolution"):
             update_key("resolution", resolution)
