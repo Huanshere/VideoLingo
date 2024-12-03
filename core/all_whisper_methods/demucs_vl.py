@@ -9,6 +9,7 @@ from torch.cuda import is_available as is_cuda_available
 from typing import Optional
 from demucs.api import Separator
 from demucs.apply import BagOfModels
+import gc
 
 AUDIO_DIR = "output/audio"
 RAW_AUDIO_FILE = os.path.join(AUDIO_DIR, "raw.mp3")
@@ -38,7 +39,7 @@ def demucs_main():
     console.print("🎵 Separating audio...")
     _, outputs = separator.separate_audio_file(RAW_AUDIO_FILE)
     
-    kwargs = {"samplerate": model.samplerate, "bitrate": 64, "preset": 4, 
+    kwargs = {"samplerate": model.samplerate, "bitrate": 64, "preset": 2, 
              "clip": "rescale", "as_float": False, "bits_per_sample": 16}
     
     console.print("🎤 Saving vocals track...")
@@ -47,6 +48,10 @@ def demucs_main():
     console.print("🎹 Saving background music...")
     background = sum(audio for source, audio in outputs.items() if source != 'vocals')
     save_audio(background.cpu(), BACKGROUND_AUDIO_FILE, **kwargs)
+    
+    # Clean up memory
+    del outputs, background, model, separator
+    gc.collect()
     
     console.print("[green]✨ Audio separation completed![/green]")
 
