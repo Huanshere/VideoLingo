@@ -17,6 +17,7 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 1. Maintain sentence meaning coherence according to Netflix subtitle standards
 2. Keep parts roughly equal in length (minimum 3 words each)
 3. Split at natural points like punctuation marks or conjunctions
+4. If provided text is repeated words, simply split at the middle of the repeated words.
 
 ### Output Format in JSON
 {{
