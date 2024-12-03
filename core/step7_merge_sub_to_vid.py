@@ -7,8 +7,8 @@ import cv2
 import numpy as np
 import platform
 
-SRC_FONT_SIZE = 16
-TRANS_FONT_SIZE = 18
+SRC_FONT_SIZE = 15
+TRANS_FONT_SIZE = 17
 FONT_NAME = 'Arial'
 TRANS_FONT_NAME = 'Arial'
 
