@@ -122,10 +122,8 @@ def merge_full_audio():
         console.print(f"[bold red]❌ Error: First audio file {audios[0]} does not exist![/bold red]")
         return
     
-    with console.status("[bold cyan]🎚️ Getting sample rate...[/bold cyan]"):
-        detected_rate = AudioSegment.from_wav(audios[0]).frame_rate
-        sample_rate = min(16000, detected_rate)
-    console.print(f"[bold green]✅ Sample rate: {sample_rate}Hz (detected: {detected_rate}Hz)[/bold green]")
+    sample_rate = 16000
+    console.print(f"[bold green]✅ Sample rate: {sample_rate}Hz[/bold green]")
 
     console.print("[bold cyan]🔄 Starting audio merge process...[/bold cyan]")
     merged_audio = merge_audio_segments(audios, new_sub_times, sample_rate)
