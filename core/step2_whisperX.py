@@ -20,6 +20,7 @@ from core.step1_ytdlp import find_video_files
 
 MODEL_DIR = load_key("model_dir")
 WHISPER_FILE = "output/audio/for_whisper.mp3"
+ENHANCED_VOCAL_PATH = "output/audio/enhanced_vocals.mp3"
 
 def check_hf_mirror() -> str:
     """Check and return the fastest HF mirror"""
@@ -138,6 +139,25 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         rprint(f"[red]WhisperX processing error:[/red] {e}")
         raise
 
+def enhance_vocals(vocals_ratio=2.50):
+    """Enhance vocals audio volume"""
+    if not load_key("demucs"):
+        return RAW_AUDIO_FILE
+        
+    try:
+        print(f"[cyan]🎙️ Enhancing vocals with volume ratio: {vocals_ratio}[/cyan]")
+        ffmpeg_cmd = (
+            f'ffmpeg -y -i "{VOCAL_AUDIO_FILE}" '
+            f'-filter:a "volume={vocals_ratio}" '
+            f'"{ENHANCED_VOCAL_PATH}"'
+        )
+        subprocess.run(ffmpeg_cmd, shell=True, check=True, capture_output=True)
+        
+        return ENHANCED_VOCAL_PATH
+    except subprocess.CalledProcessError as e:
+        print(f"[red]Error enhancing vocals: {str(e)}[/red]")
+        return VOCAL_AUDIO_FILE  # Fallback to original vocals if enhancement fails
+    
 def transcribe():
     if os.path.exists(CLEANED_CHUNKS_EXCEL_PATH):
         rprint("[yellow]⚠️ Transcription results already exist, skipping transcription step.[/yellow]")
@@ -152,7 +172,7 @@ def transcribe():
         demucs_main()
     
     # step2 Compress audio
-    choose_audio = VOCAL_AUDIO_FILE if load_key("demucs") else RAW_AUDIO_FILE
+    choose_audio = enhance_vocals() if load_key("demucs") else RAW_AUDIO_FILE
     whisper_audio = compress_audio(choose_audio, WHISPER_FILE)
 
     # step3 Extract audio
