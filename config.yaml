@@ -1,5 +1,5 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
-version: "2.0.1"
+version: "2.0.4"
 ## ======================== Basic Settings ======================== ##
 # API settings
 api:
@@ -10,7 +10,7 @@ api:
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
 
-# Whether to use Demucs for vocal separation before transcription, warning this may slow down the process and cause lines missing!
+# Whether to use Demucs for vocal separation before transcription
 demucs: false
 
 whisper:
