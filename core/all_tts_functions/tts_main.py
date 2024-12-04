@@ -13,6 +13,9 @@ from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_correct_text_prompt
+from core.all_tts_functions.cosyvoice_tts import cosyvoice_tts
+from core.all_tts_functions.cosyvoice_cloud import cosyvoice_cloud
+from core.all_tts_functions.sambert_cloud import sambert_cloud
 
 def clean_text_for_tts(text):
     """Remove problematic characters for TTS"""
@@ -20,6 +23,7 @@ def clean_text_for_tts(text):
     for char in chars_to_remove:
         text = text.replace(char, '')
     return text.strip()
+
 
 def tts_main(text, save_as, number, task_df):
     text = clean_text_for_tts(text)
@@ -37,7 +41,7 @@ def tts_main(text, save_as, number, task_df):
     
     print(f"Generating <{text}...>")
     TTS_METHOD = load_key("tts_method")
-    
+
     max_retries = 3
     for attempt in range(max_retries):
         try:
@@ -55,6 +59,12 @@ def tts_main(text, save_as, number, task_df):
                 azure_tts(text, save_as)
             elif TTS_METHOD == 'sf_fish_tts':
                 siliconflow_fish_tts_for_videolingo(text, save_as, number, task_df)
+            elif TTS_METHOD == 'cosyvoice':
+                cosyvoice_tts(text, save_as)
+            elif TTS_METHOD == 'cosyvoice_cloud':
+                cosyvoice_cloud(text, save_as)
+            elif TTS_METHOD == 'sambert':
+                sambert_cloud(text, save_as)
             
             # 检查生成的音频时长
             duration = get_audio_duration(save_as)
