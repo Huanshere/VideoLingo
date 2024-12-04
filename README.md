@@ -76,7 +76,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 > **Note:** For Windows and macOS users, it's recommended to install FFmpeg via package managers (Chocolatey/Homebrew):
 > ```choco install ffmpeg``` (Windows) or ```brew install ffmpeg``` (macOS). 
-> If not installed, the program will download FFmpeg locally.
+> If not installed, the program will download FFmpeg locally, but may raise error during dubbing.
 
 1. Clone the repository
 

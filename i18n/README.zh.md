@@ -78,7 +78,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 > **注意:** Windows 和 macOS 用户建议通过包管理器（Chocolatey/Homebrew）安装 FFmpeg：
 > ```choco install ffmpeg```（Windows）或 ```brew install ffmpeg```（macOS）。
-> 如果未安装，程序会在本地下载 FFmpeg。
+> 如果未安装，程序会在本地下载 FFmpeg，但在配音时可能会出现错误。
 
 1. 克隆仓库
 
