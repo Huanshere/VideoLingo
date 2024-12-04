@@ -23,81 +23,38 @@ def check_gpu():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def install_ffmpeg():
+def check_ffmpeg():
     from rich.console import Console
     from rich.panel import Panel
     console = Console()
     
-    system = platform.system()
-    
-    if system == "Linux":
-        console.print(Panel("📦 正在安装 FFmpeg...", style="cyan"))
-        try:
-            subprocess.check_call(["sudo", "apt", "install", "-y", "ffmpeg"])
-        except subprocess.CalledProcessError:
-            try:
-                subprocess.check_call(["sudo", "yum", "install", "-y", "ffmpeg"], shell=True)
-            except subprocess.CalledProcessError:
-                console.print(Panel("❌ 通过包管理器安装 FFmpeg 失败", style="red"))
-    else:
-        console.print(Panel("📦 正在安装 FFmpeg...", style="cyan"))
-        download_and_extract_ffmpeg()
-
-def download_and_extract_ffmpeg():
-    import requests
-    import zipfile
-    import shutil
-    from rich.console import Console
-    from rich.panel import Panel
-    console = Console()
-    
-    system = platform.system()
-    if system == "Windows":
-        ffmpeg_exe = "ffmpeg.exe"
-        url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
-    elif system == "Darwin":
-        ffmpeg_exe = "ffmpeg"
-        url = "https://evermeet.cx/ffmpeg/getrelease/zip"
-    else:
-        console.print(Panel("❌ 不支持的系统，无法手动安装 FFmpeg", style="red"))
-        return
-
-    if os.path.exists(ffmpeg_exe):
-        console.print(f"✅ {ffmpeg_exe} 已存在")
-        return
-
-    # 下载和解压逻辑
-    console.print(Panel("📦 正在下载 FFmpeg...", style="cyan"))
-    response = requests.get(url)
-    if response.status_code == 200:
-        filename = "ffmpeg.zip" if system in ["Windows", "Darwin"] else "ffmpeg.tar.xz"
-        with open(filename, 'wb') as f:
-            f.write(response.content)
+    try:
+        # 检查 ffmpeg 是否已安装
+        subprocess.run(['ffmpeg', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        console.print(Panel("✅ 已安装 FFmpeg", style="green"))
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        system = platform.system()
+        install_cmd = ""
         
-        console.print(Panel("📦 正在解压 FFmpeg...", style="cyan"))
-        if system == "Linux":
-            import tarfile
-            with tarfile.open(filename) as tar_ref:
-                for member in tar_ref.getmembers():
-                    if member.name.endswith("ffmpeg"):
-                        member.name = os.path.basename(member.name)
-                        tar_ref.extract(member)
-        else:
-            with zipfile.ZipFile(filename, 'r') as zip_ref:
-                for file in zip_ref.namelist():
-                    if file.endswith(ffmpeg_exe):
-                        zip_ref.extract(file)
-                        shutil.move(os.path.join(*file.split('/')[:-1], os.path.basename(file)), os.path.basename(file))
-        
-        # 清理临时文件
-        os.remove(filename)
         if system == "Windows":
-            for item in os.listdir():
-                if os.path.isdir(item) and "ffmpeg" in item.lower():
-                    shutil.rmtree(item)
-        console.print(Panel("✅ FFmpeg 安装完成", style="green"))
-    else:
-        console.print(Panel("❌ FFmpeg 下载失败", style="red"))
+            install_cmd = "choco install ffmpeg"
+            extra_note = "请先安装 Chocolatey (https://chocolatey.org/)"
+        elif system == "Darwin":
+            install_cmd = "brew install ffmpeg"
+            extra_note = "请先安装 Homebrew (https://brew.sh/)"
+        elif system == "Linux":
+            install_cmd = "sudo apt install ffmpeg  # Ubuntu/Debian\nsudo yum install ffmpeg  # CentOS/RHEL"
+            extra_note = "请使用您的 Linux 发行版对应的包管理器"
+        
+        console.print(Panel.fit(
+            f"❌ 未检测到 FFmpeg\n\n"
+            f"🛠️ 请使用以下命令安装：\n[bold cyan]{install_cmd}[/bold cyan]\n\n"
+            f"💡 注意：{extra_note}\n\n"
+            f"🔄 安装 FFmpeg 后，请重新运行安装程序：[bold cyan]python install.py[/bold cyan]",
+            style="red"
+        ))
+        raise SystemExit("需要安装 FFmpeg。请安装后重新运行安装程序。")
 
 def main():
     install_package("requests", "rich", "ruamel.yaml")
@@ -177,7 +134,7 @@ def main():
         install_noto_font()
 
     install_requirements()
-    install_ffmpeg()
+    check_ffmpeg()
     
     console.print(Panel.fit("安装完成", style="bold green"))
     console.print("要启动应用程序，请运行：")

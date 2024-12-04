@@ -76,9 +76,10 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > 3. 将 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加到系统环境变量 PATH 中
 > 4. 重启电脑
 
-> **注意:** Windows 和 macOS 用户建议通过包管理器（Chocolatey/Homebrew）安装 FFmpeg：
-> ```choco install ffmpeg```（Windows）或 ```brew install ffmpeg```（macOS）。
-> 如果未安装，程序会在本地下载 FFmpeg，但在配音时可能会出现错误。
+> **注意:** FFmpeg 是必需的，请通过包管理器安装：
+> - Windows：```choco install ffmpeg```（通过 [Chocolatey](https://chocolatey.org/)）
+> - macOS：```brew install ffmpeg```（通过 [Homebrew](https://brew.sh/)）
+> - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）或 ```sudo dnf install ffmpeg```（Fedora）
 
 1. 克隆仓库
 
