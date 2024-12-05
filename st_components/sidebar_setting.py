@@ -14,17 +14,17 @@ def config_input(label, key, help=None):
 def page_setting():
     with st.expander("LLM Configuration", expanded=True):
         config_input("API_KEY", "api.key")
-        config_input("BASE_URL", "api.base_url", help="Base URL for API requests, openai format, no /v1/chat/completions")
+        config_input("BASE_URL", "api.base_url", help="Openai format, will add /v1/chat/completions automatically")
         
         c1, c2 = st.columns([4, 1])
         with c1:
-            config_input("MODEL", "api.model")
+            config_input("MODEL", "api.model", help="click to check API validity 👉")
         with c2:
             if st.button("📡", key="api"):
                 st.toast("API Key is valid" if check_api() else "API Key is invalid", 
                         icon="✅" if check_api() else "❌")
     
-    with st.expander("Transcription and Subtitle Settings", expanded=True):
+    with st.expander("Subtitles Settings", expanded=True):
         c1, c2 = st.columns(2)
         with c1:
             langs = {
@@ -38,7 +38,7 @@ def page_setting():
                 "🇯🇵 日本語": "ja"
             }
             lang = st.selectbox(
-                "Recog Lang:",
+                "Recog Lang",
                 options=list(langs.keys()),
                 index=list(langs.values()).index(load_key("whisper.language"))
             )
@@ -54,7 +54,7 @@ def page_setting():
         if demucs != load_key("demucs"):
             update_key("demucs", demucs)
         
-        burn_subtitles = st.toggle("Burn-in Subtitles", value=load_key("resolution") != "0x0")
+        burn_subtitles = st.toggle("Burn-in Subtitles", value=load_key("resolution") != "0x0", help="takes longer time")
         
         resolution_options = {
             "1080p": "1920x1080",

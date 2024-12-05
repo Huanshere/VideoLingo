@@ -14,11 +14,11 @@ def config_input(label, key, help=None):
 def page_setting():
     with st.expander("LLM 配置", expanded=True):
         config_input("API_KEY", "api.key")
-        config_input("BASE_URL", "api.base_url", help="API请求的基础URL")
+        config_input("BASE_URL", "api.base_url", help="Openai格式，将自动添加/v1/chat/completions")
         
         c1, c2 = st.columns([4, 1])
         with c1:
-            config_input("模型", "api.model")
+            config_input("模型", "api.model", help="点击右侧按钮检查API有效性")
         with c2:
             if st.button("📡", key="api"):
                 st.toast("API密钥有效" if check_api() else "API密钥无效", 
@@ -54,7 +54,7 @@ def page_setting():
         if demucs != load_key("demucs"):
             update_key("demucs", demucs)
 
-        burn_subtitles = st.toggle("压制字幕", value=load_key("resolution") != "0x0")
+        burn_subtitles = st.toggle("压制字幕", value=load_key("resolution") != "0x0", help="需要更长处理时间")
         
         resolution_options = {
             "1080p": "1920x1080",
