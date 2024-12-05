@@ -23,11 +23,11 @@ def check_nvidia_gpu():
         pynvml.nvmlInit()
         device_count = pynvml.nvmlDeviceGetCount()
         if device_count > 0:
-            print(f"检测到 {device_count} 个 NVIDIA GPU")
+            print(f"检测到 NVIDIA GPU")
             for i in range(device_count):
                 handle = pynvml.nvmlDeviceGetHandleByIndex(i)
                 name = pynvml.nvmlDeviceGetName(handle)
-                print(f"GPU {i}: {name.decode('utf-8')}")
+                print(f"GPU {i}: {name}")
             return True
         else:
             print("未检测到 NVIDIA GPU")
