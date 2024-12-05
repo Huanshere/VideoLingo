@@ -14,7 +14,7 @@ def config_input(label, key, help=None):
 def page_setting():
     with st.expander("LLM Configuration", expanded=True):
         config_input("API_KEY", "api.key")
-        config_input("BASE_URL", "api.base_url", help="Base URL for API requests")
+        config_input("BASE_URL", "api.base_url", help="Base URL for API requests, openai format, no /v1/chat/completions")
         
         c1, c2 = st.columns([4, 1])
         with c1:
@@ -38,7 +38,7 @@ def page_setting():
                 "🇯🇵 日本語": "ja"
             }
             lang = st.selectbox(
-                "Recognition Language:", 
+                "Recog Lang:",
                 options=list(langs.keys()),
                 index=list(langs.values()).index(load_key("whisper.language"))
             )
@@ -46,7 +46,7 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
 
         with c2:
-            target_language = st.text_input("Target Language", value=load_key("target_language"))
+            target_language = st.text_input("Target Lang", value=load_key("target_language"))
             if target_language != load_key("target_language"):
                 update_key("target_language", target_language)
 
@@ -75,7 +75,7 @@ def page_setting():
             update_key("resolution", resolution)
         
     with st.expander("Dubbing Settings", expanded=True):
-        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts"]
+        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts", "edge_tts"]
         selected_tts_method = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if selected_tts_method != load_key("tts_method"):
             update_key("tts_method", selected_tts_method)
@@ -131,6 +131,8 @@ def page_setting():
             )
             if selected_refer_mode != load_key("gpt_sovits.refer_mode"):
                 update_key("gpt_sovits.refer_mode", selected_refer_mode)
+        elif selected_tts_method == "edge_tts":
+            config_input("Edge TTS Voice", "edge_tts.voice")
 
 def check_api():
     try:

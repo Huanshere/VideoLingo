@@ -33,7 +33,10 @@ subtitle:
   # *翻译后的字幕比源字幕略大，影响字幕分割的参考长度
   target_multiplier: 1.2
 
-# *LLM 多线程访问数量
+# * 总结长度，如果使用本地 LLM 设置为 4k
+summary_length: 32000
+
+# *LLM 多线程访问数量，如果使用本地 LLM 设置为 1
 max_workers: 4
 # *第一次粗分的最大字数，低于 18 会切得太细影响翻译，高于 22 太长会导致后续字幕分割难以对齐
 max_split_length: 20
@@ -45,7 +48,7 @@ reflect_translate: true
 pause_before_translate: false
 
 ## ======================== 配音设置 ======================== ##
-# TTS 选择 [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts]
+# TTS 选择 [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts]
 tts_method: 'sf_fish_tts'
 
 # SiliconFlow FishTTS
@@ -84,6 +87,10 @@ fish_tts:
   character_id_dict:
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
     '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
+
+# Edge TTS 配置
+edge_tts:
+  voice: 'zh-CN-XiaoxiaoNeural'
 
 # *音频速度范围
 speed_factor:

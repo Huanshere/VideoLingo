@@ -33,7 +33,10 @@ subtitle:
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
 
-# *Number of LLM multi-threaded accesses
+# * Summary length, set low to 4k if using local LLM
+summary_length: 32000
+
+# *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
@@ -45,7 +48,7 @@ reflect_translate: true
 pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts]
+# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts]
 tts_method: 'sf_fish_tts'
 
 # SiliconFlow FishTTS
@@ -85,16 +88,19 @@ fish_tts:
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
     '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
 
+edge_tts:
+  voice: 'zh-CN-XiaoxiaoNeural'
+
 # *Audio speed range
 speed_factor:
   min: 1
-  accept: 1.2 # 可以接受的最大速度
+  accept: 1.2 # Maximum acceptable speed
   max: 1.4
 
 # *Merge audio configuration
-min_subtitle_duration: 2.5 # 最小字幕出现时间 会强制扩展
-min_trim_duration: 3.5 # 小于这个值的字幕不会切割
-tolerance: 1.5 # 允许向后延申的时间
+min_subtitle_duration: 2.5 # Minimum subtitle duration, will be forcibly extended
+min_trim_duration: 3.5 # Subtitles shorter than this value won't be split
+tolerance: 1.5 # Allowed extension time to the next subtitle
 
 # Volume settings
 dub_volume: 1.5  # *Dubbed audio volume (1.5 = 150%, most original dubbing audio is relatively quiet)

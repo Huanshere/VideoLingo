@@ -2,6 +2,7 @@ import os, sys, json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_summary_prompt
+from core.config_utils import load_key
 
 TERMINOLOGY_JSON_PATH = 'output/log/terminology.json'
 SENTENCE_TXT_PATH = 'output/log/sentence_splitbymeaning.txt'
@@ -12,7 +13,7 @@ def combine_chunks():
         sentences = file.readlines()
     cleaned_sentences = [line.strip() for line in sentences]
     combined_text = ' '.join(cleaned_sentences)
-    return combined_text[:32000]  #! Return only the first 32000 characters
+    return combined_text[:load_key('summary_length')]  #! Return only the first x characters
 
 def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""

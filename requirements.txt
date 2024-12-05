@@ -20,6 +20,7 @@ yt-dlp
 json-repair
 ruamel.yaml
 autocorrect-py
+edge-tts
 
 demucs[dev] @ git+https://github.com/adefossez/demucs
 whisperx @ git+https://github.com/m-bain/whisperx.git

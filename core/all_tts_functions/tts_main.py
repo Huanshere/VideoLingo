@@ -11,6 +11,7 @@ from core.all_tts_functions.siliconflow_fish_tts import siliconflow_fish_tts_for
 from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
+from core.all_tts_functions.edge_tts import edge_tts
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_correct_text_prompt
 
@@ -23,7 +24,7 @@ def clean_text_for_tts(text):
 
 def tts_main(text, save_as, number, task_df):
     text = clean_text_for_tts(text)
-    # 检查文本是否为空或单字符，单字符配音容易触发bug
+    # Check if text is empty or single character, single character voiceovers are prone to bugs
     cleaned_text = re.sub(r'[^\w\s]', '', text).strip()
     if not cleaned_text or len(cleaned_text) <= 1:
         silence = AudioSegment.silent(duration=100)  # 100ms = 0.1s
@@ -31,7 +32,7 @@ def tts_main(text, save_as, number, task_df):
         rprint(f"Created silent audio for empty/single-char text: {save_as}")
         return
     
-    # 如果文件存在，跳过
+    # Skip if file exists
     if os.path.exists(save_as):
         return
     
@@ -55,8 +56,10 @@ def tts_main(text, save_as, number, task_df):
                 azure_tts(text, save_as)
             elif TTS_METHOD == 'sf_fish_tts':
                 siliconflow_fish_tts_for_videolingo(text, save_as, number, task_df)
+            elif TTS_METHOD == 'edge_tts':
+                edge_tts(text, save_as)
             
-            # 检查生成的音频时长
+            # Check generated audio duration
             duration = get_audio_duration(save_as)
             if duration > 0:
                 break
