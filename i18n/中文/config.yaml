@@ -33,8 +33,8 @@ subtitle:
   # *翻译后的字幕比源字幕略大，影响字幕分割的参考长度
   target_multiplier: 1.2
 
-# * 总结长度，如果使用本地 LLM 设置为 4k
-summary_length: 32000
+# *总结长度，如果使用本地 LLM 设置为 2k
+summary_length: 8000
 
 # *LLM 多线程访问数量，如果使用本地 LLM 设置为 1
 max_workers: 4
@@ -139,6 +139,7 @@ llm_support_json:
 - 'gemini-1.5-flash-latest'
 - 'gemini-1.5-pro-latest'
 - 'gemini-1.5-pro-002'
+- 'deepseek-coder'
 
 # 存在问题
 # - 'Qwen/Qwen2.5-72B-Instruct'

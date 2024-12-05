@@ -8,6 +8,7 @@
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $7.5 / 1M tokens | 🤩 |
+| deepseek-coder | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ￥2 / 1M tokens | 😃 |
 | Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M tokens | 😃 |
 
 注：支持 Openai 格式接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
@@ -129,7 +130,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
    cd VideoLingo
    ```
 
-2. 创建并激活虚拟环境（**必须 3.10.0**）：
+2. 创建并���活虚拟环境（**必须 3.10.0**）：
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
