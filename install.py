@@ -16,12 +16,27 @@ __     ___     _            _     _
 def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
-def check_gpu():
+def check_nvidia_gpu():
+    install_package("pynvml")
+    import pynvml
     try:
-        subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+        pynvml.nvmlInit()
+        device_count = pynvml.nvmlDeviceGetCount()
+        if device_count > 0:
+            print(f"Detected NVIDIA GPU(s)")
+            for i in range(device_count):
+                handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+                name = pynvml.nvmlDeviceGetName(handle)
+                print(f"GPU {i}: {name}")
+            return True
+        else:
+            print("No NVIDIA GPU detected")
+            return False
+    except pynvml.NVMLError:
+        print("No NVIDIA GPU detected or NVIDIA drivers not properly installed")
         return False
+    finally:
+        pynvml.nvmlShutdown()
 
 def check_ffmpeg():
     from rich.console import Console
@@ -80,7 +95,7 @@ def main():
     choose_mirror()
 
     # Detect system and GPU
-    has_gpu = platform.system() != 'Darwin' and check_gpu()
+    has_gpu = platform.system() != 'Darwin' and check_nvidia_gpu()
     if has_gpu:
         console.print(Panel("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch...", style="cyan"))
         subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
