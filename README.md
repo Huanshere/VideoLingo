@@ -10,7 +10,7 @@
 
 </div>
 
-## 🌟 Overview ([Try VideoLingo Now!](https://videolingo.io))
+## 🌟 Overview ([Try VideoLingo For Free!](https://videolingo.io))
 
 VideoLingo is an all-in-one video translation, localization, and dubbing tool aimed at generating Netflix-quality subtitles. It eliminates stiff machine translations and multi-line subtitles while adding high-quality dubbing, enabling global knowledge sharing across language barriers.
 
@@ -109,11 +109,11 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ```
 
 ## API
-The project supports OpenAI-Like API format and various dubbing interfaces:
+VideoLingo supports OpenAI-Like API format and various dubbing interfaces:
 - `claude-3-5-sonnet-20240620`, `gemini-1.5-pro-002`, `gpt-4o`, `deepseek-coder`, `Qwen2.5-72B-Instruct`, ... (sorted by performance)
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`, `edge-tts`, `custom-tts`(edit yourself in custom_tts.py)
 
-> **Note:** VideoLingo now supports fully local deployment using Ollama for LLM and Edge-TTS for dubbing, no cloud API required!
+> **Note:** VideoLingo is now integrated with [302.ai](https://gpt302.saaslink.net/C2oHR9), **one API KEY** for both LLM and TTS! Also supports fully local deployment using Ollama for LLM and Edge-TTS for dubbing, no cloud API required!
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 

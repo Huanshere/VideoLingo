@@ -12,7 +12,7 @@
 
 </div>
 
-## 🌟 简介（[在线体验！](https://videolingo.io)）
+## 🌟 简介（[免费在线体验！](https://videolingo.io)）
 
 VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的克隆配音，让全世界的知识能够跨越语言的障碍共享。
 
@@ -115,7 +115,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 - `claude-3-5-sonnet-20240620`, `gemini-1.5-pro-002`, `gpt-4o`, `deepseek-coder`, `Qwen2.5-72B-Instruct`, ...（按效果排序）
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`, `edge-tts`, `custom-tts`(可在custom_tts.py中自行编辑)
 
-> VideoLingo 现在支持完全本地部署，使用 Ollama 作为 LLM 和 Edge-TTS 作为配音，无需云端 API！
+> **注意：** VideoLingo 现已与 [302.ai](https://gpt302.saaslink.net/C2oHR9) 集成，**一个 API KEY** 即可同时支持 LLM 和 TTS！同时也支持完全本地部署，使用 Ollama 作为 LLM 和 Edge-TTS 作为配音，无需云端 API！
 
 详细的安装、API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
