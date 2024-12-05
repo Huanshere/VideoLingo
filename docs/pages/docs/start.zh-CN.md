@@ -43,7 +43,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 <details>
 <summary>OpenAI 声音怎么选？</summary>
 
-声音列表可以在 [官��](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.yaml` 中修改 `openai_tts.voice` 即可。
+声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.yaml` 中修改 `openai_tts.voice` 即可。
 
 </details>
 <details>
@@ -89,7 +89,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
       ```
    - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
-   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `���考音频的文字内容` 可以使用中文。目前仍处于测试版，可能产生报错。
+   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。目前仍处于测试版，可能产生报错。
 
 
    ```
@@ -160,7 +160,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
    ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
 
-7. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
+7. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出。如需使用自定义术语，请在处理前将术语添加到 `custom_terms.xlsx` 中，例如 `Biden | 登子 | 美国的瞌睡总统`。
 
 ## 🏭 批量模式（beta）
 

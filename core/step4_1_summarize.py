@@ -3,9 +3,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_summary_prompt
 from core.config_utils import load_key
+import pandas as pd
 
 TERMINOLOGY_JSON_PATH = 'output/log/terminology.json'
 SENTENCE_TXT_PATH = 'output/log/sentence_splitbymeaning.txt'
+CUSTOM_TERMS_PATH = 'custom_terms.xlsx'
 
 def combine_chunks():
     """Combine the text chunks identified by whisper into a single long text"""
@@ -33,7 +35,21 @@ def search_things_to_note_in_prompt(sentence):
 
 def get_summary():
     src_content = combine_chunks()
-    summary_prompt = get_summary_prompt(src_content)
+    custom_terms = pd.read_excel(CUSTOM_TERMS_PATH)
+    custom_terms_json = {
+        "terms": [
+            {
+                "src": str(row.iloc[0]),
+                "tgt": str(row.iloc[1]), 
+                "note": str(row.iloc[2])
+            }
+            for _, row in custom_terms.iterrows()
+        ]
+    }
+    if len(custom_terms) > 0:
+        print(f"📖 Custom Terms Loaded: {len(custom_terms)} terms")
+        print("📝 Terms Content:", json.dumps(custom_terms_json, indent=2, ensure_ascii=False))
+    summary_prompt = get_summary_prompt(src_content, custom_terms_json)
     print("📝 Summarizing and extracting terminology ...")
     
     def valid_summary(response_data):
@@ -46,6 +62,8 @@ def get_summary():
         return {"status": "success", "message": "Summary completed"}
 
     summary = ask_gpt(summary_prompt, response_json=True, valid_def=valid_summary, log_title='summary')
+    if 'terms' in summary:
+        summary['terms'].extend(custom_terms_json['terms'])
     
     with open(TERMINOLOGY_JSON_PATH, 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=4)

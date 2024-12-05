@@ -17,19 +17,19 @@ VideoLingo is an all-in-one video translation, localization, and dubbing tool ai
 Key features:
 - 🎥 YouTube video download via yt-dlp
 
-- **🎙️ Word-level subtitle recognition with WhisperX**
+- **🎙️ Word-level and Low-illusion subtitle recognition with WhisperX**
 
-- **📝 NLP and GPT-based subtitle segmentation**
+- **📝 NLP and AI-powered subtitle segmentation**
 
-- **📚 GPT-generated terminology for coherent translation**
+- **📚 Custom + AI-generated terminology for coherent translation**
 
-- **🔄 3-step direct translation, reflection, and adaptation for professional-level quality**
+- **🔄 3-step Translate-Reflect-Adaptation for cinematic quality**
 
-- **✅ Netflix-standard single-line subtitles only**
+- **✅ Netflix-standard, Single-line subtitles Only**
 
-- **🗣️ Dubbing alignment with GPT-SoVITS and other methods**
+- **🗣️ Dubbing with GPT-SoVITS, Azure, OpenAI, and more**
 
-- 🚀 One-click startup and output in Streamlit
+- 🚀 One-click startup and processing in Streamlit
 
 - 📝 Detailed logging with progress resumption
 

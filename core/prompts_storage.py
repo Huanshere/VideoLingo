@@ -37,9 +37,18 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 
 ## ================================================================
 # @ step4_1_summarize.py
-def get_summary_prompt(source_content):
+def get_summary_prompt(source_content, custom_terms_json=None):
     src_lang = load_key("whisper.detected_language")
     tgt_lang = load_key("target_language")
+    
+    # add custom terms note
+    terms_note = ""
+    if custom_terms_json:
+        terms_list = []
+        for term in custom_terms_json['terms']:
+            terms_list.append(f"- {term['src']}: {term['tgt']} ({term['note']})")
+        terms_note = "\n### Existing Terms\nPlease exclude these terms in your extraction:\n" + "\n".join(terms_list)
+    
     summary_prompt = f"""
 ### Role
 You are a video translation expert and terminology consultant, specializing in {src_lang} comprehension and {tgt_lang} expression optimization.
@@ -47,15 +56,15 @@ You are a video translation expert and terminology consultant, specializing in {
 ### Task
 For the provided {src_lang} video text:
 1. Summarize main topic in two sentences
-2. Extract professional terms/names with {tgt_lang} translations
-3. Provide brief explanation for each term
+2. Extract professional terms/names with {tgt_lang} translations (excluding existing terms)
+3. Provide brief explanation for each term{terms_note}
 
 ### Steps
 1. Topic Summary:
    - Quick scan for general understanding
    - Write two sentences: first for main topic, second for key point
 2. Term Extraction:
-   - Mark professional terms and names
+   - Mark professional terms and names (excluding those listed in Existing Terms)
    - Provide {tgt_lang} translation or keep original
    - Add brief explanation
    - Keep abbreviations and proper nouns unchanged

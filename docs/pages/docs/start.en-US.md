@@ -154,7 +154,7 @@ Before installing VideoLingo, ensure you have installed Git and Anaconda.
 
    ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
 
-6. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation
+6. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation. To use custom terms, add them to `custom_terms.xlsx` before processing, e.g. `Baguette | French bread | Not just any bread!`.
 
 ## 🏭 Batch Mode (beta)
 
