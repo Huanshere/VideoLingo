@@ -12,6 +12,7 @@ from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
 from core.all_tts_functions.edge_tts import edge_tts
+from core.all_tts_functions.custom_tts import custom_tts
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_correct_text_prompt
 
@@ -58,6 +59,8 @@ def tts_main(text, save_as, number, task_df):
                 siliconflow_fish_tts_for_videolingo(text, save_as, number, task_df)
             elif TTS_METHOD == 'edge_tts':
                 edge_tts(text, save_as)
+            elif TTS_METHOD == 'custom_tts':
+                custom_tts(text, save_as)
             
             # Check generated audio duration
             duration = get_audio_duration(save_as)

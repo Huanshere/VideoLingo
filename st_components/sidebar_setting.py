@@ -75,11 +75,12 @@ def page_setting():
             update_key("resolution", resolution)
         
     with st.expander("Dubbing Settings", expanded=True):
-        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts", "edge_tts"]
+        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts", "edge_tts", "custom_tts"]
         selected_tts_method = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if selected_tts_method != load_key("tts_method"):
             update_key("tts_method", selected_tts_method)
 
+        # sub settings for each tts method
         if selected_tts_method == "sf_fish_tts":
             config_input("SiliconFlow API Key", "sf_fish_tts.api_key")
             
@@ -116,18 +117,18 @@ def page_setting():
             config_input("Azure Key", "azure_tts.key")
             config_input("Azure Region", "azure_tts.region")
             config_input("Azure Voice", "azure_tts.voice")
-
+        
         elif selected_tts_method == "gpt_sovits":
-            st.info("配置GPT_SoVITS，请参考Github主页")
+            st.info("Please refer to Github homepage for GPT_SoVITS configuration")
             config_input("SoVITS Character", "gpt_sovits.character")
             
-            refer_mode_options = {1: "模式1：仅用提供的参考音频", 2: "模式2：仅用视频第1条语音做参考", 3: "模式3：使用视频每一条语音做参考"}
+            refer_mode_options = {1: "Mode 1: Use provided reference audio only", 2: "Mode 2: Use first audio from video as reference", 3: "Mode 3: Use each audio from video as reference"}
             selected_refer_mode = st.selectbox(
                 "Refer Mode",
                 options=list(refer_mode_options.keys()),
                 format_func=lambda x: refer_mode_options[x],
                 index=list(refer_mode_options.keys()).index(load_key("gpt_sovits.refer_mode")),
-                help="配置GPT-SoVITS的参考音频模式"
+                help="Configure reference audio mode for GPT-SoVITS"
             )
             if selected_refer_mode != load_key("gpt_sovits.refer_mode"):
                 update_key("gpt_sovits.refer_mode", selected_refer_mode)

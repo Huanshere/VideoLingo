@@ -75,7 +75,7 @@ def page_setting():
             update_key("resolution", resolution)
         
     with st.expander("配音设置", expanded=True):
-        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts", "edge_tts"]
+        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts", "edge_tts", "custom_tts"]
         selected_tts_method = st.selectbox("TTS方法", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if selected_tts_method != load_key("tts_method"):
             update_key("tts_method", selected_tts_method)

@@ -22,12 +22,14 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🎙️ OpenAI TTS | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
 | 🔊 Azure TTS(recommended) | Natural effect | Limited emotions | 🤩 | 😃 |
 | 🎤 Fish TTS | Authentic native | Limited official models | 😂 | 😂 |
+| 🗣 Edge TTS | Completely free | Average effect | 😐 | 😐 |
 | 🗣️ GPT-SoVITS | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
 - For OpenAI TTS, recommended to use [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB);
-- For Azure TTS, register on official website or purchase from third parties;
+- For Azure TTS, register on official website or purchase from third parties
 - For Fish TTS, register on [official website](https://fish.audio/en/go-api/) (comes with $10 credit)
+> Want to use your own TTS API? Edit in `core/all_tts_functions/custom_tts.py`!
 
 <details>
 <summary>SiliconFlow FishTTS Tutorial</summary>
@@ -120,6 +122,11 @@ VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 > 2. Install [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 > 3. Add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to your system PATH
 > 4. Restart your computer
+
+> **Note:** FFmpeg is required. Please install it via package managers:
+> - Windows: ```choco install ffmpeg``` (via [Chocolatey](https://chocolatey.org/))
+> - macOS: ```brew install ffmpeg``` (via [Homebrew](https://brew.sh/))
+> - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu) or ```sudo dnf install ffmpeg``` (Fedora)
 
 Before installing VideoLingo, ensure you have installed Git and Anaconda.
 
