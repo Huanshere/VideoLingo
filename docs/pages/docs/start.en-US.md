@@ -1,7 +1,7 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-This project requires Large Language Models and TTS. For best quality, please use claude-3-5-sonnet-20240620 with Azure TTS. Recommended to use [302AI](https://gpt302.saaslink.net/C2oHR9), which offers both LLM and TTS services with a single API key. You can also choose a fully local experience by using Ollama for LLM and Edge TTS for dubbing, with no API key required.
+This project requires Large Language Models and TTS. For best quality, please use claude-3-5-sonnet-20240620 with Azure TTS. Recommended to use [302AI](https://gpt302.saaslink.net/C2oHR9), which offers both LLM and TTS services with a single API key. You can also choose a fully local experience by using Ollama for LLM and Edge TTS for dubbing, with no API key required (In this case, you need to set `max_workers` to 1 and `summary_length` low to 2000 in `config.yaml`).
 
 ### 1. **Get API_KEY for Large Language Models**:
 

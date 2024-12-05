@@ -1,7 +1,7 @@
 # 🚀 开始使用
 
 ## 📋 API 配置指南
-本项目需使用大模型和 TTS。为确保最佳质量请使用 claude-3-5-sonnet-20240620 与 Azure TTS。推荐使用 [302AI](https://gpt302.saaslink.net/C2oHR9)，一个 API key 即可使用所有服务。也可以选择完全本地化体验，使用 Ollama 作为大模型，Edge TTS 作为配音，无需任何 API key。
+本项目需使用大模型和 TTS。追求最佳质量请使用 claude-3-5-sonnet-20240620 与 Azure TTS。推荐使用 [302AI](https://gpt302.saaslink.net/C2oHR9)，一个 API key 即可使用所有服务。也可以选择完全本地化体验，使用 Ollama 作为大模型，Edge TTS 作为配音，无需任何 API key（此时需要在 `config.yaml` 中将 `max_workers` 设为 1，`summary_length` 调低至 2000）。
 
 ### 1. **大模型的 API_KEY**：
 
@@ -43,7 +43,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 <details>
 <summary>OpenAI 声音怎么选？</summary>
 
-声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.yaml` 中修改 `openai_tts.voice` 即可。
+声音列表可以在 [官��](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.yaml` 中修改 `openai_tts.voice` 即可。
 
 </details>
 <details>
@@ -71,7 +71,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
    a. 自训练模型：
    - 训练好模型后， `GPT-SoVITS-v2-xxx\GPT_SoVITS\configs` 下的 `tts_infer.yaml` 已自动填写好你的模型地址，将其复制并重命名为 `你喜欢的英文角色名.yaml`
-   - 在和 `yaml` 文件同个目录下，放入后续使用的参考音���，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`
+   - 在和 `yaml` 文件同个目录下，放入后续使用的参考音，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`
    - 在 VideoLingo 网页的侧边栏中，将 `GPT-SoVITS 角色` 配置为 `你喜欢的英文角色名`。
 
    b. 使用预训练模型：
@@ -89,7 +89,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
       vits_weights_path: SoVITS_weights_v2/Huanyu_v2_e10_s150.pth
       ```
    - 参考方法 a，在和 `yaml` 文件同个目录下，放入后续使用的参考音频，命名为 `你喜欢的英文角色名_参考音频的文字内容.wav` 或 `.mp3`，例如 `Huanyuv2_你好，这是一条测试音频.wav`，程序会自动识别并使用。
-   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `参考音频的文字内容` 可以使用中文。目前仍处于测试版，可能产生报错。
+   - ⚠️ 警告：**请使用英文命名 `角色名`** ，否则会出现错误。 `���考音频的文字内容` 可以使用中文。目前仍处于测试版，可能产生报错。
 
 
    ```
