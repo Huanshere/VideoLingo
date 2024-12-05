@@ -1,36 +1,34 @@
 # 🚀 开始使用
 
 ## 📋 API 配置指南
-本项目需使用大模型 和 TTS 。为确保最佳质量请使用 claude-3-5-sonnet-20240620 与 Azure TTS。如需快速体验可以使用 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE)，注册送积分，只需要一个 Key 即可体验全部功能。
+本项目需使用大模型和 TTS。为确保最佳质量请使用 claude-3-5-sonnet-20240620 与 Azure TTS。推荐使用 [302AI](https://gpt302.saaslink.net/C2oHR9)，一个 API key 即可使用所有服务。也可以选择完全本地化体验，使用 Ollama 作为大模型，Edge TTS 作为配音，无需任何 API key。
 
 ### 1. **大模型的 API_KEY**：
 
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $7.5 / 1M tokens | 🤩 |
-| deepseek-coder | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ￥2 / 1M tokens | 😃 |
-| Qwen/Qwen2.5-72B-Instruct | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ￥4 / 1M tokens | 😃 |
+| deepseek-coder | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ¥2 / 1M tokens | 😃 |
+| qwen2.5-coder:32b | [Ollama](https://ollama.ai) | http://localhost:11434 | 本地 | 😃 |
 
-注：支持 Openai 格式接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
-
+注：支持 OpenAI 格式接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
 
 ### 2. **TTS 的 API**
-VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配音仅翻译请跳过）
+VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配音可跳过）
 
-| TTS 方案 | 优点 | 缺点 | 中文效果 | 非中文效果 |
-|:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ SiliconFlow FishTTS | 支持克隆配置简单 | 克隆效果不稳定 | 😃 | 😃 |
-| 🎙️ OpenAI TTS | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🔊 Azure TTS(推荐) | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
-| 🎤 Fish TTS  | 真是本地人 | 官方模型有限 | 😂 | 😂 |
-| 🗣 Edge TTS | 完全免费 | 效果一般 | 😐 | 😐 |
-| 🗣️ GPT-SoVITS | 最强语音克隆 | 只支持中英文，需要本地推理，配置麻烦 | 🏆 | 🚫 |
+| TTS 方案 | 提供商 | 优点 | 缺点 | 中文效果 | 非中文效果 |
+|:---------|:---------|:-----|:-----|:---------|:-----------|
+| 🔊 Azure TTS ⭐ | [302AI](https://gpt302.saaslink.net/C2oHR9) | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
+| 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
+| 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 真是本地人 | 官方模型有限 | 😂 | 😂 |
+| 🎙️ SiliconFlow FishTTS | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | 语音克隆 | 克隆效果不稳定 | 😃 | 😃 |
+| 🗣 Edge TTS | 本地 | 完全免费 | 效果一般 | 😐 | 😐 |
+| 🗣️ GPT-SoVITS | 本地 | 最强语音克隆 | 只支持中英文，需要本地训练推理，配置麻烦 | 🏆 | 🚫 |
 
 - SiliconFlow FishTTS 请在 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) 获取key，注意克隆功能需要付费充值积分；
-- OpenAI TTS，推荐使用 [云雾 api](https://yunwu.zeabur.app/register?aff=TXMB)；
-- Azure TTS 可以在官网注册获取key，也可以淘宝购买；
-- Fish TTS 可以在 [官网](https://fish.audio/zh-CN/go-api/) 注册（送10刀额度）
-> 现在还可以在 `core/all_tts_functions/custom.py` 里自定义tts渠道！
+- OpenAI TTS、Azure TTS 和 Fish TTS，仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9) - 一个 API key 即可使用所有服务
+> 现在还可以在 `core/all_tts_functions/custom_tts.py` 里自定义tts渠道！
+
 <details>
 <summary>SiliconFlow FishTTS 使用教程</summary>
 
@@ -170,9 +168,11 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 ## 🚨 常见报错
 
-1. **翻译过程的 'Key Error'**: 
-   - 原因1：弱模型遵循JSON格式能力有误。
+1. **翻译过程的 'All array must be of the same length' 或 'Key Error'**: 
+   - 原因1：弱模型遵循JSON格式能力较弱导致响应解析错误。
    - 原因2：对于敏感内容，LLM可能拒绝翻译。
-   解决方案：请检查 `output/gpt_log/error.json` 的 `response` 和 `msg` 字段。
+   解决方案：检查 `output/gpt_log/error.json` 的 `response` 和 `msg` 字段，删掉 `output/gpt_log` 文件夹后重试。
 
 2. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: 通常是网络问题。解决方案：中国大陆用户请切换网络节点重试。
+
+3. **local_files_only=True**：网络问题引起的模型下载失败，需要确认网络能 ping 通 `huggingface.co`。

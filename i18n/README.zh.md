@@ -115,6 +115,8 @@ docker run -d -p 8501:8501 --gpus all videolingo
 - `claude-3-5-sonnet-20240620`, `gemini-1.5-pro-002`, `gpt-4o`, `deepseek-coder`, `Qwen2.5-72B-Instruct`, ...（按效果排序）
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`, `edge-tts`, `custom-tts`(可在custom_tts.py中自行编辑)
 
+> VideoLingo 现在支持完全本地部署，使用 Ollama 作为 LLM 和 Edge-TTS 作为配音，无需云端 API！
+
 详细的安装、API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 当前限制

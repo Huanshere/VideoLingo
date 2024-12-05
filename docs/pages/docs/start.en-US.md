@@ -1,7 +1,7 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-This project requires Large Language Models and TTS. For best quality, please use claude-3-5-sonnet-20240620 with Azure TTS. For quick testing, you can use [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), which offers free credits upon registration and only needs one key for all features.
+This project requires Large Language Models and TTS. For best quality, please use claude-3-5-sonnet-20240620 with Azure TTS. Recommended to use [302AI](https://gpt302.saaslink.net/C2oHR9), which offers both LLM and TTS services with a single API key. You can also choose a fully local experience by using Ollama for LLM and Edge TTS for dubbing, with no API key required.
 
 ### 1. **Get API_KEY for Large Language Models**:
 
@@ -9,26 +9,24 @@ This project requires Large Language Models and TTS. For best quality, please us
 |:-----|:---------|:---------|:-----|:---------|
 | claude-3-5-sonnet-20240620 | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $7.5 / 1M tokens | 🤩 |
 | deepseek-coder | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ¥2 / 1M tokens | 😃 |
-| Qwen/Qwen2.5-72B-Instruct | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | https://api.siliconflow.cn | ¥4 / 1M tokens | 😃 |
+| qwen2.5-coder:32b | [Ollama](https://ollama.ai) | http://localhost:11434 | Local | 😃 |
 
 Note: Supports OpenAI interface, you can try different models. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
 
 ### 2. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
 
-| TTS Solution | Pros | Cons | Chinese Effect | Non-Chinese Effect |
-|:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ SiliconFlow FishTTS | Supports cloning, simple setup | Unstable cloning effect | 😃 | 😃 |
-| 🎙️ OpenAI TTS | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
-| 🔊 Azure TTS(recommended) | Natural effect | Limited emotions | 🤩 | 😃 |
-| 🎤 Fish TTS | Authentic native | Limited official models | 😂 | 😂 |
-| 🗣 Edge TTS | Completely free | Average effect | 😐 | 😐 |
-| 🗣️ GPT-SoVITS | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
+| TTS Solution | Provider | Pros | Cons | Chinese Effect | Non-Chinese Effect |
+|:---------|:---------|:-----|:-----|:---------|:-----------|
+| 🔊 Azure TTS ⭐ | [302AI](https://gpt302.saaslink.net/C2oHR9) | Natural effect | Limited emotions | 🤩 | 😃 |
+| 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
+| 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Authentic native | Limited official models | 😂 | 😂 |
+| 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
+| 🗣 Edge TTS | Local | Completely free | Average effect | 😐 | 😐 |
+| 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
-- For OpenAI TTS, recommended to use [Yunwu API](https://yunwu.zeabur.app/register?aff=TXMB);
-- For Azure TTS, register on official website or purchase from third parties
-- For Fish TTS, register on [official website](https://fish.audio/en/go-api/) (comes with $10 credit)
+- For OpenAI TTS, Azure TTS, and Fish TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to all three services
 > Want to use your own TTS API? Edit in `core/all_tts_functions/custom_tts.py`!
 
 <details>
@@ -164,9 +162,11 @@ Documentation: [English](/batch/README.md) | [Chinese](/batch/README.zh.md)
 
 ## 🚨 Common Errors
 
-1. **'Key Error' during translation**: 
-   - Reason 1: weaker models have poor JSON format compliance.
+1. **'All array must be of the same length' or 'Key Error' during translation**: 
+   - Reason 1: Weaker models have poor JSON format compliance causing response parsing errors.
    - Reason 2: LLM may refuse to translate sensitive content.
-   Solution: Check `response` and `msg` fields in `output/gpt_log/error.json`.
+   Solution: Check `response` and `msg` fields in `output/gpt_log/error.json`, delete the `output/gpt_log` folder and retry.
 
 2. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China please switch network nodes and retry.
+
+3. **local_files_only=True**: Model download failure due to network issues, need to verify network can ping `huggingface.co`.

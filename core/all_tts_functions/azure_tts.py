@@ -1,27 +1,31 @@
-import os, sys
+import requests
+import os,sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
-import azure.cognitiveservices.speech as speechsdk
 from core.config_utils import load_key
 
-def azure_tts(text, savepath):
-    azure_set = load_key("azure_tts")
-    speech_config = speechsdk.SpeechConfig(subscription=azure_set["key"], region=azure_set["region"])
-    audio_config = speechsdk.audio.AudioOutputConfig(filename=savepath)
+def azure_tts(text: str, save_path: str) -> None:
+    url = "https://api.302.ai/cognitiveservices/v1"
+    
+    API_KEY = load_key("azure_tts.api_key")
+    voice = load_key("azure_tts.voice")
+    
+    payload = f"""<speak version='1.0' xml:lang='zh-CN'>
+    <voice name='{voice}'>
+        {text}
+    </voice>    
+</speak>"""
 
-    # The neural multilingual voice can speak different languages based on the input text.
-    speech_config.speech_synthesis_voice_name=azure_set["voice"]
+    headers = {
+       'Authorization': f'Bearer {API_KEY}',
+       'X-Microsoft-OutputFormat': 'riff-16khz-16bit-mono-pcm',
+       'Content-Type': 'application/ssml+xml'
+    }
 
-    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+    response = requests.request("POST", url, headers=headers, data=payload)
 
-    speech_synthesis_result = speech_synthesizer.speak_text_async(text).get()
-
-    if speech_synthesis_result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-        print(f"Audio saved successfully to {savepath}")
-    elif speech_synthesis_result.reason == speechsdk.ResultReason.Canceled:
-        print(f"Speech synthesis canceled: {speech_synthesis_result.cancellation_details.reason}")
-        if speech_synthesis_result.cancellation_details.error_details:
-            print(f"Error: {speech_synthesis_result.cancellation_details.error_details}")
-        return False
+    with open(save_path, 'wb') as f:
+        f.write(response.content)
+    print(f"Audio saved to {save_path}")
 
 if __name__ == "__main__":
-    azure_tts("你好，世界！", "azure_tts.wav")
+    azure_tts("Hi! Welcome to VideoLingo!", "test.wav")

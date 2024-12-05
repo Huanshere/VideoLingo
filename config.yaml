@@ -48,7 +48,7 @@ reflect_translate: true
 pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts]
+# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
 tts_method: 'sf_fish_tts'
 
 # SiliconFlow FishTTS
@@ -63,33 +63,32 @@ sf_fish_tts:
   # preset, custom, dynamic
   mode: "preset"
 
-# OpenAI TTS-1 API configuration
+# OpenAI TTS-1 API configuration, 302.ai API only
 openai_tts:
+  api_key: 'YOUR_302_API_KEY'
   voice: 'alloy'
-  api_key: 'YOUR_KEY'
-  base_url: 'https://yunwu.zeabur.app'
 
-# Azure configuration
+# Azure configuration, 302.ai API only
 azure_tts:
-  key: 'YOUR_KEY'
-  region: 'eastasia'
+  api_key: 'YOUR_302_API_KEY'
   voice: 'zh-CN-YunfengNeural'
 
-# SoVITS configuration
-gpt_sovits:
-  character: 'Huanyuv2'
-  refer_mode: 3
-
-# FishTTS configuration
+# FishTTS configuration, 302.ai API only
 fish_tts:
-  api_key: 'YOUR_FISH_API_KEY'
+  api_key: 'YOUR_302_API_KEY'
   character: 'AD学姐'
   character_id_dict:
     'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
     '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
 
+# Edge TTS configuration
 edge_tts:
   voice: 'zh-CN-XiaoxiaoNeural'
+
+# SoVITS configuration
+gpt_sovits:
+  character: 'Huanyuv2'
+  refer_mode: 3
 
 # *Audio speed range
 speed_factor:

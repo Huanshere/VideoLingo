@@ -1,56 +1,49 @@
 import requests
-from pathlib import Path
 import os, sys
-from rich import print as rprint
-from moviepy.editor import AudioFileClip
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
+import json
 
-def fish_tts(text, save_path):
-    fish_set = load_key("fish_tts")
-    if fish_set["character"] not in fish_set["character_id_dict"]:
-        raise ValueError(f"Character <{fish_set['character']}> not found in <character_id_dict>")
-    id = fish_set["character_id_dict"][fish_set["character"]]
-    url = "https://api.fish.audio/v1/tts"
-
-    payload = {
+def fish_tts(text: str, save_as: str) -> bool:
+    """302.ai Fish TTS conversion"""
+    API_KEY = load_key("fish_tts.api_key")
+    character = load_key("fish_tts.character")
+    refer_id = load_key("fish_tts.character_id_dict")[character]
+    
+    url = "https://api.302.ai/fish-audio/v1/tts"
+    payload = json.dumps({
         "text": text,
-        "format": "mp3",
-        "mp3_bitrate": 128,
+        "reference_id": refer_id,
+        "chunk_length": 200,
         "normalize": True,
-        "reference_id": id
-    }
+        "format": "wav",
+        "latency": "normal"
+    })
+    
     headers = {
-        "Authorization": f"Bearer {fish_set['api_key']}",
-        "Content-Type": "application/json"
+        'Authorization': f'Bearer {API_KEY}',
+        'Content-Type': 'application/json'
     }
-
-    max_retries = 2
-    for attempt in range(max_retries):
-        response = requests.request("POST", url, json=payload, headers=headers)
-        if response.status_code == 200:
-            wav_file_path = Path(save_path).with_suffix('.wav')
-            wav_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-            # Save the MP3 content to a temporary file
-            temp_mp3_path = wav_file_path.with_suffix('.mp3')
-            with open(temp_mp3_path, 'wb') as temp_file:
-                temp_file.write(response.content)
-
-            # Convert mp3 to wav using moviepy
-            audio_clip = AudioFileClip(str(temp_mp3_path))
-            audio_clip.write_audiofile(str(wav_file_path))
-            audio_clip.close()
-
-            # Remove the temporary MP3 file
-            os.remove(temp_mp3_path)
-
-            rprint(f"[bold green]Converted audio saved to {wav_file_path}[/bold green]")
-            break
-        else:
-            rprint(f"[bold red]Request failed, status code: {response.status_code}, retry attempt: {attempt + 1}/{max_retries}[/bold red]")
-            if attempt == max_retries - 1:
-                rprint("[bold red]Max retry attempts reached, operation failed.[/bold red]")
+    
+    try:
+        response = requests.post(url, headers=headers, data=payload)
+        response.raise_for_status()
+        response_data = response.json()
+        
+        if "url" in response_data:
+            audio_response = requests.get(response_data["url"])
+            audio_response.raise_for_status()
+            
+            with open(save_as, "wb") as f:
+                f.write(audio_response.content)
+            return True
+        
+        print("Request failed:", response_data)
+        return False
+        
+    except Exception as e:
+        print(f"Error in fish_tts: {str(e)}")
+        return False
 
 if __name__ == '__main__':
-    fish_tts("今天是个好日子！", "fish_tts.wav")
+    fish_tts("Hi! Welcome to VideoLingo!", "test.wav")

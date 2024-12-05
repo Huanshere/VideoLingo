@@ -113,6 +113,8 @@ The project supports OpenAI-Like API format and various dubbing interfaces:
 - `claude-3-5-sonnet-20240620`, `gemini-1.5-pro-002`, `gpt-4o`, `deepseek-coder`, `Qwen2.5-72B-Instruct`, ... (sorted by performance)
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`, `edge-tts`, `custom-tts`(edit yourself in custom_tts.py)
 
+> **Note:** VideoLingo now supports fully local deployment using Ollama for LLM and Edge-TTS for dubbing, no cloud API required!
+
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Current Limitations
