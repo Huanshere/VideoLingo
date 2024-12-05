@@ -75,13 +75,13 @@ def page_setting():
             update_key("resolution", resolution)
         
     with st.expander("Dubbing Settings", expanded=True):
-        tts_methods = ["sf_fish_tts", "openai_tts", "azure_tts", "gpt_sovits", "fish_tts", "edge_tts", "custom_tts"]
-        selected_tts_method = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
-        if selected_tts_method != load_key("tts_method"):
-            update_key("tts_method", selected_tts_method)
+        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts"]
+        select_tts = st.selectbox("TTS Method", options=tts_methods, index=tts_methods.index(load_key("tts_method")))
+        if select_tts != load_key("tts_method"):
+            update_key("tts_method", select_tts)
 
         # sub settings for each tts method
-        if selected_tts_method == "sf_fish_tts":
+        if select_tts == "sf_fish_tts":
             config_input("SiliconFlow API Key", "sf_fish_tts.api_key")
             
             # Add mode selection dropdown
@@ -102,23 +102,21 @@ def page_setting():
             if selected_mode == "preset":
                 config_input("Voice", "sf_fish_tts.voice")
 
-        elif selected_tts_method == "openai_tts":
+        elif select_tts == "openai_tts":
+            config_input("302ai API", "openai_tts.api_key")
             config_input("OpenAI Voice", "openai_tts.voice")
-            config_input("OpenAI TTS API Key", "openai_tts.api_key")
-            config_input("OpenAI TTS API Base URL", "openai_tts.base_url")
 
-        elif selected_tts_method == "fish_tts":
-            config_input("Fish TTS API Key", "fish_tts.api_key")
+        elif select_tts == "fish_tts":
+            config_input("302ai API", "fish_tts.api_key")
             fish_tts_character = st.selectbox("Fish TTS Character", options=list(load_key("fish_tts.character_id_dict").keys()), index=list(load_key("fish_tts.character_id_dict").keys()).index(load_key("fish_tts.character")))
             if fish_tts_character != load_key("fish_tts.character"):
                 update_key("fish_tts.character", fish_tts_character)
 
-        elif selected_tts_method == "azure_tts":
-            config_input("Azure Key", "azure_tts.key")
-            config_input("Azure Region", "azure_tts.region")
+        elif select_tts == "azure_tts":
+            config_input("302ai API", "azure_tts.api_key")
             config_input("Azure Voice", "azure_tts.voice")
         
-        elif selected_tts_method == "gpt_sovits":
+        elif select_tts == "gpt_sovits":
             st.info("Please refer to Github homepage for GPT_SoVITS configuration")
             config_input("SoVITS Character", "gpt_sovits.character")
             
@@ -132,7 +130,7 @@ def page_setting():
             )
             if selected_refer_mode != load_key("gpt_sovits.refer_mode"):
                 update_key("gpt_sovits.refer_mode", selected_refer_mode)
-        elif selected_tts_method == "edge_tts":
+        elif select_tts == "edge_tts":
             config_input("Edge TTS Voice", "edge_tts.voice")
 
 def check_api():
