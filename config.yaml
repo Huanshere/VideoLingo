@@ -133,7 +133,6 @@ allowed_audio_formats:
 llm_support_json:
 - 'gpt-4o'
 - 'gpt-4o-mini'
-- 'grok-beta'
 - 'gemini-1.5-flash-latest'
 - 'gemini-1.5-pro-latest'
 - 'gemini-1.5-pro-002'
