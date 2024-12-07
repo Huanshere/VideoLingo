@@ -13,7 +13,7 @@ def split_by_mark(nlp):
     joiner = get_joiner(language)
     print(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
-    chunks.text = chunks.text.apply(lambda x: x.strip('"'))
+    chunks.text = chunks.text.apply(lambda x: x.strip('"').strip(""))
     
     # join with joiner
     input_text = joiner.join(chunks.text.to_list())
