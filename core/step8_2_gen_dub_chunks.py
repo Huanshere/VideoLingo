@@ -174,7 +174,9 @@ def gen_dub_chunks():
     last_idx = 0
 
     def clean_text(text):
-        """清洗文本：删除所有标点符号和空格"""
+        """clean space and punctuation"""
+        if not text or not isinstance(text, str):
+            return ''
         return re.sub(r'[^\w\s]|[\s]', '', text)
 
     for idx, row in df.iterrows():

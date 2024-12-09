@@ -62,6 +62,15 @@ class AdvancedSyllableEstimator:
         return 'en'
 
     def process_mixed_text(self, text: str) -> dict:
+        if not text or not isinstance(text, str):
+            return {
+                'language_breakdown': {},
+                'total_syllables': 0,
+                'punctuation': [],
+                'spaces': [],
+                'estimated_duration': 0
+            }
+            
         result = {'language_breakdown': {}, 'total_syllables': 0, 'punctuation': [], 'spaces': []}
         segments = re.split(f"({self.punctuation['space']}|{self.punctuation['mid']}|{self.punctuation['end']})", text)
         total_duration = 0
@@ -98,6 +107,8 @@ def init_estimator():
     return AdvancedSyllableEstimator()
 
 def estimate_duration(text: str, estimator: AdvancedSyllableEstimator):
+    if not text or not isinstance(text, str):
+        return 0
     return estimator.process_mixed_text(text)['estimated_duration']
 
 # 使用示例
