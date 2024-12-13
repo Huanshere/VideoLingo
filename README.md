@@ -110,8 +110,8 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 VideoLingo supports OpenAI-Like API format and various dubbing interfaces:
-- `claude-3-5-sonnet-20240620`, `gemini-1.5-pro-002`, `gpt-4o`, `deepseek-coder`, `Qwen2.5-72B-Instruct`, ... (sorted by performance)
-- `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`, `edge-tts`, `custom-tts`(edit yourself in custom_tts.py)
+- `claude-3-5-sonnet-20240620`, **`gemini-2.0-flash-exp`**, `gpt-4o`, `deepseek-coder`, ... (sorted by performance)
+- `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(ask gpt to help you define in custom_tts.py)
 
 > **Note:** VideoLingo is now integrated with [302.ai](https://gpt302.saaslink.net/C2oHR9), **one API KEY** for both LLM and TTS! Also supports fully local deployment using Ollama for LLM and Edge-TTS for dubbing, no cloud API required!
 

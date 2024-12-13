@@ -1,11 +1,11 @@
 # * 标有 * 的设置是高级设置，不会出现在 Streamlit 页面中，只能在 config.py 中手动修改
-version: "2.0.4"
+version: "2.1.2"
 ## ======================== 基本设置 ======================== ##
 # API 设置
 api:
   key: 'YOUR_API_KEY'
   base_url: 'https://api.302.ai'
-  model: 'claude-3-5-sonnet-20240620'
+  model: 'gemini-2.0-flash-exp'
 
 # 语言设置，写入提示词，可以用自然语言描述
 target_language: '简体中文'
@@ -133,10 +133,7 @@ allowed_audio_formats:
 llm_support_json:
 - 'gpt-4o'
 - 'gpt-4o-mini'
-- 'grok-beta'
-- 'gemini-1.5-flash-latest'
-- 'gemini-1.5-pro-latest'
-- 'gemini-1.5-pro-002'
+- 'gemini-2.0-flash-exp'
 - 'deepseek-coder'
 
 # 存在问题
