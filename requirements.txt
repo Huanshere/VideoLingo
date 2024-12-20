@@ -19,7 +19,7 @@ yt-dlp
 json-repair
 ruamel.yaml
 autocorrect-py
-ctranslate2==4.5.0
+ctranslate2==4.4.0
 edge-tts
 
 demucs[dev] @ git+https://github.com/adefossez/demucs
