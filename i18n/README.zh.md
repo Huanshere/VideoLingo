@@ -6,7 +6,7 @@
 
 [Website](https://videolingo.io) | [Documentation](https://docs.videolingo.io/docs/start)
 
-[**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
+[**English**](/README.md)｜[**中文**](./README.zh.md)｜[**日本語**](./README.ja.md)
 
 **QQ群：875297969**
 
