@@ -11,7 +11,7 @@ from translations.translations import translate as t
 OUTPUT_DIR = "output"
 
 def download_video_section():
-    st.header(t("Download or Upload Video"))
+    st.header(t("a. Download or Upload Video"))
     with st.container(border=True):
         try:
             video_file = find_video_files()

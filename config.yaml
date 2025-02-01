@@ -1,6 +1,8 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
-version: "2.1.2"
+version: "2.3.0"
 ## ======================== Basic Settings ======================== ##
+display_language: "zh-CN"
+
 # API settings
 api:
   key: 'YOUR_API_KEY'
@@ -11,7 +13,7 @@ api:
 target_language: '简体中文'
 
 # Whether to use Demucs for vocal separation before transcription
-demucs: false
+demucs: true
 
 whisper:
   # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
