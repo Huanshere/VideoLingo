@@ -21,6 +21,10 @@ whisper:
   # Whisper specified recognition language [en, zh, ...]
   language: 'en'
   detected_language: 'en'
+  # Whisper running mode ["local", "cloud"]. Specifies where to run, cloud uses 302.ai API
+  runtime: 'local'
+  # 302.ai API key
+  whisperX_302_api_key: 'YOUR_302_API_KEY'
 
 # Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
 resolution: '1920x1080'
@@ -35,7 +39,7 @@ subtitle:
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
 
-# * Summary length, set low to 2k if using local LLM
+# *Summary length, set low to 2k if using local LLM
 summary_length: 8000
 
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
