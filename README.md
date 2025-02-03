@@ -4,13 +4,11 @@
 
 # Connect the World, Frame by Frame
 
-[Website](https://videolingo.io) | [Document](https://docs.videolingo.io/docs/start)
-
-[**English**](/README.md)｜[**中文**](/README.zh.md)
+[**English**](/README.md)｜[**中文**](/translations/README.zh.md)｜[**日本語**](/translations/README.ja.md)｜[**Español**](/translations/README.es.md)｜[**Русский**](/translations/README.ru.md)
 
 </div>
 
-## 🌟 Overview ([Try VL For Free!](https://videolingo.io))
+## 🌟 Overview ([Try VL Now!](https://videolingo.io))
 
 VideoLingo is an all-in-one video translation, localization, and dubbing tool aimed at generating Netflix-quality subtitles. It eliminates stiff machine translations and multi-line subtitles while adding high-quality dubbing, enabling global knowledge sharing across language barriers.
 
