@@ -31,7 +31,9 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 - **🗣️ 支持 GPT-SoVITS、Azure、OpenAI 等多种配音方案**
 
-- 🚀 整合包一键启动，在 streamlit 中一键出片
+- 🚀 一键启动，在 streamlit 中一键出片
+
+- 🌍 多语言支持就绪的 streamlit UI
 
 - 📝 详细记录每步操作日志，支持随时中断和恢复进度
 

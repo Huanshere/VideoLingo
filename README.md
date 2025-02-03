@@ -31,6 +31,8 @@ Key features:
 
 - 🚀 One-click startup and processing in Streamlit
 
+- 🌍 Multi-language support in Streamlit UI
+
 - 📝 Detailed logging with progress resumption
 
 Difference from similar projects: **Single-line subtitles only, superior translation quality, seamless dubbing experience**
