@@ -4,6 +4,7 @@ from st_components.imports_and_utils import ask_gpt
 import streamlit as st
 from core.config_utils import update_key, load_key
 from translations.translations import translate as t
+from translations.translations import DISPLAY_LANGUAGES
 
 def config_input(label, key, help=None):
     """Generic config input handler"""
@@ -14,20 +15,11 @@ def config_input(label, key, help=None):
 
 def page_setting():
 
-    display_langs = {
-        "🇬🇧 English": "en",
-        "🇨🇳 简体中文": "zh-CN",
-        "🇭🇰 繁体中文": "zh-HK",
-        "🇯🇵 日本語": "ja",
-        "🇪🇸 Español": "es",
-        "🇷🇺 Русский": "ru",
-        "🇫🇷 Français": "fr",
-    }
     display_language = st.selectbox("Display Language 🌐", 
-                                  options=list(display_langs.keys()),
-                                  index=list(display_langs.values()).index(load_key("display_language")))
-    if display_langs[display_language] != load_key("display_language"):
-        update_key("display_language", display_langs[display_language])
+                                  options=list(DISPLAY_LANGUAGES.keys()),
+                                  index=list(DISPLAY_LANGUAGES.values()).index(load_key("display_language")))
+    if DISPLAY_LANGUAGES[display_language] != load_key("display_language"):
+        update_key("display_language", DISPLAY_LANGUAGES[display_language])
         st.rerun()
 
     with st.expander(t("LLM Configuration"), expanded=True):
