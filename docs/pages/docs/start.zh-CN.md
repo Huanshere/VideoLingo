@@ -1,15 +1,15 @@
 # 🚀 开始使用
 
 ## 📋 API 配置指南
-本项目需使用大模型和 TTS。追求最佳质量请使用 claude-3-5-sonnet-20240620 与 Azure TTS。推荐使用 [302AI](https://gpt302.saaslink.net/C2oHR9)，一个 API key 即可使用所有服务。也可以选择完全本地化体验，使用 Ollama 作为大模型，Edge TTS 作为配音，无需任何 API key（此时需要在 `config.yaml` 中将 `max_workers` 设为 1，`summary_length` 调低至 2000）。
+本项目需使用大模型和 TTS。追求最佳质量请使用 claude-3-5-sonnet-20240620 与 Azure TTS。也可以选择完全本地化体验，使用 Ollama 作为大模型，Edge TTS 作为配音，无需任何 API key（此时需要在 `config.yaml` 中将 `max_workers` 设为 1，`summary_length` 调低至 2000）。
 
 ### 1. **大模型的 API_KEY**：
 
 | 推荐模型 | 推荐提供商 | base_url | 价格 | 效果 |
 |:-----|:---------|:---------|:-----|:---------|
-| gemini-2.0-flash-exp | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $0.3 / 1M tokens | 🥳 |
 | claude-3-5-sonnet-20240620 | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $15 / 1M tokens | 🤩 |
-| deepseek-coder | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ¥2 / 1M tokens | 😃 |
+| gemini-2.0-flash-exp | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $0.3 / 1M tokens | 😃 |
+| deepseek-chat(v3) | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ¥4 / 1M tokens | 🥳 |
 | qwen2.5-coder:32b | [Ollama](https://ollama.ai) | http://localhost:11434 | 本地 | 😃 |
 
 注：支持 OpenAI 格式接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
@@ -21,7 +21,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 |:---------|:---------|:-----|:-----|:---------|:-----------|
 | 🔊 Azure TTS ⭐ | [302AI](https://gpt302.saaslink.net/C2oHR9) | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
 | 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 真是本地人 | 官方模型有限 | 😂 | 😂 |
+| 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 真是本地人 | 官方模型有限 | 🤩 | 😂 |
 | 🎙️ SiliconFlow FishTTS | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | 语音克隆 | 克隆效果不稳定 | 😃 | 😃 |
 | 🗣 Edge TTS | 本地 | 完全免费 | 效果一般 | 😐 | 😐 |
 | 🗣️ GPT-SoVITS | 本地 | 最强语音克隆 | 只支持中英文，需要本地训练推理，配置麻烦 | 🏆 | 🚫 |
@@ -125,7 +125,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 > **注意:** FFmpeg 是必需的，请通过包管理器安装：
 > - Windows：```choco install ffmpeg```（通过 [Chocolatey](https://chocolatey.org/)）
 > - macOS：```brew install ffmpeg```（通过 [Homebrew](https://brew.sh/)）
-> - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）或 ```sudo dnf install ffmpeg```（Fedora）
+> - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 
 开始安装 VideoLingo 之前，请确保安装了 Git 和 Anaconda。
 
@@ -135,37 +135,36 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
    cd VideoLingo
    ```
 
-2. 创建并活虚拟环境（**必须 3.10.0**）：
+2. 创建并活虚拟环境（**必须使用 3.10**）：
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
    ```
 
-3. （可选）应用汉化补丁：
-
-    将 `i18n/中文` 文件夹下的所有文件复制到 `VideoLingo` 目录下，替换重复的文件。
-
-   （注意：Mac系统会删除整个目标文件夹后再复制，而Windows只会替换重复的文件。Mac用户建议手动将文件逐个移动到目标位置）
-
-4. 运行安装脚本：
+3. 运行安装脚本：
    ```bash
    python install.py
    ```
 
-5. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
+4. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
    streamlit run st.py
    ```
 
-6. 在弹出网页的侧边栏中设置key，开始使用~
+5. 在弹出网页的侧边栏中设置key，开始使用~
 
-   ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
+   ![tutorial](./zh_page.png)
 
-7. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出。如需使用自定义术语，请在处理前将术语添加到 `custom_terms.xlsx` 中，例如 `Biden | 登子 | 美国的瞌睡总统`。
+6. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出。如需使用自定义术语，请在处理前将术语添加到 `custom_terms.xlsx` 中，例如 `Biden | 登子 | 美国的瞌睡总统`。
+
+> 需要帮助？我们的 [AI助手](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) 随时解答问题！
+
 
 ## 🏭 批量模式（beta）
 
 使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
+
+这个模式仍处于早期开发阶段，可能有潜在的错误。
 
 ## 🚨 常见报错
 

@@ -1,18 +1,18 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-This project requires Large Language Models and TTS. For best quality, please use claude-3-5-sonnet-20240620 with Azure TTS. Recommended to use [302AI](https://gpt302.saaslink.net/C2oHR9), which offers both LLM and TTS services with a single API key. You can also choose a fully local experience by using Ollama for LLM and Edge TTS for dubbing, with no API key required (In this case, you need to set `max_workers` to 1 and `summary_length` low to 2000 in `config.yaml`).
+VideoLingo requires an LLM and TTS(optional). For the best quality, use claude-3-5-sonnet-20240620 with Azure TTS. Alternatively, for a fully local setup with no API key needed, use Ollama for the LLM and Edge TTS for dubbing. In this case, set `max_workers` to 1 and `summary_length` to a low value like 2000 in `config.yaml`.
 
-### 1. **Get API_KEY for Large Language Models**:
+### 1. **Get API_KEY for LLM**:
 
 | Recommended Model | Recommended Provider | base_url | Price | Effect |
 |:-----|:---------|:---------|:-----|:---------|
-| gemini-2.0-flash-exp | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $0.3 / 1M tokens | 🥳 |
 | claude-3-5-sonnet-20240620 | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $15 / 1M tokens | 🤩 |
-| deepseek-coder | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ¥2 / 1M tokens | 😃 |
-| qwen2.5-coder:32b | [Ollama](https://ollama.ai) | http://localhost:11434 | Local | 😃 |
+| gemini-2.0-flash-exp | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | $0.3 / 1M tokens | 😃 |
+| deepseek-chat(v3) | [302AI](https://gpt302.saaslink.net/C2oHR9) | https://api.302.ai | ¥4 / 1M tokens | 🥳 |
+| qwen2.5-coder:32b | [Ollama](https://ollama.ai) | http://localhost:11434 | 0 | 😃 |
 
-Note: Supports OpenAI interface, you can try different models. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
+Note: Supports OpenAI format, you can try different models at your risk. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
 
 ### 2. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
@@ -28,7 +28,7 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
 - For OpenAI TTS, Azure TTS, and Fish TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to all three services
-> Want to use your own TTS API? Edit in `core/all_tts_functions/custom_tts.py`!
+> Wanna use your own TTS? Modify in `core/all_tts_functions/custom_tts.py`!
 
 <details>
 <summary>SiliconFlow FishTTS Tutorial</summary>
@@ -153,13 +153,17 @@ Before installing VideoLingo, ensure you have installed Git and Anaconda.
 
 5. Set key in sidebar of popup webpage and start using~
 
-   ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
+   ![tutorial](./en_page.png)
 
 6. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation. To use custom terms, add them to `custom_terms.xlsx` before processing, e.g. `Baguette | French bread | Not just any bread!`.
 
+> Need help? Our [AI Assistant](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) is here to guide you through any issues!
+
 ## 🏭 Batch Mode (beta)
 
-Documentation: [English](/batch/README.md) | [Chinese](/batch/README.zh.md)
+Document: [English](/batch/README.md) | [Chinese](/batch/README.zh.md)
+
+Note: This section is still in early development and may have limited functionality
 
 ## 🚨 Common Errors
 
