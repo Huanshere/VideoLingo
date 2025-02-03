@@ -32,8 +32,8 @@ def merge_video_audio():
     VIDEO_FILE = find_video_files()
     background_file = BACKGROUND_AUDIO_FILE
     
-    if load_key("resolution") == '0x0':
-        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
+    if not load_key("burn_subtitles"):
+        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as subtitles are not burned in.[/bold yellow]")
 
         # Create a black frame
         frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
@@ -47,8 +47,11 @@ def merge_video_audio():
 
     # Merge video and audio with translated subtitles
     dub_volume = load_key("dub_volume")
-    resolution = load_key("resolution")
-    target_width, target_height = resolution.split('x')
+    video = cv2.VideoCapture(VIDEO_FILE)
+    TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    video.release()
+    rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
     
     subtitle_filter = (
         f"subtitles={DUB_SUB_FILE}:force_style='FontSize={TRANS_FONT_SIZE},"
@@ -60,8 +63,8 @@ def merge_video_audio():
     cmd = [
         'ffmpeg', '-y', '-i', VIDEO_FILE, '-i', background_file, '-i', DUB_AUDIO,
         '-filter_complex',
-        f'[0:v]scale={target_width}:{target_height}:force_original_aspect_ratio=decrease,'
-        f'pad={target_width}:{target_height}:(ow-iw)/2:(oh-ih)/2,'
+        f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
+        f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
         f'{subtitle_filter}[v];'
         f'[1:a]volume=1[a1];[2:a]volume={dub_volume}[a2];'
         f'[a1][a2]amix=inputs=2:duration=first:dropout_transition=3[a]'

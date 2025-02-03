@@ -1,5 +1,4 @@
 {
-    "Display Language": "Display Language",
     "a. Download or Upload Video": "a. Download or Upload Video",
     "Delete and Reselect": "Delete and Reselect",
     "Enter YouTube link:": "Enter YouTube link:",
@@ -20,6 +19,7 @@
     "Input any language in natural language, as long as llm can understand": "Input any language in natural language, as long as llm can understand",
     "Vocal separation enhance": "Vocal separation enhance",
     "Burn-in Subtitles": "Burn-in Subtitles",
+    "Whether to burn subtitles into the video, will increase processing time": "Whether to burn subtitles into the video, will increase processing time",
     "Video Resolution": "Video Resolution",
     "Recommended for videos with loud background noise, but will increase processing time": "Recommended for videos with loud background noise, but will increase processing time",
     "Dubbing Settings": "Dubbing Settings",
@@ -73,5 +73,8 @@
     "Merge full audio": "Merge full audio",
     "Merge dubbing to the video": "Merge dubbing to the video",
     "Audio processing complete! 🎇": "Audio processing complete! 🎇",
-    "Hello, welcome to VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also use VideoLingo on our website now: <a href='https://videolingo.io' target='_blank'>videolingo.io</a>": "Hello, welcome to VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also use VideoLingo on our website now: <a href='https://videolingo.io' target='_blank'>videolingo.io</a>"
+    "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">VideoLingo Helper</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">VideoLingo Helper</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!",
+    "WhisperX Runtime": "WhisperX Runtime",
+    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key": "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key",
+    "WhisperX 302ai API": "WhisperX 302ai API"
 }

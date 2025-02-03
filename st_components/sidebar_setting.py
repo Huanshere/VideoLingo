@@ -14,9 +14,20 @@ def config_input(label, key, help=None):
 
 def page_setting():
 
-    display_language = st.selectbox(t("Display Language"), options=["en", "zh-CN"], index=["en", "zh-CN"].index(load_key("display_language")))
-    if display_language != load_key("display_language"):
-        update_key("display_language", display_language)
+    display_langs = {
+        "🇬🇧 English": "en",
+        "🇨🇳 简体中文": "zh-CN",
+        "🇭🇰 繁体中文": "zh-HK",
+        "🇯🇵 日本語": "ja",
+        "🇪🇸 Español": "es",
+        "🇷🇺 Русский": "ru",
+        "🇫🇷 Français": "fr",
+    }
+    display_language = st.selectbox("Display Language 🌐", 
+                                  options=list(display_langs.keys()),
+                                  index=list(display_langs.values()).index(load_key("display_language")))
+    if display_langs[display_language] != load_key("display_language"):
+        update_key("display_language", display_langs[display_language])
         st.rerun()
 
     with st.expander(t("LLM Configuration"), expanded=True):
@@ -52,6 +63,13 @@ def page_setting():
             if langs[lang] != load_key("whisper.language"):
                 update_key("whisper.language", langs[lang])
 
+        # add runtime selection in v2.2.0
+        runtime = st.selectbox(t("WhisperX Runtime"), options=["local", "cloud"], index=["local", "cloud"].index(load_key("whisper.runtime")), help=t("Local runtime requires >8GB GPU, cloud runtime requires 302ai API key"))
+        if runtime != load_key("whisper.runtime"):
+            update_key("whisper.runtime", runtime)
+        if runtime == "cloud":
+            config_input(t("WhisperX 302ai API"), "whisper.whisperX_302_api_key")
+
         with c2:
             target_language = st.text_input(t("Target Lang"), value=load_key("target_language"), help=t("Input any language in natural language, as long as llm can understand"))
             if target_language != load_key("target_language"):
@@ -61,25 +79,9 @@ def page_setting():
         if demucs != load_key("demucs"):
             update_key("demucs", demucs)
         
-        burn_subtitles = st.toggle(t("Burn-in Subtitles"), value=load_key("resolution") != "0x0")
-        
-        resolution_options = {
-            "1080p": "1920x1080",
-            "360p": "640x360"
-        }
-        
-        if burn_subtitles:
-            selected_resolution = st.selectbox(
-                t("Video Resolution"),
-                options=list(resolution_options.keys()),
-                index=list(resolution_options.values()).index(load_key("resolution")) if load_key("resolution") != "0x0" else 0
-            )
-            resolution = resolution_options[selected_resolution]
-        else:
-            resolution = "0x0"
-
-        if resolution != load_key("resolution"):
-            update_key("resolution", resolution)
+        burn_subtitles = st.toggle(t("Burn-in Subtitles"), value=load_key("burn_subtitles"), help=t("Whether to burn subtitles into the video, will increase processing time"))
+        if burn_subtitles != load_key("burn_subtitles"):
+            update_key("burn_subtitles", burn_subtitles)
         
     with st.expander(t("Dubbing Settings"), expanded=True):
         tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts"]

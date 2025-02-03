@@ -1,5 +1,4 @@
 {
-    "Display Language": "显示语言",
     "a. Download or Upload Video": "a. 下载或上传视频",
     "Delete and Reselect": "删除并重新选择",
     "Enter YouTube link:": "输入YouTube链接:",
@@ -20,6 +19,7 @@
     "Input any language in natural language, as long as llm can understand": "用自然语言输入任何语言,只要LLM能理解即可",
     "Vocal separation enhance": "人声分离增强",
     "Burn-in Subtitles": "烧录字幕",
+    "Whether to burn subtitles into the video, will increase processing time": "是否将字幕烧录到视频中，会增加处理时间",
     "Video Resolution": "视频分辨率",
     "Recommended for videos with loud background noise, but will increase processing time": "推荐用于背景噪音较大的视频,但会增加处理时间",
     "Dubbing Settings": "配音设置",
@@ -73,5 +73,9 @@
     "Merge full audio": "合并完整音频",
     "Merge dubbing to the video": "将配音合并到视频中",
     "Audio processing complete! 🎇": "音频处理完成! 🎇",
-    "Hello, welcome to VideoLingo. This project is currently under construction. If you encounter any issues, please feel free to ask questions on Github! You can also use VideoLingo on our website now: <a href='https://videolingo.io' target='_blank'>videolingo.io</a>": "你好,欢迎使用VideoLingo。本项目目前正在建设中。如果遇到任何问题,请随时在Github上提问！现在也可以在我们的网站上使用VideoLingo: <a href='https://videolingo.io' target='_blank'>videolingo.io</a>"
+    "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "欢迎来到VideoLingo。如果遇到任何问题，随时可以通过我们的免费问答助手 <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a> 获取即时解答！还可以免费试用我们的SaaS网站 <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>！",
+    "WhisperX Runtime": "WhisperX 运行环境",
+    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key": "本地运行需要>8GB显存GPU，云端运行需要302ai API密钥",
+    "WhisperX 302ai API": "WhisperX 302ai API密钥"
 }
+
