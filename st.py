@@ -33,7 +33,7 @@ def text_processing_section():
                 process_text()
                 st.rerun()
         else:
-            if not load_key("burn_subtitles"):
+            if load_key("burn_subtitles"):
                 st.video(SUB_VIDEO)
             download_subtitle_zip_button(text=t("Download All Srt Files"))
             
