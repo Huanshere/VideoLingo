@@ -30,7 +30,7 @@ OUTPUT_DIR = "output"
 OUTPUT_VIDEO = f"{OUTPUT_DIR}/output_sub.mp4"
 SRC_SRT = f"{OUTPUT_DIR}/src.srt"
 TRANS_SRT = f"{OUTPUT_DIR}/trans.srt"
-
+    
 def check_gpu_available():
     try:
         result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True)
@@ -39,14 +39,12 @@ def check_gpu_available():
         return False
 
 def merge_subtitles_to_video():
-    RESOLUTION = load_key("resolution")
-    TARGET_WIDTH, TARGET_HEIGHT = RESOLUTION.split('x')
     video_file = find_video_files()
     os.makedirs(os.path.dirname(OUTPUT_VIDEO), exist_ok=True)
 
     # Check resolution
-    if RESOLUTION == '0x0':
-        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
+    if not load_key("burn_subtitles"):
+        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as subtitles are not burned in.[/bold yellow]")
 
         # Create a black frame
         frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
@@ -62,6 +60,11 @@ def merge_subtitles_to_video():
         print("Subtitle files not found in the 'output' directory.")
         exit(1)
 
+    video = cv2.VideoCapture(video_file)
+    TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    video.release()
+    rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (

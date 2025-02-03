@@ -2,7 +2,7 @@ import pandas as pd
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.config_utils import load_key
-from core.all_whisper_methods.whisperX_utils import get_audio_duration
+from core.all_whisper_methods.audio_preprocess import get_audio_duration
 from core.step8_1_gen_audio_task import time_diff_seconds
 import datetime
 import re

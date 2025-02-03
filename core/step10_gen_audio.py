@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.config_utils import load_key
-from core.all_whisper_methods.whisperX_utils import get_audio_duration
+from core.all_whisper_methods.audio_preprocess import get_audio_duration
 from core.all_tts_functions.tts_main import tts_main
 
 console = Console()

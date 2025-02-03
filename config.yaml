@@ -1,17 +1,19 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
-version: "2.1.2"
+version: "2.2.0"
 ## ======================== Basic Settings ======================== ##
+display_language: "zh-CN"
+
 # API settings
 api:
   key: 'YOUR_API_KEY'
   base_url: 'https://api.302.ai'
-  model: 'gemini-2.0-flash-exp'
+  model: 'deepseek-chat'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
 
 # Whether to use Demucs for vocal separation before transcription
-demucs: false
+demucs: true
 
 whisper:
   # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
@@ -19,9 +21,13 @@ whisper:
   # Whisper specified recognition language [en, zh, ...]
   language: 'en'
   detected_language: 'en'
+  # Whisper running mode ["local", "cloud"]. Specifies where to run, cloud uses 302.ai API
+  runtime: 'cloud'
+  # 302.ai API key
+  whisperX_302_api_key: 'YOUR_302_API_KEY'
 
-# Video resolution [0x0, 640x360, 1920x1080]  0x0 will generate a 0-second black video placeholder
-resolution: '1920x1080'
+# Whether to burn subtitles into the video
+burn_subtitles: true
 
 ## ======================== Advanced Settings ======================== ##
 # *Default resolution for downloading YouTube videos [360, 1080, best]
@@ -33,7 +39,7 @@ subtitle:
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
 
-# * Summary length, set low to 2k if using local LLM
+# *Summary length, set low to 2k if using local LLM
 summary_length: 8000
 
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
@@ -135,6 +141,7 @@ llm_support_json:
 - 'gpt-4o-mini'
 - 'gemini-2.0-flash-exp'
 - 'deepseek-coder'
+- 'deepseek-chat'
 
 # have problems
 # - 'Qwen/Qwen2.5-72B-Instruct'

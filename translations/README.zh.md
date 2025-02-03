@@ -4,15 +4,13 @@
 
 # 连接世界每一帧
 
-[Website](https://videolingo.io) | [Documentation](https://docs.videolingo.io/docs/start)
-
-[**English**](/README.md)｜[**中文**](/i18n/README.zh.md)
+[**English**](/README.md)｜[**简体中文**](/translations/README.zh.md)｜[**繁體中文**](/translations/README.zh-TW.md)｜[**日本語**](/translations/README.ja.md)｜[**Español**](/translations/README.es.md)｜[**Русский**](/translations/README.ru.md)｜[**Français**](/translations/README.fr.md)
 
 **QQ群：875297969**
 
 </div>
 
-## 🌟 简介（[免费在线体验！](https://videolingo.io)）
+## 🌟 简介（[在线体验！](https://videolingo.io)）
 
 VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的克隆配音，让全世界的知识能够跨越语言的障碍共享。
 
@@ -31,7 +29,9 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 - **🗣️ 支持 GPT-SoVITS、Azure、OpenAI 等多种配音方案**
 
-- 🚀 整合包一键启动，在 streamlit 中一键出片
+- 🚀 一键启动，在 streamlit 中一键出片
+
+- 🌍 多语言支持就绪的 streamlit UI
 
 - 📝 详细记录每步操作日志，支持随时中断和恢复进度
 
@@ -70,6 +70,8 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
+你可以不用阅读完整的文档，[**这里**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)有一个在线AI助手可以帮助你。
+
 > **注意:** 在 Windows 上使用 NVIDIA GPU 加速需要先完成以下步骤:
 > 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
 > 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
@@ -79,7 +81,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > **注意:** FFmpeg 是必需的，请通过包管理器安装：
 > - Windows：```choco install ffmpeg```（通过 [Chocolatey](https://chocolatey.org/)）
 > - macOS：```brew install ffmpeg```（通过 [Homebrew](https://brew.sh/)）
-> - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）或 ```sudo dnf install ffmpeg```（Fedora）
+> - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 
 1. 克隆仓库
 
@@ -112,12 +114,13 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
-- `claude-3-5-sonnet-20240620`, **`gemini-2.0-flash-exp`**, `gpt-4o`, `deepseek-coder`, ...（按效果排序）
-- `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(ask gpt to help you define in custom_tts.py)
+- LLM: `claude-3-5-sonnet-20240620`, **`gemini-2.0-flash-exp`**, `gpt-4o`, `deepseek-chat(v3)`, ...（按效果排序）
+- WhisperX: 本地运行 WhisperX 或使用 302.ai API
+- TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(你可以在 custom_tts.py 中自定义 TTS!)
 
-> **注意：** VideoLingo 现已与 [302.ai](https://gpt302.saaslink.net/C2oHR9) 集成，**一个 API KEY** 即可同时支持 LLM 和 TTS！同时也支持完全本地部署，使用 Ollama 作为 LLM 和 Edge-TTS 作为配音，无需云端 API！
+> **注意：** VideoLingo 现已与 **[302.ai](https://gpt302.saaslink.net/C2oHR9)** 集成，**一个 API KEY** 即可同时支持 LLM、WhisperX 和 TTS！同时也支持完全本地部署，使用 Ollama 作为 LLM 和 Edge-TTS 作为配音，无需云端 API！
 
-详细的安装、API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+详细的安装、API 配置、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 当前限制
 1. WhisperX 转录效果可能受到视频背景声影响，因为使用了 wav2vac 模型进行对齐。对于背景音乐较大的视频，请开启人声分离增强。另外，如果字幕以数字或特殊符号结尾，可能会导致提前截断，这是因为 wav2vac 无法将数字字符（如"1"）映射到其发音形式（"one"）。
@@ -136,9 +139,9 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
 
-## 📬 联系我们
+## 📬 联系
 
-- 加入我们的 QQ 群寻求解答：875297969
+- 加入 QQ 群寻求解答：875297969
 - 在 GitHub 上提交 [Issues](https://github.com/Huanshere/VideoLingo/issues) 或 [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls)
 - 关注我的 Twitter：[@Huanshere](https://twitter.com/Huanshere)
 - 联系邮箱：team@videolingo.io
