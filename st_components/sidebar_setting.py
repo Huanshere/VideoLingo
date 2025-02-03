@@ -62,11 +62,13 @@ def page_setting():
             )
             if langs[lang] != load_key("whisper.language"):
                 update_key("whisper.language", langs[lang])
+                st.rerun()
 
         # add runtime selection in v2.2.0
         runtime = st.selectbox(t("WhisperX Runtime"), options=["local", "cloud"], index=["local", "cloud"].index(load_key("whisper.runtime")), help=t("Local runtime requires >8GB GPU, cloud runtime requires 302ai API key"))
         if runtime != load_key("whisper.runtime"):
             update_key("whisper.runtime", runtime)
+            st.rerun()
         if runtime == "cloud":
             config_input(t("WhisperX 302ai API"), "whisper.whisperX_302_api_key")
 
@@ -74,20 +76,23 @@ def page_setting():
             target_language = st.text_input(t("Target Lang"), value=load_key("target_language"), help=t("Input any language in natural language, as long as llm can understand"))
             if target_language != load_key("target_language"):
                 update_key("target_language", target_language)
+                st.rerun()
 
         demucs = st.toggle(t("Vocal separation enhance"), value=load_key("demucs"), help=t("Recommended for videos with loud background noise, but will increase processing time"))
         if demucs != load_key("demucs"):
             update_key("demucs", demucs)
+            st.rerun()
         
         burn_subtitles = st.toggle(t("Burn-in Subtitles"), value=load_key("burn_subtitles"), help=t("Whether to burn subtitles into the video, will increase processing time"))
         if burn_subtitles != load_key("burn_subtitles"):
             update_key("burn_subtitles", burn_subtitles)
-        
+            st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
         tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts"]
         select_tts = st.selectbox(t("TTS Method"), options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if select_tts != load_key("tts_method"):
             update_key("tts_method", select_tts)
+            st.rerun()
 
         # sub settings for each tts method
         if select_tts == "sf_fish_tts":
@@ -107,7 +112,7 @@ def page_setting():
             )
             if selected_mode != load_key("sf_fish_tts.mode"):
                 update_key("sf_fish_tts.mode", selected_mode)
-                
+                st.rerun()
             if selected_mode == "preset":
                 config_input("Voice", "sf_fish_tts.voice")
 
@@ -120,6 +125,7 @@ def page_setting():
             fish_tts_character = st.selectbox(t("Fish TTS Character"), options=list(load_key("fish_tts.character_id_dict").keys()), index=list(load_key("fish_tts.character_id_dict").keys()).index(load_key("fish_tts.character")))
             if fish_tts_character != load_key("fish_tts.character"):
                 update_key("fish_tts.character", fish_tts_character)
+                st.rerun()
 
         elif select_tts == "azure_tts":
             config_input("302ai API", "azure_tts.api_key")
@@ -139,6 +145,7 @@ def page_setting():
             )
             if selected_refer_mode != load_key("gpt_sovits.refer_mode"):
                 update_key("gpt_sovits.refer_mode", selected_refer_mode)
+                st.rerun()
         elif select_tts == "edge_tts":
             config_input(t("Edge TTS Voice"), "edge_tts.voice")
 
