@@ -1,0 +1,14 @@
+{
+    "introduction": {
+      "title": "介紹"
+    },
+    "start": {
+      "title": "使用文件"
+    },
+    "tech": {
+      "title": "技術文件"
+    },
+    "docker": {
+      "title": "Docker 文件"
+    }
+  }
