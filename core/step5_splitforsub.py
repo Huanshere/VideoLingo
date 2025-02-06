@@ -94,7 +94,7 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str]) -> Tuple[List[st
         tr_lines[i] = tr_parts
         remerged_tr_lines[i] = tr_remerged
     
-    with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=int(load_key("max_workers"))) as executor:
         executor.map(process, to_split)
     
     # Flatten `src_lines` and `tr_lines`

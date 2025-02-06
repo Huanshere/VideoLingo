@@ -117,7 +117,7 @@ def split_sentences_by_meaning():
     nlp = init_nlp()
     # 🔄 process sentences multiple times to ensure all are split
     for retry_attempt in range(3):
-        sentences = parallel_split_sentences(sentences, max_length=load_key("max_split_length"), max_workers=load_key("max_workers"), nlp=nlp, retry_attempt=retry_attempt)
+        sentences = parallel_split_sentences(sentences, max_length=load_key("max_split_length"), max_workers=int(load_key("max_workers")), nlp=nlp, retry_attempt=retry_attempt)
 
     # 💾 save results
     with open('output/log/sentence_splitbymeaning.txt', 'w', encoding='utf-8') as f:
