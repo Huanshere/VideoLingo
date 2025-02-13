@@ -54,16 +54,18 @@ def transcribe():
     # step4 Transcribe audio
     all_results = []
     if load_key("whisper.runtime") == "local":
-        from core.all_whisper_methods.whisperX_local import transcribe_audio as ts
+        from core.all_whisper_methods.whisperX_local import transcribe_audio
         rprint("[cyan]🎤 Transcribing audio with local model...[/cyan]")
+        for start, end in segments:
+            result = transcribe_audio(whisper_audio, start, end)
+            all_results.append(result)
     else:
-        from core.all_whisper_methods.whisperX_302 import transcribe_audio_302 as ts
+        from core.all_whisper_methods.whisperX_302 import transcribe_audio_302
         rprint("[cyan]🎤 Transcribing audio with 302 API...[/cyan]")
+        for index, (start, end) in enumerate(segments):
+            result = transcribe_audio_302(whisper_audio, start, end, log_index=index)
+            all_results.append(result)
 
-    for start, end in segments:
-        result = ts(whisper_audio, start, end)
-        all_results.append(result)
-    
     # step5 Combine results
     combined_result = {'segments': []}
     for result in all_results:
