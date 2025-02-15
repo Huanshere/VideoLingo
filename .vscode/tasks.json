@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "cascadeTerminateToConfigurations
+			"problemMatcher": [],
+			"label": "npm: start - docs",
+			"detail": "next start"
+		},
+		{
+			"type": "npm",
+			"script": "dev",
+			"path": "docs",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"label": "npm: dev - docs",
+			"detail": "next"
+		}
+	]"isBackground": true
+}

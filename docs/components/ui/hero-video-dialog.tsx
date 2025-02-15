@@ -6,7 +6,7 @@ import { Play, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-type AnimationStyle =
+atype AnimationStyle =
   | "from-bottom"
   | "from-center"
   | "from-top"
