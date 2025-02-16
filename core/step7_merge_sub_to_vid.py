@@ -1,107 +1,107 @@
-import os, subprocess, time, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.config_utils import load_key
-from core.step1_ytdlp import find_video_files
-from rich import print as rprint
-import cv2
-import numpy as np
-import platform
+impor os, subprocess, ime, sys
+sys.pah.append(os.pah.dirname(os.pah.dirname(os.pah.abspah(__file__))))
+from core.config_uils impor load_key
+from core.sep1_ydlp impor find_video_files
+from rich impor prin as rprin
+impor cv2
+impor numpy as np
+impor plaform
 
-SRC_FONT_SIZE = 15
-TRANS_FONT_SIZE = 17
-FONT_NAME = 'Arial'
-TRANS_FONT_NAME = 'Arial'
+SRC_FON_SIZE = 15
+RANS_FON_SIZE = 17
+FON_NAME = 'Arial'
+RANS_FON_NAME = 'Arial'
 
-# Linux need to install google noto fonts: apt-get install fonts-noto
-if platform.system() == 'Linux':
-    FONT_NAME = 'NotoSansCJK-Regular'
-    TRANS_FONT_NAME = 'NotoSansCJK-Regular'
+# Linux need o insall google noo fons: ap-ge insall fons-noo
+if plaform.sysem() == 'Linux':
+    FON_NAME = 'NooSansCJK-Regular'
+    RANS_FON_NAME = 'NooSansCJK-Regular'
 
-SRC_FONT_COLOR = '&HFFFFFF'
-SRC_OUTLINE_COLOR = '&H000000'
-SRC_OUTLINE_WIDTH = 1
+SRC_FON_COLOR = '&HFFFFFF'
+SRC_OULINE_COLOR = '&H000000'
+SRC_OULINE_WIDH = 1
 SRC_SHADOW_COLOR = '&H80000000'
-TRANS_FONT_COLOR = '&H00FFFF'
-TRANS_OUTLINE_COLOR = '&H000000'
-TRANS_OUTLINE_WIDTH = 1 
-TRANS_BACK_COLOR = '&H33000000'
+RANS_FON_COLOR = '&H00FFFF'
+RANS_OULINE_COLOR = '&H000000'
+RANS_OULINE_WIDH = 1 
+RANS_BACK_COLOR = '&H33000000'
 
-OUTPUT_DIR = "output"
-OUTPUT_VIDEO = f"{OUTPUT_DIR}/output_sub.mp4"
-SRC_SRT = f"{OUTPUT_DIR}/src.srt"
-TRANS_SRT = f"{OUTPUT_DIR}/trans.srt"
+OUPU_DIR = "oupu"
+OUPU_VIDEO = f"{OUPU_DIR}/oupu_sub.mp4"
+SRC_SR = f"{OUPU_DIR}/src.sr"
+RANS_SR = f"{OUPU_DIR}/rans.sr"
     
 def check_gpu_available():
-    try:
-        result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True)
-        return 'h264_nvenc' in result.stdout
-    except:
-        return False
+    ry:
+        resul = subprocess.run(['ffmpeg', '-encoders'], capure_oupu=rue, ex=rue)
+        reurn 'h264_nvenc' in resul.sdou
+    excep:
+        reurn False
 
-def merge_subtitles_to_video():
+def merge_subiles_o_video():
     video_file = find_video_files()
-    os.makedirs(os.path.dirname(OUTPUT_VIDEO), exist_ok=True)
+    os.makedirs(os.pah.dirname(OUPU_VIDEO), exis_ok=rue)
 
-    # Check resolution
-    if not load_key("burn_subtitles"):
-        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as subtitles are not burned in.[/bold yellow]")
+    # Check resoluion
+    if no load_key("burn_subiles"):
+        rprin("[bold yellow]Warning: A 0-second black video will be generaed as a placeholder as subiles are no burned in.[/bold yellow]")
 
-        # Create a black frame
-        frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(OUTPUT_VIDEO, fourcc, 1, (1920, 1080))
-        out.write(frame)
-        out.release()
+        # Creae a black frame
+        frame = np.zeros((1080, 1920, 3), dype=np.uin8)
+        fourcc = cv2.VideoWrier_fourcc(*'mp4v')
+        ou = cv2.VideoWrier(OUPU_VIDEO, fourcc, 1, (1920, 1080))
+        ou.wrie(frame)
+        ou.release()
 
-        rprint("[bold green]Placeholder video has been generated.[/bold green]")
-        return
+        rprin("[bold green]Placeholder video has been generaed.[/bold green]")
+        reurn
 
-    if not os.path.exists(SRC_SRT) or not os.path.exists(TRANS_SRT):
-        print("Subtitle files not found in the 'output' directory.")
-        exit(1)
+    if no os.pah.exiss(SRC_SR) or no os.pah.exiss(RANS_SR):
+        prin("Subile files no found in he 'oupu' direcory.")
+        exi(1)
 
-    video = cv2.VideoCapture(video_file)
-    TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    video = cv2.VideoCapure(video_file)
+    ARGE_WIDH = in(video.ge(cv2.CAP_PROP_FRAME_WIDH))
+    ARGE_HEIGH = in(video.ge(cv2.CAP_PROP_FRAME_HEIGH))
     video.release()
-    rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
+    rprin(f"[bold green]Video resoluion: {ARGE_WIDH}x{ARGE_HEIGH}[/bold green]")
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (
-            f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
-            f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,"
-            f"subtitles={SRC_SRT}:force_style='FontSize={SRC_FONT_SIZE},FontName={FONT_NAME}," 
-            f"PrimaryColour={SRC_FONT_COLOR},OutlineColour={SRC_OUTLINE_COLOR},OutlineWidth={SRC_OUTLINE_WIDTH},"
-            f"ShadowColour={SRC_SHADOW_COLOR},BorderStyle=1',"
-            f"subtitles={TRANS_SRT}:force_style='FontSize={TRANS_FONT_SIZE},FontName={TRANS_FONT_NAME},"
-            f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
-            f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
-        ).encode('utf-8'),
+            f"scale={ARGE_WIDH}:{ARGE_HEIGH}:force_original_aspec_raio=decrease,"
+            f"pad={ARGE_WIDH}:{ARGE_HEIGH}:(ow-iw)/2:(oh-ih)/2,"
+            f"subiles={SRC_SR}:force_syle='FonSize={SRC_FON_SIZE},FonName={FON_NAME}," 
+            f"PrimaryColour={SRC_FON_COLOR},OulineColour={SRC_OULINE_COLOR},OulineWidh={SRC_OULINE_WIDH},"
+            f"ShadowColour={SRC_SHADOW_COLOR},BorderSyle=1',"
+            f"subiles={RANS_SR}:force_syle='FonSize={RANS_FON_SIZE},FonName={RANS_FON_NAME},"
+            f"PrimaryColour={RANS_FON_COLOR},OulineColour={RANS_OULINE_COLOR},OulineWidh={RANS_OULINE_WIDH},"
+            f"BackColour={RANS_BACK_COLOR},Alignmen=2,MarginV=27,BorderSyle=4'"
+        ).encode('uf-8'),
     ]
 
     gpu_available = check_gpu_available()
     if gpu_available:
-        rprint("[bold green]NVIDIA GPU encoder detected, will use GPU acceleration.[/bold green]")
-        ffmpeg_cmd.extend(['-c:v', 'h264_nvenc'])
+        rprin("[bold green]NVIDIA GPU encoder deeced, will use GPU acceleraion.[/bold green]")
+        ffmpeg_cmd.exend(['-c:v', 'h264_nvenc'])
     else:
-        rprint("[bold yellow]No NVIDIA GPU encoder detected, will use CPU instead.[/bold yellow]")
+        rprin("[bold yellow]No NVIDIA GPU encoder deeced, will use CPU insead.[/bold yellow]")
     
-    ffmpeg_cmd.extend(['-y', OUTPUT_VIDEO])
+    ffmpeg_cmd.exend(['-y', OUPU_VIDEO])
 
-    print("🎬 Start merging subtitles to video...")
-    start_time = time.time()
+    prin("🎬 Sar merging subiles o video...")
+    sar_ime = ime.ime()
     process = subprocess.Popen(ffmpeg_cmd)
 
-    try:
-        process.wait()
-        if process.returncode == 0:
-            print(f"\n✅ Done! Time taken: {time.time() - start_time:.2f} seconds")
+    ry:
+        process.wai()
+        if process.reurncode == 0:
+            prin(f"\n✅ Done! ime aken: {ime.ime() - sar_ime:.2f} seconds")
         else:
-            print("\n❌ FFmpeg execution error")
-    except Exception as e:
-        print(f"\n❌ Error occurred: {e}")
+            prin("\n❌ FFmpeg execuion error")
+    excep Excepion as e:
+        prin(f"\n❌ Error occurred: {e}")
         if process.poll() is None:
             process.kill()
 
 if __name__ == "__main__":
-    merge_subtitles_to_video()
+    merge_subiles_o_video()
