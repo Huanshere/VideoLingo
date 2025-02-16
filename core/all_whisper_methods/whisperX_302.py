@@ -49,12 +49,25 @@ def transcribe_audio_302(audio_path: str, start: float = None, end: float = None
         'Authorization': f'Bearer {load_key("whisper.whisperX_302_api_key")}'
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload, files=files)
+    # 使用 with 语句确保文件正确关闭
+    with open(audio_path, 'rb') as audio_file:
+        files = [
+            ('audio_input', (
+                os.path.basename(audio_path),
+                audio_file,
+                'application/octet-stream'
+            ))
+        ]
+        response = requests.request("POST", url, headers=headers, data=payload, files=files)
     
     # 清理临时文件
     if start is not None and end is not None:
         if os.path.exists(temp_audio_path):
-            os.unlink(temp_audio_path)
+            time.sleep(0.1)
+            try:
+                os.unlink(temp_audio_path)
+            except PermissionError:
+                print(f"警告：无法删除临时文件 {temp_audio_path}")
     
     with open(LOG_FILE, "w", encoding="utf-8") as f:
         json.dump(response.json(), f, indent=4, ensure_ascii=False)

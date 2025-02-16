@@ -41,16 +41,23 @@ VideoLingoは、Netflixクオリティの字幕を生成することを目的と
 
 <table>
 <tr>
-<td width="50%">
+<td width="33%">
 
-### ロシア語翻訳
+### デュアル字幕
 ---
-https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
+https://github.com/user-attachments/assets/3bb51c03-4b5d-4b12-abce-8627873113e6
 
 </td>
-<td width="50%">
+<td width="33%">
 
-### GPT-SoVITS吹き替え
+### Cosy2 ボイスクローン
+---
+https://github.com/user-attachments/assets/e065fe4c-3694-477f-b4d6-316917df7c0a
+
+</td>
+<td width="33%">
+
+### GPT-SoVITS 吹き替え
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 

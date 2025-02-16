@@ -80,7 +80,7 @@ def page_setting():
             update_key("burn_subtitles", burn_subtitles)
             st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
-        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts"]
+        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts", "sf_cosyvoice2"]
         select_tts = st.selectbox(t("TTS Method"), options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if select_tts != load_key("tts_method"):
             update_key("tts_method", select_tts)
@@ -138,9 +138,13 @@ def page_setting():
             if selected_refer_mode != load_key("gpt_sovits.refer_mode"):
                 update_key("gpt_sovits.refer_mode", selected_refer_mode)
                 st.rerun()
+                
         elif select_tts == "edge_tts":
             config_input(t("Edge TTS Voice"), "edge_tts.voice")
 
+        elif select_tts == "sf_cosyvoice2":
+            config_input(t("SiliconFlow API Key"), "sf_cosyvoice2.api_key")
+        
 def check_api():
     try:
         resp = ask_gpt("This is a test, response 'message':'success' in json format.", 
