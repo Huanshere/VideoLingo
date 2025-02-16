@@ -45,7 +45,7 @@ Différence par rapport aux projets similaires : **Sous-titres sur une seule lig
 
 ### Sous-titres Doubles
 ---
-https://github.com/user-attachments/assets/3bb51c03-4b5d-4b12-abce-8627873113e6
+https://github.com/user-attachments/assets/a5c3d8d1-2b29-4ba9-b0d0-25896829d951
 
 </td>
 <td width="33%">

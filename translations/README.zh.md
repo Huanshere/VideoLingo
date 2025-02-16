@@ -47,7 +47,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 ### 双语字幕
 ---
-https://github.com/user-attachments/assets/3bb51c03-4b5d-4b12-abce-8627873113e6
+https://github.com/user-attachments/assets/a5c3d8d1-2b29-4ba9-b0d0-25896829d951
 
 </td>
 <td width="33%">

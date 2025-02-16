@@ -45,7 +45,7 @@ VideoLingo 是一個全方位的影片翻譯、本地化和配音工具，旨在
 
 ### 雙語字幕
 ---
-https://github.com/user-attachments/assets/3bb51c03-4b5d-4b12-abce-8627873113e6
+https://github.com/user-attachments/assets/a5c3d8d1-2b29-4ba9-b0d0-25896829d951
 
 </td>
 <td width="33%">
