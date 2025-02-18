@@ -93,6 +93,8 @@ def translate_all():
     # 💾 Save results to lists and Excel file
     src_text, trans_text = [], []
     for i, chunk in enumerate(chunks):
+        if not chunk:
+            continue
         chunk_lines = chunk.split('\n')
         src_text.extend(chunk_lines)
         
