@@ -41,14 +41,21 @@ VideoLingo 是一個全方位的影片翻譯、本地化和配音工具，旨在
 
 <table>
 <tr>
-<td width="50%">
+<td width="33%">
 
-### 俄語翻譯
+### 雙語字幕
 ---
-https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
+https://github.com/user-attachments/assets/a5c3d8d1-2b29-4ba9-b0d0-25896829d951
 
 </td>
-<td width="50%">
+<td width="33%">
+
+### Cosy2 聲音克隆
+---
+https://github.com/user-attachments/assets/e065fe4c-3694-477f-b4d6-316917df7c0a
+
+</td>
+<td width="33%">
 
 ### GPT-SoVITS 配音
 ---

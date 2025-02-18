@@ -41,16 +41,23 @@ VideoLingo - это универсальный инструмент для пе�
 
 <table>
 <tr>
-<td width="50%">
+<td width="33%">
 
-### Перевод на русский
+### Двойные Субтитры
 ---
-https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
+https://github.com/user-attachments/assets/a5c3d8d1-2b29-4ba9-b0d0-25896829d951
 
 </td>
-<td width="50%">
+<td width="33%">
 
-### Дубляж GPT-SoVITS
+### Клонирование Голоса Cosy2
+---
+https://github.com/user-attachments/assets/e065fe4c-3694-477f-b4d6-316917df7c0a
+
+</td>
+<td width="33%">
+
+### GPT-SoVITS с моим голосом
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 

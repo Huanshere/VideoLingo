@@ -7,11 +7,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 from core.all_whisper_methods.audio_preprocess import get_audio_duration
 from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
-from core.all_tts_functions.siliconflow_fish_tts import siliconflow_fish_tts_for_videolingo
+from core.all_tts_functions.sf_fishtts import siliconflow_fish_tts_for_videolingo
 from core.all_tts_functions.openai_tts import openai_tts
 from core.all_tts_functions.fish_tts import fish_tts
 from core.all_tts_functions.azure_tts import azure_tts
 from core.all_tts_functions.edge_tts import edge_tts
+from core.all_tts_functions.sf_cosyvoice2 import cosyvoice_tts_for_videolingo
 from core.all_tts_functions.custom_tts import custom_tts
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_correct_text_prompt
@@ -61,6 +62,8 @@ def tts_main(text, save_as, number, task_df):
                 edge_tts(text, save_as)
             elif TTS_METHOD == 'custom_tts':
                 custom_tts(text, save_as)
+            elif TTS_METHOD == 'sf_cosyvoice2':
+                cosyvoice_tts_for_videolingo(text, save_as, number, task_df)
             
             # Check generated audio duration
             duration = get_audio_duration(save_as)
