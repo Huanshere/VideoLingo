@@ -1,12 +1,12 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
-version: "2.2.1"
+version: "2.2.2"
 ## ======================== Basic Settings ======================== ##
 display_language: "zh-CN"
 
 # API settings
 api:
   key: 'YOUR_API_KEY'
-  base_url: 'https://api.302.ai/'
+  base_url: 'https://api.302.ai'
   model: 'deepseek-coder'
 
 # Language settings, written into the prompt, can be described in natural language
@@ -100,6 +100,9 @@ gpt_sovits:
   character: 'Huanyuv2'
   refer_mode: 3
 
+f5tts:
+  api_key: 'YOUR_302_API_KEY'
+
 # *Audio speed range
 speed_factor:
   min: 1
@@ -110,10 +113,6 @@ speed_factor:
 min_subtitle_duration: 2.5 # Minimum subtitle duration, will be forcibly extended
 min_trim_duration: 3.5 # Subtitles shorter than this value won't be split
 tolerance: 1.5 # Allowed extension time to the next subtitle
-
-# Volume settings
-dub_volume: 1.5  # *Dubbed audio volume (1.5 = 150%, most original dubbing audio is relatively quiet)
-
 
 
 

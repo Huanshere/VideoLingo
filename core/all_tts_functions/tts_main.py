@@ -16,6 +16,7 @@ from core.all_tts_functions.sf_cosyvoice2 import cosyvoice_tts_for_videolingo
 from core.all_tts_functions.custom_tts import custom_tts
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_correct_text_prompt
+from core.all_tts_functions._302_f5tts import f5tts_for_videolingo
 
 def clean_text_for_tts(text):
     """Remove problematic characters for TTS"""
@@ -64,7 +65,9 @@ def tts_main(text, save_as, number, task_df):
                 custom_tts(text, save_as)
             elif TTS_METHOD == 'sf_cosyvoice2':
                 cosyvoice_tts_for_videolingo(text, save_as, number, task_df)
-            
+            elif TTS_METHOD == 'f5tts':
+                f5tts_for_videolingo(text, save_as, number, task_df)
+                
             # Check generated audio duration
             duration = get_audio_duration(save_as)
             if duration > 0:
