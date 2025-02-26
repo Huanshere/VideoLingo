@@ -5,10 +5,28 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 from rich import print as rprint
 from pydub import AudioSegment
-from core.all_tts_functions._302_file_upload import upload_file_to_302
+import requests
 
 API_KEY = load_key("f5tts.api_key")
 AUDIO_REFERS_DIR = "output/audio/refers"
+UPLOADED_REFER_URL = None
+
+def upload_file_to_302(file_path):
+    """Upload a file to 302.ai API and return the URL if successful."""
+    API_KEY = load_key("f5tts.api_key")
+    url = "https://api.302.ai/302/upload-file"
+    
+    files = [('file', (os.path.basename(file_path), open(file_path, 'rb'), 'application/octet-stream'))]
+    headers = {'Authorization': f'Bearer {API_KEY}'}
+    
+    response = requests.request("POST", url, headers=headers, data={}, files=files)
+    
+    if response.status_code == 200:
+        response_data = response.json()
+        if response_data.get('code') == 200:
+            return response_data.get('data')
+        return None
+    return None
 
 def _f5_tts(text: str, refer_url: str, save_path: str) -> bool:
     conn = http.client.HTTPSConnection("api.302.ai")
@@ -110,15 +128,21 @@ def normalize_audio_volume(audio_path: str, output_path: str, target_db: float =
     return output_path
 
 def f5_tts_for_videolingo(text: str, save_as: str, number: int, task_df):
+    global UPLOADED_REFER_URL
     task_id = load_key("task_id")
     if not task_id: raise ValueError("Error: Task ID not found")
     
     dst_refer_path = f"tasks/{task_id}/refer.wav"
-    refer_path = _get_ref_audio(task_df)
-    normalized_refer_path = normalize_audio_volume(refer_path, f"{AUDIO_REFERS_DIR}/refer_normalized.wav")
-    refer_url = upload_file_to_302(normalized_refer_path)
+    
+    # Only process the reference audio if we haven't uploaded it yet
+    if UPLOADED_REFER_URL is None:
+        refer_path = _get_ref_audio(task_df)
+        normalized_refer_path = normalize_audio_volume(refer_path, f"{AUDIO_REFERS_DIR}/refer_normalized.wav")
+        UPLOADED_REFER_URL = upload_file_to_302(normalized_refer_path)
+        rprint(f"[green]✅ Reference audio uploaded, URL cached for reuse")
+    
     try:
-        success = _f5_tts(text=text, refer_url=refer_url, save_path=save_as)
+        success = _f5_tts(text=text, refer_url=UPLOADED_REFER_URL, save_path=save_as)
         return success
     except Exception as e:
         print(f"Error in f5_tts_for_videolingo: {str(e)}")
