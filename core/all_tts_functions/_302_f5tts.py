@@ -7,41 +7,31 @@ from rich import print as rprint
 from pydub import AudioSegment
 from core.all_tts_functions._302_file_upload import upload_file_to_302
 
-API_KEY = load_key("f5tts.302_api")
+API_KEY = load_key("f5tts.api_key")
 AUDIO_REFERS_DIR = "output/audio/refers"
 
 def _f5_tts(text: str, refer_url: str, save_path: str) -> bool:
     conn = http.client.HTTPSConnection("api.302.ai")
-    payload = json.dumps({
-        "gen_text": text,
-        "ref_audio_url": refer_url,
-        "model_type": "F5-TTS"
-    })
-    
-    api_key = load_key("api_keys.302_api")
-    headers = {
-        'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
-    }
+    payload = json.dumps({"gen_text": text, "ref_audio_url": refer_url, "model_type": "F5-TTS"})
+    headers = {'Authorization': f'Bearer {API_KEY}', 'Content-Type': 'application/json'}
 
     conn.request("POST", "/302/submit/f5-tts", payload, headers)
     res = conn.getresponse()
     data = json.loads(res.read().decode("utf-8"))
     
     if "audio_url" in data and "url" in data["audio_url"]:
-        # 下载音频文件
+        # Download audio file
         audio_url = data["audio_url"]["url"]
         audio_conn = http.client.HTTPSConnection("file.302.ai")
         audio_conn.request("GET", audio_url.replace("https://file.302.ai", ""))
         audio_res = audio_conn.getresponse()
         
-        # 保存音频文件
-        with open(save_path, "wb") as f:
+        with open(save_path, "wb") as f: 
             f.write(audio_res.read())
-        print(f"音频文件已保存到 {save_path}")
+        print(f"Audio file saved to {save_path}")
         return True
     
-    print("请求失败:", data)
+    print("Request failed:", data)
     return False
 
 def _merge_audio(files, output: str) -> bool:
@@ -55,16 +45,8 @@ def _merge_audio(files, output: str) -> bool:
         for file in files:
             audio = AudioSegment.from_wav(file)
             combined += audio + silence
-            
-        # Add final silence
         combined += silence
-        
-        # Export the combined file
-        combined.export(output, format="wav", parameters=[
-            "-acodec", "pcm_s16le",
-            "-ar", "16000",
-            "-ac", "1"
-        ])
+        combined.export(output, format="wav", parameters=["-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1"])
         
         if os.path.getsize(output) == 0:
             rprint(f"[red]Output file size is 0")
@@ -129,8 +111,7 @@ def normalize_audio_volume(audio_path: str, output_path: str, target_db: float =
 
 def f5_tts_for_videolingo(text: str, save_as: str, number: int, task_df):
     task_id = load_key("task_id")
-    if not task_id:
-        raise ValueError("Error: Task ID not found")
+    if not task_id: raise ValueError("Error: Task ID not found")
     
     dst_refer_path = f"tasks/{task_id}/refer.wav"
     refer_path = _get_ref_audio(task_df)
