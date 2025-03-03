@@ -115,13 +115,6 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运行。
 
-对于 Windows 系统使用 GPU 加速，需要安装以下依赖：
-
-- [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-- [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-
-> 注意：安装后需要将 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加至系统环境变量，并重启计算机 🔄
-
 ### Windows 一键安装
 
 请确保已安装 [Git](https://git-scm.com/downloads)，
@@ -135,56 +128,48 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 3. 双击 `OneKeyInstall&Start.bat` 即可完成安装并启动网页
 
-### 源码安装
+### macOS/Linux 源码安装
 
-开始安装 VideoLingo 之前，请确保:
-1. 预留 **25G** 硬盘空间
-2. 已安装 [Anaconda](https://www.anaconda.com/download) (用于 Python 环境管理)
-3. 已安装 [Git](https://git-scm.com/downloads) (用于克隆项目代码，也可以手动下载)
+开始安装 VideoLingo 之前，请确保预留 **25G** 硬盘空间，并安装了 Git 和 Anaconda。
 
-需要一定的 python 基础，遇到任何问题可以询问官方网站 [videolingo.io](https://videolingo.io) 右下角的AI助手~
-
-1. 打开 `Anaconda Prompt` 并切换到你想安装的目录，例如桌面：
-   ```bash
-   cd desktop
-   ```
-
-2. 克隆项目并切换至项目目录：
+1. 克隆项目：
    ```bash
    git clone https://github.com/Huanshere/VideoLingo.git
    cd VideoLingo
    ```
 
-3. 创建并激活虚拟环境（**必须 3.10.0**）：
+2. 创建并激活虚拟环境（**必须 3.10.0**）：
    ```bash
    conda create -n videolingo python=3.10.0 -y
    conda activate videolingo
    ```
 
-4. （可选）应用汉化补丁：
+3. （可选）应用汉化补丁：
 
     参照 **一键安装** 中的说明
 
    （注意：Mac系统会删除整个目标文件夹后再复制，而Windows只会替换重复的文件。Mac用户建议手动将文件逐个移动到目标位置）
 
-5. 运行安装脚本：
+4. 运行安装脚本：
    ```bash
    python install.py
    ```
    脚本将自动安装相应的 torch 版本
 
-6. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
+5. 🎉 输入命令或点击 `一键启动.bat` 启动 Streamlit 应用：
    ```bash
    streamlit run st.py
    ```
 
-7. 在弹出网页的侧边栏中设置key，开始使用~
+6. 在弹出网页的侧边栏中设置key，开始使用~
 
    ![tutorial](https://github.com/user-attachments/assets/983ba58b-5ae3-4132-90f5-6d48801465dd)
 
-8. 转录步骤会自动从 huggingface 下载模型，也可以手动下载，将 `_model_cache` 文件夹放置在 VideoLingo 目录下：[百度网盘](https://pan.baidu.com/s/1Igo_FvFV4Xcb8tSYT0ktpA?pwd=e1c7)
+7. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
 
-9. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出
+## 🏭 批量模式（beta）
+
+使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
 
 ## 🚨 常见报错
 

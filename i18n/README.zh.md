@@ -12,7 +12,7 @@
 
 </div>
 
-## 🌟 项目简介
+## 🌟 简介（[在线体验！](https://videolingo.io)）
 
 VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的克隆配音，让全世界的知识能够跨越语言的障碍共享。
 
@@ -29,7 +29,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 - **✅ 按照 Netflix 标准检查单行长度，绝无双行字幕**
 
-- **🗣️ 使用 FishTTS 等方法对齐克隆配音**
+- **🗣️ 使用 GPT-SoVITS 等方法对齐克隆配音**
 
 - 🚀 整合包一键启动，在 streamlit 中一键出片
 
@@ -41,84 +41,90 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 <table>
 <tr>
-<td width="33%">
+<td width="50%">
 
 ### 俄语翻译
 ---
 https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7
 
 </td>
-<td width="33%">
+<td width="50%">
 
-### GPT-SoVITS
+### GPT-SoVITS配音
 ---
 https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
-
-</td>
-<td width="33%">
-
-### OAITTS
----
-https://github.com/user-attachments/assets/85c64f8c-06cf-4af9-b153-ee9d2897b768
 
 </td>
 </tr>
 </table>
 
-### 语言支持：
+### 语言支持
 
-当前输入语言支持和示例：
+**输入语言支持：**
 
-| 输入语言 | 支持程度 | 翻译demo |
-|---------|---------|---------|
-| 英语 | 🤩 | [英转中](https://github.com/user-attachments/assets/127373bb-c152-4b7a-8d9d-e586b2c62b4b) |
-| 俄语 | 😊 | [俄转中](https://github.com/user-attachments/assets/25264b5b-6931-4d39-948c-5a1e4ce42fa7) |
-| 法语 | 🤩 | [法转日](https://github.com/user-attachments/assets/3ce068c7-9854-4c72-ae77-f2484c7c6630) |
-| 德语 | 🤩 | [德转中](https://github.com/user-attachments/assets/07cb9d21-069e-4725-871d-c4d9701287a3) |
-| 意大利语 | 🤩 | [意转中](https://github.com/user-attachments/assets/f1f893eb-dad3-4460-aaf6-10cac999195e) |
-| 西班牙语 | 🤩 | [西转中](https://github.com/user-attachments/assets/c1d28f1c-83d2-4f13-a1a1-859bd6cc3553) |
-| 日语 | 😐 | [日转中](https://github.com/user-attachments/assets/856c3398-2da3-4e25-9c36-27ca2d1f68c2) |
-| 中文* | 😊 | [中转英](https://github.com/user-attachments/assets/48f746fe-96ff-47fd-bd23-59e9202b495c) |
-> *中文需单独配置标点增强后的 whisper 模型，详见安装文档。但效果一般，因为 faster-whisper 加速的 whisper 失去了原有的好的断句，且识别得到的中文没有标点符号，难以断句。同样问题出现在日语上。
+🇺🇸 英语 🤩  |  🇷🇺 俄语 😊  |  🇫🇷 法语 🤩  |  🇩🇪 德语 🤩  |  🇮🇹 意大利语 🤩  |  🇪🇸 西班牙语 🤩  |  🇯🇵 日语 😐  |  🇨🇳 中文* 😊
 
-翻译语言支持所有语言，配音语言取决于选取的TTS。
+> *中文使用单独的标点增强后的 whisper 模型
 
-## 🚀 快速开始
+**翻译语言支持所有语言，配音语言取决于选取的TTS。**
 
-### 在线体验
+## 安装
 
-商业版（beta）提供免费的 20min 额度，请访问 [videolingo.io](https://videolingo.io)
+### Windows
+直接双击运行 `OneKeyInstall&Start.bat` 即可开始安装。该脚本会：
+- 自动下载并安装 Miniconda
+- 安装所有 GPU 或 CPU 所需的依赖
 
-### Colab 运行 (当前暂不可用)
+前置要求：系统需已安装 Git。
 
-### 本地安装
+### macOS/Linux 
 
-VideoLingo 支持所有硬件平台和操作系统，但在 GPU 加速下性能最佳。文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+1. 克隆仓库
 
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+```
 
-### 使用Docker
+2. 安装依赖（需要 `python=3.10.0`）
 
-目前VideoLingo 提供了Dockerfile，可自行使用Dockerfile打包目前VideoLingo，要求CUDA版本为12.4，NVIDIA Driver版本大于550，打包和运行方法为：
+```bash
+conda create -n videolingo python=3.10.0 -y
+conda activate videolingo
+python install.py
+```
+
+3. 启动应用
+
+```bash
+streamlit run st.py
+```
+
+### Docker
+还可以选择使用 Docker（要求 CUDA 12.4 和 NVIDIA Driver 版本 >550），详见[Docker文档](/docs/pages/docs/docker.zh-CN.md)：
 
 ```bash
 docker build -t videolingo .
 docker run -d -p 8501:8501 --gpus all videolingo
 ```
 
-详见：[Docker](/docs/pages/docs/docker.zh-CN.md)
+## API
+本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
+- `claude-3-5-sonnet-20240620`, `gemini-1.5-pro-002`, `gpt-4o`, `qwen2.5-72b-instruct`, `deepseek-coder`, ...（按效果排序）
+- `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
-## 🏭 批量模式（beta）
+详细的安装、 API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
-使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
-
-## ⚠️ 当前限制
+## 当前限制
 1. WhisperX 转录效果可能受到视频背景声影响，因为使用了 wav2vac 模型进行对齐，但尽管如此，WhisperX 已经能在 99% 情况下解决 Whisper 本身的幻觉问题。
 
-2. 配音功能由于不同语言的语速和语调差异，还受到前置处理字幕的影响，可能不能 100% 完美，但本项目做了非常多的语速上的工程处理，尽可能保证配音效果。
+2. 使用较弱模型时容易在中间过程报错，这是因为对响应的 json 格式要求较为严格。如果出现此错误，请删除 `output` 文件夹后更换 llm 重试，否则重复执行会读取上次错误的响应导致同样错误。
 
-3. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。有些商用api可以进行机器自动转换，但实测效果非常一般，因此这个问题目前只能依靠人为切段处理。
+3. 配音功能由于不同语言的语速和语调差异，还受到翻译步骤的影响，可能不能 100% 完美，但本项目做了非常多的语速上的工程处理，尽可能保证配音效果。
 
-4. **多角色分别配音仍在开发**，whisperX 具有 VAD 的潜力（尽管官方承认效果一般），但是具体需要一些施工，暂时没有支持此功能。
+4. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。
+
+5. **无法多角色分别配音**，whisperX 的说话人区分效果不够好用。
 
 ## 📄 许可证
 
@@ -136,7 +142,3 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## ⭐ Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
-
----
-
-<p align="center">如果觉得 VideoLingo 有帮助，请给我们一个 ⭐️！</p>

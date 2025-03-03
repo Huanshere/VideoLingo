@@ -1,11 +1,11 @@
 # * 标有 * 的设置是高级设置，不会出现在 Streamlit 页面中，只能在 config.py 中手动修改
-version: "2.0.0"
+version: "2.0.1"
 ## ======================== 基本设置 ======================== ##
 # API 设置
 api:
   key: 'YOUR_API_KEY'
-  base_url: 'https://api.siliconflow.cn'
-  model: 'Qwen/Qwen2.5-72B-Instruct'
+  base_url: 'https://api.302.ai'
+  model: 'claude-3-5-sonnet-20240620'
 
 # 语言设置，写入提示词，可以用自然语言描述
 target_language: '简体中文'
@@ -34,9 +34,12 @@ subtitle:
   target_multiplier: 1.2
 
 # *LLM 多线程访问数量
-max_workers: 8
+max_workers: 4
 # *第一次粗分的最大字数，低于 18 会切得太细影响翻译，高于 22 太长会导致后续字幕分割难以对齐
 max_split_length: 20
+
+# *是否进行反思翻译，false 只进行一次翻译
+reflect_translate: true
 
 # *是否在提取专业术语后、翻译前暂停，让用户手动调整术语表 output\log\terminology.json
 pause_before_translate: false
