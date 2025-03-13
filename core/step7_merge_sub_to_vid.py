@@ -16,6 +16,10 @@ TRANS_FONT_NAME = 'Arial'
 if platform.system() == 'Linux':
     FONT_NAME = 'NotoSansCJK-Regular'
     TRANS_FONT_NAME = 'NotoSansCJK-Regular'
+# Mac OS has different font names
+elif platform.system() == 'Darwin':
+    FONT_NAME = 'Arial Unicode MS'
+    TRANS_FONT_NAME = 'Arial Unicode MS'
 
 SRC_FONT_COLOR = '&HFFFFFF'
 SRC_OUTLINE_COLOR = '&H000000'
