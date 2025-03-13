@@ -1,4 +1,5 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
+# recommend to set in streamlit page
 version: "2.2.2"
 ## ======================== Basic Settings ======================== ##
 display_language: "zh-CN"
@@ -7,7 +8,7 @@ display_language: "zh-CN"
 api:
   key: 'YOUR_API_KEY'
   base_url: 'https://api.302.ai'
-  model: 'deepseek-coder'
+  model: 'deepseek-v3'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -55,7 +56,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
-tts_method: 'sf_cosyvoice2'
+tts_method: 'f5tts'
 
 # SiliconFlow FishTTS
 sf_fish_tts:
@@ -101,7 +102,7 @@ gpt_sovits:
   refer_mode: 3
 
 f5tts:
-  api_key: 'YOUR_302_API_KEY'
+  302_api: 'YOUR_302_API_KEY'
 
 # *Audio speed range
 speed_factor:
@@ -142,12 +143,7 @@ allowed_audio_formats:
 llm_support_json:
 - 'gpt-4o'
 - 'gpt-4o-mini'
-- 'gemini-2.0-flash-exp'
-
-# have problems
-# - 'Qwen/Qwen2.5-72B-Instruct'
-# - 'Qwen/Qwen2.5-Coder-32B-Instruct'
-# - 'Qwen/Qwen2.5-Chat-72B-Instruct-128K'
+- 'gemini-2.0-flash'
 
 # Spacy models
 spacy_model_map:
