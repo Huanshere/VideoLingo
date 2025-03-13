@@ -7,13 +7,13 @@ from rich import print as rprint
 from pydub import AudioSegment
 import requests
 
-API_KEY = load_key("f5tts.api_key")
+API_KEY = load_key("f5tts.302_api")
 AUDIO_REFERS_DIR = "output/audio/refers"
 UPLOADED_REFER_URL = None
 
 def upload_file_to_302(file_path):
     """Upload a file to 302.ai API and return the URL if successful."""
-    API_KEY = load_key("f5tts.api_key")
+    API_KEY = load_key("f5tts.302_api")
     url = "https://api.302.ai/302/upload-file"
     
     files = [('file', (os.path.basename(file_path), open(file_path, 'rb'), 'application/octet-stream'))]
