@@ -129,10 +129,6 @@ def normalize_audio_volume(audio_path: str, output_path: str, target_db: float =
 
 def f5_tts_for_videolingo(text: str, save_as: str, number: int, task_df):
     global UPLOADED_REFER_URL
-    task_id = load_key("task_id")
-    if not task_id: raise ValueError("Error: Task ID not found")
-    
-    dst_refer_path = f"tasks/{task_id}/refer.wav"
     
     # Only process the reference audio if we haven't uploaded it yet
     if UPLOADED_REFER_URL is None:

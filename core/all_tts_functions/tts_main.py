@@ -66,7 +66,7 @@ def tts_main(text, save_as, number, task_df):
             elif TTS_METHOD == 'sf_cosyvoice2':
                 cosyvoice_tts_for_videolingo(text, save_as, number, task_df)
             elif TTS_METHOD == 'f5tts':
-                f5tts_for_videolingo(text, save_as, number, task_df)
+                f5_tts_for_videolingo(text, save_as, number, task_df)
                 
             # Check generated audio duration
             duration = get_audio_duration(save_as)
