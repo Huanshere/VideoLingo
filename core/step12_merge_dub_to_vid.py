@@ -18,10 +18,12 @@ DUB_VIDEO = "output/output_dub.mp4"
 DUB_SUB_FILE = 'output/dub.srt'
 DUB_AUDIO = 'output/dub.mp3'
 
-TRANS_FONT_SIZE = 20
+TRANS_FONT_SIZE = 17
 TRANS_FONT_NAME = 'Arial'
 if platform.system() == 'Linux':
     TRANS_FONT_NAME = 'NotoSansCJK-Regular'
+if platform.system() == 'Darwin':
+    TRANS_FONT_NAME = 'Arial Unicode MS'
 
 TRANS_FONT_COLOR = '&H00FFFF'
 TRANS_OUTLINE_COLOR = '&H000000'
