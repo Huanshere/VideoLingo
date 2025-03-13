@@ -146,7 +146,7 @@ def page_setting():
             config_input(t("SiliconFlow API Key"), "sf_cosyvoice2.api_key")
         
         elif select_tts == "f5tts":
-            config_input(t("302ai API"), "f5tts.302_api")
+            config_input("302ai API", "f5tts.302_api")
         
 def check_api():
     try:
