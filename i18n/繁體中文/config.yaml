@@ -1,0 +1,167 @@
+# * 標有 * 的設置是高級設置，不會出現在 Streamlit 頁面中，只能在 config.py 中手動修改
+version: "2.1.2"
+## ======================== 基本設置 ======================== ##
+# API 設置
+api:
+  key: 'YOUR_API_KEY'
+  base_url: 'https://api.302.ai'
+  model: 'gemini-2.0-flash-exp'
+
+# 語言設置，寫入提示詞，可以用自然語言描述
+target_language: '繁體中文'
+
+# 是否在轉錄前進行人聲分離
+demucs: false
+
+whisper:
+  # ["medium", "large-v3", "large-v3-turbo"]. 注意：對於中文模型將強制使用 Belle/large-v3
+  model: 'large-v3'
+  # Whisper 指定識別語言 [en, zh, ...]
+  language: 'en'
+  detected_language: 'en'
+
+# 視頻分辨率 [0x0, 640x360, 1920x1080] 0x0 會生成一個 0 秒的黑色視頻佔位符
+resolution: '1920x1080'
+
+## ======================== 高級設置 ======================== ##
+# *下載 YouTube 視頻的默認分辨率 [360, 1080, best]
+ytb_resolution: '1080'
+
+subtitle:
+  # *每行字幕的最大字符長度
+  max_length: 75
+  # *翻譯後的字幕比源字幕略大，影響字幕分割的參考長度
+  target_multiplier: 1.2
+
+# *總結長度，如果使用本地 LLM 設置為 2k
+summary_length: 8000
+
+# *LLM 多線程訪問數量，如果使用本地 LLM 設置為 1
+max_workers: 4
+# *第一次粗分的最大字數，低於 18 會切得太細影響翻譯，高於 22 太長會導致後續字幕分割難以對齊
+max_split_length: 20
+
+# *是否進行反思翻譯，false 只進行一次翻譯
+reflect_translate: true
+
+# *是否在提取專業術語後、翻譯前暫停，讓用戶手動調整術語表 output\log\terminology.json
+pause_before_translate: false
+
+## ======================== 配音設置 ======================== ##
+# TTS 選擇 [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
+tts_method: 'sf_fish_tts'
+
+# SiliconFlow FishTTS
+sf_fish_tts:
+  # SiliconFlow API key
+  api_key: 'YOUR_API_KEY'
+  # 僅用於 "preset" 模式
+  voice: 'anna'
+  # *僅用於 "custom" 模式，不要手動設置
+  custom_name: ''
+  voice_id: ''
+  # preset, custom, dynamic
+  mode: "preset"
+
+# OpenAI TTS-1 API 配置, 僅限 302.ai API
+openai_tts:
+  api_key: 'YOUR_302_API_KEY'
+  voice: 'alloy'
+
+# Azure 配置, 僅限 302.ai API
+azure_tts:
+  api_key: 'YOUR_302_API_KEY'
+  voice: 'zh-CN-YunfengNeural'
+
+# FishTTS 配置, 僅限 302.ai API
+fish_tts:
+  api_key: 'YOUR_302_API_KEY'
+  character: 'AD學姐'
+  character_id_dict:
+    'AD學姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
+    '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
+
+# Edge TTS 配置
+edge_tts:
+  voice: 'zh-CN-XiaoxiaoNeural'
+
+# SoVITS 配置
+gpt_sovits:
+  character: 'Huanyuv2'
+  refer_mode: 3
+
+# *音頻速度範圍
+speed_factor:
+  min: 1
+  accept: 1.2 # 可以接受的最大速度
+  max: 1.4
+
+# *合併音頻配置
+min_subtitle_duration: 2.5 # 最小字幕出現時間 會強制擴展
+min_trim_duration: 3.5 # 小於這個值的字幕不會切割
+tolerance: 1.5 # 允許向後延申的時間
+
+# 音量設置
+dub_volume: 1.5  # *配音音頻音量（1.5 = 150%，大多數原始配音音頻相對較安靜）
+
+
+
+
+
+
+## ======================== 附加設置 請勿修改 ======================== ##
+# Whisper 模型目錄
+model_dir: './_model_cache'
+
+# 支持的上傳視頻格式
+allowed_video_formats:
+- 'mp4'
+- 'mov'
+- 'avi'
+- 'mkv'
+- 'flv'
+- 'wmv'
+- 'webm'
+
+allowed_audio_formats:
+- 'wav'
+- 'mp3'
+- 'flac'
+- 'm4a'
+
+# 支持返回 JSON 格式的 LLM
+llm_support_json:
+- 'gpt-4o'
+- 'gpt-4o-mini'
+- 'gemini-2.0-flash-exp'
+- 'deepseek-coder'
+
+# 存在問題
+# - 'Qwen/Qwen2.5-72B-Instruct'
+# - 'Qwen/Qwen2.5-Coder-32B-Instruct'
+# - 'Qwen/Qwen2.5-Chat-72B-Instruct-128K'
+
+# Spacy 模型
+spacy_model_map:
+  en: 'en_core_web_md'
+  ru: 'ru_core_news_md'
+  fr: 'fr_core_news_md'
+  ja: 'ja_core_news_md'
+  es: 'es_core_news_md'
+  de: 'de_core_news_md'
+  it: 'it_core_news_md'
+  zh: 'zh_core_web_md'
+
+# 使用空格作為分隔符的語言
+language_split_with_space:
+- 'en'
+- 'es'
+- 'fr'
+- 'de'
+- 'it'
+- 'ru'
+
+# 不使用空格作為分隔符的語言
+language_split_without_space:
+- 'zh'
+- 'ja'
