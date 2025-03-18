@@ -5,6 +5,8 @@
     "Resolution": "Разрешение",
     "Download Video": "Скачать видео",
     "Or upload video": "Или загрузить видео",
+    "Youtube Settings": "Настройки Youtube",
+    "Cookies Path": "Путь к файлу Cookies",
     "LLM Configuration": "Настройка LLM",
     "API_KEY": "API-ключ",
     "BASE_URL": "Базовый URL",
