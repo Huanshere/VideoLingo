@@ -5,6 +5,8 @@
     "Resolution": "解像度",
     "Download Video": "動画をダウンロード",
     "Or upload video": "または動画をアップロード",
+    "Youtube Settings": "Youtube 設定",
+    "Cookies Path": "Cookieファイルのパス",
     "LLM Configuration": "LLM設定",
     "API_KEY": "APIキー",
     "BASE_URL": "ベースURL",
