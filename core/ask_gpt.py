@@ -43,6 +43,16 @@ def check_ask_gpt_history(prompt, model, log_title):
                     return item["response"]
     return False
 
+def fix_base_url(base_url):
+    # huoshan
+    if 'ark' in base_url:
+        base_url = "https://ark.cn-beijing.volces.com/api/v3"
+        return base_url
+    # general
+    if 'v1' not in base_url:
+        base_url = base_url.strip('/') + '/v1'
+    return base_url
+
 def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
     api_set = load_key("api")
     llm_support_json = load_key("llm_support_json")
@@ -56,7 +66,7 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
     
     messages = [{"role": "user", "content": prompt}]
     
-    base_url = api_set["base_url"].strip('/') + '/v1' if 'v1' not in api_set["base_url"] else api_set["base_url"]
+    base_url = fix_base_url(api_set["base_url"])
     client = OpenAI(api_key=api_set["key"], base_url=base_url)
     response_format = {"type": "json_object"} if response_json and api_set["model"] in llm_support_json else None
 
