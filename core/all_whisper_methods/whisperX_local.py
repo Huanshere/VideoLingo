@@ -10,9 +10,9 @@ import subprocess
 from typing import Dict
 from rich import print as rprint
 import librosa
-import tempfile
 from core.config_utils import load_key
 from core.all_whisper_methods.audio_preprocess import save_language
+import numpy as np
 
 MODEL_DIR = load_key("model_dir")
 
@@ -45,6 +45,18 @@ def check_hf_mirror() -> str:
         rprint("[yellow]⚠️ All mirrors failed, using default[/yellow]")
     rprint(f"[cyan]🚀 Selected mirror:[/cyan] {fastest_url} ({best_time:.2f}s)")
     return fastest_url
+
+def load_audio_segment(audio_file: str, start: float, end: float) -> np.ndarray:
+    """load audio segment from audio file"""
+    duration = end - start
+    audio, _ = librosa.load(
+        audio_file,
+        sr=16000,
+        offset=start,
+        duration=duration,
+        mono=True
+    )
+    return audio
 
 def transcribe_audio(raw_audio_file: str, vocal_audio_file: str, start: float, end: float) -> Dict:
     os.environ['HF_ENDPOINT'] = check_hf_mirror()
@@ -80,36 +92,13 @@ def transcribe_audio(raw_audio_file: str, vocal_audio_file: str, start: float, e
         vad_options = {"vad_onset": 0.500,"vad_offset": 0.363}
         asr_options = {"temperatures": [0],"initial_prompt": "",}
         whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
-        rprint("[bold yellow]**You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`**[/bold yellow]")
+        rprint("[bold yellow] You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`[/bold yellow]")
         model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
 
-        # Create two temporary files for audio processing
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_raw_audio:
-            temp_raw_path = temp_raw_audio.name
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_vocal_audio:
-            temp_vocal_path = temp_vocal_audio.name
+        raw_audio_segment = load_audio_segment(raw_audio_file, start, end)
+        vocal_audio_segment = load_audio_segment(vocal_audio_file, start, end)
         
-        # Extract raw audio segment for transcription
-        ffmpeg_cmd_raw = f'ffmpeg -y -i "{raw_audio_file}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_raw_path}"'
-        subprocess.run(ffmpeg_cmd_raw, shell=True, check=True, capture_output=True)
-        
-        # Extract vocal audio segment for alignment
-        ffmpeg_cmd_vocal = f'ffmpeg -y -i "{vocal_audio_file}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_vocal_path}"'
-        subprocess.run(ffmpeg_cmd_vocal, shell=True, check=True, capture_output=True)
-        
-        try:
-            # Load raw audio for transcription
-            raw_audio_segment, _ = librosa.load(temp_raw_path, sr=16000)
-            # Load vocal audio for alignment
-            vocal_audio_segment, _ = librosa.load(temp_vocal_path, sr=16000)
-        finally:
-            # Clean up temporary files
-            for temp_path in [temp_raw_path, temp_vocal_path]:
-                if os.path.exists(temp_path):
-                    os.unlink(temp_path)
-
-        rprint("[bold green]note: You will see Progress if working correctly[/bold green]")
-        # Transcribe using raw audio
+        rprint("[bold green]Note: You will see Progress if working correctly ↓[/bold green]")
         result = model.transcribe(raw_audio_segment, batch_size=batch_size, print_progress=True)
 
         # Free GPU resources
