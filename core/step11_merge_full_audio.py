@@ -43,9 +43,9 @@ def process_audio_segment(audio_file):
     ffmpeg_cmd = [
         'ffmpeg', '-y',
         '-i', audio_file,
-        '-ar', '16000',  # 固定采样率为16kHz
-        '-ac', '1',      # 单声道
-        '-b:a', '64k',   # 比特率64kbps
+        '-ar', '16000',
+        '-ac', '1',
+        '-b:a', '128k',
         temp_file
     ]
     subprocess.run(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
