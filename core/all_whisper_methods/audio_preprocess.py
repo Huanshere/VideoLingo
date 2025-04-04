@@ -23,9 +23,9 @@ def compress_audio(input_file: str, output_file: str):
     """将输入音频文件压缩为低质量音频文件，用于转录"""
     if not os.path.exists(output_file):
         rprint(f"[blue]🗜️ Converting to low quality audio with FFmpeg ......[/blue]")
-        # 16000 Hz, 1 channel, (Whisper default) , 96kbps to keep more details as well as smaller file size
+        # 16000 Hz, 1 channel, (Whisper default) , 128kbps to keep more details as well as smaller file size
         subprocess.run([
-            'ffmpeg', '-y', '-i', input_file, '-vn', '-b:a', '96k',
+            'ffmpeg', '-y', '-i', input_file, '-vn', '-b:a', '128k',
             '-ar', '16000', '-ac', '1', '-metadata', 'encoding=UTF-8',
             '-f', 'mp3', output_file
         ], check=True, stderr=subprocess.PIPE)
