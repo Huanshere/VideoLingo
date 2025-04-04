@@ -19,8 +19,10 @@ def check_nvidia_gpu():
     install_package("pynvml")
     import pynvml
     from translations.translations import translate as t
+    initialized = False
     try:
         pynvml.nvmlInit()
+        initialized = True
         device_count = pynvml.nvmlDeviceGetCount()
         if device_count > 0:
             print(t("Detected NVIDIA GPU(s)"))
@@ -36,7 +38,8 @@ def check_nvidia_gpu():
         print(t("No NVIDIA GPU detected or NVIDIA drivers not properly installed"))
         return False
     finally:
-        pynvml.nvmlShutdown()
+        if initialized:
+            pynvml.nvmlShutdown()
 
 def check_ffmpeg():
     from rich.console import Console
