@@ -5,8 +5,9 @@ from core.config_utils import load_key
 from rich import print as rprint
 import time
 import json
-import tempfile
-import subprocess
+import librosa
+import soundfile as sf
+import io
 
 OUTPUT_LOG_DIR = "output/log"
 def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: float = None, end: float = None):
@@ -19,17 +20,31 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
     WHISPER_LANGUAGE = load_key("whisper.language")
     url = "https://api.302.ai/302/whisperx"
     
-    # 如果指定了开始和结束时间，创建临时音频片段
-    if start is not None and end is not None:
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_audio:
-            temp_audio_path = temp_audio.name
-            
-        # 使用ffmpeg截取音频片段
-        whisper_audio = vocal_audio_path # 使用vocal更稳定，虽然raw质量好，但是分段只能local做
-        ffmpeg_cmd = f'ffmpeg -y -i "{whisper_audio}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_audio_path}"'
-        subprocess.run(ffmpeg_cmd, shell=True, check=True, capture_output=True)
-        audio_path = temp_audio_path
+    # 加载音频并处理start和end参数
+    y, sr = librosa.load(vocal_audio_path, sr=16000)
+    audio_duration = len(y) / sr
     
+    if not start or not end:
+        start = 0
+        end = audio_duration
+        
+    start_sample = int(start * sr)
+    end_sample = int(end * sr)
+    y_slice = y[start_sample:end_sample]
+    
+    # 将音频数据直接写入内存缓冲区
+    audio_buffer = io.BytesIO()
+    sf.write(audio_buffer, y_slice, sr, format='WAV', subtype='PCM_16')
+    audio_buffer.seek(0)
+    
+    files = [
+        ('audio_input', (
+            'audio_slice.wav',  # 虚拟文件名
+            audio_buffer,
+            'application/octet-stream'
+        ))
+    ]
+
     payload = {
         "processing_type": "align",
         "language": WHISPER_LANGUAGE,
@@ -38,32 +53,8 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
     
     start_time = time.time()
     rprint(f"[cyan]🎤 Transcribing audio with language:  <{WHISPER_LANGUAGE}> ...[/cyan]")
-    files = [
-        ('audio_input',(
-            os.path.basename(audio_path),
-            open(audio_path, 'rb'),
-            'application/octet-stream'
-        ))
-    ]
     headers = {'Authorization': f'Bearer {load_key("whisper.whisperX_302_api_key")}'}
-    with open(audio_path, 'rb') as audio_file:
-        files = [
-            ('audio_input', (
-                os.path.basename(audio_path),
-                audio_file,
-                'application/octet-stream'
-            ))
-        ]
-        response = requests.request("POST", url, headers=headers, data=payload, files=files)
-    
-    # 清理临时文件
-    if start is not None and end is not None:
-        if os.path.exists(temp_audio_path):
-            time.sleep(0.1)
-            try:
-                os.unlink(temp_audio_path)
-            except PermissionError:
-                print(f"警告：无法删除临时文件 {temp_audio_path}")
+    response = requests.request("POST", url, headers=headers, data=payload, files=files)
     
     with open(LOG_FILE, "w", encoding="utf-8") as f:
         json.dump(response.json(), f, indent=4, ensure_ascii=False)
@@ -87,5 +78,5 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
 
 if __name__ == "__main__":  
     # 使用示例:
-    result = transcribe_audio_302("output/audio/raw.mp3")
+    result = transcribe_audio_302("output/audio/raw.mp3", "output/audio/vocal.mp3")
     rprint(result)
