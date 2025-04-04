@@ -56,13 +56,11 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
     headers = {'Authorization': f'Bearer {load_key("whisper.whisperX_302_api_key")}'}
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
     
-    with open(LOG_FILE, "w", encoding="utf-8") as f:
-        json.dump(response.json(), f, indent=4, ensure_ascii=False)
-        
+    response_json = response.json()
+    
     # 调整时间戳
     if start is not None:
-        result = response.json()
-        for segment in result['segments']:
+        for segment in response_json['segments']:
             segment['start'] += start
             segment['end'] += start
             for word in segment.get('words', []):
@@ -70,11 +68,14 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
                     word['start'] += start
                 if 'end' in word:
                     word['end'] += start
-        response._content = json.dumps(result).encode()
+    
+    # 保存调整后的结果
+    with open(LOG_FILE, "w", encoding="utf-8") as f:
+        json.dump(response_json, f, indent=4, ensure_ascii=False)
     
     elapsed_time = time.time() - start_time
     rprint(f"[green]✓ Transcription completed in {elapsed_time:.2f} seconds[/green]")
-    return response.json()
+    return response_json
 
 if __name__ == "__main__":  
     # 使用示例:
