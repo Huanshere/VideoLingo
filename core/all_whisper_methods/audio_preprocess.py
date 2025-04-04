@@ -19,19 +19,6 @@ def normalize_audio_volume(audio_path: str, output_path: str, target_db: float =
     rprint(f"[green]✅ Audio normalized from {audio.dBFS:.1f}dB to {target_db:.1f}dB[/green]")
     return output_path
 
-def compress_audio(input_file: str, output_file: str):
-    """compress audio to low quality for transcription"""
-    if not os.path.exists(output_file):
-        rprint(f"[blue]🗜️ Converting to low quality audio with FFmpeg ......[/blue]")
-        # 16000 Hz, 1 channel, (Whisper default) , 128kbps to keep more details as well as smaller file size
-        subprocess.run([
-            'ffmpeg', '-y', '-i', input_file, '-vn', '-b:a', '128k',
-            '-ar', '16000', '-ac', '1', '-metadata', 'encoding=UTF-8',
-            '-f', 'mp3', output_file
-        ], check=True, stderr=subprocess.PIPE)
-        rprint(f"[green]🗜️ Converted <{input_file}> to <{output_file}> with FFmpeg[/green]")
-    return output_file
-
 def convert_video_to_audio(video_file: str):
     os.makedirs(AUDIO_DIR, exist_ok=True)
     if not os.path.exists(RAW_AUDIO_FILE):
@@ -39,7 +26,7 @@ def convert_video_to_audio(video_file: str):
         subprocess.run([
             'ffmpeg', '-y', '-i', video_file, '-vn',
             '-c:a', 'libmp3lame', '-b:a', '128k',
-            '-ar', '32000',
+            '-ar', '16000',
             '-ac', '1', 
             '-metadata', 'encoding=UTF-8', RAW_AUDIO_FILE
         ], check=True, stderr=subprocess.PIPE)
@@ -75,8 +62,8 @@ def get_audio_duration(audio_file: str) -> float:
         duration = 0
     return duration
 
-def split_audio(audio_file: str, target_len: int = 30*60, win: int = 60) -> List[Tuple[float, float]]:
-    # 30 min 16000 Hz 96kbps ~ 22MB < 25MB required by whisper
+def split_audio(audio_file: str, target_len: int = 20*60, win: int = 60) -> List[Tuple[float, float]]:
+    # 20 min 16000 Hz 128kbps ~ 20MB < 25MB required by whisper
     rprint("[bold blue]🔪 Starting audio segmentation...[/bold blue]")
     
     duration = get_audio_duration(audio_file)
