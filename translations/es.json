@@ -77,7 +77,7 @@
     "Audio processing complete! 🎇": "¡Procesamiento de audio completado! 🎇",
     "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "Hola, bienvenido a VideoLingo. Si encuentra algún problema, no dude en obtener respuestas instantáneas con nuestro Agente de preguntas y respuestas gratuito <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">aquí</a>. ¡También puede probar gratis nuestro sitio web SaaS en <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>!",
     "WhisperX Runtime": "Entorno de WhisperX",
-    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key": "El entorno local requiere GPU >8GB, el entorno en la nube requiere clave API 302ai",
+    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key": "El entorno local requiere GPU >8GB, el entorno en la nube requiere clave API 302ai, el entorno elevenlabs requiere clave API ElevenLabs",
     "WhisperX 302ai API": "API 302ai de WhisperX",
     "=====NOTE2=====": "A continuación está en install.py",
     "🚀 Starting Installation": "🚀 Iniciando instalación",

@@ -94,6 +94,9 @@ def split_audio(audio_file: str, target_len: int = 20*60, win: int = 60) -> List
 def process_transcription(result: Dict) -> pd.DataFrame:
     all_words = []
     for segment in result['segments']:
+        # Get speaker_id, if not exists, set to None
+        speaker_id = segment.get('speaker_id', None)
+        
         for word in segment['words']:
             # Check word length
             if len(word["word"]) > 20:
@@ -110,6 +113,7 @@ def process_transcription(result: Dict) -> pd.DataFrame:
                         'text': word["word"],
                         'start': all_words[-1]['end'],
                         'end': all_words[-1]['end'],
+                        'speaker_id': speaker_id
                     }
                     all_words.append(word_dict)
                 else:
@@ -120,6 +124,7 @@ def process_transcription(result: Dict) -> pd.DataFrame:
                             'text': word["word"],
                             'start': next_word["start"],
                             'end': next_word["end"],
+                            'speaker_id': speaker_id
                         }
                         all_words.append(word_dict)
                     else:
@@ -130,6 +135,7 @@ def process_transcription(result: Dict) -> pd.DataFrame:
                     'text': f'{word["word"]}',
                     'start': word.get('start', all_words[-1]['end'] if all_words else 0),
                     'end': word['end'],
+                    'speaker_id': speaker_id
                 }
                 
                 all_words.append(word_dict)

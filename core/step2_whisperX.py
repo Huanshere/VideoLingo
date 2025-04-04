@@ -1,5 +1,4 @@
 import os,sys
-import tempfile
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from rich import print as rprint
@@ -30,12 +29,16 @@ def transcribe():
     
     # step3 Transcribe audio
     all_results = []
-    if load_key("whisper.runtime") == "local":
+    runtime = load_key("whisper.runtime")
+    if runtime == "local":
         from core.all_whisper_methods.whisperX_local import transcribe_audio as ts
         rprint("[cyan]🎤 Transcribing audio with local model...[/cyan]")
-    else:
+    elif runtime == "cloud":
         from core.all_whisper_methods.whisperX_302 import transcribe_audio_302 as ts
         rprint("[cyan]🎤 Transcribing audio with 302 API...[/cyan]")
+    elif runtime == "elevenlabs":
+        from core.all_whisper_methods.elevenlabs_transcribe import transcribe_audio_elevenlabs as ts
+        rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")
 
     for start, end in segments:
         result = ts(RAW_AUDIO_FILE, vocal_audio, start, end)

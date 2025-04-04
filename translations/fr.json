@@ -100,7 +100,7 @@
     "Audio processing complete! 🎇": "Traitement audio terminé ! 🎇",
     "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "Bonjour, bienvenue sur VideoLingo. Si vous rencontrez des problèmes, n'hésitez pas à obtenir des réponses instantanées avec notre Agent QA gratuit <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">ici</a> ! Vous pouvez également essayer gratuitement notre site web SaaS sur <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> !",
     "WhisperX Runtime": "Environnement WhisperX",
-    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key": "L'environnement local nécessite un GPU >8GB, l'environnement cloud nécessite une clé API 302ai",
+    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key": "L'environnement local nécessite un GPU >8GB, l'environnement cloud nécessite une clé API 302ai, l'environnement elevenlabs nécessite une clé API ElevenLabs",
     "WhisperX 302ai API": "API 302ai WhisperX",
     "Detected NVIDIA GPU(s)": "GPU(s) NVIDIA détecté(s)",
     "No NVIDIA GPU detected": "Aucun GPU NVIDIA détecté",

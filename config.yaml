@@ -1,18 +1,14 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
 # recommend to set in streamlit page
-version: "2.2.2"
+version: "2.2.3"
 ## ======================== Basic Settings ======================== ##
 display_language: "zh-CN"
 
-# Youtube settings
-youtube:
-  cookies_path: ''
-
 # API settings
 api:
-  key: 'YOUR_API_KEY'
+  key: 'your_api_key'
   base_url: 'https://api.302.ai'
-  model: 'deepseek-v3'
+  model: 'gemini-2.0-flash'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -26,15 +22,21 @@ whisper:
   # Whisper specified recognition language [en, zh, ...]
   language: 'en'
   detected_language: 'en'
-  # Whisper running mode ["local", "cloud"]. Specifies where to run, cloud uses 302.ai API
+  # Whisper running mode ["local", "cloud", "elevenlabs"]. Specifies where to run, cloud uses 302.ai API
   runtime: 'local'
   # 302.ai API key
-  whisperX_302_api_key: 'YOUR_302_API_KEY'
+  whisperX_302_api_key: 'your_302_api_key'
+  # ElevenLabs API key
+  elevenlabs_api_key: 'your_elevenlabs_api_key'
 
 # Whether to burn subtitles into the video
 burn_subtitles: true
 
 ## ======================== Advanced Settings ======================== ##
+# *Youtube settings
+youtube:
+  cookies_path: ''
+
 # *Default resolution for downloading YouTube videos [360, 1080, best]
 ytb_resolution: '1080'
 
@@ -148,6 +150,7 @@ llm_support_json:
 - 'gpt-4o'
 - 'gpt-4o-mini'
 - 'gemini-2.0-flash'
+- 'deepseek-chat'
 
 # Spacy models
 spacy_model_map:

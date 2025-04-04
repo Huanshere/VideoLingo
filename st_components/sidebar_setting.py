@@ -22,8 +22,8 @@ def page_setting():
         update_key("display_language", DISPLAY_LANGUAGES[display_language])
         st.rerun()
 
-    with st.expander(t("Youtube Settings"), expanded=True):
-        config_input(t("Cookies Path"), "youtube.cookies_path")
+    # with st.expander(t("Youtube Settings"), expanded=True):
+    #     config_input(t("Cookies Path"), "youtube.cookies_path")
 
     with st.expander(t("LLM Configuration"), expanded=True):
         config_input(t("API_KEY"), "api.key")
@@ -59,13 +59,14 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
-        # add runtime selection in v2.2.0
-        runtime = st.selectbox(t("WhisperX Runtime"), options=["local", "cloud"], index=["local", "cloud"].index(load_key("whisper.runtime")), help=t("Local runtime requires >8GB GPU, cloud runtime requires 302ai API key"))
+        runtime = st.selectbox(t("WhisperX Runtime"), options=["local", "cloud", "elevenlabs"], index=["local", "cloud", "elevenlabs"].index(load_key("whisper.runtime")), help=t("Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key"))
         if runtime != load_key("whisper.runtime"):
             update_key("whisper.runtime", runtime)
             st.rerun()
         if runtime == "cloud":
             config_input(t("WhisperX 302ai API"), "whisper.whisperX_302_api_key")
+        if runtime == "elevenlabs":
+            config_input(("ElevenLabs API"), "whisper.elevenlabs_api_key")
 
         with c2:
             target_language = st.text_input(t("Target Lang"), value=load_key("target_language"), help=t("Input any language in natural language, as long as llm can understand"))

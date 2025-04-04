@@ -77,7 +77,7 @@
     "Audio processing complete! 🎇": "音頻處理完成! 🎇",
     "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "歡迎來到VideoLingo。如果遇到任何問題，隨時可以透過我們的免費問答助手 <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a> 獲取即時解答！還可以免費試用我們的SaaS網站 <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>！",
     "WhisperX Runtime": "WhisperX 運行環境",
-    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key": "本地運行需要>8GB顯存GPU，雲端運行需要302ai API金鑰",
+    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key": "本地運行需要>8GB顯存GPU，雲端運行需要302ai API金鑰，elevenlabs運行需要ElevenLabs API金鑰",
     "WhisperX 302ai API": "WhisperX 302ai API金鑰",
     "=====NOTE2=====": "以下是install.py中的內容",
     "🚀 Starting Installation": "🚀 開始安裝",
