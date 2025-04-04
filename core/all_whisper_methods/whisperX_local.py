@@ -46,8 +46,8 @@ def check_hf_mirror() -> str:
     rprint(f"[cyan]🚀 Selected mirror:[/cyan] {fastest_url} ({best_time:.2f}s)")
     return fastest_url
 
-def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
-    os.environ['HF_ENDPOINT'] = check_hf_mirror() #? don't know if it's working...
+def transcribe_audio(raw_audio_file: str, vocal_audio_file: str, start: float, end: float) -> Dict:
+    os.environ['HF_ENDPOINT'] = check_hf_mirror()
     WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     rprint(f"🚀 Starting WhisperX using device: {device} ...")
@@ -83,24 +83,34 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         rprint("[bold yellow]**You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`**[/bold yellow]")
         model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
 
-        # Create temp file with wav format for better compatibility
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_audio:
-            temp_audio_path = temp_audio.name
+        # Create two temporary files for audio processing
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_raw_audio:
+            temp_raw_path = temp_raw_audio.name
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_vocal_audio:
+            temp_vocal_path = temp_vocal_audio.name
         
-        # Extract audio segment using ffmpeg
-        ffmpeg_cmd = f'ffmpeg -y -i "{audio_file}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_audio_path}"'
-        subprocess.run(ffmpeg_cmd, shell=True, check=True, capture_output=True)
+        # Extract raw audio segment for transcription
+        ffmpeg_cmd_raw = f'ffmpeg -y -i "{raw_audio_file}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_raw_path}"'
+        subprocess.run(ffmpeg_cmd_raw, shell=True, check=True, capture_output=True)
+        
+        # Extract vocal audio segment for alignment
+        ffmpeg_cmd_vocal = f'ffmpeg -y -i "{vocal_audio_file}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_vocal_path}"'
+        subprocess.run(ffmpeg_cmd_vocal, shell=True, check=True, capture_output=True)
         
         try:
-            # Load audio segment with librosa
-            audio_segment, sample_rate = librosa.load(temp_audio_path, sr=16000)
+            # Load raw audio for transcription
+            raw_audio_segment, _ = librosa.load(temp_raw_path, sr=16000)
+            # Load vocal audio for alignment
+            vocal_audio_segment, _ = librosa.load(temp_vocal_path, sr=16000)
         finally:
-            # Clean up temp file
-            if os.path.exists(temp_audio_path):
-                os.unlink(temp_audio_path)
+            # Clean up temporary files
+            for temp_path in [temp_raw_path, temp_vocal_path]:
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
 
         rprint("[bold green]note: You will see Progress if working correctly[/bold green]")
-        result = model.transcribe(audio_segment, batch_size=batch_size, print_progress=True)
+        # Transcribe using raw audio
+        result = model.transcribe(raw_audio_segment, batch_size=batch_size, print_progress=True)
 
         # Free GPU resources
         del model
@@ -111,9 +121,9 @@ def transcribe_audio(audio_file: str, start: float, end: float) -> Dict:
         if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
             raise ValueError("Please specify the transcription language as zh and try again!")
 
-        # Align whisper output
+        # Align timestamps using vocal audio
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
-        result = whisperx.align(result["segments"], model_a, metadata, audio_segment, device, return_char_alignments=False)
+        result = whisperx.align(result["segments"], model_a, metadata, vocal_audio_segment, device, return_char_alignments=False)
 
         # Free GPU resources again
         torch.cuda.empty_cache()
