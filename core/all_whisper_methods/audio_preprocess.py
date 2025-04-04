@@ -4,28 +4,38 @@ from typing import Dict, List, Tuple
 from rich import print
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from core.config_utils import update_key
+from pydub import AudioSegment
+from rich import print as rprint
 
 AUDIO_DIR = "output/audio"
 RAW_AUDIO_FILE = "output/audio/raw.mp3"
 CLEANED_CHUNKS_EXCEL_PATH = "output/log/cleaned_chunks.xlsx"
 
+def normalize_audio_volume(audio_path: str, output_path: str, target_db: float = -22.0):
+    audio = AudioSegment.from_file(audio_path)
+    change_in_dBFS = target_db - audio.dBFS
+    normalized_audio = audio.apply_gain(change_in_dBFS)
+    normalized_audio.export(output_path, format="wav")
+    rprint(f"[green]✅ Audio normalized from {audio.dBFS:.1f}dB to {target_db:.1f}dB[/green]")
+    return output_path
+
 def compress_audio(input_file: str, output_file: str):
     """将输入音频文件压缩为低质量音频文件，用于转录"""
     if not os.path.exists(output_file):
-        print(f"🗜️ Converting to low quality audio with FFmpeg ......")
+        rprint(f"[blue]🗜️ Converting to low quality audio with FFmpeg ......[/blue]")
         # 16000 Hz, 1 channel, (Whisper default) , 96kbps to keep more details as well as smaller file size
         subprocess.run([
             'ffmpeg', '-y', '-i', input_file, '-vn', '-b:a', '96k',
             '-ar', '16000', '-ac', '1', '-metadata', 'encoding=UTF-8',
             '-f', 'mp3', output_file
         ], check=True, stderr=subprocess.PIPE)
-        print(f"🗜️ Converted <{input_file}> to <{output_file}> with FFmpeg")
+        rprint(f"[green]🗜️ Converted <{input_file}> to <{output_file}> with FFmpeg[/green]")
     return output_file
 
 def convert_video_to_audio(video_file: str):
     os.makedirs(AUDIO_DIR, exist_ok=True)
     if not os.path.exists(RAW_AUDIO_FILE):
-        print(f"🎬➡️🎵 Converting to high quality audio with FFmpeg ......")
+        rprint(f"[blue]🎬➡️🎵 Converting to high quality audio with FFmpeg ......[/blue]")
         subprocess.run([
             'ffmpeg', '-y', '-i', video_file, '-vn',
             '-c:a', 'libmp3lame', '-b:a', '128k',
@@ -33,7 +43,7 @@ def convert_video_to_audio(video_file: str):
             '-ac', '1', 
             '-metadata', 'encoding=UTF-8', RAW_AUDIO_FILE
         ], check=True, stderr=subprocess.PIPE)
-        print(f"🎬➡️🎵 Converted <{video_file}> to <{RAW_AUDIO_FILE}> with FFmpeg\n")
+        rprint(f"[green]🎬➡️🎵 Converted <{video_file}> to <{RAW_AUDIO_FILE}> with FFmpeg\n[/green]")
 
 def _detect_silence(audio_file: str, start: float, end: float) -> List[float]:
     """Detect silence points in the given audio segment"""
@@ -67,7 +77,7 @@ def get_audio_duration(audio_file: str) -> float:
 
 def split_audio(audio_file: str, target_len: int = 30*60, win: int = 60) -> List[Tuple[float, float]]:
     # 30 min 16000 Hz 96kbps ~ 22MB < 25MB required by whisper
-    print("[bold blue]🔪 Starting audio segmentation...[/]")
+    rprint("[bold blue]🔪 Starting audio segmentation...[/bold blue]")
     
     duration = get_audio_duration(audio_file)
     
@@ -91,7 +101,7 @@ def split_audio(audio_file: str, target_len: int = 30*60, win: int = 60) -> List
         segments.append((pos, pos + target_len))
         pos += target_len
     
-    print(f"🔪 Audio split into {len(segments)} segments")
+    rprint(f"[green]🔪 Audio split into {len(segments)} segments[/green]")
     return segments
 
 def process_transcription(result: Dict) -> pd.DataFrame:
@@ -100,7 +110,7 @@ def process_transcription(result: Dict) -> pd.DataFrame:
         for word in segment['words']:
             # Check word length
             if len(word["word"]) > 20:
-                print(f"⚠️ Warning: Detected word longer than 20 characters, skipping: {word['word']}")
+                rprint(f"[yellow]⚠️ Warning: Detected word longer than 20 characters, skipping: {word['word']}[/yellow]")
                 continue
                 
             # ! For French, we need to convert guillemets to empty strings
@@ -147,17 +157,17 @@ def save_results(df: pd.DataFrame):
     df = df[df['text'].str.len() > 0]
     removed_rows = initial_rows - len(df)
     if removed_rows > 0:
-        print(f"ℹ️ Removed {removed_rows} row(s) with empty text.")
+        rprint(f"[blue]ℹ️ Removed {removed_rows} row(s) with empty text.[/blue]")
     
     # Check for and remove words longer than 20 characters
     long_words = df[df['text'].str.len() > 20]
     if not long_words.empty:
-        print(f"⚠️ Warning: Detected {len(long_words)} word(s) longer than 20 characters. These will be removed.")
+        rprint(f"[yellow]⚠️ Warning: Detected {len(long_words)} word(s) longer than 20 characters. These will be removed.[/yellow]")
         df = df[df['text'].str.len() <= 20]
     
     df['text'] = df['text'].apply(lambda x: f'"{x}"')
     df.to_excel(CLEANED_CHUNKS_EXCEL_PATH, index=False)
-    print(f"📊 Excel file saved to {CLEANED_CHUNKS_EXCEL_PATH}")
+    rprint(f"[green]📊 Excel file saved to {CLEANED_CHUNKS_EXCEL_PATH}[/green]")
 
 def save_language(language: str):
     update_key("whisper.detected_language", language)

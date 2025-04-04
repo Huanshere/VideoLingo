@@ -12,7 +12,7 @@ from core.all_whisper_methods.demucs_vl import BACKGROUND_AUDIO_FILE
 from core.step7_merge_sub_to_vid import check_gpu_available
 from core.config_utils import load_key
 from core.step1_ytdlp import find_video_files
-from pydub import AudioSegment
+from core.all_whisper_methods.audio_preprocess import normalize_audio_volume
 
 DUB_VIDEO = "output/output_dub.mp4"
 DUB_SUB_FILE = 'output/dub.srt'
@@ -29,14 +29,6 @@ TRANS_FONT_COLOR = '&H00FFFF'
 TRANS_OUTLINE_COLOR = '&H000000'
 TRANS_OUTLINE_WIDTH = 1 
 TRANS_BACK_COLOR = '&H33000000'
-
-def normalize_audio_volume(audio_path: str, output_path: str, target_db: float = -20.0):
-    audio = AudioSegment.from_file(audio_path)
-    change_in_dBFS = target_db - audio.dBFS
-    normalized_audio = audio.apply_gain(change_in_dBFS)
-    normalized_audio.export(output_path, format="wav")
-    rprint(f"[green]✅ Audio normalized from {audio.dBFS:.1f}dB to {target_db:.1f}dB[/green]")
-    return output_path
 
 def merge_video_audio():
     """Merge video and audio, and reduce video volume"""

@@ -9,7 +9,7 @@ import tempfile
 import subprocess
 
 OUTPUT_LOG_DIR = "output/log"
-def transcribe_audio_302(audio_path: str, start: float = None, end: float = None):
+def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: float = None, end: float = None):
     os.makedirs(OUTPUT_LOG_DIR, exist_ok=True)
     LOG_FILE = f"{OUTPUT_LOG_DIR}/whisperx302.json"
     if os.path.exists(LOG_FILE):
@@ -25,7 +25,8 @@ def transcribe_audio_302(audio_path: str, start: float = None, end: float = None
             temp_audio_path = temp_audio.name
             
         # 使用ffmpeg截取音频片段
-        ffmpeg_cmd = f'ffmpeg -y -i "{audio_path}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_audio_path}"'
+        whisper_audio = vocal_audio_path # 使用vocal更稳定，虽然raw质量好，但是分段只能local做
+        ffmpeg_cmd = f'ffmpeg -y -i "{whisper_audio}" -ss {start} -t {end-start} -vn -ar 32000 -ac 1 "{temp_audio_path}"'
         subprocess.run(ffmpeg_cmd, shell=True, check=True, capture_output=True)
         audio_path = temp_audio_path
     
@@ -44,12 +45,7 @@ def transcribe_audio_302(audio_path: str, start: float = None, end: float = None
             'application/octet-stream'
         ))
     ]
-    
-    headers = {
-        'Authorization': f'Bearer {load_key("whisper.whisperX_302_api_key")}'
-    }
-
-    # 使用 with 语句确保文件正确关闭
+    headers = {'Authorization': f'Bearer {load_key("whisper.whisperX_302_api_key")}'}
     with open(audio_path, 'rb') as audio_file:
         files = [
             ('audio_input', (

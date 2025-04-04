@@ -5,6 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 from rich import print as rprint
 from pydub import AudioSegment
+from core.all_whisper_methods.audio_preprocess import normalize_audio_volume
 import requests
 
 API_KEY = load_key("f5tts.302_api")
@@ -118,14 +119,6 @@ def _get_ref_audio(task_df, min_duration=8, max_duration=14.5) -> str:
     rprint(f"[green]✅ Successfully created combined audio: {combined_audio}")
     
     return combined_audio
-
-def normalize_audio_volume(audio_path: str, output_path: str, target_db: float = -20.0):
-    audio = AudioSegment.from_file(audio_path)
-    change_in_dBFS = target_db - audio.dBFS
-    normalized_audio = audio.apply_gain(change_in_dBFS)
-    normalized_audio.export(output_path, format="wav")
-    rprint(f"[green]✅ Audio normalized from {audio.dBFS:.1f}dB to {target_db:.1f}dB[/green]")
-    return output_path
 
 def f5_tts_for_videolingo(text: str, save_as: str, number: int, task_df):
     global UPLOADED_REFER_URL

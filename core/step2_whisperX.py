@@ -2,34 +2,28 @@ import os,sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from rich import print as rprint
-import subprocess
 
 from core.config_utils import load_key
 from core.all_whisper_methods.demucs_vl import demucs_main, RAW_AUDIO_FILE, VOCAL_AUDIO_FILE
 from core.all_whisper_methods.audio_preprocess import process_transcription, convert_video_to_audio, split_audio, save_results, compress_audio, CLEANED_CHUNKS_EXCEL_PATH
 from core.step1_ytdlp import find_video_files
+from core.all_whisper_methods.audio_preprocess import normalize_audio_volume
 
 WHISPER_FILE = "output/audio/for_whisper.mp3"
 ENHANCED_VOCAL_PATH = "output/audio/enhanced_vocals.mp3"
 
-def enhance_vocals(vocals_ratio=2.50):
-    """Enhance vocals audio volume"""
-    if not load_key("demucs"):
-        return RAW_AUDIO_FILE
-        
+def enhance_vocals():
+    """Enhance vocals audio volume using audio normalization"""
     try:
-        print(f"[cyan]🎙️ Enhancing vocals with volume ratio: {vocals_ratio}[/cyan]")
-        ffmpeg_cmd = (
-            f'ffmpeg -y -i "{VOCAL_AUDIO_FILE}" '
-            f'-filter:a "volume={vocals_ratio}" '
-            f'"{ENHANCED_VOCAL_PATH}"'
+        rprint("[cyan]🎙️ Normalizing vocals audio...[/cyan]")
+        normalized_path = normalize_audio_volume(
+            VOCAL_AUDIO_FILE,
+            ENHANCED_VOCAL_PATH
         )
-        subprocess.run(ffmpeg_cmd, shell=True, check=True, capture_output=True)
-        
-        return ENHANCED_VOCAL_PATH
-    except subprocess.CalledProcessError as e:
-        print(f"[red]Error enhancing vocals: {str(e)}[/red]")
-        return VOCAL_AUDIO_FILE  # Fallback to original vocals if enhancement fails
+        return normalized_path
+    except Exception as e:
+        rprint(f"[red]Error normalizing vocals: {str(e)}[/red]")
+        return VOCAL_AUDIO_FILE
     
 def transcribe():
     if os.path.exists(CLEANED_CHUNKS_EXCEL_PATH):
@@ -45,11 +39,13 @@ def transcribe():
         demucs_main()
     
     # step2 Compress audio
-    choose_audio = enhance_vocals() if load_key("demucs") else RAW_AUDIO_FILE
-    whisper_audio = compress_audio(choose_audio, WHISPER_FILE)
+    raw_audio = RAW_AUDIO_FILE
+    vocal_audio = enhance_vocals() if load_key("demucs") else RAW_AUDIO_FILE
+    raw_compressed = compress_audio(raw_audio, WHISPER_FILE)
+    vocal_compressed = compress_audio(vocal_audio, WHISPER_FILE)
 
     # step3 Extract audio
-    segments = split_audio(whisper_audio)
+    segments = split_audio(raw_compressed)
     
     # step4 Transcribe audio
     all_results = []
@@ -61,7 +57,7 @@ def transcribe():
         rprint("[cyan]🎤 Transcribing audio with 302 API...[/cyan]")
 
     for start, end in segments:
-        result = ts(whisper_audio, start, end)
+        result = ts(raw_compressed,vocal_compressed, start, end)
         all_results.append(result)
     
     # step5 Combine results
