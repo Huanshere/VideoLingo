@@ -30,6 +30,11 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
         }],
     }
 
+     # Read Youtube Cookie File
+    cookies_path = load_key("youtube.cookies_path")
+    if os.path.exists(cookies_path):
+        ydl_opts["cookiefile"] = str(cookies_path)
+
     # Update yt-dlp to avoid download failure due to API changes
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "yt-dlp"])

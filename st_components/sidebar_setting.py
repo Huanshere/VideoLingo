@@ -22,6 +22,9 @@ def page_setting():
         update_key("display_language", DISPLAY_LANGUAGES[display_language])
         st.rerun()
 
+    with st.expander(t("Youtube Settings"), expanded=True):
+        config_input(t("Cookies Path"), "youtube.cookies_path")
+
     with st.expander(t("LLM Configuration"), expanded=True):
         config_input(t("API_KEY"), "api.key")
         config_input(t("BASE_URL"), "api.base_url", help=t("Openai format, will add /v1/chat/completions automatically"))

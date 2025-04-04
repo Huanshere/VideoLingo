@@ -4,6 +4,10 @@ version: "2.2.2"
 ## ======================== Basic Settings ======================== ##
 display_language: "zh-CN"
 
+# Youtube settings
+youtube:
+  cookies_path: ''
+
 # API settings
 api:
   key: 'YOUR_API_KEY'
