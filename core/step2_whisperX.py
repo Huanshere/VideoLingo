@@ -9,8 +9,6 @@ from core.all_whisper_methods.demucs_vl import demucs_main, RAW_AUDIO_FILE, VOCA
 from core.all_whisper_methods.audio_preprocess import process_transcription, convert_video_to_audio, split_audio, save_results, CLEANED_CHUNKS_EXCEL_PATH, normalize_audio_volume
 from core.step1_ytdlp import find_video_files
 
-NORMALIZED_VOCAL_PATH = "output/audio/normalized_vocals.wav"
-
 def transcribe():
     if os.path.exists(CLEANED_CHUNKS_EXCEL_PATH):
         rprint("[yellow]⚠️ Transcription results already exist, skipping transcription step.[/yellow]")
@@ -23,7 +21,7 @@ def transcribe():
     # step1 Demucs vocal separation:
     if load_key("demucs"):
         demucs_main()
-        vocal_audio = normalize_audio_volume(VOCAL_AUDIO_FILE, NORMALIZED_VOCAL_PATH, format="mp3")
+        vocal_audio = normalize_audio_volume(VOCAL_AUDIO_FILE, VOCAL_AUDIO_FILE, format="mp3")
     else:
         vocal_audio = RAW_AUDIO_FILE
 
