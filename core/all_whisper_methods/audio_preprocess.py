@@ -11,16 +11,16 @@ AUDIO_DIR = "output/audio"
 RAW_AUDIO_FILE = "output/audio/raw.mp3"
 CLEANED_CHUNKS_EXCEL_PATH = "output/log/cleaned_chunks.xlsx"
 
-def normalize_audio_volume(audio_path: str, output_path: str, target_db: float = -22.0):
+def normalize_audio_volume(audio_path: str, output_path: str, target_db: float = -20.0, format: str = "wav"):
     audio = AudioSegment.from_file(audio_path)
     change_in_dBFS = target_db - audio.dBFS
     normalized_audio = audio.apply_gain(change_in_dBFS)
-    normalized_audio.export(output_path, format="wav")
+    normalized_audio.export(output_path, format=format)
     rprint(f"[green]✅ Audio normalized from {audio.dBFS:.1f}dB to {target_db:.1f}dB[/green]")
     return output_path
 
 def compress_audio(input_file: str, output_file: str):
-    """将输入音频文件压缩为低质量音频文件，用于转录"""
+    """compress audio to low quality for transcription"""
     if not os.path.exists(output_file):
         rprint(f"[blue]🗜️ Converting to low quality audio with FFmpeg ......[/blue]")
         # 16000 Hz, 1 channel, (Whisper default) , 128kbps to keep more details as well as smaller file size

@@ -1,4 +1,5 @@
 import os,sys
+import tempfile
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from rich import print as rprint
@@ -9,22 +10,29 @@ from core.all_whisper_methods.audio_preprocess import process_transcription, con
 from core.step1_ytdlp import find_video_files
 from core.all_whisper_methods.audio_preprocess import normalize_audio_volume
 
-WHISPER_FILE = "output/audio/for_whisper.mp3"
-ENHANCED_VOCAL_PATH = "output/audio/enhanced_vocals.mp3"
+RAW_COMPRESSED_AUDIO_PATH = "output/audio/raw_compressed.mp3"
+VOCAL_COMPRESSED_AUDIO_PATH = "output/audio/vocal_compressed.mp3"
+NORMALIZED_VOCAL_PATH = "output/audio/normalized_vocals.mp3"
+NORMALIZED_RAW_PATH = "output/audio/normalized_raw.mp3"
 
-def enhance_vocals():
-    """Enhance vocals audio volume using audio normalization"""
-    try:
-        rprint("[cyan]🎙️ Normalizing vocals audio...[/cyan]")
-        normalized_path = normalize_audio_volume(
-            VOCAL_AUDIO_FILE,
-            ENHANCED_VOCAL_PATH
-        )
-        return normalized_path
-    except Exception as e:
-        rprint(f"[red]Error normalizing vocals: {str(e)}[/red]")
-        return VOCAL_AUDIO_FILE
-    
+def process_audio(input_path, output_path, normalize=True):
+    """
+    normalized and compressed audio
+    """
+    if normalize:
+        with tempfile.NamedTemporaryFile(suffix='.mp3', delete=True) as temp_file:
+            normalized_path = temp_file.name
+            temp_file.close()
+            try:
+                normalize_audio_volume(input_path, normalized_path, format="mp3")
+                compress_audio(normalized_path, output_path)
+            finally:
+                if os.path.exists(normalized_path):
+                    os.remove(normalized_path)
+    else:
+        compress_audio(input_path, output_path)
+    return output_path
+
 def transcribe():
     if os.path.exists(CLEANED_CHUNKS_EXCEL_PATH):
         rprint("[yellow]⚠️ Transcription results already exist, skipping transcription step.[/yellow]")
@@ -39,13 +47,11 @@ def transcribe():
         demucs_main()
     
     # step2 Compress audio
-    raw_audio = RAW_AUDIO_FILE
-    vocal_audio = enhance_vocals() if load_key("demucs") else RAW_AUDIO_FILE
-    raw_compressed = compress_audio(raw_audio, WHISPER_FILE)
-    vocal_compressed = compress_audio(vocal_audio, WHISPER_FILE)
+    raw_audio = process_audio(RAW_AUDIO_FILE, RAW_COMPRESSED_AUDIO_PATH, normalize=False)
+    vocal_audio = process_audio(VOCAL_AUDIO_FILE, VOCAL_COMPRESSED_AUDIO_PATH, normalize=True) if load_key("demucs") else raw_audio
 
     # step3 Extract audio
-    segments = split_audio(raw_compressed)
+    segments = split_audio(raw_audio)
     
     # step4 Transcribe audio
     all_results = []
@@ -57,7 +63,7 @@ def transcribe():
         rprint("[cyan]🎤 Transcribing audio with 302 API...[/cyan]")
 
     for start, end in segments:
-        result = ts(raw_compressed,vocal_compressed, start, end)
+        result = ts(raw_audio,vocal_audio, start, end)
         all_results.append(result)
     
     # step5 Combine results
