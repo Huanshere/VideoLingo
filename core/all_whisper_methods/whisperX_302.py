@@ -8,6 +8,7 @@ import json
 import librosa
 import soundfile as sf
 import io
+from core.all_whisper_methods.audio_preprocess import save_language
 
 OUTPUT_LOG_DIR = "output/log"
 def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: float = None, end: float = None):
@@ -18,6 +19,7 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
             return json.load(f)
         
     WHISPER_LANGUAGE = load_key("whisper.language")
+    save_language(WHISPER_LANGUAGE) # since 302ai doesn't return language
     url = "https://api.302.ai/302/whisperx"
     
     # 加载音频并处理start和end参数
@@ -79,5 +81,5 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
 
 if __name__ == "__main__":  
     # 使用示例:
-    result = transcribe_audio_302("output/audio/raw.mp3", "output/audio/vocal.mp3")
+    result = transcribe_audio_302("output/audio/raw.mp3", "output/audio/raw.mp3")
     rprint(result)

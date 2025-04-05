@@ -8,6 +8,7 @@ import tempfile
 import soundfile as sf
 import librosa
 import time
+from core.all_whisper_methods.audio_preprocess import save_language
 
 # Language code mapping for ElevenLabs API
 LANGUAGE_CODE_MAPPING = {
@@ -24,6 +25,7 @@ LANGUAGE_CODE_MAPPING = {
     "zh": "zho",  # Chinese
     "en": "eng",  # English
 }
+LANGUAGE_CODE_MAPPING_REVERSE = {v: k for k, v in LANGUAGE_CODE_MAPPING.items()}
 
 def process_transcript(json_data, spacing_threshold=0.3):
     """
@@ -137,7 +139,11 @@ def transcribe_audio_elevenlabs(raw_audio_path: str, vocal_audio_path: str, star
         
         # Get the response JSON
         result = response.json()
-        
+
+        # save detected language
+        language = LANGUAGE_CODE_MAPPING_REVERSE.get(result["language_code"])
+        save_language(language)
+
         # Adjust timestamps for all words by adding the start time
         if start is not None and 'words' in result:
             for word in result['words']:
