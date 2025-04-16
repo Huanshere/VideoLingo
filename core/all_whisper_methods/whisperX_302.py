@@ -26,7 +26,7 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
     y, sr = librosa.load(vocal_audio_path, sr=16000)
     audio_duration = len(y) / sr
     
-    if not start or not end:
+    if start is None or end is None:
         start = 0
         end = audio_duration
         
