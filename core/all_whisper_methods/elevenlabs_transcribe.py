@@ -77,7 +77,7 @@ def transcribe_audio_elevenlabs(raw_audio_path: str, vocal_audio_path: str, star
     With support for partial audio transcription using start/end timestamps
     """
     rprint(f"[cyan]🎤 Processing audio transcription, file path: {vocal_audio_path}[/cyan]")
-    LOG_FILE = "output/log/elevenlabs_transcribe.json"
+    LOG_FILE = f"output/log/elevenlabs_transcribe_{start}_{end}.json"
     if os.path.exists(LOG_FILE):
         with open(LOG_FILE, "r", encoding="utf-8") as f:
             return json.load(f)

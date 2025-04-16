@@ -13,7 +13,7 @@ from core.all_whisper_methods.audio_preprocess import save_language
 OUTPUT_LOG_DIR = "output/log"
 def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: float = None, end: float = None):
     os.makedirs(OUTPUT_LOG_DIR, exist_ok=True)
-    LOG_FILE = f"{OUTPUT_LOG_DIR}/whisperx302.json"
+    LOG_FILE = f"{OUTPUT_LOG_DIR}/whisperx302_{start}_{end}.json"
     if os.path.exists(LOG_FILE):
         with open(LOG_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
