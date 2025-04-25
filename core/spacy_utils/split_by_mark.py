@@ -1,17 +1,17 @@
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
-import os,sys
+import os
 import pandas as pd
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+import warnings
 from core.spacy_utils.load_nlp_model import init_nlp
-from core.config_utils import load_key, get_joiner
-from rich import print
+from core.utils.config_utils import load_key, get_joiner
+from rich import print as rprint
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def split_by_mark(nlp):
     whisper_language = load_key("whisper.language")
     language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language # consider force english case
     joiner = get_joiner(language)
-    print(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
+    rprint(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"').strip(""))
     

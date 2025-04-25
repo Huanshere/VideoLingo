@@ -1,11 +1,12 @@
-import streamlit as st
-import os, sys, shutil
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.config_utils import load_key
-from core.step1_ytdlp import download_video_ytdlp, find_video_files
-from time import sleep
+import os
 import re
+import shutil
 import subprocess
+from time import sleep
+
+import streamlit as st
+from core._1_ytdlp import download_video_ytdlp, find_video_files
+from core.utils import *
 from translations.translations import translate as t
 
 OUTPUT_DIR = "output"

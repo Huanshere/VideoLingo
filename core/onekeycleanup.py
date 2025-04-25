@@ -1,7 +1,6 @@
-import os, sys
+import os
 import glob
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.step1_ytdlp import find_video_files
+from core._1_ytdlp import find_video_files
 import shutil
 
 def cleanup(history_dir="history"):

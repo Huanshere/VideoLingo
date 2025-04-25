@@ -1,10 +1,10 @@
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
 import itertools
-import os,sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from load_nlp_model import init_nlp
-from rich import print
+import os
+import warnings
+from core.utils import *
+from core.spacy_utils.load_nlp_model import init_nlp
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def is_valid_phrase(phrase):
     # 🔍 Check for subject and verb
@@ -38,7 +38,7 @@ def split_by_comma(text, nlp):
             
             if suitable_for_splitting:
                 sentences.append(doc[start:token.i].text.strip())
-                print(f"[yellow]✂️  Split at comma: {doc[start:token.i][-4:]},| {doc[token.i + 1:][:4]}[/yellow]")
+                rprint(f"[yellow]✂️  Split at comma: {doc[start:token.i][-4:]},| {doc[token.i + 1:][:4]}[/yellow]")
                 start = token.i + 1
     
     sentences.append(doc[start:].text.strip())
@@ -61,7 +61,7 @@ def split_by_comma_main(nlp):
     # delete the original file
     os.remove("output/log/sentence_by_mark.txt")
     
-    print("[green]💾 Sentences split by commas saved to →  `sentences_by_comma.txt`[/green]")
+    rprint("[green]💾 Sentences split by commas saved to →  `sentences_by_comma.txt`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

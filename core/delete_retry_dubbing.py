@@ -1,6 +1,5 @@
-import os, sys
+import os
 import shutil
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def delete_dubbing_files():
     files_to_delete = [

@@ -1,9 +1,8 @@
+import os
 import warnings
+from core.spacy_utils.load_nlp_model import init_nlp
+
 warnings.filterwarnings("ignore", category=FutureWarning)
-import os,sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from load_nlp_model import init_nlp
-from rich import print
 
 def analyze_connectors(doc, token):
     """

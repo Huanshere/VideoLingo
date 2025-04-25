@@ -1,10 +1,8 @@
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from st_components.imports_and_utils import ask_gpt
 import streamlit as st
-from core.config_utils import update_key, load_key
 from translations.translations import translate as t
 from translations.translations import DISPLAY_LANGUAGES
+from core.utils import *
+
 
 def config_input(label, key, help=None):
     """Generic config input handler"""
