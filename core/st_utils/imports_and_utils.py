@@ -1,8 +1,8 @@
 import os
 import streamlit as st
 import io, zipfile
-from st_components.download_video_section import download_video_section
-from st_components.sidebar_setting import page_setting
+from core.st_utils.download_video_section import download_video_section
+from core.st_utils.sidebar_setting import page_setting
 from translations.translations import translate as t
 
 def download_subtitle_zip_button(text: str):

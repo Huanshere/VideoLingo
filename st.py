@@ -1,6 +1,6 @@
 import streamlit as st
 import os, sys
-from st_components.imports_and_utils import *
+from core.st_utils.imports_and_utils import *
 from core import *
 
 # SET PATH
