@@ -4,7 +4,6 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 from core.utils import *
-
 console = Console()
 
 def valid_translate_result(result: dict, required_keys: list, required_sub_keys: list):
@@ -23,16 +22,16 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
     shared_prompt = generate_shared_prompt(previous_content_prompt, after_cotent_prompt, summary_prompt, things_to_note_prompt)
 
     # Retry translation if the length of the original text and the translated text are not the same, or if the specified key is missing
-    def retry_translation(prompt, step_name):
+    def retry_translation(prompt, length, step_name):
         def valid_faith(response_data):
-            return valid_translate_result(response_data, ['l1'], ['direct'])
+            return valid_translate_result(response_data, [str(i) for i in range(1, length+1)], ['direct'])
         def valid_express(response_data):
-            return valid_translate_result(response_data, ['l1'], ['free'])
+            return valid_translate_result(response_data, [str(i) for i in range(1, length+1)], ['free'])
         for retry in range(3):
             if step_name == 'faithfulness':
-                result = ask_gpt(prompt+retry* " ", resp_type='xml', valid_def=valid_faith, log_title=f'translate_{step_name}')
+                result = ask_gpt(prompt+retry* " ", resp_type='json', valid_def=valid_faith, log_title=f'translate_{step_name}')
             elif step_name == 'expressiveness':
-                result = ask_gpt(prompt+retry* " ", resp_type='xml', valid_def=valid_express, log_title=f'translate_{step_name}')
+                result = ask_gpt(prompt+retry* " ", resp_type='json', valid_def=valid_express, log_title=f'translate_{step_name}')
             if len(lines.split('\n')) == len(result):
                 return result
             if retry != 2:
@@ -41,7 +40,7 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
 
     ## Step 1: Faithful to the Original Text
     prompt1 = get_prompt_faithfulness(lines, shared_prompt)
-    faith_result = retry_translation(prompt1, 'faithfulness')
+    faith_result = retry_translation(prompt1, len(lines.split('\n')), 'faithfulness')
 
     for i in faith_result:
         faith_result[i]["direct"] = faith_result[i]["direct"].replace('\n', ' ')
@@ -65,7 +64,7 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
 
     ## Step 2: Express Smoothly  
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)
-    express_result = retry_translation(prompt2, 'expressiveness')
+    express_result = retry_translation(prompt2, len(lines.split('\n')), 'expressiveness')
 
     table = Table(title="Translation Results", show_header=False, box=box.ROUNDED)
     table.add_column("Translations", style="bold")

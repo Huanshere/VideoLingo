@@ -55,7 +55,7 @@ def split_sentence(sentence, num_parts, word_limit=18, index=-1, retry_attempt=0
             return {"status": "error", "message": "Split failed, no [br] found"}
         return {"status": "success", "message": "Split completed"}
     
-    response_data = ask_gpt(split_prompt + " " * retry_attempt, resp_type='xml', valid_def=valid_split, log_title='split_by_meaning')
+    response_data = ask_gpt(split_prompt + " " * retry_attempt, resp_type='json', valid_def=valid_split, log_title='split_by_meaning')
     best_split = response_data["split"]
     split_points = find_split_positions(sentence, best_split)
     # split the sentence based on the split points

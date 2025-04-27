@@ -1,3 +1,4 @@
+import json
 from core.utils import *
 
 ## ================================================================
@@ -16,15 +17,11 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 3. Split at natural points like punctuation marks or conjunctions
 4. If provided text is repeated words, simply split at the middle of the repeated words.
 
-## Output in the below XML format and nothing else
-```xml
-<analysis>
-Brief analysis of the text structure
-</analysis>
-<split>
-Complete sentence with [br] tags at split positions
-</split>
-```
+## Output in the below JSON format and nothing else
+{{
+    "analysis": "Brief analysis of the text structure",
+    "split": "Complete sentence with [br] tags at split positions"
+}}
 
 ## Given Text
 <split_this_sentence>
@@ -131,11 +128,11 @@ def get_prompt_faithfulness(lines, shared_prompt):
     # Split lines by \n
     line_splits = lines.split('\n')
     
-    # Create XML return format example
-    xml_format = ""
+    json_dict = {}
     for i, line in enumerate(line_splits, 1):
-        xml_format += f"<l{i}>\n<origin>{line}</origin>\n<direct>direct {TARGET_LANGUAGE} translation {i}.</direct>\n</l{i}>"
-    
+        json_dict[f"{i}"] = {"origin": line, "direct": f"direct {TARGET_LANGUAGE} translation {i}."}
+    json_format = json.dumps(json_dict, indent=2)
+
     src_language = load_key("whisper.detected_language")
     prompt_faithfulness = f'''
 ## Role
@@ -162,19 +159,24 @@ We have a segment of original {src_language} subtitles that need to be directly 
 {lines}
 </subtitles>
 
-## Output in the below XML format and nothing else
-```xml
-{xml_format}
-```
+## Output in the below JSON format and nothing else
+{json_format}
 '''
     return prompt_faithfulness.strip()
 
 
 def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
     TARGET_LANGUAGE = load_key("target_language")
-    xml_format = ""
-    for key, value in faithfulness_result.items():
-        xml_format += f"<{key}>\n<origin>{value['origin']}</origin>\n<direct>{value['direct']}</direct>\n<reflect>your reflection on direct translation</reflect>\n<free>your free translation</free>\n</{key}>"
+    json_format = {
+        key: {
+            "origin": value["origin"],
+            "direct": value["direct"],
+            "reflect": "your reflection on direct translation",
+            "free": "your free translation"
+        }
+        for key, value in faithfulness_result.items()
+    }
+    json_format = json.dumps(json_format, indent=2)
 
     src_language = load_key("whisper.detected_language")
     prompt_expressiveness = f'''
@@ -212,10 +214,8 @@ Please use a two-step thinking process to handle the text line by line:
 {lines}
 </subtitles>
 
-### Output in the below XML format and nothing else, repeat "origin" and "direct" in the XML format
-```xml
-{xml_format}
-```
+### Output in the below JSON format and nothing else, repeat "origin" and "direct" in the JSON format
+{json_format}
 '''
     return prompt_expressiveness.strip()
 
