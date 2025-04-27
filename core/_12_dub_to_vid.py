@@ -6,7 +6,6 @@ import numpy as np
 from rich.console import Console
 
 from core._1_ytdlp import find_video_files
-from core._7_sub_into_vid import check_gpu_available
 from core.asr_backend.audio_preprocess import normalize_audio_volume
 from core.utils import *
 from core.utils.models import *
@@ -74,13 +73,13 @@ def merge_video_audio():
         f'[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]'
     ]
 
-    if check_gpu_available():
+    if load_key("ffmpeg_gpu"):
         rprint("[bold green]Using GPU acceleration...[/bold green]")
         cmd.extend(['-map', '[v]', '-map', '[a]', '-c:v', 'h264_nvenc'])
     else:
         cmd.extend(['-map', '[v]', '-map', '[a]'])
     
-    cmd.extend(['-c:a', 'aac', '-b:a', '192k', DUB_VIDEO])
+    cmd.extend(['-c:a', 'aac', '-b:a', '96k', DUB_VIDEO])
     
     subprocess.run(cmd)
     rprint(f"[bold green]Video and audio successfully merged into {DUB_VIDEO}[/bold green]")

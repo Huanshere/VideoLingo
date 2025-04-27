@@ -81,13 +81,10 @@ def merge_subtitles_to_video():
         ).encode('utf-8'),
     ]
 
-    gpu_available = check_gpu_available()
-    if gpu_available:
-        rprint("[bold green]NVIDIA GPU encoder detected, will use GPU acceleration.[/bold green]")
+    ffmpeg_gpu = load_key("ffmpeg_gpu")
+    if ffmpeg_gpu:
+        rprint("[bold green]will use GPU acceleration.[/bold green]")
         ffmpeg_cmd.extend(['-c:v', 'h264_nvenc'])
-    else:
-        rprint("[bold yellow]No NVIDIA GPU encoder detected, will use CPU instead.[/bold yellow]")
-    
     ffmpeg_cmd.extend(['-y', OUTPUT_VIDEO])
 
     rprint("🎬 Start merging subtitles to video...")
