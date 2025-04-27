@@ -54,7 +54,7 @@ def similar(a, b):
 @check_file_exists(_4_2_TRANSLATION)
 def translate_all():
     console.print("[bold green]Start Translating All...[/bold green]")
-    chunks = split_chunks_by_chars(chunk_size=500, max_i=10)
+    chunks = split_chunks_by_chars(chunk_size=600, max_i=10)
     with open(_4_1_TERMINOLOGY, 'r', encoding='utf-8') as file:
         theme_prompt = json.load(file).get('theme')
 
