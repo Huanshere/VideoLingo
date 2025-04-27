@@ -67,6 +67,11 @@ Steps:
    - Add brief explanation
    - Keep abbreviations and proper nouns unchanged
 
+## INPUT
+<text>
+{source_content}
+</text>
+
 ## Output in the below XML format and nothing else
 <theme>
   Two-sentence video summary
@@ -115,11 +120,6 @@ Steps:
     </note>
   </term>
 </terms>
-
-## INPUT
-<text>
-{source_content}
-</text>
 """.strip()
     return summary_prompt
 
@@ -225,7 +225,7 @@ Please use a two-step thinking process to handle the text line by line:
 {lines}
 </subtitles>
 
-### Output in the below XML format and nothing else, repeat "o" and "d" in the XML format
+### Output in the below XML format and nothing else, repeat "origin" and "direct" in the XML format
 {xml_format}
 '''
     return prompt_expressiveness.strip()
