@@ -93,8 +93,8 @@ def process_transcription(result: Dict) -> pd.DataFrame:
         
         for word in segment['words']:
             # Check word length
-            if len(word["word"]) > 20:
-                rprint(f"[yellow]⚠️ Warning: Detected word longer than 20 characters, skipping: {word['word']}[/yellow]")
+            if len(word["word"]) > 30:
+                rprint(f"[yellow]⚠️ Warning: Detected word longer than 30 characters, skipping: {word['word']}[/yellow]")
                 continue
                 
             # ! For French, we need to convert guillemets to empty strings
