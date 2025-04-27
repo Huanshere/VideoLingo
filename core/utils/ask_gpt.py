@@ -2,16 +2,14 @@ import os
 import json
 from threading import Lock
 import json_repair
-import xmltodict
 from openai import OpenAI
 from core.utils.config_utils import load_key
 from rich import print as rprint
 from core.utils.decorator import except_handler
-import yaml
 
-# ------------------------------------------
+# ------------
 # cache gpt response
-# ------------------------------------------
+# ------------
 
 LOCK = Lock()
 GPT_LOG_FOLDER = 'output/gpt_log'
@@ -38,11 +36,11 @@ def _load_cache(prompt, resp_type, log_title):
                         return item["resp"]
         return False
 
-# ------------------------------------------
+# ------------
 # ask gpt once
-# ------------------------------------------
+# ------------
 
-@except_handler("GPT request failed", retry=3)
+@except_handler("GPT request failed", retry=5)
 def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
     if not load_key("api.key"):
         raise ValueError("API key is not set")
@@ -75,15 +73,6 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
     resp_content = resp_raw.choices[0].message.content
     if resp_type == "json":
         resp = json_repair.loads(resp_content)
-    elif resp_type == "xml":
-        try:
-            xml_str = "<resp_wrapper>" + resp_content[resp_content.find('<'):resp_content.rfind('>')+1] + "</resp_wrapper>"
-            resp = xmltodict.parse(xml_str)["resp_wrapper"]
-        except Exception as e:
-            _save_cache(model, prompt, resp_content, resp_type, xml_str, log_title="error", message=f"❌ XML parsing error, response content: {xml_str}")
-            raise ValueError("❌ XML parsing error")
-    elif resp_type == "yaml":
-        resp = yaml.safe_load(resp_content)
     else:
         resp = resp_content
     
@@ -103,9 +92,3 @@ if __name__ == '__main__':
     
     result = ask_gpt("""test respond ```json\n{\"code\": 200, \"message\": \"success\"}\n```""", resp_type="json")
     rprint(f"Test json output result: {result}")
-    
-    # result = ask_gpt("""test repeat ```xml\n<message>success</message><greeting>hello</greeting>\n``` and nothing else""", resp_type="xml")
-    # rprint(f"Test xml output result: {result}")
-
-    # result = ask_gpt("""test repeat ```yaml\nanalysis: Brief analysis of the text structure\nsplit: Complete sentence with [br] tags at split positions\n``` and nothing else""", resp_type="yaml")
-    # rprint(f"Test yaml output result: {result}")
