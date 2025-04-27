@@ -18,12 +18,12 @@ def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""
     with open(_4_1_TERMINOLOGY, 'r', encoding='utf-8') as file:
         things_to_note = json.load(file)
-    things_to_note_list = [term['src'] for term in things_to_note['terms']['term'] if term['src'].lower() in sentence.lower()]
+    things_to_note_list = [term['src'] for term in things_to_note['term'] if term['src'].lower() in sentence.lower()]
     if things_to_note_list:
         prompt = '\n'.join(
             f'{i+1}. "{term["src"]}": "{term["tgt"]}",'
             f' meaning: {term["note"]}'
-            for i, term in enumerate(things_to_note['terms']['term'])
+            for i, term in enumerate(things_to_note['term'])
             if term['src'] in things_to_note_list
         )
         return prompt
@@ -59,7 +59,7 @@ def get_summary():
                 return {"status": "error", "message": "Invalid response format"}   
         return {"status": "success", "message": "Summary completed"}
 
-    summary = ask_gpt(summary_prompt, resp_type='xml', valid_def=valid_summary, log_title='summary')
+    summary = ask_gpt(summary_prompt, resp_type='json', valid_def=valid_summary, log_title='summary')
     # just in case the response is a single term
     if isinstance(summary['term'], dict):
         summary['term'] = [summary['term']]

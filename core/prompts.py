@@ -1,4 +1,3 @@
-import json
 from core.utils import *
 
 ## ================================================================
@@ -18,12 +17,14 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 4. If provided text is repeated words, simply split at the middle of the repeated words.
 
 ## Output in the below XML format and nothing else
+```xml
 <analysis>
 Brief analysis of the text structure
 </analysis>
 <split>
 Complete sentence with [br] tags at split positions
 </split>
+```
 
 ## Given Text
 <split_this_sentence>
@@ -43,7 +44,7 @@ def get_summary_prompt(source_content, custom_terms_json=None):
     terms_note = ""
     if custom_terms_json:
         terms_list = []
-        for term in custom_terms_json['terms']['term']:
+        for term in custom_terms_json['term']:
             terms_list.append(f"- {term['src']}: {term['tgt']} ({term['note']})")
         terms_note = "\n### Existing Terms\nPlease exclude these terms in your extraction:\n" + "\n".join(terms_list)
     
@@ -55,7 +56,9 @@ You are a video translation expert and terminology consultant, specializing in {
 For the provided {src_lang} video text:
 1. Summarize main topic in two sentences
 2. Extract professional terms/names with {tgt_lang} translations (excluding existing terms)
-3. Provide brief explanation for each term{terms_note}
+3. Provide brief explanation for each term
+
+{terms_note}
 
 Steps:
 1. Topic Summary:
@@ -66,56 +69,42 @@ Steps:
    - Provide {tgt_lang} translation or keep original
    - Add brief explanation
    - Keep abbreviations and proper nouns unchanged
+   - Extract less than 15 terms
 
 ## INPUT
 <text>
 {source_content}
 </text>
 
-## Output in the below XML format and nothing else
-<theme>
-  Two-sentence video summary
-</theme>
-<term>
-  <src>
-    {src_lang} term
-  </src>
-  <tgt>
-    {tgt_lang} translation or original
-  </tgt>
-  <note>
-    Brief explanation
-  </note>
-</term>
-<!-- ... more terms ... -->
-
+## Output in the below JSON format and nothing else
+{{
+  "theme": "Two-sentence video summary",
+  "term": [
+    {{
+      "src": "{src_lang} term",
+      "tgt": "{tgt_lang} translation or original", 
+      "note": "Brief explanation"
+    }},
+    ...
+  ]
+}}  
 
 ## Example
-<theme>
-  本视频介绍人工智能在医疗领域的应用现状。重点展示了AI在医学影像诊断和药物研发中的突破性进展。
-</theme>
-<term>
-  <src>
-    Machine Learning
-  </src>
-  <tgt>
-    机器学习
-  </tgt>
-  <note>
-    AI的核心技术，通过数据训练实现智能决策
-  </note>
-</term>
-<term>
-  <src>
-    CNN
-  </src>
-  <tgt>
-    CNN
-  </tgt>
-  <note>
-    卷积神经网络，用于医学图像识别的深度学习模型
-  </note>
-</term>
+{{
+  "theme": "本视频介绍人工智能在医疗领域的应用现状。重点展示了AI在医学影像诊断和药物研发中的突破性进展。",
+  "terms": [
+    {{
+      "src": "Machine Learning",
+      "tgt": "机器学习",
+      "note": "AI的核心技术，通过数据训练实现智能决策"
+    }},
+    {{
+      "src": "CNN",
+      "tgt": "CNN",
+      "note": "卷积神经网络，用于医学图像识别的深度学习模型"
+    }}
+  ]
+}}
 """.strip()
     return summary_prompt
 
@@ -174,7 +163,9 @@ We have a segment of original {src_language} subtitles that need to be directly 
 </subtitles>
 
 ## Output in the below XML format and nothing else
+```xml
 {xml_format}
+```
 '''
     return prompt_faithfulness.strip()
 
@@ -222,7 +213,9 @@ Please use a two-step thinking process to handle the text line by line:
 </subtitles>
 
 ### Output in the below XML format and nothing else, repeat "origin" and "direct" in the XML format
+```xml
 {xml_format}
+```
 '''
     return prompt_expressiveness.strip()
 

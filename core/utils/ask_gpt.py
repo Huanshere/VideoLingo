@@ -5,6 +5,7 @@ import json_repair
 import xmltodict
 from openai import OpenAI
 from core.utils.config_utils import load_key
+from rich import print as rprint
 from core.utils.decorator import except_handler
 
 # ------------------------------------------
@@ -47,7 +48,6 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
     # check cache
     cached = _load_cache(prompt, resp_type, log_title)
     if cached:
-        from rich import print as rprint
         rprint("use cache response")
         return cached
 
@@ -75,8 +75,12 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
     if resp_type == "json":
         resp = json_repair.loads(resp_content)
     elif resp_type == "xml":
-        xml_str = "<resp_wrapper>" + resp_content[resp_content.find('<'):resp_content.rfind('>')+1] + "</resp_wrapper>"
-        resp = xmltodict.parse(xml_str)["resp_wrapper"]
+        try:
+            xml_str = "<resp_wrapper>" + resp_content[resp_content.find('<'):resp_content.rfind('>')+1] + "</resp_wrapper>"
+            resp = xmltodict.parse(xml_str)["resp_wrapper"]
+        except Exception as e:
+            _save_cache(model, prompt, resp_content, resp_type, xml_str, log_title="error", message=f"❌ XML parsing error, response content: {xml_str}")
+            raise ValueError("❌ XML parsing error")
     else:
         resp = resp_content
     
