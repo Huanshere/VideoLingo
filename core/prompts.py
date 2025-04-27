@@ -225,7 +225,7 @@ Please use a two-step thinking process to handle the text line by line:
 1. Direct Translation Reflection:
    - Evaluate language fluency
    - Check if the language style is consistent with the original text
-   - Check the conciseness of the subtitles, point out where the translation is too wordy, the translation should be close to the original text in length
+   - Check the conciseness of the subtitles, point out where the translation is too wordy
 
 2. {TARGET_LANGUAGE} Free Translation:
    - Aim for contextual smoothness and naturalness, conforming to {TARGET_LANGUAGE} expression habits
