@@ -7,6 +7,7 @@ from openai import OpenAI
 from core.utils.config_utils import load_key
 from rich import print as rprint
 from core.utils.decorator import except_handler
+import yaml
 
 # ------------------------------------------
 # cache gpt response
@@ -81,6 +82,8 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
         except Exception as e:
             _save_cache(model, prompt, resp_content, resp_type, xml_str, log_title="error", message=f"❌ XML parsing error, response content: {xml_str}")
             raise ValueError("❌ XML parsing error")
+    elif resp_type == "yaml":
+        resp = yaml.safe_load(resp_content)
     else:
         resp = resp_content
     
@@ -98,8 +101,11 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
 if __name__ == '__main__':
     from rich import print as rprint
     
-    result = ask_gpt("""test respond {"code": 200, "message": "success"}""", resp_type="json")
+    result = ask_gpt("""test respond ```json\n{\"code\": 200, \"message\": \"success\"}\n```""", resp_type="json")
     rprint(f"Test json output result: {result}")
     
-    result = ask_gpt("""test repeat <message>success</message><greeting>hello</greeting> and nothing else""", resp_type="xml")
-    rprint(f"Test xml output result: {result}")
+    # result = ask_gpt("""test repeat ```xml\n<message>success</message><greeting>hello</greeting>\n``` and nothing else""", resp_type="xml")
+    # rprint(f"Test xml output result: {result}")
+
+    # result = ask_gpt("""test repeat ```yaml\nanalysis: Brief analysis of the text structure\nsplit: Complete sentence with [br] tags at split positions\n``` and nothing else""", resp_type="yaml")
+    # rprint(f"Test yaml output result: {result}")

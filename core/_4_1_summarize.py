@@ -18,12 +18,12 @@ def search_things_to_note_in_prompt(sentence):
     """Search for terms to note in the given sentence"""
     with open(_4_1_TERMINOLOGY, 'r', encoding='utf-8') as file:
         things_to_note = json.load(file)
-    things_to_note_list = [term['src'] for term in things_to_note['term'] if term['src'].lower() in sentence.lower()]
+    things_to_note_list = [term['src'] for term in things_to_note['terms'] if term['src'].lower() in sentence.lower()]
     if things_to_note_list:
         prompt = '\n'.join(
             f'{i+1}. "{term["src"]}": "{term["tgt"]}",'
             f' meaning: {term["note"]}'
-            for i, term in enumerate(things_to_note['term'])
+            for i, term in enumerate(things_to_note['terms'])
             if term['src'] in things_to_note_list
         )
         return prompt
@@ -34,7 +34,7 @@ def get_summary():
     src_content = combine_chunks()
     custom_terms = pd.read_excel(CUSTOM_TERMS_PATH)
     custom_terms_json = {
-        "term": 
+        "terms": 
             [
                 {
                     "src": str(row.iloc[0]),
@@ -52,18 +52,15 @@ def get_summary():
     
     def valid_summary(response_data):
         required_keys = {'src', 'tgt', 'note'}
-        if 'term' not in response_data:
+        if 'terms' not in response_data:
             return {"status": "error", "message": "Invalid response format"}
-        for term in response_data['term']:
+        for term in response_data['terms']:
             if not all(key in term for key in required_keys):
                 return {"status": "error", "message": "Invalid response format"}   
         return {"status": "success", "message": "Summary completed"}
 
     summary = ask_gpt(summary_prompt, resp_type='json', valid_def=valid_summary, log_title='summary')
-    # just in case the response is a single term
-    if isinstance(summary['term'], dict):
-        summary['term'] = [summary['term']]
-    summary['term'].extend(custom_terms_json['term'])
+    summary['terms'].extend(custom_terms_json['terms'])
     
     with open(_4_1_TERMINOLOGY, 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=4)

@@ -17,16 +17,20 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 3. Split at natural points like punctuation marks or conjunctions
 4. If provided text is repeated words, simply split at the middle of the repeated words.
 
-## Output in the below JSON format and nothing else
-{{
-    "analysis": "Brief analysis of the text structure",
-    "split": "Complete sentence with [br] tags at split positions"
-}}
-
 ## Given Text
 <split_this_sentence>
 {sentence}
 </split_this_sentence>
+
+## Output in only JSON format and no other text
+```json
+{{
+    "analysis": "Brief analysis of the text structure",
+    "split": "Complete sentence with [br] tags at split positions"
+}}
+```
+
+Note: Start you answer with ```json and end with ```, do not add any other text.
 """.strip()
     return split_prompt
 
@@ -41,7 +45,7 @@ def get_summary_prompt(source_content, custom_terms_json=None):
     terms_note = ""
     if custom_terms_json:
         terms_list = []
-        for term in custom_terms_json['term']:
+        for term in custom_terms_json['terms']:
             terms_list.append(f"- {term['src']}: {term['tgt']} ({term['note']})")
         terms_note = "\n### Existing Terms\nPlease exclude these terms in your extraction:\n" + "\n".join(terms_list)
     
@@ -73,10 +77,10 @@ Steps:
 {source_content}
 </text>
 
-## Output in the below JSON format and nothing else
+## Output in only JSON format and no other text
 {{
   "theme": "Two-sentence video summary",
-  "term": [
+  "terms": [
     {{
       "src": "{src_lang} term",
       "tgt": "{tgt_lang} translation or original", 
@@ -102,6 +106,8 @@ Steps:
     }}
   ]
 }}
+
+Note: Start you answer with ```json and end with ```, do not add any other text.
 """.strip()
     return summary_prompt
 
@@ -159,8 +165,12 @@ We have a segment of original {src_language} subtitles that need to be directly 
 {lines}
 </subtitles>
 
-## Output in the below JSON format and nothing else
+## Output in only JSON format and no other text
+```json
 {json_format}
+```
+
+Note: Start you answer with ```json and end with ```, do not add any other text.
 '''
     return prompt_faithfulness.strip()
 
@@ -214,8 +224,12 @@ Please use a two-step thinking process to handle the text line by line:
 {lines}
 </subtitles>
 
-### Output in the below JSON format and nothing else, repeat "origin" and "direct" in the JSON format
+## Output in only JSON format and no other text
+```json
 {json_format}
+```
+
+Note: Start you answer with ```json and end with ```, do not add any other text.
 '''
     return prompt_expressiveness.strip()
 
@@ -241,7 +255,8 @@ def get_align_prompt(src_sub, tr_sub, src_part):
 You are a Netflix subtitle alignment expert fluent in both {src_lang} and {targ_lang}.
 
 ## Task
-We have {src_lang} and {targ_lang} original subtitles for a Netflix program, as well as a pre-processed split version of {src_language} subtitles. Your task is to create the best splitting scheme for the {target_language} subtitles based on this information.
+We have {src_lang} and {targ_lang} original subtitles for a Netflix program, as well as a pre-processed split version of {src_lang} subtitles.
+Your task is to create the best splitting scheme for the {targ_lang} subtitles based on this information.
 
 1. Analyze the word order and structural correspondence between {src_lang} and {targ_lang} subtitles
 2. Split the {targ_lang} subtitles according to the pre-processed {src_lang} split version
@@ -255,14 +270,18 @@ We have {src_lang} and {targ_lang} original subtitles for a Netflix program, as 
 Pre-processed {src_lang} Subtitles ([br] indicates split points): {src_part}
 </subtitles>
 
-## Output in only JSON format
+## Output in only JSON format and no other text
+```json
 {{
     "analysis": "Brief analysis of word order, structure, and semantic correspondence between two subtitles",
     "align": [
         {align_parts_json}
     ]
 }}
-'''
+```
+
+Note: Start you answer with ```json and end with ```, do not add any other text.
+'''.strip()
     return align_prompt
 
 ## ================================================================
@@ -275,7 +294,7 @@ def get_subtitle_trim_prompt(text, duration):
     - "Let's discuss the various different perspectives on this topic" can be shortened to "Let's discuss different perspectives on this topic"
     - "Can you describe in detail your experience from yesterday" can be shortened to "Can you describe yesterday's experience" '''
 
-    trim_prompt = '''
+    trim_prompt = f'''
 ## Role
 You are a professional subtitle editor, editing and optimizing lengthy subtitles that exceed voiceover time before handing them to voice actors. 
 Your expertise lies in cleverly shortening subtitles slightly while ensuring the original meaning and structure remain unchanged.
@@ -294,17 +313,17 @@ Please follow these steps and provide the results in the JSON output:
 1. Analysis: Briefly analyze the subtitle's structure, key information, and filler words that can be omitted.
 2. Trimming: Based on the rules and analysis, optimize the subtitle by making it more concise according to the processing rules.
 
-## Output in only JSON format
+## Output in only JSON format and no other text
+```json
 {{
     "analysis": "Brief analysis of the subtitle, including structure, key information, and potential processing locations",
     "result": "Optimized and shortened subtitle in the original subtitle language"
 }}
+```
+
+Note: Start you answer with ```json and end with ```, do not add any other text.
 '''.strip()
-    return trim_prompt.format(
-        text=text,
-        duration=duration,
-        rule=rule
-    )
+    return trim_prompt
 
 ## ================================================================
 # @ tts_main
@@ -321,8 +340,12 @@ Clean the given text by:
 ## INPUT
 {text}
 
-## Output in only JSON format
+## Output in only JSON format and no other text
+```json
 {{
     "text": "cleaned text here"
 }}
+```
+
+Note: Start you answer with ```json and end with ```, do not add any other text.
 '''.strip()
