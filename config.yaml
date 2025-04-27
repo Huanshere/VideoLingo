@@ -1,14 +1,15 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
 # recommend to set in streamlit page
-version: "2.2.3"
+version: "3.0.0"
 ## ======================== Basic Settings ======================== ##
 display_language: "zh-CN"
 
 # API settings
 api:
-  key: 'your_api_key'
-  base_url: 'https://api.302.ai'
-  model: 'gemini-2.0-flash'
+  key: 'your-api-key'
+  base_url: 'https://openrouter.ai/api'
+  model: 'deepseek/deepseek-chat-v3-0324'
+  llm_support_json: true
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -144,13 +145,6 @@ allowed_audio_formats:
 - 'mp3'
 - 'flac'
 - 'm4a'
-
-# LLMs that support returning JSON format
-llm_support_json:
-- 'gpt-4o'
-- 'gpt-4o-mini'
-- 'gemini-2.0-flash'
-- 'deepseek-chat'
 
 # Spacy models
 spacy_model_map:

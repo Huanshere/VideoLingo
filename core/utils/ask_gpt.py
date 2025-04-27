@@ -58,7 +58,7 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
     elif 'v1' not in base_url:
         base_url = base_url.strip('/') + '/v1'
     client = OpenAI(api_key=load_key("api.key"), base_url=base_url)
-    response_format = {"type": "json_object"} if resp_type == "json" and model in load_key("llm_support_json") else None
+    response_format = {"type": "json_object"} if resp_type == "json" and load_key("api.llm_support_json") else None
 
     messages = [{"role": "user", "content": prompt}]
 
