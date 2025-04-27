@@ -40,7 +40,6 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
             return {"status": "error", "message": "Align does not contain more than 1 part as expected!"}
         return {"status": "success", "message": "Align completed"}
     parsed = ask_gpt(align_prompt, resp_type='json', valid_def=valid_align, log_title='align_subs')
-    
     align_data = parsed['align']
     src_parts = src_part.split('\n')
     tr_parts = [item[f'target_part_{i+1}'].strip() for i, item in enumerate(align_data)]
@@ -55,7 +54,6 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     table.add_column("Parts", style="magenta")
     table.add_row("SRC_LANG", "\n".join(src_parts))
     table.add_row("TARGET_LANG", "\n".join(tr_parts))
-    table.add_row("REMERGED", tr_remerged)
     console.print(table)
     
     return src_parts, tr_parts, tr_remerged
@@ -81,9 +79,7 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str]):
     @except_handler("Error in split_align_subs")
     def process(i):
         split_src = split_sentence(src_lines[i], num_parts=2).strip()
-        print(f"111 now we finished the split_sentence")
         src_parts, tr_parts, tr_remerged = align_subs(src_lines[i], tr_lines[i], split_src)
-        print(f"222 now we finished the align_subs")
         src_lines[i] = src_parts
         tr_lines[i] = tr_parts
         remerged_tr_lines[i] = tr_remerged
