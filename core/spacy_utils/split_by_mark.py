@@ -32,7 +32,7 @@ def split_by_mark(nlp):
             else:
                 output_file.write(sentence + "\n")
     
-    print("[green]💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`[/green]")
+    rprint("[green]💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

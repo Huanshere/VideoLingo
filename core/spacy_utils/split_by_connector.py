@@ -1,6 +1,7 @@
 import os
 import warnings
 from core.spacy_utils.load_nlp_model import init_nlp
+from core.utils import rprint
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -107,7 +108,7 @@ def split_by_connectors(text, context_words=5, nlp=None):
                 right_words = [word.text for word in right_words if not word.is_punct]
                 
                 if len(left_words) >= context_words and len(right_words) >= context_words and split_before:
-                    print(f"[yellow]✂️  Split before '{token.text}': {' '.join(left_words)}| {token.text} {' '.join(right_words)}[/yellow]")
+                    rprint(f"[yellow]✂️  Split before '{token.text}': {' '.join(left_words)}| {token.text} {' '.join(right_words)}[/yellow]")
                     new_sentences.append(doc[start:token.i].text.strip())
                     start = token.i
                     split_occurred = True
@@ -145,7 +146,7 @@ def split_sentences_main(nlp):
     # delete the original file
     os.remove("output/log/sentence_by_comma.txt")
     
-    print("[green]💾 Sentences split by connectors saved to →  `sentence_splitbyconnector.txt`[/green]")
+    rprint("[green]💾 Sentences split by connectors saved to →  `sentence_splitbyconnector.txt`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()
