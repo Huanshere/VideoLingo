@@ -17,6 +17,12 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 3. Split at natural points like punctuation marks or conjunctions
 4. If provided text is repeated words, simply split at the middle of the repeated words.
 
+## Steps
+1. Analyze the sentence structure, complexity, and key splitting challenges
+2. Generate two alternative splitting approaches with [br] tags at split positions
+3. Compare both approaches highlighting their strengths and weaknesses
+4. Choose the best splitting approach
+
 ## Given Text
 <split_this_sentence>
 {sentence}
@@ -25,8 +31,11 @@ Split the given subtitle text into {num_parts} parts, each less than {word_limit
 ## Output in only JSON format and no other text
 ```json
 {{
-    "analysis": "Brief analysis of the text structure",
-    "split": "Complete sentence with [br] tags at split positions"
+    "analysis": "Brief description of sentence structure, complexity, and key splitting challenges",
+    "split1": "First splitting approach with [br] tags at split positions",
+    "split2": "Alternative splitting approach with [br] tags at split positions",
+    "assess": "Comparison of both approaches highlighting their strengths and weaknesses",
+    "choice": "1 or 2"
 }}
 ```
 
@@ -34,6 +43,10 @@ Note: Start you answer with ```json and end with ```, do not add any other text.
 """.strip()
     return split_prompt
 
+"""{{
+    "analysis": "Brief analysis of the text structure",
+    "split": "Complete sentence with [br] tags at split positions"
+}}"""
 
 ## ================================================================
 # @ step4_1_summarize.py
@@ -195,7 +208,8 @@ You are a professional Netflix subtitle translator and language consultant.
 Your expertise lies not only in accurately understanding the original {src_language} but also in optimizing the {TARGET_LANGUAGE} translation to better suit the target language's expression habits and cultural background.
 
 ## Task
-We already have a direct translation version of the original {src_language} subtitles. Now we need you to reflect on and improve these direct translations to create more natural and fluent {TARGET_LANGUAGE} subtitles.
+We already have a direct translation version of the original {src_language} subtitles.
+Your task is to reflect on and improve these direct translations to create more natural and fluent {TARGET_LANGUAGE} subtitles.
 
 1. Analyze the direct translation results line by line, pointing out existing issues
 2. Provide detailed modification suggestions
@@ -216,7 +230,7 @@ Please use a two-step thinking process to handle the text line by line:
 2. {TARGET_LANGUAGE} Free Translation:
    - Aim for contextual smoothness and naturalness, conforming to {TARGET_LANGUAGE} expression habits
    - Ensure it's easy for {TARGET_LANGUAGE} audience to understand and accept
-   - Adapt the language style to match the video's theme (e.g., use casual language for tutorials, professional terminology for technical content, formal language for documentaries)
+   - Adapt the language style to match the theme (e.g., use casual language for tutorials, professional terminology for technical content, formal language for documentaries)
 </Translation Analysis Steps>
    
 ## INPUT
