@@ -16,8 +16,8 @@ from . import (
     _12_dub_to_vid
 )
 from .utils import *
-from .onekeycleanup import cleanup
-from .delete_retry_dubbing import delete_dubbing_files
+from .utils.onekeycleanup import cleanup
+from .utils.delete_retry_dubbing import delete_dubbing_files
 
 __all__ = [
     'ask_gpt',

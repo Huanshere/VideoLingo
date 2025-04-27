@@ -115,7 +115,7 @@ def main():
         message=t("Do you need to auto-configure PyPI mirrors? (Recommended if you have difficulty accessing pypi.org)"),
         default=True
     ).execute():
-        from core.pypi_autochoose import main as choose_mirror
+        from core.utils.pypi_autochoose import main as choose_mirror
         choose_mirror()
 
     # Detect system and GPU

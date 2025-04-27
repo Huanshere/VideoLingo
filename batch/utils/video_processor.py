@@ -1,8 +1,7 @@
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from st_components.imports_and_utils import *
-from core.onekeycleanup import cleanup
-from core.utils.config_utils import load_key
+import os
+from core.st_utils.imports_and_utils import *
+from core.utils.onekeycleanup import cleanup
+from core.utils import load_key
 import shutil
 from functools import partial
 from rich.panel import Panel
