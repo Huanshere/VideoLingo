@@ -147,10 +147,10 @@ def save_results(df: pd.DataFrame):
         rprint(f"[blue]ℹ️ Removed {removed_rows} row(s) with empty text.[/blue]")
     
     # Check for and remove words longer than 20 characters
-    long_words = df[df['text'].str.len() > 20]
+    long_words = df[df['text'].str.len() > 30]
     if not long_words.empty:
-        rprint(f"[yellow]⚠️ Warning: Detected {len(long_words)} word(s) longer than 20 characters. These will be removed.[/yellow]")
-        df = df[df['text'].str.len() <= 20]
+        rprint(f"[yellow]⚠️ Warning: Detected {len(long_words)} word(s) longer than 30 characters. These will be removed.[/yellow]")
+        df = df[df['text'].str.len() <= 30]
     
     df['text'] = df['text'].apply(lambda x: f'"{x}"')
     df.to_excel(_2_CLEANED_CHUNKS, index=False)
