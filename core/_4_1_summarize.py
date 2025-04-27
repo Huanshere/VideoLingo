@@ -34,8 +34,7 @@ def get_summary():
     src_content = combine_chunks()
     custom_terms = pd.read_excel(CUSTOM_TERMS_PATH)
     custom_terms_json = {
-        "terms": {
-            "term": 
+        "term": 
             [
                 {
                     "src": str(row.iloc[0]),
@@ -44,7 +43,6 @@ def get_summary():
                 }
                 for _, row in custom_terms.iterrows()
             ]
-        }
     }
     if len(custom_terms) > 0:
         rprint(f"📖 Custom Terms Loaded: {len(custom_terms)} terms")
@@ -54,16 +52,18 @@ def get_summary():
     
     def valid_summary(response_data):
         required_keys = {'src', 'tgt', 'note'}
-        if 'terms' not in response_data or "term" not in response_data['terms']:
+        if 'term' not in response_data:
             return {"status": "error", "message": "Invalid response format"}
-        for term in response_data['terms']['term']:
+        for term in response_data['term']:
             if not all(key in term for key in required_keys):
                 return {"status": "error", "message": "Invalid response format"}   
         return {"status": "success", "message": "Summary completed"}
 
     summary = ask_gpt(summary_prompt, resp_type='xml', valid_def=valid_summary, log_title='summary')
-    if 'terms' in summary:
-        summary['terms']['term'].extend(custom_terms_json['terms']['term'])
+    # just in case the response is a single term
+    if isinstance(summary['term'], dict):
+        summary['term'] = [summary['term']]
+    summary['term'].extend(custom_terms_json['term'])
     
     with open(_4_1_TERMINOLOGY, 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=4)

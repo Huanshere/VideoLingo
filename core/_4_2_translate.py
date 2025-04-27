@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 import concurrent.futures
-from core.translate_chunk import translate_lines
+from core.translate_lines import translate_lines
 from core._4_1_summarize import search_things_to_note_in_prompt
 from core._8_1_audio_task import check_len_then_trim
 from core._6_gen_sub import align_timestamp

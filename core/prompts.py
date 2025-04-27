@@ -76,50 +76,46 @@ Steps:
 <theme>
   Two-sentence video summary
 </theme>
-<terms>
-  <term>
-    <src>
-      {src_lang} term
-    </src>
-    <tgt>
-      {tgt_lang} translation or original
-    </tgt>
-    <note>
-      Brief explanation
-    </note>
-  </term>
-  <!-- ... more terms ... -->
-</terms>
+<term>
+  <src>
+    {src_lang} term
+  </src>
+  <tgt>
+    {tgt_lang} translation or original
+  </tgt>
+  <note>
+    Brief explanation
+  </note>
+</term>
+<!-- ... more terms ... -->
 
 
 ## Example
-<topic>
+<theme>
   本视频介绍人工智能在医疗领域的应用现状。重点展示了AI在医学影像诊断和药物研发中的突破性进展。
-</topic>
-<terms>
-  <term>
-    <src>
-      Machine Learning
-    </src>
-    <tgt>
-      机器学习
-    </tgt>
-    <note>
-      AI的核心技术，通过数据训练实现智能决策
-    </note>
-  </term>
-  <term>
-    <src>
-      CNN
-    </src>
-    <tgt>
-      CNN
-    </tgt>
-    <note>
-      卷积神经网络，用于医学图像识别的深度学习模型
-    </note>
-  </term>
-</terms>
+</theme>
+<term>
+  <src>
+    Machine Learning
+  </src>
+  <tgt>
+    机器学习
+  </tgt>
+  <note>
+    AI的核心技术，通过数据训练实现智能决策
+  </note>
+</term>
+<term>
+  <src>
+    CNN
+  </src>
+  <tgt>
+    CNN
+  </tgt>
+  <note>
+    卷积神经网络，用于医学图像识别的深度学习模型
+  </note>
+</term>
 """.strip()
     return summary_prompt
 

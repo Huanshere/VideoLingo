@@ -18,7 +18,7 @@ def init_nlp():
         try:
             nlp = spacy.load(model)
         except:
-            rprint("[yellow]Downloading {model} model...[/yellow]")
+            rprint(f"[yellow]Downloading {model} model...[/yellow]")
             rprint("[yellow]If download failed, please check your network and try again.[/yellow]")
             download(model)
             nlp = spacy.load(model)
