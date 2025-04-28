@@ -2,11 +2,9 @@ import os
 import warnings
 import time
 import subprocess
-import numpy as np
 import torch
 import whisperx
 import librosa
-from typing import Dict
 from rich import print as rprint
 from core.utils import *
 
@@ -80,8 +78,14 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     raw_audio_segment = load_audio_segment(raw_audio_file, start, end)
     vocal_audio_segment = load_audio_segment(vocal_audio_file, start, end)
     
+    # -------------------------
+    # 1. transcribe raw audio
+    # -------------------------
+    transcribe_start_time = time.time()
     rprint("[bold green]Note: You will see Progress if working correctly ↓[/bold green]")
     result = model.transcribe(raw_audio_segment, batch_size=batch_size, print_progress=True)
+    transcribe_time = time.time() - transcribe_start_time
+    rprint(f"[cyan]⏱️ time transcribe:[/cyan] {transcribe_time:.2f}s")
 
     # Free GPU resources
     del model
@@ -92,9 +96,15 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
         raise ValueError("Please specify the transcription language as zh and try again!")
 
+    # -------------------------
+    # 2. align by vocal audio
+    # -------------------------
+    align_start_time = time.time()
     # Align timestamps using vocal audio
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, vocal_audio_segment, device, return_char_alignments=False)
+    align_time = time.time() - align_start_time
+    rprint(f"[cyan]⏱️ time align:[/cyan] {align_time:.2f}s")
 
     # Free GPU resources again
     torch.cuda.empty_cache()
