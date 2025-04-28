@@ -8,37 +8,61 @@ import soundfile as sf
 from rich import print as rprint
 from core.utils import *
 
-def elev2whisper(json_data, spacing_threshold=0.3):
-    words_data = json_data.get("words", [])
-    
-    current_segment = None
-    segments = []
-    
-    for item in words_data:
-        if item["type"] == "word":
-            word_info = {"word": item["text"], "start": item["start"], "end": item["end"]}
-            
-            speaker_id = item.get("speaker_id", "unknown_speaker")
-            
-            # 如果是新的说话者或者是第一个单词，创建新的 segment
-            if not current_segment or current_segment["speaker_id"] != speaker_id:
-                if current_segment:
-                    segments.append(current_segment)
-                current_segment = {"speaker_id": speaker_id, "words": []}
-            current_segment["words"].append(word_info)
-            
-        elif item["type"] == "spacing" and current_segment and current_segment["words"]:
-            # 更新当前段落最后一个单词的结束时间
-            spacing_duration = item["end"] - item["start"]
-            if spacing_duration < spacing_threshold:
-                current_segment["words"][-1]["end"] = item["end"]
-    
-    # 添加最后一个段落
-    if current_segment:
-        segments.append(current_segment)
-    
-    result = {"segments": segments}
-    return result
+# ----------------------------------------
+# ISO 639-2 to 1
+# ----------------------------------------
+
+iso_639_2_to_1 = {
+    "eng": "en",
+    "fra": "fr", 
+    "deu": "de",
+    "ita": "it",
+    "spa": "es",
+    "rus": "ru",
+    "kor": "ko",
+    "jpn": "ja",
+    "zho": "zh",
+    "yue": "zh"
+}
+
+# ----------------------------
+# elevenlabs format to whisper format
+# ----------------------------
+
+SPLIT_GAP = 1
+def elev2whisper(elev_json, word_level_timestamp = False):
+    words = elev_json.get("words", [])
+    if not words:
+        return {"segments": []}
+
+    segments, seg = [], {
+        "text": "",                     # accumulated text
+        "start": words[0]["start"],     # seg start time
+        "end": words[0]["end"],         # seg end time (updates)
+        "speaker_id": words[0]["speaker_id"],
+        "words": []                       # optional per‑word info
+    }
+
+    for prev, nxt in zip(words, words[1:] + [None]):  # pairwise with sentinel
+        seg["text"] += prev["text"]
+        seg["end"] = prev["end"]
+        if word_level_timestamp:
+            seg["words"].append({"text": prev["text"], "start": prev["start"], "end": prev["end"]})
+        # decide whether to break the segment
+        if nxt is None or (nxt["start"] - prev["end"] > SPLIT_GAP) or (nxt["speaker_id"] != seg["speaker_id"]):
+            seg["text"] = seg["text"].strip()
+            if not word_level_timestamp:
+                seg.pop("words")
+            segments.append(seg)
+            if nxt is not None:  # seed next segment
+                seg = {
+                    "text": "",
+                    "start": nxt["start"],
+                    "end": nxt["end"],
+                    "speaker_id": nxt["speaker_id"],
+                    "words": []
+                }
+    return {"segments": segments}
 
 def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, end = None):
     rprint(f"[cyan]🎤 Processing audio transcription, file path: {vocal_audio_path}[/cyan]")
@@ -88,7 +112,8 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
         result = response.json()
 
         # save detected language
-        update_key("whisper.language", result["language_code"])
+        detected_language = iso_639_2_to_1.get(result["language_code"], result["language_code"])
+        update_key("whisper.detected_language", detected_language)
 
         # Adjust timestamps for all words by adding the start time
         if start is not None and 'words' in result:
@@ -99,7 +124,6 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
                     word['end'] += start
         
         rprint(f"[green]✓ Transcription completed in {time.time() - start_time:.2f} seconds[/green]")
-        # parse to whisper format
         parsed_result = elev2whisper(result)
         os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
         with open(LOG_FILE, "w", encoding="utf-8") as f:
