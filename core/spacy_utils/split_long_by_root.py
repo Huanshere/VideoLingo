@@ -1,7 +1,7 @@
 import os
 import string
 import warnings
-from core.spacy_utils.load_nlp_model import init_nlp
+from core.spacy_utils.load_nlp_model import init_nlp, SPLIT_BY_CONNECTOR_FILE
 from core.utils import *
 from core.utils.models import _3_1_SPLIT_BY_NLP
 
@@ -62,7 +62,7 @@ def split_extremely_long_sentence(doc):
 
 
 def split_long_by_root_main(nlp):
-    with open("output/log/sentence_splitbyconnector.txt", "r", encoding="utf-8") as input_file:
+    with open(SPLIT_BY_CONNECTOR_FILE, "r", encoding="utf-8") as input_file:
         sentences = input_file.readlines()
 
     all_split_sentences = []
@@ -90,7 +90,7 @@ def split_long_by_root_main(nlp):
             output_file.write(sentence + "\n")
 
     # delete the original file
-    os.remove("output/log/sentence_splitbyconnector.txt")   
+    os.remove(SPLIT_BY_CONNECTOR_FILE)   
 
     rprint(f"[green]💾 Long sentences split by root saved to →  {_3_1_SPLIT_BY_NLP}[/green]")
 
