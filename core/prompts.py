@@ -7,13 +7,13 @@ def get_split_prompt(sentence, num_parts = 2, word_limit = 20):
     language = load_key("whisper.detected_language")
     split_prompt = f"""
 ## Role
-You are a professional Netflix subtitle splitter in {language}.
+You are a professional Netflix subtitle splitter in **{language}**.
 
 ## Task
-Split the given subtitle text into {num_parts} parts, each less than {word_limit} words.
+Split the given subtitle text into **{num_parts}** parts, each less than **{word_limit}** words.
 
 1. Maintain sentence meaning coherence according to Netflix subtitle standards
-2. Keep parts roughly equal in length (minimum 3 words each)
+2. MOST IMPORTANT: Keep parts roughly equal in length (minimum 3 words each)
 3. Split at natural points like punctuation marks or conjunctions
 4. If provided text is repeated words, simply split at the middle of the repeated words.
 
