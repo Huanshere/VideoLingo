@@ -40,7 +40,7 @@ RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -e .
 
 # Set CUDA-related environment variables
 ENV CUDA_HOME=/usr/local/cuda
