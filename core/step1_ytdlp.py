@@ -15,15 +15,21 @@ def sanitize_filename(filename):
 
 def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time=None):
     allowed_resolutions = ['360', '1080', 'best']
-    if resolution not in allowed_resolutions:
-        resolution = '360'
+    # if resolution not in allowed_resolutions:
+    #     resolution = '360'
     
     os.makedirs(save_path, exist_ok=True)
+    # 配置 yt-dlp 选项
     ydl_opts = {
+        # 选择最佳视频和音频格式
         'format': 'bestvideo+bestaudio/best' if resolution == 'best' else f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]',
+        # 输出模板
         'outtmpl': f'{save_path}/%(title)s.%(ext)s',
+        # 不下载播放列表
         'noplaylist': True,
+        # 写入缩略图
         'writethumbnail': True,
+        # 缩略图处理
         'postprocessors': [{
             'key': 'FFmpegThumbnailsConvertor',
             'format': 'jpg',
@@ -55,7 +61,7 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
             if new_filename != filename:
                 os.rename(os.path.join(save_path, file), os.path.join(save_path, new_filename + ext))
 
-    # cut the video to make demo
+    # 提供裁剪功能 但不是所有的都是用
     if cutoff_time:
         print(f"Cutoff time: {cutoff_time}, Now checking video duration...")
         video_file = find_video_files(save_path)

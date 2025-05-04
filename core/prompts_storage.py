@@ -155,6 +155,13 @@ We have a segment of original {src_language} subtitles that need to be directly 
 3. Understand the context: Fully comprehend and reflect the background and contextual relationships of the text.
 </translation_principles>
 
+### Response Format Requirements
+- IMPORTANT: The response MUST be a single JSON object/dictionary, NOT a list
+- Each line should be a key-value pair in the dictionary
+- Keys should be the line numbers as strings
+- DO NOT wrap the response in an array/list
+- DO NOT include any explanation text outside the JSON structure
+
 ## INPUT
 <subtitles>
 {lines}
@@ -163,7 +170,10 @@ We have a segment of original {src_language} subtitles that need to be directly 
 ## Output in only JSON format
 {json.dumps(json_format, ensure_ascii=False, indent=4)}
 
-Note: << >> represents placeholders that should not appear in your answer
+Note: 
+1. << >> represents placeholders that should not appear in your answer
+2. The output must be a SINGLE dictionary/object
+3. The format should exactly match the example above
 '''
     return prompt_faithfulness.strip()
 
