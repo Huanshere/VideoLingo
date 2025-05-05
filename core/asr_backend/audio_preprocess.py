@@ -4,6 +4,10 @@ from typing import Dict, List, Tuple
 from pydub import AudioSegment
 from core.utils import *
 from core.utils.models import *
+from pydub import AudioSegment
+from pydub.silence import detect_silence
+from pydub.utils import mediainfo
+from rich import print as rprint
 
 def normalize_audio_volume(audio_path, output_path, target_db = -20.0, format = "wav"):
     audio = AudioSegment.from_file(audio_path)
@@ -26,20 +30,6 @@ def convert_video_to_audio(video_file: str):
         ], check=True, stderr=subprocess.PIPE)
         rprint(f"[green]🎬➡️🎵 Converted <{video_file}> to <{_RAW_AUDIO_FILE}> with FFmpeg\n[/green]")
 
-def _detect_silence(audio_file: str, start: float, end: float) -> List[float]:
-    """Detect silence points in the given audio segment"""
-    cmd = ['ffmpeg', '-y', '-i', audio_file, 
-           '-ss', str(start), '-to', str(end),
-           '-af', 'silencedetect=n=-30dB:d=0.5', 
-           '-f', 'null', '-']
-    
-    output = subprocess.run(cmd, capture_output=True, text=True, 
-                          encoding='utf-8').stderr
-    
-    return [float(line.split('silence_end: ')[1].split(' ')[0])
-            for line in output.split('\n')
-            if 'silence_end' in line]
-
 def get_audio_duration(audio_file: str) -> float:
     """Get the duration of an audio file using ffmpeg."""
     cmd = ['ffmpeg', '-i', audio_file]
@@ -56,33 +46,42 @@ def get_audio_duration(audio_file: str) -> float:
         duration = 0
     return duration
 
-def split_audio(audio_file: str, target_len: int = 20*60, win: int = 60) -> List[Tuple[float, float]]:
-    # 20 min 16000 Hz 128kbps ~ 20MB < 25MB required by whisper
-    rprint("[bold blue]🔪 Starting audio segmentation...[/bold blue]")
-    
-    duration = get_audio_duration(audio_file)
-    
-    segments = []
-    pos = 0
+def split_audio(audio_file: str, target_len: float = 30*60, win: float = 60) -> List[Tuple[float, float]]:
+    ## 在 [target_len-win, target_len+win] 区间内用 pydub 检测静默，切分音频
+    rprint(f"[blue]🎙️ Starting audio segmentation {audio_file} {target_len} {win}[/blue]")
+    audio = AudioSegment.from_file(audio_file)
+    duration = float(mediainfo(audio_file)["duration"])
+    if duration <= target_len + win:
+        return [(0, duration)]
+    segments, pos = [], 0.0
+    safe_margin = 0.5  # 静默点前后安全边界，单位秒
+
     while pos < duration:
-        if duration - pos < target_len:
-            segments.append((pos, duration))
-            break
-        win_start = pos + target_len - win
-        win_end = min(win_start + 2 * win, duration)
-        silences = _detect_silence(audio_file, win_start, win_end)
-    
-        if silences:
-            target_pos = target_len - (win_start - pos)
-            split_at = next((t for t in silences if t - win_start > target_pos), None)
-            if split_at:
-                segments.append((pos, split_at))
-                pos = split_at
-                continue
-        segments.append((pos, pos + target_len))
-        pos += target_len
-    
-    rprint(f"[green]🔪 Audio split into {len(segments)} segments[/green]")
+        if duration - pos <= target_len:
+            segments.append((pos, duration)); break
+
+        threshold = pos + target_len
+        ws, we = int((threshold - win) * 1000), int((threshold + win) * 1000)
+        
+        # 获取完整的静默区域
+        silence_regions = detect_silence(audio[ws:we], min_silence_len=int(safe_margin*1000), silence_thresh=-30)
+        silence_regions = [(s/1000 + (threshold - win), e/1000 + (threshold - win)) for s, e in silence_regions]
+        # 筛选长度足够（至少1秒）且位置适合的静默区域
+        valid_regions = [
+            (start, end) for start, end in silence_regions 
+            if (end - start) >= (safe_margin * 2) and threshold <= start + safe_margin <= threshold + win
+        ]
+        
+        if valid_regions:
+            start, end = valid_regions[0]
+            split_at = start + safe_margin  # 在静默区域起始点后0.5秒处切分
+        else:
+            rprint(f"[yellow]⚠️ No valid silence regions found for {audio_file} at {threshold}s, using threshold[/yellow]")
+            split_at = threshold
+            
+        segments.append((pos, split_at)); pos = split_at
+
+    rprint(f"[green]🎙️ Audio split completed {len(segments)} segments[/green]")
     return segments
 
 def process_transcription(result: Dict) -> pd.DataFrame:
