@@ -82,7 +82,6 @@ Steps:
    - Mark professional terms and names (excluding those listed in Existing Terms)
    - Provide {tgt_lang} translation or keep original
    - Add brief explanation
-   - Keep abbreviations and proper nouns unchanged
    - Extract less than 15 terms
 
 ## INPUT
