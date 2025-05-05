@@ -149,7 +149,7 @@ def get_prompt_faithfulness(lines, shared_prompt):
     json_dict = {}
     for i, line in enumerate(line_splits, 1):
         json_dict[f"{i}"] = {"origin": line, "direct": f"direct {TARGET_LANGUAGE} translation {i}."}
-    json_format = json.dumps(json_dict, indent=2)
+    json_format = json.dumps(json_dict, indent=2, ensure_ascii=False)
 
     src_language = load_key("whisper.detected_language")
     prompt_faithfulness = f'''
@@ -198,7 +198,7 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
         }
         for key, value in faithfulness_result.items()
     }
-    json_format = json.dumps(json_format, indent=2)
+    json_format = json.dumps(json_format, indent=2, ensure_ascii=False)
 
     src_language = load_key("whisper.detected_language")
     prompt_expressiveness = f'''
