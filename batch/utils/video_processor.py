@@ -6,6 +6,7 @@ import shutil
 from functools import partial
 from rich.panel import Panel
 from rich.console import Console
+from core import *
 
 console = Console()
 
@@ -21,7 +22,7 @@ def process_video(file, dubbing=False, is_retry=False):
     
     text_steps = [
         ("🎥 Processing input file", partial(process_input_file, file)),
-        ("🎙️ Transcribing with Whisper", partial(_2_whisperX.transcribe)),
+        ("🎙️ Transcribing with Whisper", partial(_2_asr.transcribe)),
         ("✂️ Splitting sentences", split_sentences),
         ("📝 Summarizing and translating", summarize_and_translate),
         ("⚡ Processing and aligning subtitles", process_and_align_subtitles),
@@ -87,7 +88,7 @@ def process_input_file(file):
     return {'video_file': video_file}
 
 def split_sentences():
-    _3_1_spacy_split.split_by_spacy()
+    _3_1_split_nlp.split_by_spacy()
     _3_2_split_meaning.split_sentences_by_meaning()
 
 def summarize_and_translate():

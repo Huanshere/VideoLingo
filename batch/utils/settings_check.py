@@ -1,5 +1,4 @@
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+import os
 import pandas as pd
 from rich.console import Console
 from rich.panel import Panel

@@ -1,6 +1,5 @@
-import os, sys
+import os
 import gc
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from batch.utils.settings_check import check_settings
 from batch.utils.video_processor import process_video
 from core.utils.config_utils import load_key, update_key
