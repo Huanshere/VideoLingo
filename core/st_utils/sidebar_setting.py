@@ -155,7 +155,10 @@ def page_setting():
 def check_api():
     try:
         resp = ask_gpt("This is a test, response 'message':'success' in json format.", 
-                      response_json=True, log_title='None')
+                      resp_type="json", log_title='None')
         return resp.get('message') == 'success'
     except Exception:
         return False
+    
+if __name__ == "__main__":
+    check_api()
