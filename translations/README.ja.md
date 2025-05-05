@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## インストール
 
-ドキュメント全体を読む必要はありません。[**こちら**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)でオンラインAIエージェントがサポートします。
+問題がありましたか？無料のオンラインAIエージェントと[**こちら**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)でチャットして支援を受けられます。
 
 > **注意：** NVIDIA GPUを搭載したWindowsユーザーは、インストール前に以下の手順を実行してください：
 > 1. [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)をインストール
@@ -121,7 +121,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 VideoLingoはOpenAIライクなAPI形式と様々なTTSインターフェースをサポートしています：
-- LLM: `claude-3-5-sonnet-20240620`, `deepseek-chat(v3)`, `gemini-2.0-flash-exp`, `gpt-4o`, ... (パフォーマンス順)
+- LLM: `claude-3-5-sonnet`, `gpt-4.1`, `deepseek-v3`, `gemini-2.0-flash`, ... (パフォーマンス順、gemini-2.5-flashには注意...)
 - WhisperX: ローカルでwhisperXを実行するか302.ai APIを使用
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(custom_tts.pyで独自のTTSを修正可能！)
 

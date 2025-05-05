@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Instalación
 
-No necesitas leer toda la documentación, [**aquí**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) hay un agente de IA en línea para ayudarte.
+¿Tienes algún problema? Chatea con nuestro agente de IA en línea gratuito [**aquí**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) para ayudarte.
 
 > **Nota:** Para usuarios de Windows con GPU NVIDIA, sigue estos pasos antes de la instalación:
 > 1. Instala [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
@@ -121,7 +121,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo admite formato de API similar a OpenAI y varias interfaces TTS:
-- LLM: `claude-3-5-sonnet-20240620`, `deepseek-chat(v3)`, `gemini-2.0-flash-exp`, `gpt-4o`, ... (ordenados por rendimiento)
+- LLM: `claude-3-5-sonnet`, `gpt-4.1`, `deepseek-v3`, `gemini-2.0-flash`, ... (ordenados por rendimiento, ten cuidado con gemini-2.5-flash...)
 - WhisperX: Ejecuta whisperX localmente o usa la API de 302.ai
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(¡Puedes modificar tu propio TTS en custom_tts.py!)
 

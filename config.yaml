@@ -1,14 +1,22 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
 # recommend to set in streamlit page
-version: "2.2.3"
+# -------------------
+# version: "3.0.0"
+# author: "Huanshere"
+# -------------------
+
 ## ======================== Basic Settings ======================== ##
+
 display_language: "zh-CN"
 
 # API settings
 api:
-  key: 'your_api_key'
-  base_url: 'https://api.302.ai'
-  model: 'gemini-2.0-flash'
+  key: 'your-api-key'
+  base_url: 'https://yunwu.ai'
+  model: 'gpt-4.1-2025-04-14'
+  llm_support_json: false
+# *Number of LLM multi-threaded accesses, set to 1 if using local LLM
+max_workers: 4
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -17,22 +25,25 @@ target_language: '简体中文'
 demucs: true
 
 whisper:
-  # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
+  # ["large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
   model: 'large-v3'
-  # Whisper specified recognition language [en, zh, ...]
+  # Whisper specified recognition language ISO 639-1
   language: 'en'
   detected_language: 'en'
   # Whisper running mode ["local", "cloud", "elevenlabs"]. Specifies where to run, cloud uses 302.ai API
   runtime: 'local'
   # 302.ai API key
   whisperX_302_api_key: 'your_302_api_key'
-  # ElevenLabs API key
+  # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'
 
 # Whether to burn subtitles into the video
 burn_subtitles: true
 
 ## ======================== Advanced Settings ======================== ##
+# *🔬 h264_nvenc GPU acceleration for ffmpeg, make sure your GPU supports it
+ffmpeg_gpu: false
+
 # *Youtube settings
 youtube:
   cookies_path: ''
@@ -49,8 +60,6 @@ subtitle:
 # *Summary length, set low to 2k if using local LLM
 summary_length: 8000
 
-# *Number of LLM multi-threaded accesses, set to 1 if using local LLM
-max_workers: 4
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
 
@@ -62,7 +71,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
-tts_method: 'f5tts'
+tts_method: 'azure_tts'
 
 # SiliconFlow FishTTS
 sf_fish_tts:
@@ -125,7 +134,8 @@ tolerance: 1.5 # Allowed extension time to the next subtitle
 
 
 
-## ======================== Additional settings 请勿修改======================== ##
+## ======================== Additional settings ======================== ##
+
 # Whisper model directory
 model_dir: './_model_cache'
 
@@ -144,13 +154,6 @@ allowed_audio_formats:
 - 'mp3'
 - 'flac'
 - 'm4a'
-
-# LLMs that support returning JSON format
-llm_support_json:
-- 'gpt-4o'
-- 'gpt-4o-mini'
-- 'gemini-2.0-flash'
-- 'deepseek-chat'
 
 # Spacy models
 spacy_model_map:

@@ -1,17 +1,17 @@
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
-import os,sys
+import os
 import pandas as pd
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from core.spacy_utils.load_nlp_model import init_nlp
-from core.config_utils import load_key, get_joiner
-from rich import print
+import warnings
+from core.spacy_utils.load_nlp_model import init_nlp, SPLIT_BY_MARK_FILE
+from core.utils.config_utils import load_key, get_joiner
+from rich import print as rprint
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def split_by_mark(nlp):
     whisper_language = load_key("whisper.language")
     language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language # consider force english case
     joiner = get_joiner(language)
-    print(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
+    rprint(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"').strip(""))
     
@@ -21,9 +21,33 @@ def split_by_mark(nlp):
     doc = nlp(input_text)
     assert doc.has_annotation("SENT_START")
 
-    sentences_by_mark = [sent.text for sent in doc.sents]
+    # skip - and ...
+    sentences_by_mark = []
+    current_sentence = []
+    
+    # iterate all sentences
+    for sent in doc.sents:
+        text = sent.text.strip()
+        
+        # check if the current sentence ends with - or ...
+        if current_sentence and (
+            text.startswith('-') or 
+            text.startswith('...') or
+            current_sentence[-1].endswith('-') or
+            current_sentence[-1].endswith('...')
+        ):
+            current_sentence.append(text)
+        else:
+            if current_sentence:
+                sentences_by_mark.append(' '.join(current_sentence))
+                current_sentence = []
+            current_sentence.append(text)
+    
+    # add the last sentence
+    if current_sentence:
+        sentences_by_mark.append(' '.join(current_sentence))
 
-    with open("output/log/sentence_by_mark.txt", "w", encoding="utf-8") as output_file:
+    with open(SPLIT_BY_MARK_FILE, "w", encoding="utf-8") as output_file:
         for i, sentence in enumerate(sentences_by_mark):
             if i > 0 and sentence.strip() in [',', '.', '，', '。', '？', '！']:
                 # ! If the current line contains only punctuation, merge it with the previous line, this happens in Chinese, Japanese, etc.
@@ -32,7 +56,7 @@ def split_by_mark(nlp):
             else:
                 output_file.write(sentence + "\n")
     
-    print("[green]💾 Sentences split by punctuation marks saved to →  `sentences_by_mark.txt`[/green]")
+    rprint(f"[green]💾 Sentences split by punctuation marks saved to →  `{SPLIT_BY_MARK_FILE}`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

@@ -1,7 +1,5 @@
 import json
-import sys,os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.config_utils import load_key
+from core.utils import load_key
 
 DISPLAY_LANGUAGES = {
     "🇬🇧 English": "en",

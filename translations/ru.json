@@ -104,5 +104,7 @@
     "WhisperX 302ai API": "API 302ai WhisperX",
     "Detected NVIDIA GPU(s)": "Обнаружен(ы) GPU NVIDIA",
     "No NVIDIA GPU detected": "GPU NVIDIA не обнаружен",
-    "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "GPU NVIDIA не обнаружен или драйверы NVIDIA установлены неправильно"
+    "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "GPU NVIDIA не обнаружен или драйверы NVIDIA установлены неправильно",
+    "LLM JSON Format Support": "Поддержка формата JSON для LLM",
+    "Enable if your LLM supports JSON mode output": "Включите, если ваш LLM поддерживает вывод в формате JSON"
 }

@@ -1,9 +1,9 @@
+import os
 import warnings
+from core.spacy_utils.load_nlp_model import init_nlp, SPLIT_BY_COMMA_FILE, SPLIT_BY_CONNECTOR_FILE
+from core.utils import rprint
+
 warnings.filterwarnings("ignore", category=FutureWarning)
-import os,sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from load_nlp_model import init_nlp
-from rich import print
 
 def analyze_connectors(doc, token):
     """
@@ -108,7 +108,7 @@ def split_by_connectors(text, context_words=5, nlp=None):
                 right_words = [word.text for word in right_words if not word.is_punct]
                 
                 if len(left_words) >= context_words and len(right_words) >= context_words and split_before:
-                    print(f"[yellow]✂️  Split before '{token.text}': {' '.join(left_words)}| {token.text} {' '.join(right_words)}[/yellow]")
+                    rprint(f"[yellow]✂️  Split before '{token.text}': {' '.join(left_words)}| {token.text} {' '.join(right_words)}[/yellow]")
                     new_sentences.append(doc[start:token.i].text.strip())
                     start = token.i
                     split_occurred = True
@@ -126,7 +126,7 @@ def split_by_connectors(text, context_words=5, nlp=None):
 
 def split_sentences_main(nlp):
     # Read input sentences
-    with open("output/log/sentence_by_comma.txt", "r", encoding="utf-8") as input_file:
+    with open(SPLIT_BY_COMMA_FILE, "r", encoding="utf-8") as input_file:
         sentences = input_file.readlines()
     
     all_split_sentences = []
@@ -135,8 +135,7 @@ def split_sentences_main(nlp):
         split_sentences = split_by_connectors(sentence.strip(), nlp = nlp)
         all_split_sentences.extend(split_sentences)
     
-    # output to sentence_splitbyconnector.txt
-    with open("output/log/sentence_splitbyconnector.txt", "w+", encoding="utf-8") as output_file:
+    with open(SPLIT_BY_CONNECTOR_FILE, "w+", encoding="utf-8") as output_file:
         for sentence in all_split_sentences:
             output_file.write(sentence + "\n")
         # do not add a newline at the end of the file
@@ -144,9 +143,9 @@ def split_sentences_main(nlp):
         output_file.truncate()
 
     # delete the original file
-    os.remove("output/log/sentence_by_comma.txt")
+    os.remove(SPLIT_BY_COMMA_FILE)
     
-    print("[green]💾 Sentences split by connectors saved to →  `sentence_splitbyconnector.txt`[/green]")
+    rprint(f"[green]💾 Sentences split by connectors saved to →  `{SPLIT_BY_CONNECTOR_FILE}`[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

@@ -1,11 +1,11 @@
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
-import os,sys
-sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..', '..')))
-from core.spacy_utils.load_nlp_model import init_nlp
-from core.config_utils import load_key, get_joiner
-from rich import print
+import os
 import string
+import warnings
+from core.spacy_utils.load_nlp_model import init_nlp, SPLIT_BY_CONNECTOR_FILE
+from core.utils import *
+from core.utils.models import _3_1_SPLIT_BY_NLP
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def split_long_sentence(doc):
     tokens = [token.text for token in doc]
@@ -61,10 +61,8 @@ def split_extremely_long_sentence(doc):
     return sentences
 
 
-
 def split_long_by_root_main(nlp):
-
-    with open("output/log/sentence_splitbyconnector.txt", "r", encoding="utf-8") as input_file:
+    with open(SPLIT_BY_CONNECTOR_FILE, "r", encoding="utf-8") as input_file:
         sentences = input_file.readlines()
 
     all_split_sentences = []
@@ -75,26 +73,26 @@ def split_long_by_root_main(nlp):
             if any(len(nlp(sent)) > 60 for sent in split_sentences):
                 split_sentences = [subsent for sent in split_sentences for subsent in split_extremely_long_sentence(nlp(sent))]
             all_split_sentences.extend(split_sentences)
-            print(f"[yellow]✂️  Splitting long sentences by root: {sentence[:30]}...[/yellow]")
+            rprint(f"[yellow]✂️  Splitting long sentences by root: {sentence[:30]}...[/yellow]")
         else:
             all_split_sentences.append(sentence.strip())
 
     punctuation = string.punctuation + "'" + '"'  # include all punctuation and apostrophe ' and "
 
-    with open("output/log/sentence_splitbynlp.txt", "w", encoding="utf-8") as output_file:
+    with open(_3_1_SPLIT_BY_NLP, "w", encoding="utf-8") as output_file:
         for i, sentence in enumerate(all_split_sentences):
             stripped_sentence = sentence.strip()
             if not stripped_sentence or all(char in punctuation for char in stripped_sentence):
-                print(f"[yellow]⚠️  Warning: Empty or punctuation-only line detected at index {i}[/yellow]")
+                rprint(f"[yellow]⚠️  Warning: Empty or punctuation-only line detected at index {i}[/yellow]")
                 if i > 0:
                     all_split_sentences[i-1] += sentence
                 continue
             output_file.write(sentence + "\n")
 
     # delete the original file
-    os.remove("output/log/sentence_splitbyconnector.txt")   
+    os.remove(SPLIT_BY_CONNECTOR_FILE)   
 
-    print("[green]💾 Long sentences split by root saved to →  `sentence_splitbynlp.txt`[/green]")
+    rprint(f"[green]💾 Long sentences split by root saved to →  {_3_1_SPLIT_BY_NLP}[/green]")
 
 if __name__ == "__main__":
     nlp = init_nlp()

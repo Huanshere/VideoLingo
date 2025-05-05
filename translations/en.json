@@ -104,5 +104,7 @@
     "Re-run the installer: [bold]python install.py[/bold]": "Re-run the installer: [bold]python install.py[/bold]",
     "Detected NVIDIA GPU(s)": "Detected NVIDIA GPU(s)",
     "No NVIDIA GPU detected": "No NVIDIA GPU detected",
-    "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "No NVIDIA GPU detected or NVIDIA drivers not properly installed"
+    "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "No NVIDIA GPU detected or NVIDIA drivers not properly installed",
+    "LLM JSON Format Support": "LLM JSON Format Support",
+    "Enable if your LLM supports JSON mode output": "Enable if your LLM supports JSON mode output"
 }

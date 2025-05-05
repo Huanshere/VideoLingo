@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安裝
 
-您無需閱讀所有文檔，[**這裡**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)有一個在線 AI 助手可以幫助您。
+遇到任何問題？在[**這裡**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)與我們的免費在線 AI 助手聊天以獲取幫助。
 
 > **注意：** Windows 用戶如使用 NVIDIA GPU，請在安裝前執行以下步驟：
 > 1. 安裝 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
@@ -121,7 +121,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
-- LLM：`claude-3-5-sonnet-20240620`、`deepseek-chat(v3)`、`gemini-2.0-flash-exp`、`gpt-4o`、...（按性能排序）
+- LLM：`claude-3-5-sonnet`、`gpt-4.1`、`deepseek-v3`、`gemini-2.0-flash`、...（按性能排序，使用 gemini-2.5-flash 時請謹慎...）
 - WhisperX：本地運行 whisperX 或使用 302.ai API
 - TTS：`azure-tts`、`openai-tts`、`siliconflow-fishtts`、**`fish-tts`**、`GPT-SoVITS`、`edge-tts`、`*custom-tts`（您可以在 custom_tts.py 中修改自己的 TTS！）
 

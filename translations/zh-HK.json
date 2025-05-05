@@ -104,5 +104,7 @@
     "Installing requirements using `pip install -r requirements.txt`": "正在使用 `pip install -r requirements.txt` 安裝依賴",
     "Detected NVIDIA GPU(s)": "檢測到NVIDIA GPU",
     "No NVIDIA GPU detected": "未檢測到NVIDIA GPU",
-    "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "未檢測到NVIDIA GPU或NVIDIA驅動未正確安裝"
+    "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "未檢測到NVIDIA GPU或NVIDIA驅動未正確安裝",
+    "LLM JSON Format Support": "LLM JSON格式支持",
+    "Enable if your LLM supports JSON mode output": "如果選用的LLM支持JSON模式輸出，請啟用"
 }
