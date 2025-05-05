@@ -3,7 +3,6 @@ from translations.translations import translate as t
 from translations.translations import DISPLAY_LANGUAGES
 from core.utils import *
 
-
 def config_input(label, key, help=None):
     """Generic config input handler"""
     val = st.text_input(label, value=load_key(key), help=help)
@@ -34,7 +33,10 @@ def page_setting():
             if st.button("📡", key="api"):
                 st.toast(t("API Key is valid") if check_api() else t("API Key is invalid"), 
                         icon="✅" if check_api() else "❌")
-    
+        llm_support_json = st.toggle(t("LLM JSON Format Support"), value=load_key("api.llm_support_json"), help=t("Enable if your LLM supports JSON mode output"))
+        if llm_support_json != load_key("api.llm_support_json"):
+            update_key("api.llm_support_json", llm_support_json)
+            st.rerun()
     with st.expander(t("Subtitles Settings"), expanded=True):
         c1, c2 = st.columns(2)
         with c1:
