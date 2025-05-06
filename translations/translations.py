@@ -1,5 +1,4 @@
 import json
-from core.utils import load_key
 
 DISPLAY_LANGUAGES = {
     "🇬🇧 English": "en",
@@ -18,6 +17,7 @@ def load_translations(language="en"):
 
 # Function to fetch the translation
 def translate(key):
+    from core.utils.config_utils import load_key
     try:
         display_language = load_key("display_language")
         translations = load_translations(display_language)

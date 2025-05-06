@@ -83,7 +83,8 @@ def main():
     from InquirerPy import inquirer
     from translations.translations import translate as t
     from translations.translations import DISPLAY_LANGUAGES
-    from core.utils import load_key, update_key, except_handler
+    from core.utils.config_utils import load_key, update_key
+    from core.utils.decorator import except_handler
 
     console = Console()
     
