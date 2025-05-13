@@ -1,7 +1,7 @@
 librosa==0.10.2.post1
 pytorch-lightning==2.3.3
 lightning==2.3.3
-transformers==4.39.3
+transformers==4.48.0
 moviepy==1.0.3
 numpy==1.26.4
 openai==1.55.3
