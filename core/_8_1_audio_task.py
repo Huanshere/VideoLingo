@@ -4,7 +4,7 @@ import pandas as pd
 from rich.console import Console
 from rich.panel import Panel
 from core.prompts import get_subtitle_trim_prompt
-from core.tts_backend.estimate_duration import init_estimator, estimate_duration
+from core.tts_backend.estimate_duration import SyllableEstimator
 from core.utils import *
 from core.utils.models import *
 
@@ -18,8 +18,9 @@ ESTIMATOR = None
 def check_len_then_trim(text, duration):
     global ESTIMATOR
     if ESTIMATOR is None:
-        ESTIMATOR = init_estimator()
-    estimated_duration = estimate_duration(text, ESTIMATOR) / speed_factor['max']
+        ESTIMATOR = SyllableEstimator()
+    result = ESTIMATOR.estimate(text)
+    estimated_duration = result.estimated_seconds / speed_factor['max']
     
     console.print(f"Subtitle text: {text}, "
                   f"[bold green]Estimated reading duration: {estimated_duration:.2f} seconds[/bold green]")

@@ -1,139 +1,236 @@
-import syllables
-from pypinyin import pinyin, Style
-from g2p_en import G2p
-from typing import Optional
+from __future__ import annotations
+
 import re
+from dataclasses import dataclass
+from functools import lru_cache
+from typing import Callable, Dict, List, Pattern
 
-class AdvancedSyllableEstimator:
-    def __init__(self):
-        self.g2p_en = G2p()
-        self.duration_params = {'en': 0.225, 'zh': 0.21, 'ja': 0.21, 'fr': 0.22, 'es': 0.22, 'ko': 0.21, 'default': 0.22}
-        self.lang_patterns = {
-            'zh': r'[\u4e00-\u9fff]', 'ja': r'[\u3040-\u309f\u30a0-\u30ff]',
-            'fr': r'[àâçéèêëîïôùûüÿœæ]', 'es': r'[áéíóúñ¿¡]', 'en': r'[a-zA-Z]+', 'ko': r'[\uac00-\ud7af\u1100-\u11ff]'}
-        self.lang_joiners = {'zh': '', 'ja': '', 'en': ' ', 'fr': ' ', 'es': ' ', 'ko': ' '}
-        self.punctuation = {
-            'mid': r'[，；：,;、]+', 'end': r'[。！？.!?]+', 'space': r'\s+',
-            'pause': {'space': 0.15, 'default': 0.1}
+import syllables
+from g2p_en import G2p
+from pypinyin import Style, pinyin
+
+__all__ = ["SyllableEstimator", "Result"]
+
+# ----------------------------------------------------------------------------
+# Configuration containers
+# ----------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class LangConfig:
+    """Describes how to detect a language segment and count its syllables."""
+    pattern: Pattern[str]
+    joiner: str
+    syllable_fn: Callable[[str], int]
+    sec_per_syllable: float
+    count_space: bool = True  # 默认为True，可以在语言配置中覆盖
+
+
+@dataclass
+class Result:
+    """Outcome of ``SyllableEstimator.estimate``."""
+    language_breakdown: Dict[str, int]
+    total_syllables: int
+    estimated_seconds: float
+    punctuation: List[str]
+    spaces: List[str]
+
+    def __str__(self) -> str:  # pragma: no cover
+        langs = ", ".join(f"{k}:{v}" for k, v in self.language_breakdown.items())
+        return (
+            f"<Result syllables={self.total_syllables} seconds={self.estimated_seconds:.2f} "
+            f"langs=[{langs}]>"
+        )
+
+
+# ----------------------------------------------------------------------------
+# Core estimator
+# ----------------------------------------------------------------------------
+
+class SyllableEstimator:
+    """Multi‑lingual syllable counter with a lightweight duration model."""
+
+    _g2p_en = G2p()
+
+    def __init__(self) -> None:
+        # Per‑language specifications ------------------------------------------------
+        self.cfg: Dict[str, LangConfig] = {
+            "en": LangConfig(
+                pattern=re.compile(r"[a-zA-Z]+"),
+                joiner=" ",
+                syllable_fn=self._syllables_en,
+                sec_per_syllable=0.225,
+                count_space=False,  # 英文空格不计入停顿
+            ),
+            "zh": LangConfig(
+                pattern=re.compile(r"[\u4e00-\u9fff]"),
+                joiner="",
+                syllable_fn=self._syllables_zh,
+                sec_per_syllable=0.21,
+                count_space=True,  # 中文空格计入停顿
+            ),
+            "ja": LangConfig(
+                pattern=re.compile(r"[\u3040-\u309f\u30a0-\u30ff]"),
+                joiner="",
+                syllable_fn=self._syllables_ja,
+                sec_per_syllable=0.21,
+                count_space=True,  # 日文空格计入停顿
+            ),
+            "fr": LangConfig(
+                pattern=re.compile(r"[a-zA-Zàâçéèêëîïôùûüÿœæ]+"),
+                joiner=" ",
+                syllable_fn=self._syllables_fr,
+                sec_per_syllable=0.22,
+                count_space=False,  # 法文空格不计入停顿
+            ),
+            "es": LangConfig(
+                pattern=re.compile(r"[a-zA-Záéíóúüñ¿¡]+"),
+                joiner=" ",
+                syllable_fn=self._syllables_es,
+                sec_per_syllable=0.22,
+                count_space=False,  # 西班牙文空格不计入停顿
+            ),
+            "ko": LangConfig(
+                pattern=re.compile(r"[\uac00-\ud7af\u1100-\u11ff]"),
+                joiner=" ",
+                syllable_fn=self._syllables_ko,
+                sec_per_syllable=0.21,
+                count_space=False,  # 韩文空格不计入停顿
+            ),
         }
 
-    def estimate_duration(self, text: str, lang: Optional[str] = None) -> float:
-        syllable_count = self.count_syllables(text, lang)
-        return syllable_count * self.duration_params.get(lang or 'default')
+        # Punctuation handling -------------------------------------------------------
+        self._punct_space = re.compile(r"\s+")
+        self._punct_mid = re.compile(r"[，；：,;、]+")
+        self._punct_end = re.compile(r"[。！？.!?]+")
+        self._pause_seconds = {"space": 0.15, "punct": 0.10}
 
-    def count_syllables(self, text: str, lang: Optional[str] = None) -> int:
-        if not text.strip(): return 0
-        lang = lang or self._detect_language(text)
-        
-        vowels_map = {
-            'fr': 'aeiouyàâéèêëîïôùûüÿœæ',
-            'es': 'aeiouáéíóúü'
-        }
-        
-        if lang == 'en':
-            return self._count_english_syllables(text)
-        elif lang == 'zh':
-            text = re.sub(r'[^\u4e00-\u9fff]', '', text)
-            return len(pinyin(text, style=Style.NORMAL))
-        elif lang == 'ja':
-            text = re.sub(r'[きぎしじちぢにひびぴみり][ょゅゃ]', 'X', text)
-            text = re.sub(r'[っー]', '', text)
-            return len(re.findall(r'[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]', text))
-        elif lang in ('fr', 'es'):
-            text = re.sub(r'e\b', '', text.lower()) if lang == 'fr' else text.lower()
-            return max(1, len(re.findall(f'[{vowels_map[lang]}]+', text)))
-        elif lang == 'ko':
-            return len(re.findall(r'[\uac00-\ud7af]', text))
-        return len(text.split())
+    # ---------------------------------------------------------------------
+    # Public API
+    # ---------------------------------------------------------------------
 
-    def _count_english_syllables(self, text: str) -> int:
-        total = 0
-        for word in text.strip().split():
-            try:
-                total += syllables.estimate(word)
-            except:
-                phones = self.g2p_en(word)
-                total += max(1, len([p for p in phones if any(c in p for c in 'aeiou')]))
-        return max(1, total)
+    def estimate(self, text: str) -> Result:
+        """Analyse *text*, which may contain multiple languages, and return ``Result``."""
+        if not text or not text.strip():
+            return Result({}, 0, 0.0, [], [])
 
-    def _detect_language(self, text: str) -> str:
-        for lang, pattern in self.lang_patterns.items():
-            if re.search(pattern, text): return lang
-        return 'en'
+        segments: List[str] = re.split(
+            f"({self._punct_space.pattern}|{self._punct_mid.pattern}|{self._punct_end.pattern})",
+            text,
+        )
 
-    def process_mixed_text(self, text: str) -> dict:
-        if not text or not isinstance(text, str):
-            return {
-                'language_breakdown': {},
-                'total_syllables': 0,
-                'punctuation': [],
-                'spaces': [],
-                'estimated_duration': 0
-            }
-            
-        result = {'language_breakdown': {}, 'total_syllables': 0, 'punctuation': [], 'spaces': []}
-        segments = re.split(f"({self.punctuation['space']}|{self.punctuation['mid']}|{self.punctuation['end']})", text)
-        total_duration = 0
-        
-        for i, segment in enumerate(segments):
-            if not segment: continue
-            
-            if re.match(self.punctuation['space'], segment):
-                prev_lang = self._detect_language(segments[i-1]) if i > 0 else None
-                next_lang = self._detect_language(segments[i+1]) if i < len(segments)-1 else None
-                if prev_lang and next_lang and (self.lang_joiners[prev_lang] == '' or self.lang_joiners[next_lang] == ''):
-                    result['spaces'].append(segment)
-                    total_duration += self.punctuation['pause']['space']
-            elif re.match(f"{self.punctuation['mid']}|{self.punctuation['end']}", segment):
-                result['punctuation'].append(segment)
-                total_duration += self.punctuation['pause']['default']
-            else:
-                lang = self._detect_language(segment)
-                if lang:
-                    syllables = self.count_syllables(segment, lang)
-                    if lang not in result['language_breakdown']:
-                        result['language_breakdown'][lang] = {'syllables': 0, 'text': ''}
-                    result['language_breakdown'][lang]['syllables'] += syllables
-                    result['language_breakdown'][lang]['text'] += (self.lang_joiners[lang] + segment 
-                        if result['language_breakdown'][lang]['text'] else segment)
-                    result['total_syllables'] += syllables
-                    total_duration += syllables * self.duration_params.get(lang, self.duration_params['default'])
-        
-        result['estimated_duration'] = total_duration
-        
-        return result
-    
-def init_estimator():
-    return AdvancedSyllableEstimator()
+        breakdown: Dict[str, int] = {}
+        puncts: List[str] = []
+        spaces: List[str] = []
+        total_syllables = 0
+        total_seconds = 0.0
 
-def estimate_duration(text: str, estimator: AdvancedSyllableEstimator):
-    if not text or not isinstance(text, str):
-        return 0
-    return estimator.process_mixed_text(text)['estimated_duration']
+        for i, seg in enumerate(segments):
+            if not seg:
+                continue
 
-# 使用示例
+            # Handle pauses -----------------------------------------------------
+            if self._punct_space.fullmatch(seg):
+                spaces.append(seg)
+                left = segments[i-1] if i > 0 else ''
+                right = segments[i+1] if i+1 < len(segments) else ''
+                left_lang = self._detect(left)
+                right_lang = self._detect(right)
+                
+                if (left and right and (self.cfg[left_lang].count_space or 
+                                       self.cfg[right_lang].count_space)):
+                    total_seconds += self._pause_seconds["space"]
+                continue
+            if self._punct_mid.fullmatch(seg) or self._punct_end.fullmatch(seg):
+                puncts.append(seg)
+                total_seconds += self._pause_seconds["punct"]
+                continue
+
+            # Language segment --------------------------------------------------
+            lang = self._detect(seg)
+            lang_cfg = self.cfg[lang]
+            sylls = lang_cfg.syllable_fn(seg)
+            breakdown[lang] = breakdown.get(lang, 0) + sylls
+            total_syllables += sylls
+            total_seconds += sylls * lang_cfg.sec_per_syllable
+
+        return Result(breakdown, total_syllables, total_seconds, puncts, spaces)
+
+    # ---------------------------------------------------------------------
+    # Helpers
+    # ---------------------------------------------------------------------
+
+    def _detect(self, text: str) -> str:
+        """Return the first matching language code; default to 'en'."""
+        for code, cfg in self.cfg.items():
+            if cfg.pattern.search(text):
+                return code
+        return "en"
+
+    # ---------------------------------------------------------------------
+    # Language‑specific syllable counters (cached)
+    # ---------------------------------------------------------------------
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def _syllables_zh(text: str) -> int:
+        cleaned = re.sub(r"[^\u4e00-\u9fff]", "", text)
+        return len(pinyin(cleaned, style=Style.NORMAL))
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def _syllables_ja(text: str) -> int:
+        text = re.sub(r"[きぎしじちぢにひびぴみり][ょゅゃ]", "X", text)
+        text = re.sub(r"[っー]", "", text)
+        return len(re.findall(r"[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]", text))
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def _syllables_fr(text: str) -> int:
+        vowels = "aeiouyàâéèêëîïôùûüÿœæ"
+        text = re.sub(r"e\b", "", text.lower())
+        return max(1, len(re.findall(f"[{vowels}]+", text)))
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def _syllables_es(text: str) -> int:
+        vowels = "aeiouáéíóúü"
+        return max(1, len(re.findall(f"[{vowels}]+", text.lower())))
+
+    @staticmethod
+    @lru_cache(maxsize=8192)
+    def _syllables_ko(text: str) -> int:
+        return len(re.findall(r"[\uac00-\ud7af]", text))
+
+    # English relies on external libraries, so we keep access to ``self``
+
+    @lru_cache(maxsize=8192)
+    def _syllables_en(self, word: str) -> int:
+        try:
+            return syllables.estimate(word)
+        except Exception:
+            phones = self._g2p_en(word)
+            return max(1, len([p for p in phones if any(v in p for v in "aeiou")]))
+
+
+# ----------------------------------------------------------------------------
+# Quick‑and‑dirty CLI for manual testing
+# ----------------------------------------------------------------------------
+
 if __name__ == "__main__":
-    estimator = init_estimator()
-    print(estimate_duration('你好', estimator))
-
-    # 测试用例
+    # ------------
+    # Test cases for manual testing
+    # ------------
     test_cases = [
-        # "Hello world this is a test",  # 纯英文
-        # "你好世界 这是一个测试",      # 中文带空格
-        # "Hello 你好 world 世界",      # 中英混合
-        # "The weather is nice 所以我们去公园",  # 中英混合带空格
-        # "我们需要在输出中体现空格的停顿时间",
-        # "I couldn't help but notice the vibrant colors of the autumn leaves cascading gently from the trees"
+        "Hello world this is a test",  # pure English
+        "你好世界 这是一个测试",      # Chinese with spaces
+        "Hello 你好 world 世界",      # mixed English and Chinese
+        "The weather is nice 所以我们去公园",  # mixed English and Chinese with spaces
+        "我们需要在输出中体现空格的停顿时间",
+        "I couldn't help but notice the vibrant colors of the autumn leaves cascading gently from the trees"
         "가을 나뭇잎이 부드럽게 떨어지는 생생한 색깔을 주목하지 않을 수 없었다"
     ]
-    
-    for text in test_cases:
-        result = estimator.process_mixed_text(text)
-        print(f"\nText: {text}")
-        print(f"Total syllables: {result['total_syllables']}")
-        print(f"Estimated duration: {result['estimated_duration']:.2f}s")
-        print("Language breakdown:")
-        for lang, info in result['language_breakdown'].items():
-            print(f"- {lang}: {info['syllables']} syllables ({info['text']})")
-        print(f"Punctuation: {result['punctuation']}")
-        print(f"Spaces: {result['spaces']}")
+    est = SyllableEstimator()
+    for idx, sample in enumerate(test_cases, 1):
+        print(f"\nTest case {idx}: {sample}")
+        res = est.estimate(sample)
+        print(res)
