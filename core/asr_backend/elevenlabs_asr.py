@@ -36,7 +36,7 @@ def elev2whisper(elev_json, word_level_timestamp = False):
         "text": "",                     # accumulated text
         "start": words[0]["start"],     # seg start time
         "end": words[0]["end"],         # seg end time (updates)
-        "speaker_id": words[0]["speaker_id"],
+        "speaker": words[0]["speaker_id"],
         "words": []                       # optional per‑word info
     }
 
@@ -46,7 +46,7 @@ def elev2whisper(elev_json, word_level_timestamp = False):
         if word_level_timestamp:
             seg["words"].append({"text": prev["text"], "start": prev["start"], "end": prev["end"]})
         # decide whether to break the segment
-        if nxt is None or (nxt["start"] - prev["end"] > SPLIT_GAP) or (nxt["speaker_id"] != seg["speaker_id"]):
+        if nxt is None or (nxt["start"] - prev["end"] > SPLIT_GAP) or (nxt["speaker_id"] != seg["speaker"]):
             seg["text"] = seg["text"].strip()
             if not word_level_timestamp:
                 seg.pop("words")
@@ -56,7 +56,7 @@ def elev2whisper(elev_json, word_level_timestamp = False):
                     "text": "",
                     "start": nxt["start"],
                     "end": nxt["end"],
-                    "speaker_id": nxt["speaker_id"],
+                    "speaker": nxt["speaker_id"],
                     "words": []
                 }
     return {"segments": segments}
