@@ -1,12 +1,10 @@
 import os, subprocess
 import pandas as pd
-from typing import Dict, List, Tuple
+from typing import Dict
 from pydub import AudioSegment
 from core.utils import *
 from core.utils.models import *
 from pydub import AudioSegment
-from pydub.silence import detect_silence
-from pydub.utils import mediainfo
 from rich import print as rprint
 
 def normalize_audio_volume(audio_path, output_path, target_db = -20.0, format = "wav"):
@@ -45,44 +43,6 @@ def get_audio_duration(audio_file: str) -> float:
         print(f"[red]❌ Error: Failed to get audio duration: {e}[/red]")
         duration = 0
     return duration
-
-def split_audio(audio_file: str, target_len: float = 30*60, win: float = 60) -> List[Tuple[float, float]]:
-    ## 在 [target_len-win, target_len+win] 区间内用 pydub 检测静默，切分音频
-    rprint(f"[blue]🎙️ Starting audio segmentation {audio_file} {target_len} {win}[/blue]")
-    audio = AudioSegment.from_file(audio_file)
-    duration = float(mediainfo(audio_file)["duration"])
-    if duration <= target_len + win:
-        return [(0, duration)]
-    segments, pos = [], 0.0
-    safe_margin = 0.5  # 静默点前后安全边界，单位秒
-
-    while pos < duration:
-        if duration - pos <= target_len:
-            segments.append((pos, duration)); break
-
-        threshold = pos + target_len
-        ws, we = int((threshold - win) * 1000), int((threshold + win) * 1000)
-        
-        # 获取完整的静默区域
-        silence_regions = detect_silence(audio[ws:we], min_silence_len=int(safe_margin*1000), silence_thresh=-30)
-        silence_regions = [(s/1000 + (threshold - win), e/1000 + (threshold - win)) for s, e in silence_regions]
-        # 筛选长度足够（至少1秒）且位置适合的静默区域
-        valid_regions = [
-            (start, end) for start, end in silence_regions 
-            if (end - start) >= (safe_margin * 2) and threshold <= start + safe_margin <= threshold + win
-        ]
-        
-        if valid_regions:
-            start, end = valid_regions[0]
-            split_at = start + safe_margin  # 在静默区域起始点后0.5秒处切分
-        else:
-            rprint(f"[yellow]⚠️ No valid silence regions found for {audio_file} at {threshold}s, using threshold[/yellow]")
-            split_at = threshold
-            
-        segments.append((pos, split_at)); pos = split_at
-
-    rprint(f"[green]🎙️ Audio split completed {len(segments)} segments[/green]")
-    return segments
 
 def process_transcription(result: Dict) -> pd.DataFrame:
     all_words = []

@@ -36,7 +36,7 @@ def check_hf_mirror():
     return fastest_url
 
 @except_handler("WhisperX processing error:")
-def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
+def transcribe_audio(raw_audio_file, vocal_audio_file):
     os.environ['HF_ENDPOINT'] = check_hf_mirror()
     WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -51,7 +51,7 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
         batch_size = 1
         compute_type = "int8"
         rprint(f"[cyan]📦 Batch size:[/cyan] {batch_size}, [cyan]⚙️ Compute type:[/cyan] {compute_type}")
-    rprint(f"[green]▶️ Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
+    rprint(f"[green]▶️ Starting WhisperX ...[/green]")
     
     if WHISPER_LANGUAGE == 'zh':
         model_name = "Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper"
@@ -72,11 +72,9 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     rprint("[bold yellow] You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`[/bold yellow]")
     model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
 
-    def load_audio_segment(audio_file, start, end):
-        audio, _ = librosa.load(audio_file, sr=16000, offset=start, duration=end - start, mono=True)
-        return audio
-    raw_audio_segment = load_audio_segment(raw_audio_file, start, end)
-    vocal_audio_segment = load_audio_segment(vocal_audio_file, start, end)
+    # load audio
+    raw_audio_segment = librosa.load(raw_audio_file, sr=16000, mono=True)[0]
+    vocal_audio_segment = librosa.load(vocal_audio_file, sr=16000, mono=True)[0]
     
     # -------------------------
     # 1. transcribe raw audio
@@ -110,13 +108,7 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     torch.cuda.empty_cache()
     del model_a
 
-    # Adjust timestamps
-    for segment in result['segments']:
-        segment['start'] += start
-        segment['end'] += start
-        for word in segment['words']:
-            if 'start' in word:
-                word['start'] += start
-            if 'end' in word:
-                word['end'] += start
     return result
+
+if __name__=="__main__":
+    transcribe_audio("output/audio/raw.mp3", "output/audio/vocal.mp3")
