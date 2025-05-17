@@ -1,5 +1,4 @@
 import os
-import time
 import shutil
 import subprocess
 from typing import Tuple
@@ -27,6 +26,7 @@ def parse_df_srt_time(time_str: str) -> float:
     seconds, milliseconds = seconds.split('.')
     return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
 
+@except_handler("Audio speed adjustment failed", retry=2)
 def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float) -> None:
     """Adjust audio speed and handle edge cases"""
     # If the speed factor is close to 1, directly copy the file
@@ -37,30 +37,21 @@ def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float) -
     atempo = speed_factor
     cmd = ['ffmpeg', '-i', input_file, '-filter:a', f'atempo={atempo}', '-y', output_file]
     input_duration = get_audio_duration(input_file)
-    max_retries = 2
-    for attempt in range(max_retries):
-        try:
-            subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
-            output_duration = get_audio_duration(output_file)
-            expected_duration = input_duration / speed_factor
-            diff = output_duration - expected_duration
-            # If the output duration exceeds the expected duration, but the input audio is less than 3 seconds, and the error is within 0.1 seconds, truncate to the expected length
-            if output_duration >= expected_duration * 1.02 and input_duration < 3 and diff <= 0.1:
-                audio = AudioSegment.from_wav(output_file)
-                trimmed_audio = audio[:(expected_duration * 1000)]  # pydub uses milliseconds
-                trimmed_audio.export(output_file, format="wav")
-                print(f"✂️ Trimmed to expected duration: {expected_duration:.2f} seconds")
-                return
-            elif output_duration >= expected_duration * 1.02:
-                raise Exception(f"Audio duration abnormal: input file={input_file}, output file={output_file}, speed factor={speed_factor}, input duration={input_duration:.2f}s, output duration={output_duration:.2f}s")
-            return
-        except subprocess.CalledProcessError as e:
-            if attempt < max_retries - 1:
-                rprint(f"[yellow]⚠️ Audio speed adjustment failed, retrying in 1s ({attempt + 1}/{max_retries})[/yellow]")
-                time.sleep(1)
-            else:
-                rprint(f"[red]❌ Audio speed adjustment failed, max retries reached ({max_retries})[/red]")
-                raise e
+
+    subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
+    output_duration = get_audio_duration(output_file)
+    expected_duration = input_duration / speed_factor
+    diff = output_duration - expected_duration
+    # If the output duration exceeds the expected duration, but the input audio is less than 3 seconds, and the error is within 0.1 seconds, truncate to the expected length
+    if output_duration >= expected_duration * 1.02 and input_duration < 3 and diff <= 0.1:
+        audio = AudioSegment.from_wav(output_file)
+        trimmed_audio = audio[:(expected_duration * 1000)]  # pydub uses milliseconds
+        trimmed_audio.export(output_file, format="wav")
+        print(f"✂️ Trimmed to expected duration: {expected_duration:.2f} seconds")
+        return
+    elif output_duration >= expected_duration * 1.02:
+        raise Exception(f"Audio duration abnormal: input file={input_file}, output file={output_file}, speed factor={speed_factor}, input duration={input_duration:.2f}s, output duration={output_duration:.2f}s")
+    return
 
 def process_row(row: pd.Series, tasks_df: pd.DataFrame) -> Tuple[int, float]:
     """Helper function for processing single row data"""
@@ -104,13 +95,9 @@ def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
                 ]
                 
                 for future in as_completed(futures):
-                    try:
-                        number, real_dur = future.result()
-                        tasks_df.loc[tasks_df['number'] == number, 'real_dur'] = real_dur
-                        progress.advance(task)
-                    except Exception as e:
-                        rprint(f"[red]❌ Error: {str(e)}[/red]")
-                        raise e
+                    number, real_dur = future.result()
+                    tasks_df.loc[tasks_df['number'] == number, 'real_dur'] = real_dur
+                    progress.advance(task)
 
     rprint("[bold green]✨ TTS audio generation completed![/bold green]")
     return tasks_df
