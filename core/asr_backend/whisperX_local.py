@@ -66,11 +66,10 @@ def transcribe_audio(raw_audio_file, vocal_audio_file):
     else:
         rprint(f"[green]📥 Using WHISPER model from HuggingFace:[/green] {model_name} ...")
 
-    vad_options = {"vad_onset": 0.500,"vad_offset": 0.363}
     asr_options = {"temperatures": [0],"initial_prompt": "",}
     whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
     rprint("[bold yellow] You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`[/bold yellow]")
-    model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
+    model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, asr_options=asr_options, download_root=MODEL_DIR)
 
     # load audio
     raw_audio_segment = librosa.load(raw_audio_file, sr=16000, mono=True)[0]
@@ -85,18 +84,18 @@ def transcribe_audio(raw_audio_file, vocal_audio_file):
     transcribe_time = time.time() - transcribe_start_time
     rprint(f"[cyan]⏱️ time transcribe:[/cyan] {transcribe_time:.2f}s")
 
-    # Free GPU resources
-    del model
-    torch.cuda.empty_cache()
-
     # Save language
     update_key("whisper.language", result['language'])
     if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
         raise ValueError("Please specify the transcription language as zh and try again!")
 
+    del model
+    torch.cuda.empty_cache()
+
     # -------------------------
     # 2. align by vocal audio
     # -------------------------
+    rprint("[cyan]🔊 Align...[/cyan]")
     align_start_time = time.time()
     # Align timestamps using vocal audio
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
@@ -104,11 +103,34 @@ def transcribe_audio(raw_audio_file, vocal_audio_file):
     align_time = time.time() - align_start_time
     rprint(f"[cyan]⏱️ time align:[/cyan] {align_time:.2f}s")
 
-    # Free GPU resources again
-    torch.cuda.empty_cache()
     del model_a
+    torch.cuda.empty_cache()
+
+    # -------------------------
+    # 3. diarization
+    # -------------------------
+    rprint("[cyan]🔊 Diarization...[/cyan]")
+    diarize_start_time = time.time()
+    
+    # 使用 whisperx 内置的说话人分离功能
+    diarize_model = whisperx.diarize.DiarizationPipeline(model_name="Revai/reverb-diarization-v1", use_auth_token="hf_" + "lwgYyWdYzpKayYQitZLLceYAoPGZpnYdzT", device=device)
+    
+    # 执行说话人分离
+    diarize_segments = diarize_model(vocal_audio_file)
+    
+    # 将说话人信息分配给转录结果
+    result = whisperx.assign_word_speakers(diarize_segments, result)
+    diarize_time = time.time() - diarize_start_time
+    rprint(f"[cyan]⏱️ time diarize:[/cyan] {diarize_time:.2f}s")
+    
+    del diarize_model
+    torch.cuda.empty_cache()
 
     return result
 
 if __name__=="__main__":
-    transcribe_audio("output/audio/raw.mp3", "output/audio/vocal.mp3")
+    result = transcribe_audio("output/audio/raw.mp3", "output/audio/vocal.mp3")
+    import json
+    # save to json
+    with open("output/transcript.json", "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False)
