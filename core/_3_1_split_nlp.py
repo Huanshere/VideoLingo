@@ -4,6 +4,7 @@ from core.utils import check_file_exists
 
 @check_file_exists(_3_1_SPLIT_BY_NLP)
 def split_by_spacy():
+    merge_by_speaker()
     nlp = init_nlp()
     split_by_mark(nlp)
     split_by_comma_main(nlp)

@@ -2,22 +2,16 @@ import os
 import pandas as pd
 import warnings
 from core.spacy_utils.load_nlp_model import init_nlp, SPLIT_BY_MARK_FILE
-from core.utils.config_utils import load_key, get_joiner
 from rich import print as rprint
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 def split_by_mark(nlp):
-    whisper_language = load_key("whisper.language")
-    language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language # consider force english case
-    joiner = get_joiner(language)
-    rprint(f"[blue]🔍 Using {language} language joiner: '{joiner}'[/blue]")
-    chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
-    chunks.text = chunks.text.apply(lambda x: x.strip('"').strip(""))
+    # get merged result
+    merged_chunks = pd.read_excel("output/log/merged_by_speaker.xlsx")
+    input_text = "\n".join(merged_chunks.text)
     
-    # join with joiner
-    input_text = joiner.join(chunks.text.to_list())
-
+    # split by mark
     doc = nlp(input_text)
     assert doc.has_annotation("SENT_START")
 
@@ -50,9 +44,9 @@ def split_by_mark(nlp):
     with open(SPLIT_BY_MARK_FILE, "w", encoding="utf-8") as output_file:
         for i, sentence in enumerate(sentences_by_mark):
             if i > 0 and sentence.strip() in [',', '.', '，', '。', '？', '！']:
-                # ! If the current line contains only punctuation, merge it with the previous line, this happens in Chinese, Japanese, etc.
-                output_file.seek(output_file.tell() - 1, os.SEEK_SET)  # Move to the end of the previous line
-                output_file.write(sentence)  # Add the punctuation
+                # 只包含标点的行并到上一行
+                output_file.seek(output_file.tell() - 1, os.SEEK_SET)
+                output_file.write(sentence)
             else:
                 output_file.write(sentence + "\n")
     
