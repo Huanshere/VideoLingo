@@ -107,18 +107,13 @@ def transcribe_audio(raw_audio_file, vocal_audio_file):
     torch.cuda.empty_cache()
 
     # -------------------------
-    # 3. diarization
+    # 3. diarization using vocal
     # -------------------------
     rprint("[cyan]🔊 Diarization...[/cyan]")
     diarize_start_time = time.time()
     
-    # 使用 whisperx 内置的说话人分离功能
     diarize_model = whisperx.diarize.DiarizationPipeline(model_name="Revai/reverb-diarization-v1", use_auth_token="hf_" + "lwgYyWdYzpKayYQitZLLceYAoPGZpnYdzT", device=device)
-    
-    # 执行说话人分离
     diarize_segments = diarize_model(vocal_audio_file)
-    
-    # 将说话人信息分配给转录结果
     result = whisperx.assign_word_speakers(diarize_segments, result)
     diarize_time = time.time() - diarize_start_time
     rprint(f"[cyan]⏱️ time diarize:[/cyan] {diarize_time:.2f}s")
