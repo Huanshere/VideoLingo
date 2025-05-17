@@ -21,27 +21,16 @@ def convert_video_to_audio(video_file: str):
         rprint(f"[blue]🎬➡️🎵 Converting to high quality audio with FFmpeg ......[/blue]")
         subprocess.run([
             'ffmpeg', '-y', '-i', video_file, '-vn',
-            '-c:a', 'libmp3lame', '-b:a', '32k',
-            '-ar', '16000',
-            '-ac', '1', 
+            '-c:a', 'libmp3lame', '-b:a', '32k','-ar', '16000','-ac', '1', 
             '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
         ], check=True, stderr=subprocess.PIPE)
         rprint(f"[green]🎬➡️🎵 Converted <{video_file}> to <{_RAW_AUDIO_FILE}> with FFmpeg\n[/green]")
 
+@except_handler("Failed to get audio duration")
 def get_audio_duration(audio_file: str) -> float:
-    """Get the duration of an audio file using ffmpeg."""
-    cmd = ['ffmpeg', '-i', audio_file]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    _, stderr = process.communicate()
-    output = stderr.decode('utf-8', errors='ignore')
-    
-    try:
-        duration_str = [line for line in output.split('\n') if 'Duration' in line][0]
-        duration_parts = duration_str.split('Duration: ')[1].split(',')[0].split(':')
-        duration = float(duration_parts[0])*3600 + float(duration_parts[1])*60 + float(duration_parts[2])
-    except Exception as e:
-        print(f"[red]❌ Error: Failed to get audio duration: {e}[/red]")
-        duration = 0
+    """Get the duration of an audio file using pydub."""
+    audio = AudioSegment.from_file(audio_file)
+    duration = len(audio) / 1000.0  # 转换毫秒为秒
     return duration
 
 def process_transcription(result: Dict) -> pd.DataFrame:
