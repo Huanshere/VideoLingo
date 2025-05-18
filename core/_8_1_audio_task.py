@@ -54,53 +54,48 @@ def assign_speaker_to_ttstask(df_tts):
     """Assign speaker to tts task"""
     df_word = pd.read_excel(_2_CLEANED_CHUNKS)
     
-    # ------------
-    # 将时间戳转换为秒的辅助函数
-    # ------------
     def _ts_to_seconds(ts):
         if isinstance(ts, (int, float)):
             return float(ts)
         if isinstance(ts, datetime.time):
-            # 将time对象转换为秒
             return ts.hour * 3600 + ts.minute * 60 + ts.second + ts.microsecond / 1000000
         return pd.to_timedelta(ts).total_seconds()
     
-    # 复制DataFrame避免修改原始数据
     df_tts_copy = df_tts.copy()
     
-    # 统一时间格式为秒
+    # time to seconds
     df_tts_copy["start_sec"] = df_tts_copy["start_time"].map(_ts_to_seconds)
     df_tts_copy["end_sec"] = df_tts_copy["end_time"].map(_ts_to_seconds)
     df_word["start_sec"] = df_word["start"].map(_ts_to_seconds)
     df_word["end_sec"] = df_word["end"].map(_ts_to_seconds)
     
-    # 预分配speaker列
+    # pre-assign speaker column
     speakers = []
     
-    # 设置容差值（秒）
+    # set tolerance value (seconds)
     tolerance = 0.2
     
     for _, row in df_tts_copy.iterrows():
         s_start = row["start_sec"] - tolerance
         s_end = row["end_sec"] + tolerance
         
-        # 找出与当前字幕时间段有交集的词
+        # find words that overlap with the current subtitle time range
         overlapping_words = df_word[(df_word["start_sec"] < s_end) & (df_word["end_sec"] > s_start)]
         
         if overlapping_words.empty:
             speakers.append(None)
             continue
         
-        # 按词数统计每个speaker的贡献
+        # count the contribution of each speaker
         speaker_counts = overlapping_words.groupby("speaker").size()
         
-        # 选择出现次数最多的speaker
+        # select the speaker with the most contributions
         speakers.append(speaker_counts.idxmax())
-    
-    # 将speaker信息添加到原始DataFrame
+
+    # add speaker information to the original DataFrame
     df_tts["speaker"] = speakers
     
-    # 打印分配结果统计
+    # print the assignment result statistics
     console.print(f"[bold green]Speaker assignment complete: {len([s for s in speakers if s is not None])}/{len(speakers)} subtitles assigned[/bold green]")
     
     return df_tts
@@ -153,17 +148,19 @@ def process_srt():
     
     df = pd.DataFrame(subtitles)
     
-    # 调用函数给df的speaker赋值
+    # call function to assign speaker to df
     df = assign_speaker_to_ttstask(df)
     
     i = 0
     MIN_SUB_DUR = load_key("min_subtitle_duration")
+    MARGIN = 0.05  # 50 ms margin, prevent sticking to the edge
+    
     while i < len(df):
         today = datetime.date.today()
         if df.loc[i, 'duration'] < MIN_SUB_DUR:
             if (i < len(df) - 1 and 
                 time_diff_seconds(df.loc[i, 'start_time'], df.loc[i+1, 'start_time'], today) < MIN_SUB_DUR and
-                df.loc[i, 'speaker'] == df.loc[i+1, 'speaker']):  # 确保speaker相同
+                df.loc[i, 'speaker'] == df.loc[i+1, 'speaker']):  # ensure same speaker
                 rprint(f"[bold yellow]Merging subtitles {i+1} and {i+2} with same speaker: {df.loc[i, 'speaker']}[/bold yellow]")
                 df.loc[i, 'text'] += ' ' + df.loc[i+1, 'text']
                 df.loc[i, 'origin'] += ' ' + df.loc[i+1, 'origin']
@@ -171,17 +168,33 @@ def process_srt():
                 df.loc[i, 'duration'] = time_diff_seconds(df.loc[i, 'start_time'],df.loc[i, 'end_time'],today)
                 df = df.drop(i+1).reset_index(drop=True)
             else:
-                # 如果不能合并（因为speaker不同或其他原因）
+                # if cannot merge (due to different speakers or other reasons)
                 if i < len(df) - 1 and df.loc[i, 'speaker'] != df.loc[i+1, 'speaker']:
                     rprint(f"[bold cyan]Cannot merge subtitle {i+1} with {i+2} due to different speakers: {df.loc[i, 'speaker']} vs {df.loc[i+1, 'speaker']}[/bold cyan]")
                 
-                if i < len(df) - 1:  # Not the last audio
-                    rprint(f"[bold blue]Extending subtitle {i+1} duration to {MIN_SUB_DUR} seconds[/bold blue]")
-                    df.loc[i, 'end_time'] = (datetime.datetime.combine(today, df.loc[i, 'start_time']) + 
-                                            datetime.timedelta(seconds=MIN_SUB_DUR)).time()
-                    df.loc[i, 'duration'] = MIN_SUB_DUR
+                # only need to check the next subtitle if it is not the last one
+                if i < len(df) - 1:
+                    gap = time_diff_seconds(df.loc[i, 'start_time'], df.loc[i+1, 'start_time'], today)
                 else:
-                    rprint(f"[bold red]The last subtitle {i+1} duration is less than {MIN_SUB_DUR} seconds, but not extending[/bold red]")
+                    gap = float('inf')
+                
+                # current subtitle is less than the minimum length, and the gap is large enough to fill
+                if df.loc[i, 'duration'] < MIN_SUB_DUR and gap > df.loc[i, 'duration']:
+                    # expected new duration
+                    target_dur = min(MIN_SUB_DUR, gap - MARGIN)
+                    if target_dur > df.loc[i, 'duration']:  # defensive judgment
+                        new_end = (datetime.datetime.combine(today, df.loc[i, 'start_time']) + 
+                                  datetime.timedelta(seconds=target_dur)).time()
+                        df.loc[i, 'end_time'] = new_end
+                        df.loc[i, 'duration'] = target_dur
+                        rprint(f"[bold blue]Extending subtitle {i+1} duration to {target_dur:.2f} seconds (gap: {gap:.2f}s)[/bold blue]")
+                    else:
+                        rprint(f"[bold red]Cannot extend subtitle {i+1}: target duration {target_dur:.2f}s not greater than current {df.loc[i, 'duration']:.2f}s[/bold red]")
+                else:
+                    if i < len(df) - 1:
+                        rprint(f"[bold red]Cannot extend subtitle {i+1}: gap to next subtitle ({gap:.2f}s) too small[/bold red]")
+                    else:
+                        rprint(f"[bold red]The last subtitle {i+1} duration is less than {MIN_SUB_DUR} seconds, but not extending[/bold red]")
                 i += 1
         else:
             i += 1
