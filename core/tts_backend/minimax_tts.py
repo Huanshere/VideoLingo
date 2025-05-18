@@ -3,6 +3,7 @@ import replicate
 from pathlib import Path
 from typing import List, Tuple
 import requests
+import os
 
 import pandas as pd
 from pydub import AudioSegment
@@ -65,10 +66,16 @@ def tts_to_file(text: str, voice_id: str, output_path: str) -> str:
         }
     )
 
-    mp3_url = output
-    response = requests.get(mp3_url)
-    with open(output_path, "wb") as f:
+    response = requests.get(output) # output is a mp3 url
+    temp_mp3_path = output_path + ".temp.mp3"
+    with open(temp_mp3_path, "wb") as f:
         f.write(response.content)
+    audio = AudioSegment.from_mp3(temp_mp3_path) # save as wav
+    audio.export(output_path, format="wav")
+    
+    # del tmp
+    if os.path.exists(temp_mp3_path):
+        os.remove(temp_mp3_path)
     return output_path
 
 
@@ -163,7 +170,7 @@ def clone_all_speakers(task_df: pd.DataFrame):
 
 def minimax_tts_for_videolingo(text, save_as, number, task_df):
     # get speaker of current task
-    speaker = task_df.loc[number, "speaker"]
+    speaker = task_df[task_df["number"] == number]["speaker"].iloc[0]
     speaker_id = _get_speaker_config_id(speaker)
     
     # check if voice_id exists, clone all speakers if not
