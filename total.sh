@@ -1,6 +1,6 @@
-# conda activate videolingo
-# rm -rf output/
-# python -m core.step1_ytdlp
+conda activate videolingo
+rm -rf output/
+python -m core.step1_ytdlp
 # 语音识别
 python -m core.step2_whisperX
 
