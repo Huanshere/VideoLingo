@@ -6,12 +6,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG PYTHON_VERSION=3.10
 
 # Change software sources and install basic tools and system dependencies
-RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-    sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common git curl sudo ffmpeg fonts-noto wget \
+# RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+#     sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common git curl sudo ffmpeg fonts-noto fonts-noto-cjk wget \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt-get update -y \
+    && apt-get install iputils-ping \
     && apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-venv \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
     && update-alternatives --set python3 /usr/bin/python${PYTHON_VERSION} \
@@ -36,7 +37,7 @@ RUN pip install torch==2.0.0 torchaudio==2.0.0 --index-url https://download.pyto
 RUN rm -rf .git
 
 # Upgrade pip and install basic dependencies
-RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+# RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install dependencies
 COPY requirements.txt .

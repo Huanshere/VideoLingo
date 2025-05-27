@@ -3,18 +3,19 @@ import requests
 import json
 from core.utils import load_key, except_handler
 
-BASE_URL = "https://api.302.ai/v1/audio/speech"
-VOICE_LIST = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
-# voice options: alloy, echo, fable, onyx, nova, and shimmer
+BASE_URL = "https://api.openai.com/v1/audio/speech"
+VOICE_LIST = ["alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse"]
+# voice options: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer, and verse
 # refer to: https://platform.openai.com/docs/guides/text-to-speech/quickstart
 @except_handler("Failed to generate audio using OpenAI TTS", retry=3, delay=1)
 def openai_tts(text, save_path):
     API_KEY = load_key("openai_tts.api_key")
     voice = load_key("openai_tts.voice")
     payload = json.dumps({
-        "model": "tts-1",
+        "model": "gpt-4o-mini-tts",
         "input": text,
         "voice": voice,
+        "instructions": "Speak in a cheerful and positive tone.",
         "response_format": "wav"
     })
     

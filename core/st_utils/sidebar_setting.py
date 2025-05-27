@@ -42,7 +42,7 @@ def page_setting():
         with c1:
             langs = {
                 "🇺🇸 English": "en",
-                "🇨🇳 简体中文": "zh",
+                "🇹🇼 中文": "zh",
                 "🇪🇸 Español": "es",
                 "🇷🇺 Русский": "ru",
                 "🇫🇷 Français": "fr",
@@ -113,7 +113,7 @@ def page_setting():
                 config_input("Voice", "sf_fish_tts.voice")
 
         elif select_tts == "openai_tts":
-            config_input("302ai API", "openai_tts.api_key")
+            config_input("OpenAI API", "openai_tts.api_key")
             config_input(t("OpenAI Voice"), "openai_tts.voice")
 
         elif select_tts == "fish_tts":

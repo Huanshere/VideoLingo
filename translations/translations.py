@@ -4,6 +4,7 @@ DISPLAY_LANGUAGES = {
     "🇬🇧 English": "en",
     "🇨🇳 简体中文": "zh-CN",
     "🇭🇰 繁体中文": "zh-HK",
+    "🇹🇼 繁體中文": "zh-TW",
     "🇯🇵 日本語": "ja",
     "🇪🇸 Español": "es",
     "🇷🇺 Русский": "ru",
