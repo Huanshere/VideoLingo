@@ -30,39 +30,33 @@ iso_639_2_to_1 = {
 # ----------------------------
 
 SPLIT_GAP = 1
-def elev2whisper(elev_json, word_level_timestamp = False):
+def elev2whisper(elev_json, word_level_timestamp = True):
+    segments = []
+    current_segment = None
     words = elev_json.get("words", [])
     if not words:
         return {"segments": []}
-
-    segments, seg = [], {
-        "text": "",                     # accumulated text
-        "start": words[0]["start"],     # seg start time
-        "end": words[0]["end"],         # seg end time (updates)
-        "speaker_id": words[0]["speaker_id"],
-        "words": []                       # optional per‑word info
-    }
-
-    for prev, nxt in zip(words, words[1:] + [None]):  # pairwise with sentinel
-        seg["text"] += prev["text"]
-        seg["end"] = prev["end"]
-        if word_level_timestamp:
-            seg["words"].append({"text": prev["text"], "start": prev["start"], "end": prev["end"]})
-        # decide whether to break the segment
-        if nxt is None or (nxt["start"] - prev["end"] > SPLIT_GAP) or (nxt["speaker_id"] != seg["speaker_id"]):
-            seg["text"] = seg["text"].strip()
-            if not word_level_timestamp:
-                seg.pop("words")
-            segments.append(seg)
-            if nxt is not None:  # seed next segment
-                seg = {
-                    "text": "",
-                    "start": nxt["start"],
-                    "end": nxt["end"],
-                    "speaker_id": nxt["speaker_id"],
-                    "words": []
-                }
+    
+    for word in elev_json.get('words', []):
+        if word['text']== ' ':
+            continue
+        # Process timestamps
+        start = word['start']
+        end = word['end']
+        text = word['text']        
+        
+        # Update or create segment
+        if not current_segment:
+            current_segment = {'words': []}
+        
+        # Add word to current segment
+        current_segment['words'].append({'word': text, 'start': start, 'end': end})
+    
+    if current_segment:
+        segments.append(current_segment)
+    
     return {"segments": segments}
+
 
 def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, end = None):
     rprint(f"[cyan]🎤 Processing audio transcription, file path: {vocal_audio_path}[/cyan]")
@@ -99,7 +93,7 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
             "timestamps_granularity": "word",
             "language_code": load_key("whisper.language"),
             "diarize": True,
-            "num_speakers": None,
+            "num_speakers": 1,
             "tag_audio_events": False
         }
         
@@ -114,20 +108,12 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
         # save detected language
         detected_language = iso_639_2_to_1.get(result["language_code"], result["language_code"])
         update_key("whisper.detected_language", detected_language)
-
-        # Adjust timestamps for all words by adding the start time
-        if start is not None and 'words' in result:
-            for word in result['words']:
-                if 'start' in word:
-                    word['start'] += start
-                if 'end' in word:
-                    word['end'] += start
         
         rprint(f"[green]✓ Transcription completed in {time.time() - start_time:.2f} seconds[/green]")
         parsed_result = elev2whisper(result)
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-        with open(LOG_FILE, "w", encoding="utf-8") as f:
-            json.dump(parsed_result, f, indent=4, ensure_ascii=False)
+        # os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+        # with open(LOG_FILE, "w", encoding="utf-8") as f:
+        #     json.dump(parsed_result, f, indent=4, ensure_ascii=False)
         return parsed_result
     finally:
         # Clean up the temporary file
@@ -137,7 +123,7 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
 if __name__ == "__main__":
     file_path = input("Enter local audio file path (mp3 format): ")
     language = input("Enter language code for transcription (en or zh or other...): ")
-    result = transcribe_audio_elevenlabs(file_path, language_code=language)
+    result = transcribe_audio_elevenlabs(file_path, file_path)
     print(result)
     
     # Save result to file
