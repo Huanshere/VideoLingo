@@ -121,10 +121,8 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
             os.remove(temp_filepath)
 
 if __name__ == "__main__":
-    # file_path = input("Enter local audio file path (mp3 format): ")
-    # language = input("Enter language code for transcription (en or zh or other...): ")
-    file_path='/Users/gw/workspace/source/vl3/output/audio/raw.mp3'
-    language='en'
+    file_path = input("Enter local audio file path (mp3 format): ")
+    language = input("Enter language code for transcription (en or zh or other...): ")
     result = transcribe_audio_elevenlabs(file_path, file_path)
     print(result)
     
