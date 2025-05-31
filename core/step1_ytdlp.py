@@ -6,30 +6,22 @@ import subprocess
 from core.config_utils import load_key
 
 def sanitize_filename(filename):
-    # Remove or replace illegal characters
     filename = re.sub(r'[<>:"/\\|?*]', '', filename)
-    # Ensure filename doesn't start or end with a dot or space
     filename = filename.strip('. ')
-    # Use default name if filename is empty
     return filename if filename else 'video'
 
 def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time=None):
     allowed_resolutions = ['360', '1080', 'best']
-    # if resolution not in allowed_resolutions:
-    #     resolution = '360'
-    
     os.makedirs(save_path, exist_ok=True)
     # 配置 yt-dlp 选项
-    ydl_opts = {    
+    ydl_opts = {
         # 选择最佳视频和音频格式
         'format': 'bestvideo+bestaudio/best' if resolution == 'best' else f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]',
         # 输出模板
         'outtmpl': f'{save_path}/%(title)s.%(ext)s',
-        # 不下载播放列表
         'noplaylist': True,
         # 写入缩略图
         'writethumbnail': True,
-        # 缩略图处理
         'postprocessors': [{
             'key': 'FFmpegThumbnailsConvertor',
             'format': 'jpg',

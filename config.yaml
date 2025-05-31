@@ -11,7 +11,7 @@ api:
   model: 'gemini-2.0-flash'
 
 # Language settings, written into the prompt, can be described in natural language
-target_language: '简体中文'
+target_language: 'Chinese'
 
 # Whether to use Demucs for vocal separation before transcription
 demucs: true
