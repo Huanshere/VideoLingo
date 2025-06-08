@@ -1,6 +1,7 @@
 import os, sys
 import platform
 import subprocess
+import shutil
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 ascii_logo = """
@@ -87,6 +88,10 @@ def main():
     from core.utils.decorator import except_handler
 
     console = Console()
+
+    # copy defaule config.yaml to config.yaml
+    if not os.path.exists("config.yaml"):
+        shutil.copy("config.yaml.example", "config.yaml")
     
     width = max(len(line) for line in ascii_logo.splitlines()) + 4
     welcome_panel = Panel(
