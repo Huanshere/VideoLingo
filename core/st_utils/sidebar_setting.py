@@ -84,7 +84,7 @@ def page_setting():
             update_key("burn_subtitles", burn_subtitles)
             st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
-        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts", "sf_cosyvoice2", "f5tts"]
+        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts", "sf_cosyvoice2", "f5tts", "modelslab_tts"]
         select_tts = st.selectbox(t("TTS Method"), options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if select_tts != load_key("tts_method"):
             update_key("tts_method", select_tts)
@@ -151,6 +151,20 @@ def page_setting():
         
         elif select_tts == "f5tts":
             config_input("302ai API", "f5tts.302_api")
+
+        elif select_tts == "modelslab_tts":
+            config_input(t("ModelsLab API Key"), "modelslab_tts.api_key")
+            from core.tts_backend.modelslab_tts import VOICE_OPTIONS
+            voice_names = list(VOICE_OPTIONS.keys())
+            current_voice = load_key("modelslab_tts.voice") or "Bella"
+            selected_voice = st.selectbox(
+                t("ModelsLab Voice"),
+                options=voice_names,
+                index=voice_names.index(current_voice) if current_voice in voice_names else 0,
+            )
+            if selected_voice != load_key("modelslab_tts.voice"):
+                update_key("modelslab_tts.voice", selected_voice)
+                st.rerun()
         
 def check_api():
     try:
