@@ -172,3 +172,6 @@ config.backup.yaml
 runtime/
 dev/
 installer_files/
+
+core/capcut_api/
+.vscode/

@@ -1,6 +1,7 @@
 import os, sys
 import platform
 import subprocess
+import json
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 ascii_logo = """
@@ -234,6 +235,69 @@ def main():
     
     install_requirements()
     check_ffmpeg()
+    
+    # 询问是否安装CapCutAPI
+    @except_handler("Failed to install CapCutAPI")
+    def install_capcut_api():
+        # 询问是否需要安装CapCutAPI
+        install_choice = inquirer.confirm(
+            message=t("Do you want to install CapCutAPI? This allows exporting translated videos to CapCut/JianYing."),
+            default=True
+        ).execute()
+        
+        if install_choice:
+            console.print(Panel(t("Installing CapCutAPI..."), style="cyan"))
+            
+            # 检查目录是否存在，如果存在则先删除
+            import shutil
+            if os.path.exists("core/capcut_api"):
+                shutil.rmtree("core/capcut_api")
+            
+            # 克隆CapCutAPI仓库
+            subprocess.check_call(["git", "clone", "--depth=1", "https://github.com/sun-guannan/CapCutAPI.git", "core/capcut_api"])
+            
+            # 安装依赖
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "core/capcut_api/requirements.txt"])
+            
+            # 复制配置文件
+            if not os.path.exists("core/capcut_api/config.json"):
+                shutil.copy("core/capcut_api/config.json.example", "core/capcut_api/config.json")
+            
+            # 询问使用剪映还是剪映国际版
+            editor_choice = inquirer.select(
+                message=t("Which editor do you use?"),
+                choices=["CapCut", "JianYing (剪映中文版)"],
+                default="CapCut"
+            ).execute()
+            
+            # 根据选择修改配置文件
+            with open("core/capcut_api/config.json", "r", encoding="utf-8") as f:
+                config = json.load(f)
+            
+            # 设置是否为国际版
+            config["is_capcut_env"] = editor_choice == "CapCut (International)"
+            
+            # 保存修改后的配置
+            with open("core/capcut_api/config.json", "w", encoding="utf-8") as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+            
+            # 更新VideoLingo配置
+            update_key("capcut.editor", "CapCut" if editor_choice == "CapCut (International)" else "JianYing")
+            
+            # 记录用户是否安装CapCutAPI的标记位
+            update_key("capcut.installed", install_choice)
+            
+            # 提示用户安装成功
+            console.print(Panel(
+                t("✅ CapCutAPI installed successfully!") + "\n\n" +
+                t("Note: CapCutAPI will use port 9001 by default.") + "\n" +
+                t("If you need to change the port, please edit core/capcut_api/config.json") + "\n" +
+                t("If you need to switch between CapCut and JianYing, you can modify the 'is_capcut_env' setting in the same file."),
+                style="green"
+            ))
+    
+    # 安装CapCutAPI
+    install_capcut_api()
     
     # First panel with installation complete and startup command
     panel1_text = (

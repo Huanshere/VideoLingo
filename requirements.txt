@@ -34,3 +34,4 @@ pypinyin
 g2p-en
 xmltodict
 
+httpx[socks]

@@ -22,7 +22,7 @@ max_workers: 4
 target_language: '简体中文'
 
 # Whether to use Demucs for vocal separation before transcription
-demucs: true
+demucs: false
 
 whisper:
   # ["large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
@@ -179,3 +179,53 @@ language_split_with_space:
 language_split_without_space:
 - 'zh'
 - 'ja'
+
+# CapCut/剪映 settings
+capcut:
+  installed: false
+  trans_draft_id: ''
+  dub_draft_id: ''
+  # 草稿目录路径
+  draft_folder: ''
+  # 启用导出剪映功能
+  enable_export: false
+  editor: "CapCut"
+
+
+  # 字幕位置设置
+  # 原始文本设置
+  orig_text:
+    font: ''        # 字体
+    font_size: 8 # 字号
+    color: '#FFFFFF'  # 颜色
+    bold: false  # 粗体
+    italic: false  # 斜体
+    underline: false  # 下划线
+    stroke: true  # 是否启用描边
+    stroke_color: '#000000'  # 描边颜色
+    y_offset: -0.8 # Y方向位置移动，范围[-2,2]，相对于原始视频的高度
+    stroke_width: 40  # 描边粗细
+  # 翻译文本设置
+  trans_text:
+    font: ''          # 字体
+    font_size: 8  # 字号
+    color: '#FFFFFF'  # 颜色
+    bold: false  # 粗体
+    italic: false  # 斜体
+    underline: false  # 下划线
+    stroke: true  # 是否启用描边
+    stroke_color: '#000000'  # 描边颜色
+    stroke_width: 40  # 描边粗细
+    y_offset: -0.6  # Y方向位置移动，范围[-2,2]，相对于原始视频的高度
+  # 配音文本设置
+  dub_text:
+    font: ''          # 字体
+    font_size: 8 # 字号
+    color: '#FFFFFF'  # 颜色
+    bold: false  # 粗体
+    italic: false  # 斜体
+    underline: false  # 下划线
+    stroke: true  # 是否启用描边
+    stroke_color: '#000000'  # 描边颜色
+    stroke_width: 40  # 描边粗细
+    y_offset: -0.4  # Y方向位置移动，范围[-2,2]，相对于原始视频的高度

@@ -40,6 +40,12 @@ def text_processing_section():
             if st.button(t("Archive to 'history'"), key="cleanup_in_text_processing"):
                 cleanup()
                 st.rerun()
+
+            # 添加剪映草稿提示
+            if load_key("capcut.enable_export"):
+                draft_id = load_key("capcut.trans_draft_id")
+                st.info(t("You can find the generated draft in CapCut with name: ") + f"{draft_id}")
+            
             return True
 
 def process_text():
@@ -88,6 +94,12 @@ def audio_processing_section():
             if st.button(t("Archive to 'history'"), key="cleanup_in_audio_processing"):
                 cleanup()
                 st.rerun()
+            
+            # 添加剪映草稿提示
+            if load_key("capcut.enable_export"):
+                draft_id = load_key("capcut.dub_draft_id")
+                st.info(t("You can find the generated draft in CapCut with name: ") + f"{draft_id}")
+            
 
 def process_audio():
     with st.spinner(t("Generate audio tasks")): 

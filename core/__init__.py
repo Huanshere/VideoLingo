@@ -20,6 +20,7 @@ try:
     from .utils import *
     from .utils.onekeycleanup import cleanup
     from .utils.delete_retry_dubbing import delete_dubbing_files
+    from . import capcut_api
 except ImportError:
     pass
 
