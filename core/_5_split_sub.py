@@ -43,6 +43,11 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     align_data = parsed['align']
     src_parts = src_part.split('\n')
     tr_parts = [item[f'target_part_{i+1}'].strip() for i, item in enumerate(align_data)]
+
+    # bugfix: if the src_parts and tr_parts have different lengths, merge them into one part
+    if len(src_parts) != len(tr_parts):
+        src_parts = ["\n".join(src_parts)]
+        tr_parts = ["\n".join(tr_parts)]
     
     whisper_language = load_key("whisper.language")
     language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language
