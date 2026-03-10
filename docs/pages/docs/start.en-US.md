@@ -163,7 +163,7 @@ Before installing VideoLingo, ensure you have installed Git and Anaconda.
 
    > ⚠️ **Install order matters:** `install.py` installs dependencies in the correct order: PyTorch first (locks CUDA version), then demucs with `--no-deps` (prevents torchaudio downgrade), then the rest. **Do not rearrange manually.**
 
-4. 🎉 Launch Streamlit app:
+4. 🎉 Launch Streamlit app by running the command or double-clicking `OneKeyStart.bat`:
    ```bash
    streamlit run st.py
    ```
