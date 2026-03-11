@@ -70,7 +70,7 @@ reflect_translate: true
 pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
+# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts, modelslab_tts]
 tts_method: 'azure_tts'
 
 # SiliconFlow FishTTS
@@ -118,6 +118,13 @@ gpt_sovits:
 
 f5tts:
   302_api: 'YOUR_302_API_KEY'
+
+# ModelsLab TTS configuration
+# Sign up at https://modelslab.com to get your API key
+modelslab_tts:
+  api_key: 'YOUR_MODELSLAB_API_KEY'
+  # Voice options: Bella, Antoni, Elli, Josh, Arnold, Adam, Sam, Rachel, Domi, Gigi
+  voice: 'Bella'
 
 # *Audio speed range
 speed_factor:
