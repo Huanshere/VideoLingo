@@ -106,5 +106,20 @@
     "No NVIDIA GPU detected": "GPU NVIDIA не обнаружен",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "GPU NVIDIA не обнаружен или драйверы NVIDIA установлены неправильно",
     "LLM JSON Format Support": "Поддержка формата JSON для LLM",
-    "Enable if your LLM supports JSON mode output": "Включите, если ваш LLM поддерживает вывод в формате JSON"
+    "Enable if your LLM supports JSON mode output": "Включите, если ваш LLM поддерживает вывод в формате JSON",
+    "MiniMax API Key": "API-ключ MiniMax",
+    "MiniMax Voice": "Голос MiniMax",
+    "MiniMax TTS Model": "Модель TTS MiniMax",
+    "English Female, Graceful": "Английский женский, грациозный",
+    "English Male, Insightful": "Английский мужской, проницательный",
+    "English Female, Radiant": "Английский женский, сияющий",
+    "English Male, Persuasive": "Английский мужской, убедительный",
+    "English, Robot": "Английский, робот",
+    "Female, Wise": "Женский, мудрый",
+    "Friendly": "Дружелюбный",
+    "Female, Inspirational": "Женский, вдохновляющий",
+    "Male, Deep Voice": "Мужской, глубокий голос",
+    "Female, Sweet": "Женский, сладкий",
+    "Male, Cute": "Мужской, милый",
+    "Female, Lovely": "Женский, прелестный"
 }

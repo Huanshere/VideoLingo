@@ -106,5 +106,20 @@
     "No NVIDIA GPU detected": "未檢測到NVIDIA GPU",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "未檢測到NVIDIA GPU或NVIDIA驅動未正確安裝",
     "LLM JSON Format Support": "LLM JSON格式支持",
-    "Enable if your LLM supports JSON mode output": "如果選用的LLM支持JSON模式輸出，請啟用"
+    "Enable if your LLM supports JSON mode output": "如果選用的LLM支持JSON模式輸出，請啟用",
+    "MiniMax API Key": "MiniMax API密鑰",
+    "MiniMax Voice": "MiniMax 語音",
+    "MiniMax TTS Model": "MiniMax TTS模型",
+    "English Female, Graceful": "英語女聲，優雅",
+    "English Male, Insightful": "英語男聲，沉穩",
+    "English Female, Radiant": "英語女聲，活潑",
+    "English Male, Persuasive": "英語男聲，有說服力",
+    "English, Robot": "英語，機器人",
+    "Female, Wise": "女聲，智慧",
+    "Friendly": "友善",
+    "Female, Inspirational": "女聲，勵志",
+    "Male, Deep Voice": "男聲，低沉",
+    "Female, Sweet": "女聲，甜美",
+    "Male, Cute": "男聲，可愛",
+    "Female, Lovely": "女聲，可愛"
 }

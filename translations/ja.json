@@ -106,5 +106,20 @@
     "No NVIDIA GPU detected": "NVIDIA GPUが検出されません",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "NVIDIA GPUが検出されないか、NVIDIAドライバーが正しくインストールされていません",
     "LLM JSON Format Support": "LLM JSON形式サポート",
-    "Enable if your LLM supports JSON mode output": "LLMがJSON出力モードをサポートしている場合に有効化"
+    "Enable if your LLM supports JSON mode output": "LLMがJSON出力モードをサポートしている場合に有効化",
+    "MiniMax API Key": "MiniMax APIキー",
+    "MiniMax Voice": "MiniMax 音声",
+    "MiniMax TTS Model": "MiniMax TTSモデル",
+    "English Female, Graceful": "英語女性、優雅",
+    "English Male, Insightful": "英語男性、洞察力",
+    "English Female, Radiant": "英語女性、明るい",
+    "English Male, Persuasive": "英語男性、説得力",
+    "English, Robot": "英語、ロボット",
+    "Female, Wise": "女性、賢い",
+    "Friendly": "フレンドリー",
+    "Female, Inspirational": "女性、インスピレーション",
+    "Male, Deep Voice": "男性、深い声",
+    "Female, Sweet": "女性、甘い",
+    "Male, Cute": "男性、可愛い",
+    "Female, Lovely": "女性、愛らしい"
 }

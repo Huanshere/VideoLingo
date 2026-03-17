@@ -84,7 +84,7 @@ def page_setting():
             update_key("burn_subtitles", burn_subtitles)
             st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
-        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts", "sf_cosyvoice2", "f5tts"]
+        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts", "sf_cosyvoice2", "f5tts", "minimax_tts"]
         select_tts = st.selectbox(t("TTS Method"), options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if select_tts != load_key("tts_method"):
             update_key("tts_method", select_tts)
@@ -151,6 +151,41 @@ def page_setting():
         
         elif select_tts == "f5tts":
             config_input("302ai API", "f5tts.302_api")
+
+        elif select_tts == "minimax_tts":
+            config_input(t("MiniMax API Key"), "minimax_tts.api_key")
+            minimax_voices = {
+                "English_Graceful_Lady": t("English Female, Graceful"),
+                "English_Insightful_Speaker": t("English Male, Insightful"),
+                "English_radiant_girl": t("English Female, Radiant"),
+                "English_Persuasive_Man": t("English Male, Persuasive"),
+                "English_Lucky_Robot": t("English, Robot"),
+                "Wise_Woman": t("Female, Wise"),
+                "Friendly_Person": t("Friendly"),
+                "Inspirational_girl": t("Female, Inspirational"),
+                "Deep_Voice_Man": t("Male, Deep Voice"),
+                "sweet_girl": t("Female, Sweet"),
+                "cute_boy": t("Male, Cute"),
+                "lovely_girl": t("Female, Lovely"),
+            }
+            selected_voice = st.selectbox(
+                t("MiniMax Voice"),
+                options=list(minimax_voices.keys()),
+                format_func=lambda x: minimax_voices[x],
+                index=list(minimax_voices.keys()).index(load_key("minimax_tts.voice")) if load_key("minimax_tts.voice") in minimax_voices else 0
+            )
+            if selected_voice != load_key("minimax_tts.voice"):
+                update_key("minimax_tts.voice", selected_voice)
+                st.rerun()
+            minimax_models = ["speech-2.8-hd", "speech-2.8-turbo"]
+            selected_model = st.selectbox(
+                t("MiniMax TTS Model"),
+                options=minimax_models,
+                index=minimax_models.index(load_key("minimax_tts.model")) if load_key("minimax_tts.model") in minimax_models else 0
+            )
+            if selected_model != load_key("minimax_tts.model"):
+                update_key("minimax_tts.model", selected_model)
+                st.rerun()
         
 def check_api():
     try:
