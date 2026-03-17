@@ -70,7 +70,7 @@ reflect_translate: true
 pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
+# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts, minimax_tts]
 tts_method: 'azure_tts'
 
 # SiliconFlow FishTTS
@@ -118,6 +118,12 @@ gpt_sovits:
 
 f5tts:
   302_api: 'YOUR_302_API_KEY'
+
+# MiniMax TTS configuration, get API key from https://www.minimax.io
+minimax_tts:
+  api_key: 'YOUR_MINIMAX_API_KEY'
+  model: 'speech-2.8-hd'
+  voice: 'English_Graceful_Lady'
 
 # *Audio speed range
 speed_factor:

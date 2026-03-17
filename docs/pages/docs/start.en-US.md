@@ -34,9 +34,11 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
 | 🗣 Edge TTS | Local | Completely free | Average effect | 😐 | 😐 |
 | 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
+| 🔊 MiniMax TTS | [MiniMax](https://www.minimax.io) | HD quality, many voices | Requires API key | 😃 | 🤩 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
 - For OpenAI TTS, Azure TTS, and Fish TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to all three services
+- For MiniMax TTS, get API key from [MiniMax](https://www.minimax.io), supports `speech-2.8-hd` (recommended) and `speech-2.8-turbo` models
 > Wanna use your own TTS? Modify in `core/all_tts_functions/custom_tts.py`!
 
 <details>

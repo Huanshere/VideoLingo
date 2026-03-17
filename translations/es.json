@@ -106,5 +106,20 @@
     "No NVIDIA GPU detected": "No se detectó GPU NVIDIA",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "No se detectó GPU NVIDIA o los controladores NVIDIA no están instalados correctamente",
     "LLM JSON Format Support": "Soporte de formato JSON para LLM",
-    "Enable if your LLM supports JSON mode output": "Activar si su LLM admite salida en modo JSON"
+    "Enable if your LLM supports JSON mode output": "Activar si su LLM admite salida en modo JSON",
+    "MiniMax API Key": "Clave API de MiniMax",
+    "MiniMax Voice": "Voz de MiniMax",
+    "MiniMax TTS Model": "Modelo TTS de MiniMax",
+    "English Female, Graceful": "Femenina inglesa, elegante",
+    "English Male, Insightful": "Masculino inglés, perspicaz",
+    "English Female, Radiant": "Femenina inglesa, radiante",
+    "English Male, Persuasive": "Masculino inglés, persuasivo",
+    "English, Robot": "Inglés, robot",
+    "Female, Wise": "Femenina, sabia",
+    "Friendly": "Amigable",
+    "Female, Inspirational": "Femenina, inspiradora",
+    "Male, Deep Voice": "Masculino, voz profunda",
+    "Female, Sweet": "Femenina, dulce",
+    "Male, Cute": "Masculino, adorable",
+    "Female, Lovely": "Femenina, encantadora"
 }
