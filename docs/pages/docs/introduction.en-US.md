@@ -99,7 +99,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 The project supports OpenAI-Like API format and various dubbing interfaces:
-- `claude-sonnet-4-6`, `gpt-5.2`, `gemini-3-flash`, `deepseek-v3`, `minimax-m2.5`, `kimi-k2.5`, ... (sorted by performance)
+- `claude-sonnet-4-6`, `gpt-5.2`, `gemini-3-flash`, `deepseek-v3`, `minimax-m2.7`, `kimi-k2.5`, ... (sorted by performance)
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
