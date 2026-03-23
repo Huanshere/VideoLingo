@@ -35,6 +35,10 @@ Key features:
 
 - 📝 Detailed logging with progress resumption
 
+- 🔍 Model searchbox with API auto-fetch — search and filter from your provider's full model list
+
+- ⏯️ Task control — pause, resume, or stop processing at any step
+
 Difference from similar projects: **Single-line subtitles only, superior translation quality, seamless dubbing experience**
 
 ## 🎥 Demo
@@ -90,6 +94,10 @@ Meet any problem? Chat with our free online AI agent [**here**](https://share.fa
 > - macOS: ```brew install ffmpeg``` (via [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
+### Option A: Using uv (Recommended, No Anaconda Required)
+
+[uv](https://docs.astral.sh/uv/) automatically downloads Python 3.10 and creates an isolated environment — no need to install Python or Anaconda yourself.
+
 1. Clone the repository
 
 ```bash
@@ -97,7 +105,36 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. Install dependencies(requires `python=3.10`)
+2. One-command setup (installs uv + Python 3.10 + all dependencies)
+
+```bash
+python setup_env.py
+```
+
+3. Start the application
+
+```bash
+.venv\Scripts\streamlit run st.py        # Windows
+.venv/bin/streamlit run st.py            # macOS / Linux
+```
+
+Or double-click `OneKeyStart_uv.bat` on Windows.
+
+### Option B: Using Conda
+
+> ⚠️ **Not recommended.** This method will not be maintained going forward. Please use uv (Option A) above.
+
+<details>
+<summary>Click to expand Conda installation steps</summary>
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+```
+
+2. Install dependencies (requires `python=3.10`)
 
 ```bash
 conda create -n videolingo python=3.10.0 -y
@@ -111,6 +148,8 @@ python install.py
 streamlit run st.py
 ```
 
+</details>
+
 ### Docker
 Alternatively, you can use Docker (requires CUDA 12.4 and NVIDIA Driver version >550), see [Docker docs](/docs/pages/docs/docker.en-US.md):
 
@@ -121,7 +160,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
-- LLM: `claude-3-5-sonnet`, `gpt-4.1`, `deepseek-v3`, `gemini-2.0-flash`, ... (sorted by performance, be cautious with gemini-2.5-flash...)
+- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (sorted by quality; for budget options try `gemini-3-flash` or `gpt-5.4-mini`)
 - WhisperX: Run whisperX (large-v3) locally or use 302.ai API
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(You can modify your own TTS in custom_tts.py!)
 

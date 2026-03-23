@@ -106,5 +106,21 @@
     "No NVIDIA GPU detected": "No se detectó GPU NVIDIA",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "No se detectó GPU NVIDIA o los controladores NVIDIA no están instalados correctamente",
     "LLM JSON Format Support": "Soporte de formato JSON para LLM",
-    "Enable if your LLM supports JSON mode output": "Activar si su LLM admite salida en modo JSON"
+    "Enable if your LLM supports JSON mode output": "Activar si su LLM admite salida en modo JSON",
+    "Enter your API key": "Ingrese su clave API",
+    "Fetch Model List": "Obtener lista de modelos",
+    "Fetching models...": "Obteniendo modelos...",
+    "Fetched {n} models": "Se obtuvieron {n} modelos",
+    "Failed to fetch models, please check API Key and Base URL": "Error al obtener modelos, verifique la clave API y la URL base",
+    "Search or enter model name": "Buscar o ingresar nombre del modelo",
+    "Check API": "Verificar API",
+    "Paused": "En pausa",
+    "Running...": "Ejecutando...",
+    "Resume": "Reanudar",
+    "Pause": "Pausar",
+    "Stop": "Detener",
+    "Task completed!": "¡Tarea completada!",
+    "Task stopped": "Tarea detenida",
+    "Task error": "Error en la tarea",
+    "OK": "OK"
 }

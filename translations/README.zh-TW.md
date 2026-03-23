@@ -35,6 +35,10 @@ VideoLingo 是一個全方位的影片翻譯、本地化和配音工具，旨在
 
 - 📝 詳細日誌記錄和進度恢復
 
+- 🔍 模型搜尋選擇器，自動從 API 獲取完整模型清單，支援搜尋篩選
+
+- ⏯️ 任務控制 — 處理過程中可隨時暫停、繼續或停止
+
 與類似項目的區別：**僅單行字幕、更優質的翻譯、無縫配音體驗**
 
 ## 🎥 演示
@@ -90,7 +94,40 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > - macOS：```brew install ffmpeg```（通過 [Homebrew](https://brew.sh/)）
 > - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 
-1. 克隆倉庫
+### 方式一：使用 uv（推薦）
+
+[uv](https://docs.astral.sh/uv/) 會自動下載 Python 3.10 並建立隔離環境，無需手動安裝 Python 或 Anaconda。
+
+1. 複製倉庫
+
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+```
+
+2. 一鍵安裝（自動安裝 uv + Python 3.10 + 所有依賴）
+
+```bash
+python setup_env.py
+```
+
+3. 啟動應用
+
+```bash
+.venv\Scripts\streamlit run st.py        # Windows
+.venv/bin/streamlit run st.py            # macOS / Linux
+```
+
+或在 Windows 上雙擊 `OneKeyStart_uv.bat`。
+
+### 方式二：使用 Conda
+
+> ⚠️ **不推薦。** 此方式今後將不再維護，請使用上方的 uv（方式一）。
+
+<details>
+<summary>點擊展開 Conda 安裝步驟</summary>
+
+1. 複製倉庫
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
@@ -111,6 +148,8 @@ python install.py
 streamlit run st.py
 ```
 
+</details>
+
 ### Docker
 或者，您可以使用 Docker（需要 CUDA 12.4 和 NVIDIA 驅動版本 >550），參見 [Docker 文檔](/docs/pages/docs/docker.en-US.md)：
 
@@ -121,7 +160,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
-- LLM：`claude-3-5-sonnet`、`gpt-4.1`、`deepseek-v3`、`gemini-2.0-flash`、...（按性能排序，使用 gemini-2.5-flash 時請謹慎...）
+- LLM：`claude-sonnet-4.6`、`gpt-5.4`、`gemini-3.1-pro`、`deepseek-v3`、`grok-4.1`、...（按品質排序；預算方案可嘗試 `gemini-3-flash` 或 `gpt-5.4-mini`）
 - WhisperX：本地運行 whisperX 或使用 302.ai API
 - TTS：`azure-tts`、`openai-tts`、`siliconflow-fishtts`、**`fish-tts`**、`GPT-SoVITS`、`edge-tts`、`*custom-tts`（您可以在 custom_tts.py 中修改自己的 TTS！）
 

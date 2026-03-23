@@ -106,5 +106,21 @@
     "No NVIDIA GPU detected": "NVIDIA GPUが検出されません",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "NVIDIA GPUが検出されないか、NVIDIAドライバーが正しくインストールされていません",
     "LLM JSON Format Support": "LLM JSON形式サポート",
-    "Enable if your LLM supports JSON mode output": "LLMがJSON出力モードをサポートしている場合に有効化"
+    "Enable if your LLM supports JSON mode output": "LLMがJSON出力モードをサポートしている場合に有効化",
+    "Enter your API key": "APIキーを入力してください",
+    "Fetch Model List": "モデルリストを取得",
+    "Fetching models...": "モデルリストを取得中...",
+    "Fetched {n} models": "{n}個のモデルを取得しました",
+    "Failed to fetch models, please check API Key and Base URL": "モデルリストの取得に失敗しました。APIキーとBase URLを確認してください",
+    "Search or enter model name": "モデル名を検索または入力",
+    "Check API": "API検証",
+    "Paused": "一時停止中",
+    "Running...": "実行中...",
+    "Resume": "再開",
+    "Pause": "一時停止",
+    "Stop": "停止",
+    "Task completed!": "タスク完了！",
+    "Task stopped": "タスクが停止されました",
+    "Task error": "タスクエラー",
+    "OK": "OK"
 }

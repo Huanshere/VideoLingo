@@ -186,17 +186,20 @@ def main():
 
     # Detect system and GPU
     has_gpu = platform.system() != 'Darwin' and check_nvidia_gpu()
-    if has_gpu:
-        console.print(Panel(t("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch..."), style="cyan"))
-        cuda_index = _detect_cuda_index()
-        console.print(f"[cyan]📦 Using PyTorch index:[/cyan] {cuda_index}")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.8.0", "torchaudio==2.8.0", "--index-url", cuda_index])
-    else:
-        system_name = "🍎 MacOS" if platform.system() == 'Darwin' else "💻 No NVIDIA GPU"
-        console.print(Panel(t(f"{system_name} detected, installing CPU version of PyTorch... Note: it might be slow during whisperX transcription."), style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.8.0", "torchaudio==2.8.0"])
 
-    @except_handler("Failed to install project")
+    @except_handler("Failed to install PyTorch", retry=1, delay=5)
+    def install_pytorch():
+        if has_gpu:
+            console.print(Panel(t("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch..."), style="cyan"))
+            cuda_index = _detect_cuda_index()
+            console.print(f"[cyan]📦 Using PyTorch index:[/cyan] {cuda_index}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.8.0", "torchaudio==2.8.0", "--index-url", cuda_index])
+        else:
+            system_name = "🍎 MacOS" if platform.system() == 'Darwin' else "💻 No NVIDIA GPU"
+            console.print(Panel(t(f"{system_name} detected, installing CPU version of PyTorch... Note: it might be slow during whisperX transcription."), style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.8.0", "torchaudio==2.8.0"])
+
+    @except_handler("Failed to install project", retry=1, delay=5)
     def install_requirements():
         # Install demucs separately with --no-deps to avoid its outdated
         # torchaudio<2.2 constraint conflicting with whisperx's torchaudio>=2.5.1.
@@ -209,7 +212,7 @@ def main():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "dora-search", "openunmix", "lameenc"])
 
         console.print(Panel(t("Installing project in editable mode using `pip install -e .`"), style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."], env={**os.environ, "PIP_NO_CACHE_DIR": "0", "PYTHONIOENCODING": "utf-8"})
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."], env={**os.environ, "PYTHONIOENCODING": "utf-8"})
 
     @except_handler("Failed to install Noto fonts")
     def install_noto_font():
@@ -232,6 +235,7 @@ def main():
     if platform.system() == 'Linux':
         install_noto_font()
     
+    install_pytorch()
     install_requirements()
     check_ffmpeg()
     
@@ -253,7 +257,7 @@ def main():
     console.print(Panel(panel2_text, style="yellow"))
 
     # start the application
-    subprocess.Popen(["streamlit", "run", "st.py"])
+    subprocess.Popen([sys.executable, "-m", "streamlit", "run", "st.py"])
 
 if __name__ == "__main__":
     main()
