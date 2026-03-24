@@ -35,6 +35,10 @@ Características principales:
 
 - 📝 Registro detallado con reanudación de progreso
 
+- 🔍 Selector de modelos con búsqueda — obtiene automáticamente la lista completa de modelos desde tu API
+
+- ⏯️ Control de tareas — pausa, reanuda o detén el procesamiento en cualquier paso
+
 Diferencia con proyectos similares: **Solo subtítulos de una línea, calidad superior de traducción, experiencia de doblaje perfecta**
 
 ## 🎥 Demo
@@ -90,6 +94,39 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > - macOS: ```brew install ffmpeg``` (vía [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
+### Opcion A: Usando uv (Recomendado)
+
+[uv](https://docs.astral.sh/uv/) descarga automaticamente Python 3.10 y crea un entorno aislado. No necesitas instalar Python o Anaconda manualmente.
+
+1. Clona el repositorio
+
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+```
+
+2. Configuracion con un solo comando (instala uv + Python 3.10 + todas las dependencias)
+
+```bash
+python setup_env.py
+```
+
+3. Inicia la aplicacion
+
+```bash
+.venv\Scripts\streamlit run st.py        # Windows
+.venv/bin/streamlit run st.py            # macOS / Linux
+```
+
+O haz doble clic en `OneKeyStart_uv.bat` en Windows.
+
+### Opcion B: Usando Conda
+
+> ⚠️ **No recomendado.** Este método no se mantendrá en el futuro. Por favor usa uv (Opción A) arriba.
+
+<details>
+<summary>Haz clic para expandir los pasos de instalacion con Conda</summary>
+
 1. Clona el repositorio
 
 ```bash
@@ -105,11 +142,13 @@ conda activate videolingo
 python install.py
 ```
 
-3. Inicia la aplicación
+3. Inicia la aplicacion
 
 ```bash
 streamlit run st.py
 ```
+
+</details>
 
 ### Docker
 Alternativamente, puedes usar Docker (requiere CUDA 12.4 y versión del controlador NVIDIA >550), consulta la [documentación de Docker](/docs/pages/docs/docker.en-US.md):
@@ -121,7 +160,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo admite formato de API similar a OpenAI y varias interfaces TTS:
-- LLM: `claude-3-5-sonnet`, `gpt-4.1`, `deepseek-v3`, `gemini-2.0-flash`, ... (ordenados por rendimiento, ten cuidado con gemini-2.5-flash...)
+- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (ordenados por calidad; para opciones económicas prueba `gemini-3-flash` o `gpt-5.4-mini`)
 - WhisperX: Ejecuta whisperX localmente o usa la API de 302.ai
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(¡Puedes modificar tu propio TTS en custom_tts.py!)
 

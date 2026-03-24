@@ -1,7 +1,7 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-VideoLingo requires an LLM and TTS(optional). For the best quality, use claude-3-5-sonnet-20240620 with Azure TTS. Alternatively, for a fully local setup with no API key needed, use Ollama for the LLM and Edge TTS for dubbing. In this case, set `max_workers` to 1 and `summary_length` to a low value like 2000 in `config.yaml`.
+VideoLingo requires an LLM and TTS(optional). For the best quality, use `claude-sonnet-4.6` or `gpt-5.4` with Azure TTS. Alternatively, for a fully local setup with no API key needed, use Ollama for the LLM and Edge TTS for dubbing. In this case, set `max_workers` to 1 and `summary_length` to a low value like 2000 in `config.yaml`.
 
 ### 1. **Get API_KEY for LLM**:
 
@@ -140,6 +140,39 @@ VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 >
 > ⚠️ **Pitfall:** Do NOT use conda-forge ffmpeg (it lacks the libmp3lame encoder). Use the system package manager to install a full build.
 
+### Option A: Using uv (Recommended)
+
+[uv](https://docs.astral.sh/uv/) is a fast Python package manager that automatically downloads the correct Python version and creates an isolated environment. No need to install Python or Anaconda yourself. (~30 MB vs ~4 GB for Anaconda, 10-100x faster package installs.)
+
+1. Clone the project:
+   ```bash
+   git clone https://github.com/Huanshere/VideoLingo.git
+   cd VideoLingo
+   ```
+
+2. One-command setup (installs uv + Python 3.10 + all dependencies):
+   ```bash
+   python setup_env.py
+   ```
+
+   > ⚠️ **Install order matters:** `install.py` (called automatically by `setup_env.py`) installs dependencies in the correct order: PyTorch first (locks CUDA version), then demucs with `--no-deps` (prevents torchaudio downgrade), then the rest. **Do not rearrange manually.**
+
+3. 🎉 Launch Streamlit app:
+   ```bash
+   .venv\Scripts\streamlit run st.py        # Windows
+   .venv/bin/streamlit run st.py            # macOS / Linux
+   ```
+   Or double-click `OneKeyStart_uv.bat` on Windows.
+
+4. Set key in sidebar of popup webpage and start using~
+
+### Option B: Using Conda
+
+> ⚠️ **Not recommended.** This method will not be maintained going forward. Please use uv (Option A) above.
+
+<details>
+<summary>Click to expand Conda installation steps</summary>
+
 Before installing VideoLingo, ensure you have installed Git and Anaconda.
 
 1. Clone the project:
@@ -169,6 +202,8 @@ Before installing VideoLingo, ensure you have installed Git and Anaconda.
    ```
 
 5. Set key in sidebar of popup webpage and start using~
+
+</details>
 
    ![tutorial](./en_page.png)
 

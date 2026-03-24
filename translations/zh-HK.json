@@ -106,5 +106,21 @@
     "No NVIDIA GPU detected": "未檢測到NVIDIA GPU",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "未檢測到NVIDIA GPU或NVIDIA驅動未正確安裝",
     "LLM JSON Format Support": "LLM JSON格式支持",
-    "Enable if your LLM supports JSON mode output": "如果選用的LLM支持JSON模式輸出，請啟用"
+    "Enable if your LLM supports JSON mode output": "如果選用的LLM支持JSON模式輸出，請啟用",
+    "Enter your API key": "請輸入您的API金鑰",
+    "Fetch Model List": "獲取模型列表",
+    "Fetching models...": "正在獲取模型列表...",
+    "Fetched {n} models": "已獲取 {n} 個模型",
+    "Failed to fetch models, please check API Key and Base URL": "獲取模型列表失敗，請檢查API金鑰和Base URL",
+    "Search or enter model name": "搜索或輸入模型名稱",
+    "Check API": "驗證API",
+    "Paused": "已暫停",
+    "Running...": "運行中...",
+    "Resume": "繼續",
+    "Pause": "暫停",
+    "Stop": "停止",
+    "Task completed!": "任務完成！",
+    "Task stopped": "任務已停止",
+    "Task error": "任務出錯",
+    "OK": "確定"
 }

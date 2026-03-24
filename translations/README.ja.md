@@ -35,6 +35,10 @@ VideoLingoは、Netflixクオリティの字幕を生成することを目的と
 
 - 📝 進捗再開機能付きの詳細なログ記録
 
+- 🔍 モデル検索セレクター — APIからモデル一覧を自動取得、検索・フィルター対応
+
+- ⏯️ タスクコントロール — 処理中いつでも一時停止・再開・中止が可能
+
 類似プロジェクトとの違い：**1行字幕のみ、優れた翻訳品質、シームレスな吹き替え体験**
 
 ## 🎥 デモ
@@ -90,6 +94,39 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > - macOS: ```brew install ffmpeg``` ([Homebrew](https://brew.sh/)経由)
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
+### オプションA：uvを使用（推奨）
+
+[uv](https://docs.astral.sh/uv/)はPython 3.10を自動的にダウンロードし、隔離された環境を作成します。PythonやAnacondaを手動でインストールする必要はありません。
+
+1. リポジトリをクローン
+
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+```
+
+2. ワンコマンドセットアップ（uv + Python 3.10 + すべての依存関係を自動インストール）
+
+```bash
+python setup_env.py
+```
+
+3. アプリケーションの起動
+
+```bash
+.venv\Scripts\streamlit run st.py        # Windows
+.venv/bin/streamlit run st.py            # macOS / Linux
+```
+
+またはWindowsで`OneKeyStart_uv.bat`をダブルクリック。
+
+### オプションB：Condaを使用
+
+> ⚠️ **非推奨。** この方法は今後メンテナンスされません。上記の uv（オプションA）をご利用ください。
+
+<details>
+<summary>クリックしてCondaのインストール手順を展開</summary>
+
 1. リポジトリをクローン
 
 ```bash
@@ -111,6 +148,8 @@ python install.py
 streamlit run st.py
 ```
 
+</details>
+
 ### Docker
 または、Docker（CUDA 12.4とNVIDIAドライバーバージョン>550が必要）を使用することもできます。[Dockerドキュメント](/docs/pages/docs/docker.en-US.md)を参照してください：
 
@@ -121,7 +160,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 VideoLingoはOpenAIライクなAPI形式と様々なTTSインターフェースをサポートしています：
-- LLM: `claude-3-5-sonnet`, `gpt-4.1`, `deepseek-v3`, `gemini-2.0-flash`, ... (パフォーマンス順、gemini-2.5-flashには注意...)
+- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (品質順；予算重視なら `gemini-3-flash` または `gpt-5.4-mini`)
 - WhisperX: ローカルでwhisperXを実行するか302.ai APIを使用
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(custom_tts.pyで独自のTTSを修正可能！)
 

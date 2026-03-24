@@ -13,7 +13,7 @@ display_language: "zh-CN"
 api:
   key: 'your-api-key'
   base_url: 'https://yunwu.ai'
-  model: 'gpt-4.1-2025-04-14'
+  model: ''
   llm_support_json: false
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4

@@ -15,6 +15,7 @@ requests==2.32.5
 resampy==0.4.3
 spacy==3.8.11
 streamlit==1.49.1
+streamlit-searchbox
 yt-dlp
 json-repair
 ruamel.yaml
