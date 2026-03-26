@@ -2,6 +2,7 @@ import streamlit as st
 import os, sys
 from core.st_utils.imports_and_utils import *
 from core import *
+from core.dubbing_backend.camb_dubbing import camb_dub, CAMB_LANGUAGE_IDS
 
 # SET PATH
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -105,6 +106,46 @@ def process_audio():
     st.success(t("Audio processing complete! 🎇"))
     st.balloons()
 
+def camb_dubbing_section():
+    st.markdown(f"<p style='font-size: 20px;'>{t('Dub your video in one step using CAMB AI. Handles transcription, translation, and dubbing automatically.')}</p>", unsafe_allow_html=True)
+
+    camb_dub_output = "output/output_camb_dub.mp4"
+
+    # API key
+    api_key = st.text_input("CAMB AI API Key", value=load_key("camb_dubbing.api_key"), key="camb_dub_api_key")
+    if api_key != load_key("camb_dubbing.api_key"):
+        update_key("camb_dubbing.api_key", api_key)
+
+    if not os.path.exists(camb_dub_output):
+        video_url = st.text_input(t("Video URL (YouTube, Google Drive, or direct link)"), key="camb_dub_url")
+
+        lang_names = list(CAMB_LANGUAGE_IDS.keys())
+        c1, c2 = st.columns(2)
+        with c1:
+            source_lang = st.selectbox(t("Source Language"), options=lang_names, index=0, key="camb_dub_source_main")
+        with c2:
+            target_lang = st.selectbox(t("Target Language"), options=lang_names, index=1, key="camb_dub_target_main")
+
+        if st.button(t("Start CAMB Dubbing"), key="camb_dubbing_button"):
+            if not video_url:
+                st.error(t("Please enter a video URL"))
+                return
+            source_id = CAMB_LANGUAGE_IDS[source_lang]
+            target_id = CAMB_LANGUAGE_IDS[target_lang]
+            with st.spinner(t("CAMB AI is dubbing your video... This may take several minutes.")):
+                try:
+                    camb_dub(video_url, source_id, [target_id], camb_dub_output)
+                    st.success(t("CAMB dubbing complete!"))
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"CAMB dubbing failed: {e}")
+    else:
+        st.success(t("CAMB AI dubbing is complete!"))
+        st.video(camb_dub_output)
+        if st.button(t("Delete CAMB dubbed video"), key="delete_camb_dub"):
+            os.remove(camb_dub_output)
+            st.rerun()
+
 def main():
     logo_col, _ = st.columns([1,1])
     with logo_col:
@@ -116,9 +157,16 @@ def main():
     with st.sidebar:
         page_setting()
         st.markdown(give_star_button, unsafe_allow_html=True)
-    download_video_section()
-    text_processing_section()
-    audio_processing_section()
+
+    tab_videolingo, tab_camb = st.tabs([t("VideoLingo Pipeline"), t("CAMB AI Dubbing")])
+
+    with tab_videolingo:
+        download_video_section()
+        text_processing_section()
+        audio_processing_section()
+
+    with tab_camb:
+        camb_dubbing_section()
 
 if __name__ == "__main__":
     main()

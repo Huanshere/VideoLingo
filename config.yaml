@@ -7,7 +7,7 @@
 
 ## ======================== Basic Settings ======================== ##
 
-display_language: "zh-CN"
+display_language: "en"
 
 # API settings
 api:
@@ -71,7 +71,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
-tts_method: 'azure_tts'
+tts_method: 'camb_tts'
 
 # SiliconFlow FishTTS
 sf_fish_tts:
@@ -118,6 +118,19 @@ gpt_sovits:
 
 f5tts:
   302_api: 'YOUR_302_API_KEY'
+
+# CAMB AI TTS configuration
+camb_tts:
+  api_key: 'YOUR_CAMB_API_KEY'
+  voice_id: 147320
+  language: 'en-us'
+  model: 'mars-flash'
+
+# CAMB AI End-to-End Dubbing configuration
+camb_dubbing:
+  api_key: 'YOUR_CAMB_API_KEY'
+  source_language: 'English (US)'
+  target_language: 'Spanish (Spain)'
 
 # *Audio speed range
 speed_factor:

@@ -84,7 +84,7 @@ def page_setting():
             update_key("burn_subtitles", burn_subtitles)
             st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
-        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts", "sf_cosyvoice2", "f5tts"]
+        tts_methods = ["azure_tts", "openai_tts", "fish_tts", "sf_fish_tts", "edge_tts", "gpt_sovits", "custom_tts", "sf_cosyvoice2", "f5tts", "camb_tts"]
         select_tts = st.selectbox(t("TTS Method"), options=tts_methods, index=tts_methods.index(load_key("tts_method")))
         if select_tts != load_key("tts_method"):
             update_key("tts_method", select_tts)
@@ -151,7 +151,22 @@ def page_setting():
         
         elif select_tts == "f5tts":
             config_input("302ai API", "f5tts.302_api")
-        
+
+        elif select_tts == "camb_tts":
+            config_input("CAMB AI API Key", "camb_tts.api_key")
+            config_input(t("CAMB Voice ID"), "camb_tts.voice_id")
+            camb_lang_options = ["en-us", "es-es", "fr-fr", "de-de", "ja-jp", "hi-in", "pt-br", "zh-cn", "ko-kr", "it-it", "nl-nl", "ru-ru", "ar-sa"]
+            camb_lang = st.selectbox("CAMB Language", options=camb_lang_options, index=camb_lang_options.index(load_key("camb_tts.language")) if load_key("camb_tts.language") in camb_lang_options else 0)
+            if camb_lang != load_key("camb_tts.language"):
+                update_key("camb_tts.language", camb_lang)
+                st.rerun()
+            camb_models = ["mars-flash", "mars-pro", "mars-instruct", "mars-nano"]
+            camb_model = st.selectbox("CAMB Model", options=camb_models, index=camb_models.index(load_key("camb_tts.model")) if load_key("camb_tts.model") in camb_models else 0)
+            if camb_model != load_key("camb_tts.model"):
+                update_key("camb_tts.model", camb_model)
+                st.rerun()
+
+
 def check_api():
     try:
         resp = ask_gpt("This is a test, response 'message':'success' in json format.", 
