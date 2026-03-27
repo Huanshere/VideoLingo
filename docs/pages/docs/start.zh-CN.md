@@ -12,7 +12,7 @@
 | gpt-5.2 | [OpenAI](https://openai.com) | 🤩 | ⭐⭐⭐ |
 | gemini-3-flash | [Google](https://ai.google.dev) | 😃 | ⭐⭐⭐⭐⭐ |
 | gemini-3.1-pro | [Google](https://ai.google.dev) | 🤩 | ⭐⭐⭐ |
-| minimax-m2.5 | [MiniMax](https://www.minimax.io) | 😃 | ⭐⭐⭐⭐⭐ |
+| minimax-m2.7 | [MiniMax](https://www.minimax.io) | 🤩 | ⭐⭐⭐⭐⭐ |
 | kimi-k2.5 | [Moonshot AI](https://www.moonshot.cn) | 😃 | ⭐⭐⭐⭐ |
 | deepseek-v3 | [DeepSeek](https://www.deepseek.com) | 🥳 | ⭐⭐⭐⭐ |
 | qwen3-32b | [Ollama](https://ollama.ai) 本地部署 | 😃 | ♾️ 免费 |
