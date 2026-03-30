@@ -23,13 +23,12 @@ def split_chunks_by_chars(chunk_size, max_i):
     sentence_count = 0
     for sentence in sentences:
         if len(chunk) + len(sentence + '\n') > chunk_size or sentence_count == max_i:
-            chunks.append(chunk.strip())
             chunk = sentence + '\n'
             sentence_count = 1
         else:
             chunk += sentence + '\n'
             sentence_count += 1
-    chunks.append(chunk.strip())
+        chunks.append(chunk.strip())
     return chunks
 
 # Get context from surrounding chunks
