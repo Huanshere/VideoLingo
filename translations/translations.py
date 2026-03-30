@@ -8,6 +8,7 @@ DISPLAY_LANGUAGES = {
     "🇪🇸 Español": "es",
     "🇷🇺 Русский": "ru",
     "🇫🇷 Français": "fr",
+    "🇸🇪 Svenska": "sv",
 }
 
 # Load the language file based on user selection
