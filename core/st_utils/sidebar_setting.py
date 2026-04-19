@@ -175,6 +175,7 @@ def page_setting():
             )
             if langs[lang] != load_key("whisper.language"):
                 update_key("whisper.language", langs[lang])
+                update_key("whisper.detected_language", langs[lang])
                 st.rerun()
 
         runtime = st.selectbox(
