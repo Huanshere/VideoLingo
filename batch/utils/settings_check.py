@@ -24,10 +24,9 @@ def check_settings():
     if files_not_in_excel:
         console.print(Panel(
             "\n".join([f"- {file}" for file in files_not_in_excel]),
-            title="[bold red]Warning: Files in input folder not mentioned in Excel sheet",
+            title="[bold yellow]Warning: Files in input folder not mentioned in Excel sheet",
             expand=False
         ))
-        all_passed = False
 
     for index, row in df.iterrows():
         video_file = row['Video File']
