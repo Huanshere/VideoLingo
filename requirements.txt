@@ -1,30 +1,34 @@
-librosa==0.10.2.post1
-pytorch-lightning==2.3.3
-lightning==2.3.3
-transformers==4.39.3
+librosa==0.11.0
+pytorch-lightning==2.6.1
+lightning==2.6.1
+transformers>=4.48.0
 moviepy==1.0.3
-numpy==1.26.4
-openai==1.55.3
-opencv-python==4.10.0.84
+numpy>=2.0.2
+openai>=1.55.3,<2
+opencv-python==4.11.0.86
 openpyxl==3.1.5
-pandas==2.2.3
+pandas>=2.2.3
 pydub==0.25.1
-PyYAML==6.0.2
+PyYAML==6.0.3
 replicate==0.33.0
-requests==2.32.3
+requests==2.32.5
 resampy==0.4.3
-spacy==3.7.4
-streamlit==1.38.0
+spacy==3.8.11
+streamlit==1.49.1
+streamlit-searchbox
 yt-dlp
 json-repair
 ruamel.yaml
 InquirerPy
 autocorrect-py
-ctranslate2==4.4.0
+ctranslate2>=4.5.0
 edge-tts
+pyannote-audio>=4.0.0
 
-demucs[dev] @ git+https://github.com/adefossez/demucs
-whisperx @ git+https://github.com/m-bain/whisperx.git@7307306a9d8dd0d261e588cc933322454f853853
+# demucs and whisperx are installed separately in install.py
+# to avoid torchaudio version conflicts between demucs (<2.2) and whisperx (~=2.8.0).
+# Both work fine with torchaudio 2.8+ at runtime (tested up to 2.8.0+cu128).
+whisperx>=3.8.1
 
 syllables
 pypinyin

@@ -3,12 +3,35 @@ import warnings
 import time
 import subprocess
 import torch
-import whisperx
-import librosa
-from rich import print as rprint
-from core.utils import *
+import functools
 
 warnings.filterwarnings("ignore")
+
+# =============================================================================
+# Compatibility shim — applied BEFORE importing whisperx
+# =============================================================================
+
+# torch.load: default weights_only=False for pyannote checkpoints
+# PyTorch >=2.6 changed torch.load default to weights_only=True.
+# pyannote checkpoints contain omegaconf objects that fail the safety check.
+# Monkey-patch torch.load to default to weights_only=False (matching <2.6
+# behavior).  This is safe here because all model files come from trusted
+# sources (HuggingFace / pyannote).
+_original_torch_load = torch.load
+@functools.wraps(_original_torch_load)
+def _patched_torch_load(*args, **kwargs):
+    if kwargs.get("weights_only") is None:
+        kwargs["weights_only"] = False
+    return _original_torch_load(*args, **kwargs)
+torch.load = _patched_torch_load
+
+# =============================================================================
+# Now safe to import whisperx and the rest of the application
+# =============================================================================
+import whisperx
+from whisperx.audio import load_audio as _whisperx_load_audio, SAMPLE_RATE as _WHISPERX_SR
+from rich import print as rprint
+from core.utils import *
 MODEL_DIR = load_key("model_dir")
 
 @except_handler("failed to check hf mirror", default_return=None)
@@ -73,8 +96,13 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     model = whisperx.load_model(model_name, device, compute_type=compute_type, language=whisper_language, vad_options=vad_options, asr_options=asr_options, download_root=MODEL_DIR)
 
     def load_audio_segment(audio_file, start, end):
-        audio, _ = librosa.load(audio_file, sr=16000, offset=start, duration=end - start, mono=True)
-        return audio
+        # Use whisperx's ffmpeg-based loader instead of librosa.load() which
+        # deadlocks inside Streamlit's ScriptRunner thread.
+        full_audio = _whisperx_load_audio(audio_file, sr=_WHISPERX_SR)
+        start_sample = int(start * _WHISPERX_SR)
+        end_sample = int(end * _WHISPERX_SR)
+        return full_audio[start_sample:end_sample]
+
     raw_audio_segment = load_audio_segment(raw_audio_file, start, end)
     vocal_audio_segment = load_audio_segment(vocal_audio_file, start, end)
     

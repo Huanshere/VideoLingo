@@ -37,6 +37,10 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 - 📝 详细记录每步操作日志，支持随时中断和恢复进度
 
+- 🔍 模型搜索选择器，自动从 API 获取完整模型列表，支持搜索筛选
+
+- ⏯️ 任务控制 — 处理过程中可随时暂停、继续或停止
+
 与同类项目相比的优势：**绝无多行字幕，最佳的翻译质量，无缝的配音体验**
 
 ## 🎥 演示
@@ -92,6 +96,45 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 > - macOS：```brew install ffmpeg```（通过 [Homebrew](https://brew.sh/)）
 > - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 
+### 方式一：使用 uv（推荐，无需安装 Anaconda）
+
+[uv](https://docs.astral.sh/uv/) 会自动下载 Python 3.10 并创建隔离环境，你不需要自己安装 Python 或 Anaconda。
+
+> **为什么用 uv 而不是 conda？**
+> - Anaconda 安装包约 4GB，而 uv 只有约 30MB
+> - uv 能自动下载并管理所需的 Python 版本，不会和系统已有的 Python 冲突
+> - 安装速度快 10-100 倍（Rust 编写，并行下载）
+> - 一条命令搞定，不需要学习 conda 命令
+
+1. 克隆仓库
+
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+```
+
+2. 一键安装（自动安装 uv + Python 3.10 + 所有依赖）
+
+```bash
+python setup_env.py
+```
+
+3. 启动应用
+
+```bash
+.venv\Scripts\streamlit run st.py        # Windows
+.venv/bin/streamlit run st.py            # macOS / Linux
+```
+
+或者在 Windows 上双击 `OneKeyStart_uv.bat`。
+
+### 方式二：使用 Conda
+
+> ⚠️ **不推荐。** 此方式今后将不再维护，请使用上方的 uv（方式一）。
+
+<details>
+<summary>点击展开 Conda 安装步骤</summary>
+
 1. 克隆仓库
 
 ```bash
@@ -113,6 +156,8 @@ python install.py
 streamlit run st.py
 ```
 
+</details>
+
 ### Docker
 还可以选择使用 Docker（要求 CUDA 12.4 和 NVIDIA Driver 版本 >550），详见[Docker文档](/docs/pages/docs/docker.zh-CN.md)：
 
@@ -123,7 +168,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
-- LLM: `claude-3-5-sonnet`, `gpt-4.1`, `deepseek-v3`, `gemini-2.0-flash`, ...（按效果排序，使用 gemini-2.5-flash 时需谨慎...）
+- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ...（按质量排序；预算方案可尝试 `gemini-3-flash` 或 `gpt-5.4-mini`）
 - WhisperX: 本地运行 WhisperX 或使用 302.ai API
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(你可以在 custom_tts.py 中自定义 TTS!)
 

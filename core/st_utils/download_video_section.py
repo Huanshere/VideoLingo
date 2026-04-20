@@ -39,7 +39,7 @@ def download_video_section():
                 default_idx = list(res_dict.values()).index(target_res) if target_res in res_dict.values() else 0
                 res_display = st.selectbox(t("Resolution"), options=res_options, index=default_idx)
                 res = res_dict[res_display]
-            if st.button(t("Download Video"), key="download_button", use_container_width=True):
+            if st.button(t("Download Video"), key="download_button", width="stretch"):
                 if url:
                     with st.spinner("Downloading video..."):
                         download_video_ytdlp(url, resolution=res)

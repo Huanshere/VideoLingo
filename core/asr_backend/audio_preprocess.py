@@ -9,6 +9,16 @@ from pydub.silence import detect_silence
 from pydub.utils import mediainfo
 from rich import print as rprint
 
+def _ffmpeg_has_encoder(encoder_name: str) -> bool:
+    """Check if the current ffmpeg installation supports a given audio encoder."""
+    try:
+        result = subprocess.run(
+            ['ffmpeg', '-encoders'], capture_output=True, text=True, timeout=10
+        )
+        return encoder_name in result.stdout
+    except Exception:
+        return False
+
 def normalize_audio_volume(audio_path, output_path, target_db = -20.0, format = "wav"):
     audio = AudioSegment.from_file(audio_path)
     change_in_dBFS = target_db - audio.dBFS
@@ -21,13 +31,25 @@ def convert_video_to_audio(video_file: str):
     os.makedirs(_AUDIO_DIR, exist_ok=True)
     if not os.path.exists(_RAW_AUDIO_FILE):
         rprint(f"[blue]🎬➡️🎵 Converting to high quality audio with FFmpeg ......[/blue]")
-        subprocess.run([
-            'ffmpeg', '-y', '-i', video_file, '-vn',
-            '-c:a', 'libmp3lame', '-b:a', '32k',
-            '-ar', '16000',
-            '-ac', '1', 
-            '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
-        ], check=True, stderr=subprocess.PIPE)
+        if _ffmpeg_has_encoder('libmp3lame'):
+            cmd = [
+                'ffmpeg', '-y', '-i', video_file, '-vn',
+                '-c:a', 'libmp3lame', '-b:a', '32k',
+                '-ar', '16000', '-ac', '1',
+                '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
+            ]
+        else:
+            # Fallback: conda-forge ffmpeg often lacks libmp3lame.
+            # Output as WAV (PCM) which all ffmpeg builds support.
+            # Downstream readers (pydub, librosa, whisperX) detect format by
+            # file header, not extension, so .mp3 path with WAV content works.
+            rprint("[yellow]⚠️ libmp3lame not found in ffmpeg, falling back to WAV (PCM) encoding[/yellow]")
+            cmd = [
+                'ffmpeg', '-y', '-i', video_file, '-vn',
+                '-c:a', 'pcm_s16le', '-ar', '16000', '-ac', '1',
+                '-f', 'wav', _RAW_AUDIO_FILE
+            ]
+        subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
         rprint(f"[green]🎬➡️🎵 Converted <{video_file}> to <{_RAW_AUDIO_FILE}> with FFmpeg\n[/green]")
 
 def get_audio_duration(audio_file: str) -> float:

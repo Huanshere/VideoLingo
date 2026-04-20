@@ -59,14 +59,14 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 ## Installation
 
 > **Note:** To use NVIDIA GPU acceleration on Windows, please complete the following steps first:
-> 1. Install [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
+> 1. Install [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) or newer (12.8 / 13.x all work — the install script auto-adapts)
 > 2. Install [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 > 3. Add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to your system PATH
 > 4. Restart your computer
 
 > **Note:** For Windows and macOS users, it's recommended to install FFmpeg via package managers (Chocolatey/Homebrew):
 > ```choco install ffmpeg``` (Windows) or ```brew install ffmpeg``` (macOS). 
-> If not installed, the program will download FFmpeg locally.
+> ⚠️ Do NOT use conda-forge ffmpeg (lacks libmp3lame encoder). Use the system package manager to install a full build.
 
 1. Clone the repository
 
@@ -99,7 +99,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 The project supports OpenAI-Like API format and various dubbing interfaces:
-- `claude-3-5-sonnet-20240620`, `gpt-4.1`, `deepseek-v3`, ... (sorted by performance)
+- `claude-sonnet-4-6`, `gpt-5.2`, `gemini-3-flash`, `deepseek-v3`, `minimax-m2.5`, `kimi-k2.5`, ... (sorted by performance)
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

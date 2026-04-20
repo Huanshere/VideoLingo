@@ -35,6 +35,10 @@ Fonctionnalités principales :
 
 - 📝 Journalisation détaillée avec reprise de la progression
 
+- 🔍 Sélecteur de modèles avec recherche — récupère automatiquement la liste complète des modèles depuis votre API
+
+- ⏯️ Contrôle des tâches — mettez en pause, reprenez ou arrêtez le traitement à n'importe quelle étape
+
 Différence par rapport aux projets similaires : **Sous-titres sur une seule ligne uniquement, qualité de traduction supérieure, expérience de doublage transparente**
 
 ## 🎥 Démo
@@ -90,14 +94,47 @@ Vous rencontrez un problème ? Discutez avec notre agent IA gratuit en ligne [**
 > - macOS : ```brew install ffmpeg``` (via [Homebrew](https://brew.sh/))
 > - Linux : ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
-1. Clonez le dépôt
+### Option A : Utiliser uv (Recommande)
+
+[uv](https://docs.astral.sh/uv/) telecharge automatiquement Python 3.10 et cree un environnement isole. Pas besoin d'installer Python ou Anaconda manuellement.
+
+1. Clonez le depot
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. Installez les dépendances (nécessite `python=3.10`)
+2. Configuration en une commande (installe uv + Python 3.10 + toutes les dependances)
+
+```bash
+python setup_env.py
+```
+
+3. Demarrer l'application
+
+```bash
+.venv\Scripts\streamlit run st.py        # Windows
+.venv/bin/streamlit run st.py            # macOS / Linux
+```
+
+Ou double-cliquez sur `OneKeyStart_uv.bat` sous Windows.
+
+### Option B : Utiliser Conda
+
+> ⚠️ **Non recommandé.** Cette méthode ne sera plus maintenue à l'avenir. Veuillez utiliser uv (Option A) ci-dessus.
+
+<details>
+<summary>Cliquez pour afficher les etapes d'installation avec Conda</summary>
+
+1. Clonez le depot
+
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+```
+
+2. Installez les dependances (necessite `python=3.10`)
 
 ```bash
 conda create -n videolingo python=3.10.0 -y
@@ -105,11 +142,13 @@ conda activate videolingo
 python install.py
 ```
 
-3. Démarrer l'application
+3. Demarrer l'application
 
 ```bash
 streamlit run st.py
 ```
+
+</details>
 
 ### Docker
 Alternativement, vous pouvez utiliser Docker (nécessite CUDA 12.4 et NVIDIA Driver version >550), voir [Documentation Docker](/docs/pages/docs/docker.en-US.md) :
@@ -121,7 +160,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo prend en charge le format d'API OpenAI et diverses interfaces TTS :
-- LLM : `claude-3-5-sonnet`, `gpt-4.1`, `deepseek-v3`, `gemini-2.0-flash`, ... (triés par performance, soyez prudent avec gemini-2.5-flash...)
+- LLM : `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (triés par qualité ; pour les options économiques essayez `gemini-3-flash` ou `gpt-5.4-mini`)
 - WhisperX : Exécutez whisperX localement ou utilisez l'API 302.ai
 - TTS : `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(Vous pouvez modifier votre propre TTS dans custom_tts.py !)
 

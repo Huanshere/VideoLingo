@@ -16,7 +16,7 @@ def install_package(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
 def check_nvidia_gpu():
-    install_package("pynvml")
+    install_package("nvidia-ml-py")
     import pynvml
     from translations.translations import translate as t
     initialized = False
@@ -51,7 +51,6 @@ def check_ffmpeg():
         # Check if ffmpeg is installed
         subprocess.run(['ffmpeg', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         console.print(Panel(t("✅ FFmpeg is already installed"), style="green"))
-        return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         system = platform.system()
         install_cmd = ""
@@ -74,6 +73,72 @@ def check_ffmpeg():
             style="red"
         ))
         raise SystemExit(t("FFmpeg is required. Please install it and run the installer again."))
+
+    # Warn if ffmpeg lacks libmp3lame (common with conda-forge builds)
+    try:
+        result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True, timeout=10)
+        if 'libmp3lame' not in result.stdout:
+            console.print(Panel.fit(
+                "⚠️ Your ffmpeg does not include [bold]libmp3lame[/bold] (MP3 encoder).\n"
+                "This is common with conda-forge ffmpeg builds.\n\n"
+                "VideoLingo will fall back to WAV encoding automatically, but for\n"
+                "smaller intermediate files, consider installing a full ffmpeg:\n\n"
+                "[bold cyan]" + (
+                    "winget install Gyan.FFmpeg" if platform.system() == "Windows"
+                    else "brew install ffmpeg" if platform.system() == "Darwin"
+                    else "sudo apt install ffmpeg"
+                ) + "[/bold cyan]",
+                style="yellow"
+            ))
+    except Exception:
+        pass
+
+def _detect_cuda_version_from_smi():
+    """Detect CUDA version from nvidia-smi output (driver's CUDA capability)."""
+    import re
+    try:
+        result = subprocess.run(
+            ["nvidia-smi"], capture_output=True, text=True, timeout=10
+        )
+        m = re.search(r"CUDA Version:\s*(\d+)\.(\d+)", result.stdout)
+        if m:
+            return (int(m.group(1)), int(m.group(2)))
+    except Exception:
+        pass
+    return None
+
+
+def _detect_cuda_index():
+    """Detect the CUDA version and return the best PyTorch wheel index URL.
+    Falls back to cu126 when detection fails.
+
+    For RTX 50 series (Blackwell architecture, compute capability 10.0+),
+    we need PyTorch wheels compiled with CUDA 12.8+ that include sm_100 kernels.
+
+    We prefer nvidia-smi (driver CUDA version) over nvcc (toolkit version) because:
+    - Driver version determines what CUDA features the GPU can run at runtime
+    - Toolkit version is for compilation, not runtime compatibility
+    - Blackwell GPUs need cu129+ wheels even if user has older CUDA toolkit installed
+    """
+    cuda_version = _detect_cuda_version_from_smi()
+
+    # Map CUDA major.minor to PyTorch wheel index.
+    # For CUDA 13.x (RTX 50 series / Blackwell), use cu129 which includes sm_100 kernels.
+    INDEX = "https://download.pytorch.org/whl"
+    CU_TAGS = [
+        ((13, 0), "cu129"),  # CUDA 13.x (Blackwell / RTX 50 series)
+        ((12, 9), "cu129"),  # CUDA 12.9+
+        ((12, 8), "cu128"),  # CUDA 12.8+
+        ((12, 6), "cu126"),  # CUDA 12.6+
+    ]
+
+    if cuda_version:
+        for min_ver, tag in CU_TAGS:
+            if cuda_version >= min_ver:
+                return f"{INDEX}/{tag}"
+
+    # Default: cu126 is the broadest CUDA 12 index for PyTorch 2.8
+    return f"{INDEX}/cu126"
 
 def main():
     install_package("requests", "rich", "ruamel.yaml", "InquirerPy")
@@ -121,18 +186,33 @@ def main():
 
     # Detect system and GPU
     has_gpu = platform.system() != 'Darwin' and check_nvidia_gpu()
-    if has_gpu:
-        console.print(Panel(t("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch..."), style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0", "torchaudio==2.0.0", "--index-url", "https://download.pytorch.org/whl/cu118"])
-    else:
-        system_name = "🍎 MacOS" if platform.system() == 'Darwin' else "💻 No NVIDIA GPU"
-        console.print(Panel(t(f"{system_name} detected, installing CPU version of PyTorch... Note: it might be slow during whisperX transcription."), style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.1.2", "torchaudio==2.1.2"])
 
-    @except_handler("Failed to install project")
+    @except_handler("Failed to install PyTorch", retry=1, delay=5)
+    def install_pytorch():
+        if has_gpu:
+            console.print(Panel(t("🎮 NVIDIA GPU detected, installing CUDA version of PyTorch..."), style="cyan"))
+            cuda_index = _detect_cuda_index()
+            console.print(f"[cyan]📦 Using PyTorch index:[/cyan] {cuda_index}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.8.0", "torchaudio==2.8.0", "--index-url", cuda_index])
+        else:
+            system_name = "🍎 MacOS" if platform.system() == 'Darwin' else "💻 No NVIDIA GPU"
+            console.print(Panel(t(f"{system_name} detected, installing CPU version of PyTorch... Note: it might be slow during whisperX transcription."), style="cyan"))
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.8.0", "torchaudio==2.8.0"])
+
+    @except_handler("Failed to install project", retry=1, delay=5)
     def install_requirements():
+        # Install demucs separately with --no-deps to avoid its outdated
+        # torchaudio<2.2 constraint conflicting with whisperx's torchaudio>=2.5.1.
+        # demucs works fine with torchaudio 2.6.0 at runtime.
+        console.print(Panel(t("Installing demucs (--no-deps to avoid torchaudio conflict)..."), style="cyan"))
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--no-deps", "demucs[dev]@git+https://github.com/adefossez/demucs"])
+        # demucs --no-deps skips its own dependencies; install the ones it
+        # actually needs at runtime that aren't already pulled in elsewhere.
+        console.print(Panel(t("Installing demucs runtime dependencies..."), style="cyan"))
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "dora-search", "openunmix", "lameenc"])
+
         console.print(Panel(t("Installing project in editable mode using `pip install -e .`"), style="cyan"))
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."], env={**os.environ, "PIP_NO_CACHE_DIR": "0", "PYTHONIOENCODING": "utf-8"})
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."], env={**os.environ, "PYTHONIOENCODING": "utf-8"})
 
     @except_handler("Failed to install Noto fonts")
     def install_noto_font():
@@ -155,6 +235,7 @@ def main():
     if platform.system() == 'Linux':
         install_noto_font()
     
+    install_pytorch()
     install_requirements()
     check_ffmpeg()
     
@@ -176,7 +257,7 @@ def main():
     console.print(Panel(panel2_text, style="yellow"))
 
     # start the application
-    subprocess.Popen(["streamlit", "run", "st.py"])
+    subprocess.Popen([sys.executable, "-m", "streamlit", "run", "st.py"])
 
 if __name__ == "__main__":
     main()

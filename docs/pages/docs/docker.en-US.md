@@ -54,7 +54,8 @@ Please replace `/path/to/your/model` with the actual local path where you downlo
 - Base image: nvidia/cuda:12.4.1-devel-ubuntu20.04
 - Python version: 3.10
 - Pre-installed software: git, curl, sudo, ffmpeg, fonts-noto, etc.
-- PyTorch version: 2.0.0 (CUDA 11.8)
+- PyTorch version: 2.8.0 (CUDA 12.x build target)
+  > ⚠️ The install script uses `nvidia-smi` to detect the driver's CUDA version and selects the best wheel (cu129 for RTX 50 series / Blackwell GPUs, cu128 or cu126 for older GPUs). We use cu12x wheels instead of cu130/cu131 because ctranslate2 (a core whisperX dependency) is only compiled for CUDA 12 and requires `cublas64_12.dll`, which only cu12x wheels ship. NVIDIA drivers are backward-compatible, so a CUDA 13.x host runs cu12x wheels perfectly.
 - Exposed port: 8501 (Streamlit application)
 
 For more detailed information, please refer to the Dockerfile.

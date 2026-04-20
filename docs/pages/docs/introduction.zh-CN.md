@@ -61,14 +61,14 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 ## 安装
 
 > **注意:** 在 Windows 上使用 NVIDIA GPU 加速需要先完成以下步骤:
-> 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
+> 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) 或更高版本（12.8 / 13.x 均可，安装脚本会自动适配）
 > 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
 > 3. 将 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加到系统环境变量 PATH 中
 > 4. 重启电脑
 
 > **注意:** Windows 和 macOS 用户建议通过包管理器（Chocolatey/Homebrew）安装 FFmpeg：
 > ```choco install ffmpeg```（Windows）或 ```brew install ffmpeg```（macOS）。
-> 如果未安装，程序会在本地下载 FFmpeg。
+> ⚠️ 不要使用 conda-forge 的 ffmpeg（缺少 libmp3lame 编码器），建议用系统包管理器安装完整版。
 
 1. 克隆仓库
 
@@ -101,7 +101,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
-- `claude-3-5-sonnet-20240620`, `gpt-4.1`, `deepseek-v3`, ...（按效果排序）
+- `claude-sonnet-4-6`, `gpt-5.2`, `gemini-3-flash`, `deepseek-v3`, `minimax-m2.5`, `kimi-k2.5`, ...（按效果排序）
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
 详细的安装、 API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
