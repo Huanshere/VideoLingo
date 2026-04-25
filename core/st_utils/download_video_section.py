@@ -58,7 +58,7 @@ def download_video_section():
                 with open(os.path.join(OUTPUT_DIR, clean_name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
-                if ext.lower() in load_key("allowed_audio_formats"):
+                if ext.lower()[1:] in load_key("allowed_audio_formats"):
                     convert_audio_to_video(os.path.join(OUTPUT_DIR, clean_name))
                 st.rerun()
             else:
