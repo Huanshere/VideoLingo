@@ -120,6 +120,10 @@ python setup_env.py
 
 Or double-click `OneKeyStart_uv.bat` on Windows.
 
+### Task Workspaces
+
+When you create a task from the Streamlit sidebar, VideoLingo stores its files under `workspace/jobs/<job_id>/`. Each task keeps its own config snapshot and `output/` folder so separate videos do not overwrite each other's intermediate files.
+
 ### Option B: Using Conda
 
 > ⚠️ **Not recommended.** This method will not be maintained going forward. Please use uv (Option A) above.
