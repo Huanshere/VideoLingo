@@ -111,3 +111,17 @@ class WorkspaceTests(unittest.TestCase):
             str(models._AUDIO_TMP_DIR),
             str(Path(job["path"]) / "output" / "audio" / "tmp"),
         )
+
+    def test_find_video_files_uses_active_workspace_output(self):
+        from core._1_ytdlp import find_video_files
+
+        job = workspace.create_job(
+            name="Video",
+            workspace_root=self.root / "jobs",
+            config_path=self.config_path,
+        )
+        output_dir = Path(job["path"]) / "output"
+        (output_dir / "sample.mp4").write_bytes(b"video")
+        workspace.set_active_workspace(job["path"])
+
+        self.assertEqual(find_video_files(), str(output_dir / "sample.mp4"))

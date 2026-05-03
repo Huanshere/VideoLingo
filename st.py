@@ -3,6 +3,7 @@ import os, sys, time
 from core.st_utils.imports_and_utils import *
 from core.st_utils.task_runner import TaskRunner
 from core import *
+from core import workspace
 
 # SET PATH
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -11,11 +12,16 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 st.set_page_config(page_title="VideoLingo", page_icon="docs/logo.svg")
 
-SUB_VIDEO = "output/output_sub.mp4"
-DUB_VIDEO = "output/output_dub.mp4"
-
 
 # ─── Task control UI (auto-refreshes every 1s while task is active) ───
+
+
+def _sub_video_path():
+    return str(workspace.output_path("output_sub.mp4"))
+
+
+def _dub_video_path():
+    return str(workspace.output_path("output_dub.mp4"))
 
 
 @st.fragment(run_every=1)
@@ -125,6 +131,7 @@ def _get_text_steps():
 def text_processing_section():
     st.header(t("b. Translate and Generate Subtitles"))
     runner = TaskRunner.get(st.session_state, "_text_runner")
+    sub_video = _sub_video_path()
 
     with st.container(border=True):
         st.markdown(
@@ -142,7 +149,7 @@ def text_processing_section():
             unsafe_allow_html=True,
         )
 
-        if not os.path.exists(SUB_VIDEO):
+        if not os.path.exists(sub_video):
             if runner.is_active:
                 _task_control_panel("_text_runner")
             elif runner.is_done:
@@ -156,7 +163,7 @@ def text_processing_section():
                     st.rerun()
         else:
             if load_key("burn_subtitles"):
-                st.video(SUB_VIDEO)
+                st.video(sub_video)
             download_subtitle_zip_button(text=t("Download All Srt Files"))
 
             if st.button(t("Archive to 'history'"), key="cleanup_in_text_processing"):
@@ -189,6 +196,7 @@ def _get_audio_steps():
 def audio_processing_section():
     st.header(t("c. Dubbing"))
     runner = TaskRunner.get(st.session_state, "_audio_runner")
+    dub_video = _dub_video_path()
 
     with st.container(border=True):
         st.markdown(
@@ -204,7 +212,7 @@ def audio_processing_section():
             unsafe_allow_html=True,
         )
 
-        if not os.path.exists(DUB_VIDEO):
+        if not os.path.exists(dub_video):
             if runner.is_active:
                 _task_control_panel("_audio_runner")
             elif runner.is_done:
@@ -223,7 +231,7 @@ def audio_processing_section():
                 )
             )
             if load_key("burn_subtitles"):
-                st.video(DUB_VIDEO)
+                st.video(dub_video)
             if st.button(t("Delete dubbing files"), key="delete_dubbing_files"):
                 delete_dubbing_files()
                 st.rerun()
@@ -233,6 +241,42 @@ def audio_processing_section():
 
 
 # ─── Main ───
+
+
+def workspace_section():
+    st.header(t("Task Workspace"))
+
+    if st.session_state.get("_active_workspace"):
+        try:
+            workspace.set_active_workspace(st.session_state["_active_workspace"])
+        except FileNotFoundError:
+            st.session_state.pop("_active_workspace", None)
+            workspace.clear_active_workspace()
+
+    jobs = workspace.list_jobs()
+    labels = [f"{job['name']} · {job['status']} · {job['id']}" for job in jobs]
+    selected = st.selectbox(t("Continue task"), [""] + labels)
+    if selected:
+        job = jobs[labels.index(selected)]
+        workspace.set_active_workspace(job["path"])
+        st.session_state["_active_workspace"] = job["path"]
+
+    new_name = st.text_input(t("New task name"), value="")
+    if st.button(t("New task"), key="new_workspace_task", width="stretch"):
+        job = workspace.create_job(name=new_name or "VideoLingo Task")
+        workspace.set_active_workspace(job["path"])
+        st.session_state["_active_workspace"] = job["path"]
+        st.rerun()
+
+    active = workspace.get_active_workspace()
+    if active:
+        job = workspace.load_job(active)
+        st.caption(f"{job['name']} · {job['status']}")
+        if st.button(t("Archive task"), key="archive_workspace_task", width="stretch"):
+            workspace.archive_job(active)
+            workspace.clear_active_workspace()
+            st.session_state.pop("_active_workspace", None)
+            st.rerun()
 
 
 def main():
@@ -249,6 +293,7 @@ def main():
     )
     # add settings
     with st.sidebar:
+        workspace_section()
         page_setting()
         st.markdown(give_star_button, unsafe_allow_html=True)
     download_video_section()

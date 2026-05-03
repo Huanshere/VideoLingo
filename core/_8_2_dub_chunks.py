@@ -6,9 +6,10 @@ from core.asr_backend.audio_preprocess import get_audio_duration
 from core.tts_backend.estimate_duration import init_estimator, estimate_duration
 from core.utils import *
 from core.utils.models import *
+from core.workspace import output_path
 
-SRC_SRT = "output/src.srt"
-TRANS_SRT = "output/trans.srt"
+SRC_SRT = output_path("src.srt")
+TRANS_SRT = output_path("trans.srt")
 MAX_MERGE_COUNT = 5
 ESTIMATOR = None
 

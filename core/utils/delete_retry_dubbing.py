@@ -1,10 +1,11 @@
 import os
 import shutil
+from core.workspace import output_path
 
 def delete_dubbing_files():
     files_to_delete = [
-        os.path.join("output", "dub.wav"),
-        os.path.join("output", "output_dub.mp4")
+        str(output_path("dub.wav")),
+        str(output_path("output_dub.mp4")),
     ]
     
     for file_path in files_to_delete:
@@ -17,7 +18,7 @@ def delete_dubbing_files():
         else:
             print(f"File not found: {file_path}")
     
-    segs_folder = os.path.join("output", "audio", "segs")
+    segs_folder = str(output_path("audio", "segs"))
     if os.path.exists(segs_folder):
         try:
             shutil.rmtree(segs_folder)

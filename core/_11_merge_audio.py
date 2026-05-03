@@ -6,11 +6,12 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskPr
 from rich.console import Console
 from core.utils import *
 from core.utils.models import *
+from core.workspace import output_path
 console = Console()
 
-DUB_VOCAL_FILE = 'output/dub.mp3'
+DUB_VOCAL_FILE = output_path("dub.mp3")
 
-DUB_SUB_FILE = 'output/dub.srt'
+DUB_SUB_FILE = output_path("dub.srt")
 
 
 def output_file_path(number, line_index):
@@ -126,7 +127,7 @@ def merge_full_audio():
     
     with console.status("[bold cyan]💾 Exporting final audio file...[/bold cyan]"):
         merged_audio = merged_audio.set_frame_rate(16000).set_channels(1)
-        merged_audio.export(DUB_VOCAL_FILE, format="mp3", parameters=["-b:a", "64k"])
+        merged_audio.export(str(DUB_VOCAL_FILE), format="mp3", parameters=["-b:a", "64k"])
     console.print(f"[bold green]✅ Audio file successfully merged![/bold green]")
     console.print(f"[bold green]📁 Output file: {DUB_VOCAL_FILE}[/bold green]")
 
