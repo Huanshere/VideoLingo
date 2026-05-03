@@ -4,7 +4,7 @@ from core.st_utils.imports_and_utils import *
 from core.st_utils.review_section import review_section
 from core.st_utils.task_runner import TaskRunner
 from core import *
-from core import workspace
+from core import review, workspace
 
 # SET PATH
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -99,9 +99,23 @@ def _task_control_panel(runner_key: str):
 # ─── Text processing ───
 
 
-def _get_text_steps():
-    """Return the subtitle processing steps as (label, callable) list."""
-    steps = [
+def _stage_confirmed(stage: str) -> bool:
+    try:
+        status = review.load_status()
+        return status["stages"][stage]["status"] == "confirmed"
+    except Exception:
+        return False
+
+
+def _artifact_exists(stage: str) -> bool:
+    try:
+        return review.artifact_path(stage).exists()
+    except Exception:
+        return False
+
+
+def _get_text_generation_steps():
+    return [
         (t("WhisperX word-level transcription"), _2_asr.transcribe),
         (
             t("Sentence segmentation using NLP and LLM"),
@@ -110,23 +124,23 @@ def _get_text_steps():
                 _3_2_split_meaning.split_sentences_by_meaning(),
             ),
         ),
-        (
-            t("Summarization and multi-step translation"),
-            lambda: (_4_1_summarize.get_summary(), _4_2_translate.translate_all()),
-        ),
-        (
-            t("Cutting and aligning long subtitles"),
-            lambda: (
-                _5_split_sub.split_for_sub_main(),
-                _6_gen_sub.align_timestamp_main(),
-            ),
-        ),
-        (
-            t("Merging subtitles into the video"),
-            _7_sub_into_vid.merge_subtitles_to_video,
-        ),
+        (t("Summarization and terminology generation"), _4_1_summarize.get_summary),
     ]
-    return steps
+
+
+def _get_translation_steps():
+    return [(t("Multi-step translation"), _4_2_translate.translate_all)]
+
+
+def _get_subtitle_split_steps():
+    return [(t("Cutting and aligning long subtitles"), _5_split_sub.split_for_sub_main)]
+
+
+def _get_subtitle_finalize_steps():
+    return [
+        (t("Generating timeline and subtitles"), _6_gen_sub.align_timestamp_main),
+        (t("Merging subtitles into the video"), _7_sub_into_vid.merge_subtitles_to_video),
+    ]
 
 
 def text_processing_section():
@@ -142,8 +156,8 @@ def text_processing_section():
         <p style='font-size: 20px;'>
             1. {t("WhisperX word-level transcription")}<br>
             2. {t("Sentence segmentation using NLP and LLM")}<br>
-            3. {t("Summarization and multi-step translation")}<br>
-            4. {t("Cutting and aligning long subtitles")}<br>
+            3. {t("Generate terminology for review")}<br>
+            4. {t("Review terminology, translation, and subtitles")}<br>
             5. {t("Generating timeline and subtitles")}<br>
             6. {t("Merging subtitles into the video")}
         """,
@@ -155,12 +169,41 @@ def text_processing_section():
                 _task_control_panel("_text_runner")
             elif runner.is_done:
                 _task_control_panel("_text_runner")
+            elif not _artifact_exists("terminology"):
+                if st.button(
+                    t("Generate terminology for review"),
+                    key="generate_terms_button",
+                ):
+                    runner.start(_get_text_generation_steps())
+                    st.rerun()
+            elif not _stage_confirmed("terminology"):
+                st.info(t("Review and confirm terminology before translation."))
+            elif not _artifact_exists("translation"):
+                if st.button(
+                    t("Continue to translation"),
+                    key="continue_translation_button",
+                ):
+                    runner.start(_get_translation_steps())
+                    st.rerun()
+            elif not _stage_confirmed("translation"):
+                st.info(t("Review and confirm translation before subtitle splitting."))
+            elif not _artifact_exists("subtitles"):
+                if st.button(
+                    t("Generate subtitle split for review"),
+                    key="continue_subtitle_split_button",
+                ):
+                    runner.start(_get_subtitle_split_steps())
+                    st.rerun()
+            elif not _stage_confirmed("subtitles"):
+                st.info(
+                    t("Review and confirm subtitles before final subtitle generation.")
+                )
             else:
                 if st.button(
-                    t("Start Processing Subtitles"), key="text_processing_button"
+                    t("Generate final subtitles and video"),
+                    key="continue_subtitle_finalize_button",
                 ):
-                    steps = _get_text_steps()
-                    runner.start(steps)
+                    runner.start(_get_subtitle_finalize_steps())
                     st.rerun()
         else:
             if load_key("burn_subtitles"):
@@ -176,22 +219,18 @@ def text_processing_section():
 # ─── Audio processing ───
 
 
-def _get_audio_steps():
-    """Return the audio/dubbing processing steps as (label, callable) list."""
-    steps = [
-        (
-            t("Generate audio tasks and chunks"),
-            lambda: (
-                _8_1_audio_task.gen_audio_task_main(),
-                _8_2_dub_chunks.gen_dub_chunks(),
-            ),
-        ),
+def _get_tts_task_steps():
+    return [(t("Generate audio tasks"), _8_1_audio_task.gen_audio_task_main)]
+
+
+def _get_audio_finalize_steps():
+    return [
+        (t("Generate audio chunks"), _8_2_dub_chunks.gen_dub_chunks),
         (t("Extract reference audio"), _9_refer_audio.extract_refer_audio_main),
         (t("Generate and merge audio files"), _10_gen_audio.gen_audio),
         (t("Merge full audio"), _11_merge_audio.merge_full_audio),
         (t("Merge final audio into video"), _12_dub_to_vid.merge_video_audio),
     ]
-    return steps
 
 
 def audio_processing_section():
@@ -206,9 +245,10 @@ def audio_processing_section():
         {t("This stage includes the following steps:")}
         <p style='font-size: 20px;'>
             1. {t("Generate audio tasks and chunks")}<br>
-            2. {t("Extract reference audio")}<br>
-            3. {t("Generate and merge audio files")}<br>
-            4. {t("Merge final audio into video")}
+            2. {t("Review and confirm TTS text")}<br>
+            3. {t("Extract reference audio")}<br>
+            4. {t("Generate and merge audio files")}<br>
+            5. {t("Merge final audio into video")}
         """,
             unsafe_allow_html=True,
         )
@@ -218,12 +258,20 @@ def audio_processing_section():
                 _task_control_panel("_audio_runner")
             elif runner.is_done:
                 _task_control_panel("_audio_runner")
+            elif not _artifact_exists("tts_text"):
+                if st.button(
+                    t("Generate TTS text for review"),
+                    key="generate_tts_text_button",
+                ):
+                    runner.start(_get_tts_task_steps())
+                    st.rerun()
+            elif not _stage_confirmed("tts_text"):
+                st.info(t("Review and confirm TTS text before dubbing."))
             else:
                 if st.button(
-                    t("Start Audio Processing"), key="audio_processing_button"
+                    t("Generate dubbing"), key="continue_audio_finalize_button"
                 ):
-                    steps = _get_audio_steps()
-                    runner.start(steps)
+                    runner.start(_get_audio_finalize_steps())
                     st.rerun()
         else:
             st.success(
