@@ -1,6 +1,7 @@
 # use try-except to avoid error when installing
 try:
     from . import workspace
+    from . import review
     from . import (
         _1_ytdlp,
         _2_asr,
@@ -46,4 +47,5 @@ __all__ = [
     '_11_merge_audio',
     '_12_dub_to_vid',
     'workspace',
+    'review',
 ]
