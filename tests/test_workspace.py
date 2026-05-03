@@ -15,7 +15,12 @@ class WorkspaceTests(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.config_path = self.root / "config.yaml"
         self.config_path.write_text(
-            "display_language: en\napi:\n  key: ''\n", encoding="utf-8"
+            "display_language: en\n"
+            "api:\n"
+            "  key: ''\n"
+            "allowed_video_formats:\n"
+            "  - mp4\n",
+            encoding="utf-8",
         )
         workspace.clear_active_workspace()
 
@@ -125,3 +130,34 @@ class WorkspaceTests(unittest.TestCase):
         workspace.set_active_workspace(job["path"])
 
         self.assertEqual(find_video_files(), str(output_dir / "sample.mp4"))
+
+    def test_config_utils_updates_active_workspace_snapshot(self):
+        from core.utils import config_utils
+
+        job = workspace.create_job(
+            name="Video",
+            workspace_root=self.root / "jobs",
+            config_path=self.config_path,
+        )
+        workspace.set_active_workspace(job["path"])
+
+        config_utils.update_key("display_language", "ja")
+
+        yaml = YAML()
+        global_config = yaml.load(self.config_path.read_text(encoding="utf-8"))
+        snapshot = yaml.load(
+            (Path(job["path"]) / "config.snapshot.yaml").read_text(encoding="utf-8")
+        )
+        self.assertEqual(global_config["display_language"], "en")
+        self.assertEqual(snapshot["display_language"], "ja")
+        self.assertEqual(config_utils.load_key("display_language"), "ja")
+
+    def test_batch_workspace_path_can_be_stored_per_row(self):
+        import pandas as pd
+        from batch.utils.batch_processor import ensure_workspace_columns
+
+        df = pd.DataFrame({"Video File": ["a.mp4"], "Status": [None]})
+        updated = ensure_workspace_columns(df)
+
+        self.assertIn("Workspace", updated.columns)
+        self.assertEqual(updated.at[0, "Workspace"], "")
