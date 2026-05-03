@@ -92,3 +92,22 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(snapshot["display_language"], "en")
         self.assertEqual(snapshot["api"]["key"], "")
+
+    def test_model_constants_resolve_against_active_workspace(self):
+        from core.utils import models
+
+        job = workspace.create_job(
+            name="Video",
+            workspace_root=self.root / "jobs",
+            config_path=self.config_path,
+        )
+        workspace.set_active_workspace(job["path"])
+
+        self.assertEqual(
+            os.fspath(models._2_CLEANED_CHUNKS),
+            str(Path(job["path"]) / "output" / "log" / "cleaned_chunks.xlsx"),
+        )
+        self.assertEqual(
+            str(models._AUDIO_TMP_DIR),
+            str(Path(job["path"]) / "output" / "audio" / "tmp"),
+        )

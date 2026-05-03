@@ -11,7 +11,10 @@ console = Console()
 DUB_VOCAL_FILE = 'output/dub.mp3'
 
 DUB_SUB_FILE = 'output/dub.srt'
-OUTPUT_FILE_TEMPLATE = f"{_AUDIO_SEGS_DIR}/{{}}.wav"
+
+
+def output_file_path(number, line_index):
+    return os.path.join(str(_AUDIO_SEGS_DIR), f"{number}_{line_index}.wav")
 
 def load_and_flatten_data(excel_file):
     """Load and flatten Excel data"""
@@ -31,7 +34,7 @@ def get_audio_files(df):
         number = row['number']
         line_count = len(eval(row['lines']) if isinstance(row['lines'], str) else row['lines'])
         for line_index in range(line_count):
-            temp_file = OUTPUT_FILE_TEMPLATE.format(f"{number}_{line_index}")
+            temp_file = output_file_path(number, line_index)
             audios.append(temp_file)
     return audios
 

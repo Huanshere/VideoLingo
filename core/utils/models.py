@@ -1,29 +1,32 @@
+from core.workspace import workspace_path
+
+
 # ------------------------------------------
 # 定义中间产出文件
 # ------------------------------------------
 
-_2_CLEANED_CHUNKS = "output/log/cleaned_chunks.xlsx"
-_3_1_SPLIT_BY_NLP = "output/log/split_by_nlp.txt"
-_3_2_SPLIT_BY_MEANING = "output/log/split_by_meaning.txt"
-_4_1_TERMINOLOGY = "output/log/terminology.json"
-_4_2_TRANSLATION = "output/log/translation_results.xlsx"
-_5_SPLIT_SUB = "output/log/translation_results_for_subtitles.xlsx"
-_5_REMERGED = "output/log/translation_results_remerged.xlsx"
+_2_CLEANED_CHUNKS = workspace_path("output/log/cleaned_chunks.xlsx")
+_3_1_SPLIT_BY_NLP = workspace_path("output/log/split_by_nlp.txt")
+_3_2_SPLIT_BY_MEANING = workspace_path("output/log/split_by_meaning.txt")
+_4_1_TERMINOLOGY = workspace_path("output/log/terminology.json")
+_4_2_TRANSLATION = workspace_path("output/log/translation_results.xlsx")
+_5_SPLIT_SUB = workspace_path("output/log/translation_results_for_subtitles.xlsx")
+_5_REMERGED = workspace_path("output/log/translation_results_remerged.xlsx")
 
-_8_1_AUDIO_TASK = "output/audio/tts_tasks.xlsx"
+_8_1_AUDIO_TASK = workspace_path("output/audio/tts_tasks.xlsx")
 
 
 # ------------------------------------------
 # 定义音频文件
 # ------------------------------------------
-_OUTPUT_DIR = "output"
-_AUDIO_DIR = "output/audio"
-_RAW_AUDIO_FILE = "output/audio/raw.mp3"
-_VOCAL_AUDIO_FILE = "output/audio/vocal.mp3"
-_BACKGROUND_AUDIO_FILE = "output/audio/background.mp3"
-_AUDIO_REFERS_DIR = "output/audio/refers"
-_AUDIO_SEGS_DIR = "output/audio/segs"
-_AUDIO_TMP_DIR = "output/audio/tmp"
+_OUTPUT_DIR = workspace_path("output")
+_AUDIO_DIR = workspace_path("output/audio")
+_RAW_AUDIO_FILE = workspace_path("output/audio/raw.mp3")
+_VOCAL_AUDIO_FILE = workspace_path("output/audio/vocal.mp3")
+_BACKGROUND_AUDIO_FILE = workspace_path("output/audio/background.mp3")
+_AUDIO_REFERS_DIR = workspace_path("output/audio/refers")
+_AUDIO_SEGS_DIR = workspace_path("output/audio/segs")
+_AUDIO_TMP_DIR = workspace_path("output/audio/tmp")
 
 # ------------------------------------------
 # 导出
