@@ -120,3 +120,87 @@ class ReviewTests(unittest.TestCase):
                 pd.DataFrame({"Source": ["hello"]}),
                 required_columns=("Source", "Translation"),
             )
+
+    def test_save_subtitles_updates_remerged_when_row_counts_match(self):
+        import pandas as pd
+
+        log_dir = Path(self.job["path"]) / "output" / "log"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame({"Source": ["A"], "Translation": ["甲"]}).to_excel(
+            log_dir / "translation_results_for_subtitles.xlsx",
+            index=False,
+        )
+        pd.DataFrame({"Source": ["A"], "Translation": ["甲"]}).to_excel(
+            log_dir / "translation_results_remerged.xlsx",
+            index=False,
+        )
+
+        review.save_subtitles(pd.DataFrame({"Source": ["A"], "Translation": ["乙"]}))
+
+        display = pd.read_excel(log_dir / "translation_results_for_subtitles.xlsx")
+        remerged = pd.read_excel(log_dir / "translation_results_remerged.xlsx")
+        self.assertEqual(display.at[0, "Translation"], "乙")
+        self.assertEqual(remerged.at[0, "Translation"], "乙")
+        self.assertEqual(review.load_status()["stages"]["tts_text"]["status"], "stale")
+
+    def test_save_subtitles_leaves_remerged_when_row_counts_differ(self):
+        import pandas as pd
+
+        log_dir = Path(self.job["path"]) / "output" / "log"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame({"Source": ["A"], "Translation": ["甲"]}).to_excel(
+            log_dir / "translation_results_for_subtitles.xlsx",
+            index=False,
+        )
+        pd.DataFrame({"Source": ["A", "B"], "Translation": ["甲", "乙"]}).to_excel(
+            log_dir / "translation_results_remerged.xlsx",
+            index=False,
+        )
+
+        review.save_subtitles(pd.DataFrame({"Source": ["A"], "Translation": ["丙"]}))
+
+        remerged = pd.read_excel(log_dir / "translation_results_remerged.xlsx")
+        self.assertEqual(len(remerged), 2)
+        self.assertEqual(remerged.at[0, "Translation"], "甲")
+
+    def test_save_tts_text_preserves_timing_columns(self):
+        import pandas as pd
+
+        audio_dir = Path(self.job["path"]) / "output" / "audio"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(
+            {
+                "number": [1],
+                "start_time": ["00:00:00.000"],
+                "end_time": ["00:00:02.000"],
+                "duration": [2.0],
+                "text": ["old"],
+                "origin": ["source"],
+            }
+        ).to_excel(audio_dir / "tts_tasks.xlsx", index=False)
+
+        review.save_table(
+            "tts_text",
+            pd.DataFrame(
+                {
+                    "number": [1],
+                    "start_time": ["00:00:00.000"],
+                    "end_time": ["00:00:02.000"],
+                    "duration": [2.0],
+                    "text": ["new"],
+                    "origin": ["source"],
+                }
+            ),
+            required_columns=(
+                "number",
+                "start_time",
+                "end_time",
+                "duration",
+                "text",
+                "origin",
+            ),
+        )
+
+        saved = pd.read_excel(audio_dir / "tts_tasks.xlsx")
+        self.assertEqual(saved.at[0, "text"], "new")
+        self.assertEqual(saved.at[0, "duration"], 2.0)

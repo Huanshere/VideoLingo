@@ -234,3 +234,32 @@ def save_table(
     df.to_excel(path, index=False)
     if invalidate:
         mark_saved(stage)
+
+
+def save_subtitles(df: pd.DataFrame) -> None:
+    validate_required_columns(df, ("Source", "Translation"))
+    save_table(
+        "subtitles",
+        df,
+        required_columns=("Source", "Translation"),
+        invalidate=False,
+    )
+
+    remerged_path = active_workspace_dir() / "output/log/translation_results_remerged.xlsx"
+    if remerged_path.exists():
+        remerged = pd.read_excel(remerged_path)
+        if len(remerged) == len(df) and {"Source", "Translation"}.issubset(
+            remerged.columns
+        ):
+            backup_dir = active_workspace_dir() / BACKUP_DIR
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            backup = (
+                backup_dir
+                / f"subtitles-remerged-{datetime.now().astimezone().strftime('%Y%m%d-%H%M%S')}.xlsx"
+            )
+            shutil.copy2(remerged_path, backup)
+            remerged["Source"] = df["Source"]
+            remerged["Translation"] = df["Translation"]
+            remerged.to_excel(remerged_path, index=False)
+
+    mark_saved("subtitles")
