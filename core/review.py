@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
 import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
 from ruamel.yaml import YAML
 
 from core import workspace
@@ -149,3 +151,86 @@ def backup_artifact(stage: str, source: Path | None = None) -> Path | None:
     )
     shutil.copy2(source, backup)
     return backup
+
+
+def mark_saved(stage: str, status_value: str = "pending") -> dict[str, Any]:
+    validate_stage(stage)
+    status = load_status()
+    status["stages"][stage]["status"] = status_value
+    status["stages"][stage]["confirmed_at"] = ""
+    status["stages"][stage]["updated_at"] = now_iso()
+    save_status(status)
+    return invalidate_downstream(stage, status)
+
+
+def load_terminology() -> dict[str, Any]:
+    path = artifact_path("terminology")
+    if not path.exists():
+        raise FileNotFoundError(path)
+    with open(path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    data.setdefault("terms", [])
+    return data
+
+
+def save_terminology(
+    terms: list[dict[str, Any]], theme: str | None = None
+) -> dict[str, Any]:
+    path = artifact_path("terminology")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    existing = {}
+    if path.exists():
+        with open(path, "r", encoding="utf-8") as file:
+            existing = json.load(file) or {}
+        backup_artifact("terminology", path)
+
+    cleaned_terms = []
+    for term in terms:
+        cleaned_terms.append(
+            {
+                "src": str(term.get("src", "")).strip(),
+                "tgt": str(term.get("tgt", "")).strip(),
+                "note": str(term.get("note", "")).strip(),
+            }
+        )
+
+    existing["terms"] = cleaned_terms
+    if theme is not None:
+        existing["theme"] = theme
+
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(existing, file, ensure_ascii=False, indent=4)
+    mark_saved("terminology")
+    return existing
+
+
+def load_table(stage: str) -> pd.DataFrame:
+    path = artifact_path(stage)
+    if not path.exists():
+        raise FileNotFoundError(path)
+    return pd.read_excel(path)
+
+
+def validate_required_columns(
+    df: pd.DataFrame, required_columns: tuple[str, ...]
+) -> None:
+    missing = [column for column in required_columns if column not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {', '.join(missing)}")
+
+
+def save_table(
+    stage: str,
+    df: pd.DataFrame,
+    required_columns: tuple[str, ...],
+    invalidate: bool = True,
+) -> None:
+    validate_stage(stage)
+    validate_required_columns(df, required_columns)
+    path = artifact_path(stage)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists():
+        backup_artifact(stage, path)
+    df.to_excel(path, index=False)
+    if invalidate:
+        mark_saved(stage)
