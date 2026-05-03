@@ -1,6 +1,7 @@
 import streamlit as st
 import os, sys, time
 from core.st_utils.imports_and_utils import *
+from core.st_utils.review_section import review_section
 from core.st_utils.task_runner import TaskRunner
 from core import *
 from core import workspace
@@ -297,6 +298,7 @@ def main():
         page_setting()
         st.markdown(give_star_button, unsafe_allow_html=True)
     download_video_section()
+    review_section()
     text_processing_section()
     audio_processing_section()
 
