@@ -6,6 +6,7 @@ from rich.console import Console
 import autocorrect_py as autocorrect
 from core.utils import *
 from core.utils.models import *
+from core.utils.ass_utils import generate_ass, ASS_OUTPUT_CONFIGS, ASS_AUDIO_OUTPUT_CONFIGS
 console = Console()
 
 SUBTITLE_OUTPUT_CONFIGS = [ 
@@ -153,15 +154,29 @@ def align_timestamp_main():
     df_translate = pd.read_excel(_5_SPLIT_SUB)
     df_translate['Translation'] = df_translate['Translation'].apply(clean_translation)
     
-    align_timestamp(df_text, df_translate, SUBTITLE_OUTPUT_CONFIGS, _OUTPUT_DIR)
+    df_trans_time = align_timestamp(df_text, df_translate, SUBTITLE_OUTPUT_CONFIGS, _OUTPUT_DIR)
     console.print(Panel("[bold green]🎉📝 Subtitles generation completed! Please check in the `output` folder 👀[/bold green]"))
 
     # for audio
-    df_translate_for_audio = pd.read_excel(_5_REMERGED) # use remerged file to avoid unmatched lines when dubbing
+    df_translate_for_audio = pd.read_excel(_5_REMERGED)
     df_translate_for_audio['Translation'] = df_translate_for_audio['Translation'].apply(clean_translation)
     
-    align_timestamp(df_text, df_translate_for_audio, AUDIO_SUBTITLE_OUTPUT_CONFIGS, _AUDIO_DIR)
+    df_trans_time_audio = align_timestamp(df_text, df_translate_for_audio, AUDIO_SUBTITLE_OUTPUT_CONFIGS, _AUDIO_DIR)
     console.print(Panel(f"[bold green]🎉📝 Audio subtitles generation completed! Please check in the `{_AUDIO_DIR}` folder 👀[/bold green]"))
+
+    subtitle_format = load_key("subtitle.format") or 'srt'
+    if subtitle_format == 'ass':
+        style_config = load_key("subtitle.ass_style") or {}
+
+        for filename, columns in ASS_OUTPUT_CONFIGS:
+            filepath = os.path.join(_OUTPUT_DIR, filename)
+            generate_ass(df_trans_time, columns, filepath, style_config)
+
+        for filename, columns in ASS_AUDIO_OUTPUT_CONFIGS:
+            filepath = os.path.join(_AUDIO_DIR, filename)
+            generate_ass(df_trans_time_audio, columns, filepath, style_config)
+
+        console.print(Panel("[bold green]🎉📝 ASS subtitles generated! Please check in the `output` folder 👀[/bold green]"))
     
 
 if __name__ == '__main__':

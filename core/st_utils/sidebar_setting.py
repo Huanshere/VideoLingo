@@ -226,6 +226,79 @@ def page_setting():
         if burn_subtitles != load_key("burn_subtitles"):
             update_key("burn_subtitles", burn_subtitles)
             st.rerun()
+
+        subtitle_format = st.selectbox(
+            t("Subtitle Format"),
+            options=['srt', 'ass'],
+            index=['srt', 'ass'].index(load_key("subtitle.format") or 'srt'),
+            help=t("ASS format supports more style customization"),
+        )
+        if subtitle_format != (load_key("subtitle.format") or 'srt'):
+            update_key("subtitle.format", subtitle_format)
+            st.rerun()
+
+        if subtitle_format == 'ass':
+            with st.expander(t("ASS Style Settings")):
+                ass_style = load_key("subtitle.ass_style") or {}
+
+                scale_mode = st.radio(
+                    t("Font Size Mode"),
+                    options=['absolute', 'relative'],
+                    format_func=lambda x: t("Absolute Pixels") if x == 'absolute' else t("Relative Scaling"),
+                    index=['absolute', 'relative'].index(ass_style.get('scale_mode', 'absolute')),
+                    help=t("Absolute: fontsize = pixels, same as SRT. Relative: fontsize scales with video resolution"),
+                )
+                if scale_mode != ass_style.get('scale_mode', 'absolute'):
+                    update_key("subtitle.ass_style.scale_mode", scale_mode)
+                    st.rerun()
+
+                if scale_mode == 'relative':
+                    prx = st.number_input("PlayResX", value=int(ass_style.get('play_res_x', 1920)))
+                    pry = st.number_input("PlayResY", value=int(ass_style.get('play_res_y', 1080)))
+                    if prx != ass_style.get('play_res_x', 1920):
+                        update_key("subtitle.ass_style.play_res_x", prx)
+                    if pry != ass_style.get('play_res_y', 1080):
+                        update_key("subtitle.ass_style.play_res_y", pry)
+
+                src_style = ass_style.get('source', {})
+                trans_style = ass_style.get('translation', {})
+
+                st.subheader(t("Source Subtitle Style"))
+                src_fontname = st.text_input(t("Source Font Name"), value=src_style.get('fontname', 'Arial'))
+                src_fontsize = st.number_input(t("Source Font Size"), value=int(src_style.get('fontsize', 17)), min_value=1)
+                src_primary = st.text_input(t("Source Primary Color"), value=src_style.get('primary_color', '&HFFFFFF'))
+                src_outline = st.text_input(t("Source Outline Color"), value=src_style.get('outline_color', '&H000000'))
+                src_outline_w = st.number_input(t("Source Outline Width"), value=int(src_style.get('outline_width', 1)), min_value=0)
+                src_shadow = st.text_input(t("Source Shadow Color"), value=src_style.get('shadow_color', '&H80000000'))
+                src_border = st.selectbox(t("Source Border Style"), options=[1, 3], index=[1, 3].index(int(src_style.get('border_style', 1))))
+                src_align = st.selectbox(t("Source Alignment"), options=list(range(1, 10)), index=list(range(1, 10)).index(int(src_style.get('alignment', 8))))
+                src_marginv = st.number_input(t("Source Margin V"), value=int(src_style.get('margin_v', 10)), min_value=0)
+
+                st.subheader(t("Translation Subtitle Style"))
+                trans_fontname = st.text_input(t("Translation Font Name"), value=trans_style.get('fontname', 'Arial'))
+                trans_fontsize = st.number_input(t("Translation Font Size"), value=int(trans_style.get('fontsize', 17)), min_value=1)
+                trans_primary = st.text_input(t("Translation Primary Color"), value=trans_style.get('primary_color', '&H00FFFF'))
+                trans_outline = st.text_input(t("Translation Outline Color"), value=trans_style.get('outline_color', '&H000000'))
+                trans_outline_w = st.number_input(t("Translation Outline Width"), value=int(trans_style.get('outline_width', 1)), min_value=0)
+                trans_back = st.text_input(t("Translation Back Color"), value=trans_style.get('back_color', '&H33000000'))
+                trans_border = st.selectbox(t("Translation Border Style"), options=[1, 3, 4], index=[1, 3, 4].index(int(trans_style.get('border_style', 4))))
+                trans_align = st.selectbox(t("Translation Alignment"), options=list(range(1, 10)), index=list(range(1, 10)).index(int(trans_style.get('alignment', 2))))
+                trans_marginv = st.number_input(t("Translation Margin V"), value=int(trans_style.get('margin_v', 27)), min_value=0)
+
+                if st.button(t("Save ASS Style")):
+                    update_key("subtitle.ass_style.source", {
+                        'fontname': src_fontname, 'fontsize': src_fontsize,
+                        'primary_color': src_primary, 'outline_color': src_outline,
+                        'outline_width': src_outline_w, 'shadow_color': src_shadow,
+                        'border_style': src_border, 'alignment': src_align, 'margin_v': src_marginv,
+                    })
+                    update_key("subtitle.ass_style.translation", {
+                        'fontname': trans_fontname, 'fontsize': trans_fontsize,
+                        'primary_color': trans_primary, 'outline_color': trans_outline,
+                        'outline_width': trans_outline_w, 'back_color': trans_back,
+                        'border_style': trans_border, 'alignment': trans_align, 'margin_v': trans_marginv,
+                    })
+                    st.toast(t("ASS style saved"))
     with st.expander(t("Dubbing Settings"), expanded=True):
         tts_methods = [
             "azure_tts",

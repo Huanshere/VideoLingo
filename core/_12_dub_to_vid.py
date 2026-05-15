@@ -1,5 +1,6 @@
 import platform
 import subprocess
+import os
 
 import cv2
 import numpy as np
@@ -14,19 +15,61 @@ console = Console()
 
 DUB_VIDEO = "output/output_dub.mp4"
 DUB_SUB_FILE = 'output/dub.srt'
+DUB_ASS_FILE = 'output/dub.ass'
 DUB_AUDIO = 'output/dub.mp3'
 
-TRANS_FONT_SIZE = 17
-TRANS_FONT_NAME = 'Arial'
-if platform.system() == 'Linux':
-    TRANS_FONT_NAME = 'NotoSansCJK-Regular'
-if platform.system() == 'Darwin':
-    TRANS_FONT_NAME = 'Arial Unicode MS'
+SRT_TRANS_DEFAULTS = {
+    'fontname': 'Arial', 'fontsize': 17,
+    'primary_color': '&H00FFFF', 'outline_color': '&H000000',
+    'outline_width': 1, 'back_color': '&H33000000', 'border_style': 4,
+    'alignment': 2, 'margin_v': 27,
+}
 
-TRANS_FONT_COLOR = '&H00FFFF'
-TRANS_OUTLINE_COLOR = '&H000000'
-TRANS_OUTLINE_WIDTH = 1 
-TRANS_BACK_COLOR = '&H33000000'
+def _platform_fontname():
+    if platform.system() == 'Linux':
+        return 'NotoSansCJK-Regular'
+    elif platform.system() == 'Darwin':
+        return 'Arial Unicode MS'
+    return 'Arial'
+
+def _build_dub_force_style():
+    defaults = SRT_TRANS_DEFAULTS
+    style = load_key("subtitle.ass_style.translation") or {}
+    merged = {**defaults, **style}
+    if 'fontname' not in style:
+        merged['fontname'] = _platform_fontname()
+    parts = [
+        f"FontSize={merged['fontsize']}",
+        f"FontName={merged['fontname']}",
+        f"PrimaryColour={merged['primary_color']}",
+        f"OutlineColour={merged['outline_color']}",
+        f"OutlineWidth={merged['outline_width']}",
+        f"BackColour={merged['back_color']}",
+        f"Alignment={merged['alignment']}",
+        f"MarginV={merged['margin_v']}",
+        f"BorderStyle={merged['border_style']}",
+    ]
+    return ','.join(parts)
+
+def _generate_dub_ass():
+    from core.utils.ass_utils import generate_ass
+    import pandas as pd
+
+    style_config = load_key("subtitle.ass_style") or {}
+    df, lines, new_sub_times = None, None, None
+
+    from core._11_merge_audio import load_and_flatten_data
+    df, lines, new_sub_times = load_and_flatten_data(_8_1_AUDIO_TASK)
+
+    rows = []
+    for i, ((start_time, end_time), line) in enumerate(zip(new_sub_times, lines)):
+        rows.append({
+            'timestamp': f"{int(start_time//3600):02d}:{int((start_time%3600)//60):02d}:{int(start_time%60):02d},{int((start_time*1000)%1000):03d} --> {int(end_time//3600):02d}:{int((end_time%3600)//60):02d}:{int(end_time%60):02d},{int((end_time*1000)%1000):03d}",
+            'Translation': line,
+        })
+    df_ass = pd.DataFrame(rows)
+
+    generate_ass(df_ass, ['Translation'], DUB_ASS_FILE, style_config)
 
 def merge_video_audio():
     """Merge video and audio, and reduce video volume"""
@@ -56,13 +99,16 @@ def merge_video_audio():
     TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     video.release()
     rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
-    
-    subtitle_filter = (
-        f"subtitles={DUB_SUB_FILE}:force_style='FontSize={TRANS_FONT_SIZE},"
-        f"FontName={TRANS_FONT_NAME},PrimaryColour={TRANS_FONT_COLOR},"
-        f"OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
-        f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
-    )
+
+    subtitle_format = load_key("subtitle.format") or 'srt'
+
+    if subtitle_format == 'ass':
+        if not os.path.exists(DUB_ASS_FILE):
+            _generate_dub_ass()
+        subtitle_filter = f"subtitles={DUB_ASS_FILE}"
+    else:
+        force_style = _build_dub_force_style()
+        subtitle_filter = f"subtitles={DUB_SUB_FILE}:force_style='{force_style}'"
     
     cmd = [
         'ffmpeg', '-y', '-i', VIDEO_FILE, '-i', background_file, '-i', normalized_dub_audio,

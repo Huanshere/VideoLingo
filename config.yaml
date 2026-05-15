@@ -56,6 +56,35 @@ subtitle:
   max_length: 75
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
+  # *Subtitle format for burning into video: 'srt' or 'ass'
+  format: 'srt'
+  # *ASS style settings (only effective when format is 'ass')
+  # *scale_mode: 'absolute' = PlayResX/Y matches video resolution, fontsize = absolute pixels
+  # *             'relative' = PlayResX/Y from config below, fontsize scaled proportionally
+  ass_style:
+    scale_mode: 'absolute'
+    play_res_x: 1920
+    play_res_y: 1080
+    source:
+      fontname: 'Arial'
+      fontsize: 17
+      primary_color: '&HFFFFFF'
+      outline_color: '&H000000'
+      outline_width: 1
+      shadow_color: '&H80000000'
+      border_style: 1
+      alignment: 8
+      margin_v: 10
+    translation:
+      fontname: 'Arial'
+      fontsize: 17
+      primary_color: '&H00FFFF'
+      outline_color: '&H000000'
+      outline_width: 1
+      back_color: '&H33000000'
+      border_style: 4
+      alignment: 2
+      margin_v: 27
 
 # *Summary length, set low to 2k if using local LLM
 summary_length: 8000
