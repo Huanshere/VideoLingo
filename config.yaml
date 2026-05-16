@@ -57,7 +57,7 @@ subtitle:
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
   # *Subtitle format for burning into video: 'srt' or 'ass'
-  format: 'srt'
+  format: 'ass'
   # *ASS style settings (only effective when format is 'ass')
   # *scale_mode: 'absolute' = PlayResX/Y matches video resolution, fontsize = absolute pixels
   # *             'relative' = PlayResX/Y from config below, fontsize scaled proportionally
@@ -74,8 +74,8 @@ subtitle:
       back_color: '&H000000'
       bold: 0
       italic: 0
-      outline_width: 1
-      shadow: 0
+      outline_width: 1.0
+      shadow: 0.0
       shadow_color: '&H80000000'
       border_style: 1
       alignment: 8
@@ -91,8 +91,8 @@ subtitle:
       back_color: '&H33000000'
       bold: 0
       italic: 0
-      outline_width: 1
-      shadow: 0
+      outline_width: 1.0
+      shadow: 0.0
       border_style: 4
       alignment: 2
       margin_l: 10

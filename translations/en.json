@@ -155,5 +155,13 @@
     "Source Secondary Color": "Source Secondary Color",
     "Translation Shadow Depth": "Translation Shadow Depth",
     "Translation Secondary Color": "Translation Secondary Color",
-    "ASS style saved": "ASS style saved"
+    "ASS style saved": "ASS style saved",
+    "Import ASS Style": "Import ASS Style",
+    "Paste ASS Style line": "Paste ASS Style line",
+    "Apply to": "Apply to",
+    "Source": "Source",
+    "Translation": "Translation",
+    "Both": "Both",
+    "Import Style": "Import Style",
+    "Style imported successfully": "Style imported successfully"
 }

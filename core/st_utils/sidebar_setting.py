@@ -241,6 +241,36 @@ def page_setting():
             with st.expander(t("ASS Style Settings")):
                 ass_style = load_key("subtitle.ass_style") or {}
 
+                # ---- Import ----
+                with st.expander(t("Import ASS Style")):
+                    pasted_style = st.text_area(
+                        t("Paste ASS Style line"),
+                        placeholder='Style: Default,微软雅黑,54,&H00FFFFFF,...',
+                        height=80,
+                    )
+                    import_target = st.radio(
+                        t("Apply to"),
+                        options=['source', 'translation', 'both'],
+                        format_func=lambda x: {
+                            'source': t('Source'),
+                            'translation': t('Translation'),
+                            'both': t('Both'),
+                        }[x],
+                        horizontal=True,
+                    )
+                    if st.button(t("Import Style")):
+                        from core.utils.ass_utils import parse_ass_style_line
+                        try:
+                            parsed = parse_ass_style_line(pasted_style)
+                            if import_target in ('source', 'both'):
+                                update_key("subtitle.ass_style.source", parsed)
+                            if import_target in ('translation', 'both'):
+                                update_key("subtitle.ass_style.translation", parsed)
+                            st.toast(t("Style imported successfully"))
+                            st.rerun()
+                        except ValueError as e:
+                            st.error(str(e))
+
                 scale_mode = st.radio(
                     t("Font Size Mode"),
                     options=['absolute', 'relative'],
@@ -269,8 +299,8 @@ def page_setting():
                 src_primary = st.text_input(t("Source Primary Color"), value=src_style.get('primary_color', '&HFFFFFF'))
                 src_secondary = st.text_input(t("Source Secondary Color"), value=src_style.get('secondary_color', '&HFFFFFF'))
                 src_outline = st.text_input(t("Source Outline Color"), value=src_style.get('outline_color', '&H000000'))
-                src_outline_w = st.number_input(t("Source Outline Width"), value=int(src_style.get('outline_width', 1)), min_value=0, step=1)
-                src_shadow_depth = st.number_input(t("Source Shadow Depth"), value=int(src_style.get('shadow', 0)), min_value=0)
+                src_outline_w = st.number_input(t("Source Outline Width"), value=float(src_style.get('outline_width', 1.0)), min_value=0.0, step=0.5)
+                src_shadow_depth = st.number_input(t("Source Shadow Depth"), value=float(src_style.get('shadow', 0.0)), min_value=0.0, step=0.5)
                 src_border = st.selectbox(t("Source Border Style"), options=[1, 3], index=[1, 3].index(int(src_style.get('border_style', 1))))
                 src_align = st.selectbox(t("Source Alignment"), options=list(range(1, 10)), index=list(range(1, 10)).index(int(src_style.get('alignment', 8))))
                 src_marginv = st.number_input(t("Source Margin V"), value=int(src_style.get('margin_v', 10)), min_value=0)
@@ -281,8 +311,8 @@ def page_setting():
                 trans_primary = st.text_input(t("Translation Primary Color"), value=trans_style.get('primary_color', '&H00FFFF'))
                 trans_secondary = st.text_input(t("Translation Secondary Color"), value=trans_style.get('secondary_color', '&H00FFFF'))
                 trans_outline = st.text_input(t("Translation Outline Color"), value=trans_style.get('outline_color', '&H000000'))
-                trans_outline_w = st.number_input(t("Translation Outline Width"), value=int(trans_style.get('outline_width', 1)), min_value=0, step=1)
-                trans_shadow_depth = st.number_input(t("Translation Shadow Depth"), value=int(trans_style.get('shadow', 0)), min_value=0)
+                trans_outline_w = st.number_input(t("Translation Outline Width"), value=float(trans_style.get('outline_width', 1.0)), min_value=0.0, step=0.5)
+                trans_shadow_depth = st.number_input(t("Translation Shadow Depth"), value=float(trans_style.get('shadow', 0.0)), min_value=0.0, step=0.5)
                 trans_back = st.text_input(t("Translation Back Color"), value=trans_style.get('back_color', '&H33000000'))
                 trans_border = st.selectbox(t("Translation Border Style"), options=[1, 3, 4], index=[1, 3, 4].index(int(trans_style.get('border_style', 4))))
                 trans_align = st.selectbox(t("Translation Alignment"), options=list(range(1, 10)), index=list(range(1, 10)).index(int(trans_style.get('alignment', 2))))

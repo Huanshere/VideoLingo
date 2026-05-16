@@ -41,7 +41,7 @@ def _get_default_style(name):
             'primary_color': '&HFFFFFF', 'secondary_color': '&HFFFFFF',
             'outline_color': '&H000000', 'back_color': '&H000000',
             'bold': 0, 'italic': 0, 'border_style': 1,
-            'outline_width': 1, 'shadow': 0, 'alignment': 8,
+            'outline_width': 1.0, 'shadow': 0.0, 'alignment': 8,
             'margin_l': 10, 'margin_r': 10, 'margin_v': 10,
             'shadow_color': '&H80000000',
         },
@@ -50,7 +50,7 @@ def _get_default_style(name):
             'primary_color': '&H00FFFF', 'secondary_color': '&H00FFFF',
             'outline_color': '&H000000', 'back_color': '&H33000000',
             'bold': 0, 'italic': 0, 'border_style': 4,
-            'outline_width': 1, 'shadow': 0, 'alignment': 2,
+            'outline_width': 1.0, 'shadow': 0.0, 'alignment': 2,
             'margin_l': 10, 'margin_r': 10, 'margin_v': 27,
         },
     }
@@ -60,17 +60,66 @@ def _get_default_style(name):
 def _build_style_line(style_name, config):
     d = _get_default_style(style_name)
     merged = {**d, **config}
+    outline = merged['outline_width']
+    shadow = merged['shadow']
+    if isinstance(outline, float) and outline == int(outline):
+        outline = int(outline)
+    if isinstance(shadow, float) and shadow == int(shadow):
+        shadow = int(shadow)
     return (
         f"Style: {style_name.capitalize()},"
         f"{merged['fontname']},{merged['fontsize']},"
         f"{merged['primary_color']},{merged['secondary_color']},"
         f"{merged['outline_color']},{merged['back_color']},"
         f"{merged['bold']},{merged['italic']},0,0,"
-        f"100,100,{merged.get('spacing', 0)},{merged.get('angle', 0)},"
-        f"{merged['border_style']},{merged['outline_width']},{merged['shadow']},"
+        f"100,100,0,0,"
+        f"{merged['border_style']},{outline},{shadow},"
         f"{merged['alignment']},"
         f"{merged['margin_l']},{merged['margin_r']},{merged['margin_v']},1"
     )
+
+
+def parse_ass_style_line(line):
+    line = line.strip()
+    if line.lower().startswith('style:'):
+        line = line[len('style:'):].strip()
+    # Remove inline comments
+    if '*' in line:
+        line = line[:line.index('*')].strip()
+    parts = [p.strip() for p in line.split(',')]
+    if len(parts) < 22:
+        raise ValueError(f"ASS Style line needs >=22 fields, got {len(parts)}")
+    # Map: (0-based index in parts, config key, value_type)
+    # parts[0] = Name (skipped)
+    field_map = {
+        1: ('fontname', str),
+        2: ('fontsize', int),
+        3: ('primary_color', str),
+        4: ('secondary_color', str),
+        5: ('outline_color', str),
+        6: ('back_color', str),
+        7: ('bold', lambda v: 1 if v.lstrip('-') in ('1', '1.0') else 0),
+        8: ('italic', lambda v: 1 if v.lstrip('-') in ('1', '1.0') else 0),
+        15: ('border_style', int),
+        16: ('outline_width', float),
+        17: ('shadow', float),
+        18: ('alignment', int),
+        19: ('margin_l', int),
+        20: ('margin_r', int),
+        21: ('margin_v', int),
+    }
+    result = {}
+    for idx, (key, conv) in field_map.items():
+        val = parts[idx]
+        if isinstance(conv, type) and issubclass(conv, int):
+            result[key] = int(float(val))
+        elif isinstance(conv, type) and issubclass(conv, float):
+            result[key] = float(val)
+        elif callable(conv):
+            result[key] = conv(val)
+        else:
+            result[key] = conv(val)
+    return result
 
 
 def generate_ass(df, columns, output_path, style_config, video_resolution=None):

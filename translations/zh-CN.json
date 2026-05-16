@@ -155,5 +155,13 @@
     "Source Secondary Color": "源语言次要颜色",
     "Translation Shadow Depth": "译文阴影深度",
     "Translation Secondary Color": "译文次要颜色",
-    "ASS style saved": "ASS样式已保存"
+    "ASS style saved": "ASS样式已保存",
+    "Import ASS Style": "导入ASS样式",
+    "Paste ASS Style line": "粘贴ASS样式行",
+    "Apply to": "应用到",
+    "Source": "源语言",
+    "Translation": "译文",
+    "Both": "两者",
+    "Import Style": "导入样式",
+    "Style imported successfully": "样式导入成功"
 }
