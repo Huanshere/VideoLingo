@@ -38,15 +38,20 @@ def _get_default_style(name):
     defaults = {
         'source': {
             'fontname': 'Arial', 'fontsize': 17,
-            'primary_color': '&HFFFFFF', 'outline_color': '&H000000',
-            'outline_width': 1, 'shadow_color': '&H80000000',
-            'border_style': 1, 'alignment': 8, 'margin_v': 10,
+            'primary_color': '&HFFFFFF', 'secondary_color': '&HFFFFFF',
+            'outline_color': '&H000000', 'back_color': '&H000000',
+            'bold': 0, 'italic': 0, 'border_style': 1,
+            'outline_width': 1, 'shadow': 0, 'alignment': 8,
+            'margin_l': 10, 'margin_r': 10, 'margin_v': 10,
+            'shadow_color': '&H80000000',
         },
         'translation': {
             'fontname': 'Arial', 'fontsize': 17,
-            'primary_color': '&H00FFFF', 'outline_color': '&H000000',
-            'outline_width': 1, 'back_color': '&H33000000',
-            'border_style': 4, 'alignment': 2, 'margin_v': 27,
+            'primary_color': '&H00FFFF', 'secondary_color': '&H00FFFF',
+            'outline_color': '&H000000', 'back_color': '&H33000000',
+            'bold': 0, 'italic': 0, 'border_style': 4,
+            'outline_width': 1, 'shadow': 0, 'alignment': 2,
+            'margin_l': 10, 'margin_r': 10, 'margin_v': 27,
         },
     }
     return defaults.get(name, defaults['translation'])
@@ -55,18 +60,16 @@ def _get_default_style(name):
 def _build_style_line(style_name, config):
     d = _get_default_style(style_name)
     merged = {**d, **config}
-    back_colour = merged.get('back_color', '&H000000')
-    margin_l = merged.get('margin_l', 10)
-    margin_r = merged.get('margin_r', 10)
-    margin_v = merged.get('margin_v', 10)
     return (
         f"Style: {style_name.capitalize()},"
         f"{merged['fontname']},{merged['fontsize']},"
-        f"{merged['primary_color']},{merged['primary_color']},&H000000,{back_colour},"
-        f"{back_colour},{merged['outline_width']},"
-        f"{merged['outline_width']},{merged['border_style']},"
-        f"0,100,100,0,{merged['alignment']},"
-        f"{margin_l},{margin_r},{margin_v},1"
+        f"{merged['primary_color']},{merged['secondary_color']},"
+        f"{merged['outline_color']},{merged['back_color']},"
+        f"{merged['bold']},{merged['italic']},0,0,"
+        f"100,100,{merged.get('spacing', 0)},{merged.get('angle', 0)},"
+        f"{merged['border_style']},{merged['outline_width']},{merged['shadow']},"
+        f"{merged['alignment']},"
+        f"{merged['margin_l']},{merged['margin_r']},{merged['margin_v']},1"
     )
 
 

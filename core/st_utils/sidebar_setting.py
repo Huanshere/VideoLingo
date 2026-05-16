@@ -267,9 +267,10 @@ def page_setting():
                 src_fontname = st.text_input(t("Source Font Name"), value=src_style.get('fontname', 'Arial'))
                 src_fontsize = st.number_input(t("Source Font Size"), value=int(src_style.get('fontsize', 17)), min_value=1)
                 src_primary = st.text_input(t("Source Primary Color"), value=src_style.get('primary_color', '&HFFFFFF'))
+                src_secondary = st.text_input(t("Source Secondary Color"), value=src_style.get('secondary_color', '&HFFFFFF'))
                 src_outline = st.text_input(t("Source Outline Color"), value=src_style.get('outline_color', '&H000000'))
-                src_outline_w = st.number_input(t("Source Outline Width"), value=int(src_style.get('outline_width', 1)), min_value=0)
-                src_shadow = st.text_input(t("Source Shadow Color"), value=src_style.get('shadow_color', '&H80000000'))
+                src_outline_w = st.number_input(t("Source Outline Width"), value=int(src_style.get('outline_width', 1)), min_value=0, step=1)
+                src_shadow_depth = st.number_input(t("Source Shadow Depth"), value=int(src_style.get('shadow', 0)), min_value=0)
                 src_border = st.selectbox(t("Source Border Style"), options=[1, 3], index=[1, 3].index(int(src_style.get('border_style', 1))))
                 src_align = st.selectbox(t("Source Alignment"), options=list(range(1, 10)), index=list(range(1, 10)).index(int(src_style.get('alignment', 8))))
                 src_marginv = st.number_input(t("Source Margin V"), value=int(src_style.get('margin_v', 10)), min_value=0)
@@ -278,8 +279,10 @@ def page_setting():
                 trans_fontname = st.text_input(t("Translation Font Name"), value=trans_style.get('fontname', 'Arial'))
                 trans_fontsize = st.number_input(t("Translation Font Size"), value=int(trans_style.get('fontsize', 17)), min_value=1)
                 trans_primary = st.text_input(t("Translation Primary Color"), value=trans_style.get('primary_color', '&H00FFFF'))
+                trans_secondary = st.text_input(t("Translation Secondary Color"), value=trans_style.get('secondary_color', '&H00FFFF'))
                 trans_outline = st.text_input(t("Translation Outline Color"), value=trans_style.get('outline_color', '&H000000'))
-                trans_outline_w = st.number_input(t("Translation Outline Width"), value=int(trans_style.get('outline_width', 1)), min_value=0)
+                trans_outline_w = st.number_input(t("Translation Outline Width"), value=int(trans_style.get('outline_width', 1)), min_value=0, step=1)
+                trans_shadow_depth = st.number_input(t("Translation Shadow Depth"), value=int(trans_style.get('shadow', 0)), min_value=0)
                 trans_back = st.text_input(t("Translation Back Color"), value=trans_style.get('back_color', '&H33000000'))
                 trans_border = st.selectbox(t("Translation Border Style"), options=[1, 3, 4], index=[1, 3, 4].index(int(trans_style.get('border_style', 4))))
                 trans_align = st.selectbox(t("Translation Alignment"), options=list(range(1, 10)), index=list(range(1, 10)).index(int(trans_style.get('alignment', 2))))
@@ -288,15 +291,22 @@ def page_setting():
                 if st.button(t("Save ASS Style")):
                     update_key("subtitle.ass_style.source", {
                         'fontname': src_fontname, 'fontsize': src_fontsize,
-                        'primary_color': src_primary, 'outline_color': src_outline,
-                        'outline_width': src_outline_w, 'shadow_color': src_shadow,
-                        'border_style': src_border, 'alignment': src_align, 'margin_v': src_marginv,
+                        'primary_color': src_primary, 'secondary_color': src_secondary,
+                        'outline_color': src_outline, 'back_color': '&H000000',
+                        'bold': 0, 'italic': 0,
+                        'outline_width': src_outline_w, 'shadow': src_shadow_depth,
+                        'shadow_color': '&H80000000',
+                        'border_style': src_border, 'alignment': src_align,
+                        'margin_l': 10, 'margin_r': 10, 'margin_v': src_marginv,
                     })
                     update_key("subtitle.ass_style.translation", {
                         'fontname': trans_fontname, 'fontsize': trans_fontsize,
-                        'primary_color': trans_primary, 'outline_color': trans_outline,
-                        'outline_width': trans_outline_w, 'back_color': trans_back,
-                        'border_style': trans_border, 'alignment': trans_align, 'margin_v': trans_marginv,
+                        'primary_color': trans_primary, 'secondary_color': trans_secondary,
+                        'outline_color': trans_outline, 'back_color': trans_back,
+                        'bold': 0, 'italic': 0,
+                        'outline_width': trans_outline_w, 'shadow': trans_shadow_depth,
+                        'border_style': trans_border, 'alignment': trans_align,
+                        'margin_l': 10, 'margin_r': 10, 'margin_v': trans_marginv,
                     })
                     st.toast(t("ASS style saved"))
     with st.expander(t("Dubbing Settings"), expanded=True):

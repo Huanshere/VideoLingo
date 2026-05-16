@@ -16,12 +16,13 @@ SRT_SRC_DEFAULTS = {
     'fontname': 'Arial', 'fontsize': 15,
     'primary_color': '&HFFFFFF', 'outline_color': '&H000000',
     'outline_width': 1, 'shadow_color': '&H80000000', 'border_style': 1,
+    'alignment': 8, 'margin_v': 10, 'margin_l': 10, 'margin_r': 10,
 }
 SRT_TRANS_DEFAULTS = {
     'fontname': 'Arial', 'fontsize': 17,
     'primary_color': '&H00FFFF', 'outline_color': '&H000000',
     'outline_width': 1, 'back_color': '&H33000000', 'border_style': 4,
-    'alignment': 2, 'margin_v': 27,
+    'alignment': 2, 'margin_v': 27, 'margin_l': 10, 'margin_r': 10,
 }
 
 def _platform_fontname():

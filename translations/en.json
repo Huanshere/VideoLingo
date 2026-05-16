@@ -151,5 +151,9 @@
     "Translation Alignment": "Translation Alignment",
     "Translation Margin V": "Translation Margin V",
     "Save ASS Style": "Save ASS Style",
+    "Source Shadow Depth": "Source Shadow Depth",
+    "Source Secondary Color": "Source Secondary Color",
+    "Translation Shadow Depth": "Translation Shadow Depth",
+    "Translation Secondary Color": "Translation Secondary Color",
     "ASS style saved": "ASS style saved"
 }

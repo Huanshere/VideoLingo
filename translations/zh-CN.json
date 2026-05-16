@@ -151,5 +151,9 @@
     "Translation Alignment": "译文对齐方式",
     "Translation Margin V": "译文垂直边距",
     "Save ASS Style": "保存ASS样式",
+    "Source Shadow Depth": "源语言阴影深度",
+    "Source Secondary Color": "源语言次要颜色",
+    "Translation Shadow Depth": "译文阴影深度",
+    "Translation Secondary Color": "译文次要颜色",
     "ASS style saved": "ASS样式已保存"
 }
