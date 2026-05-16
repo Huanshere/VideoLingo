@@ -90,8 +90,10 @@ subtitle:
   # *             'relative' = PlayResX/Y from config below, fontsize scaled proportionally
   ass_style:
     scale_mode: 'absolute'
+    # --- 仅 relative 模式生效 ---
     play_res_x: 1920
     play_res_y: 1080
+    # ---------------------------
     source:
       fontname: 'Arial'
       fontsize: 17
