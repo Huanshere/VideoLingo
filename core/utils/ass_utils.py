@@ -8,11 +8,6 @@ ASS_OUTPUT_CONFIGS = [
     ('trans_src.ass', ['Translation', 'Source']),
 ]
 
-ASS_AUDIO_OUTPUT_CONFIGS = [
-    ('src_subs_for_audio.ass', ['Source']),
-    ('trans_subs_for_audio.ass', ['Translation']),
-]
-
 
 def seconds_to_ass_time(seconds):
     h = int(seconds // 3600)

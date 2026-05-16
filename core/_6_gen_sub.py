@@ -6,7 +6,7 @@ from rich.console import Console
 import autocorrect_py as autocorrect
 from core.utils import *
 from core.utils.models import *
-from core.utils.ass_utils import generate_ass, ASS_OUTPUT_CONFIGS, ASS_AUDIO_OUTPUT_CONFIGS
+from core.utils.ass_utils import generate_ass, ASS_OUTPUT_CONFIGS
 console = Console()
 
 SUBTITLE_OUTPUT_CONFIGS = [ 
@@ -171,10 +171,6 @@ def align_timestamp_main():
         for filename, columns in ASS_OUTPUT_CONFIGS:
             filepath = os.path.join(_OUTPUT_DIR, filename)
             generate_ass(df_trans_time, columns, filepath, style_config)
-
-        for filename, columns in ASS_AUDIO_OUTPUT_CONFIGS:
-            filepath = os.path.join(_AUDIO_DIR, filename)
-            generate_ass(df_trans_time_audio, columns, filepath, style_config)
 
         console.print(Panel("[bold green]🎉📝 ASS subtitles generated! Please check in the `output` folder 👀[/bold green]"))
     
