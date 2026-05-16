@@ -163,5 +163,12 @@
     "Translation": "译文",
     "Both": "两者",
     "Import Style": "导入样式",
-    "Style imported successfully": "样式导入成功"
+    "Style imported successfully": "样式导入成功",
+    "SRT Style Settings": "SRT样式设置",
+    "Save SRT Style": "保存SRT样式",
+    "SRT style saved": "SRT样式已保存",
+    "Source Margin L": "源语言左边距",
+    "Source Margin R": "源语言右边距",
+    "Translation Margin L": "译文左边距",
+    "Translation Margin R": "译文右边距"
 }

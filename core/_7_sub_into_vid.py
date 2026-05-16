@@ -32,8 +32,9 @@ def _platform_fontname():
         return 'Arial Unicode MS'
     return 'Arial'
 
-def _build_srt_force_style(style_key, config_key):
+def _build_srt_force_style(style_key):
     defaults = SRT_SRC_DEFAULTS if style_key == 'source' else SRT_TRANS_DEFAULTS
+    config_key = f"subtitle.srt_style.{style_key}"
     style = load_key(config_key) or {}
     merged = {**defaults, **style}
     if 'fontname' not in style:
@@ -99,8 +100,8 @@ def merge_subtitles_to_video():
             rprint("Subtitle files not found in the 'output' directory.")
             exit(1)
 
-        src_force = _build_srt_force_style('source', 'subtitle.ass_style.source')
-        trans_force = _build_srt_force_style('translation', 'subtitle.ass_style.translation')
+        src_force = _build_srt_force_style('source')
+        trans_force = _build_srt_force_style('translation')
         src_style = f"subtitles={SRC_SRT}:force_style='{src_force}'"
         trans_style = f"subtitles={TRANS_SRT}:force_style='{trans_force}'"
 

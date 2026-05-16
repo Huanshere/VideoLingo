@@ -57,7 +57,34 @@ subtitle:
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
   # *Subtitle format for burning into video: 'srt' or 'ass'
-  format: 'ass'
+  format: 'srt'
+  # *SRT style settings (only effective when format is 'srt')
+  # *These map to ffmpeg force_style parameters
+  srt_style:
+    source:
+      fontname: 'Arial'
+      fontsize: 15
+      primary_color: '&HFFFFFF'
+      outline_color: '&H000000'
+      outline_width: 1.0
+      shadow_color: '&H80000000'
+      border_style: 1
+      alignment: 8
+      margin_v: 10
+      margin_l: 10
+      margin_r: 10
+    translation:
+      fontname: 'Arial'
+      fontsize: 17
+      primary_color: '&H00FFFF'
+      outline_color: '&H000000'
+      outline_width: 1.0
+      back_color: '&H33000000'
+      border_style: 4
+      alignment: 2
+      margin_v: 27
+      margin_l: 10
+      margin_r: 10
   # *ASS style settings (only effective when format is 'ass')
   # *scale_mode: 'absolute' = PlayResX/Y matches video resolution, fontsize = absolute pixels
   # *             'relative' = PlayResX/Y from config below, fontsize scaled proportionally
@@ -74,10 +101,10 @@ subtitle:
       back_color: '&H000000'
       bold: 0
       italic: 0
+      border_style: 1
       outline_width: 1.0
       shadow: 0.0
       shadow_color: '&H80000000'
-      border_style: 1
       alignment: 8
       margin_l: 10
       margin_r: 10
@@ -91,15 +118,13 @@ subtitle:
       back_color: '&H33000000'
       bold: 0
       italic: 0
+      border_style: 4
       outline_width: 1.0
       shadow: 0.0
-      border_style: 4
       alignment: 2
       margin_l: 10
       margin_r: 10
       margin_v: 27
-
-# *Summary length, set low to 2k if using local LLM
 summary_length: 8000
 
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
@@ -175,8 +200,7 @@ tolerance: 1.5 # Allowed extension time to the next subtitle
 
 
 
-
-## ======================== Additional settings ======================== ##
+## ======================== Additional settings ========================##
 
 # Whisper model directory
 model_dir: './_model_cache'
@@ -205,8 +229,7 @@ spacy_model_map:
   ja: 'ja_core_news_md'
   es: 'es_core_news_md'
   de: 'de_core_news_md'
-  it: 'it_core_news_md'
-  zh: 'zh_core_web_md'
+  it: 'it_core_web_md'
 
 # Languages that use space as separator
 language_split_with_space:

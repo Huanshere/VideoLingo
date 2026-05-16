@@ -34,7 +34,7 @@ def _platform_fontname():
 
 def _build_dub_force_style():
     defaults = SRT_TRANS_DEFAULTS
-    style = load_key("subtitle.ass_style.translation") or {}
+    style = load_key("subtitle.srt_style.translation") or {}
     merged = {**defaults, **style}
     if 'fontname' not in style:
         merged['fontname'] = _platform_fontname()

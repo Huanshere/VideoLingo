@@ -237,7 +237,63 @@ def page_setting():
             update_key("subtitle.format", subtitle_format)
             st.rerun()
 
-        if subtitle_format == 'ass':
+        if subtitle_format == 'srt':
+            with st.expander(t("SRT Style Settings")):
+                srt_style = load_key("subtitle.srt_style") or {}
+                src_style = srt_style.get('source', {})
+                trans_style = srt_style.get('translation', {})
+
+                st.subheader(t("Source Subtitle Style"))
+                src_fontname = st.text_input(t("Source Font Name"), value=src_style.get('fontname', 'Arial'))
+                src_fontsize = st.number_input(t("Source Font Size"), value=int(src_style.get('fontsize', 15)), min_value=1)
+                src_primary = st.text_input(t("Source Primary Color"), value=src_style.get('primary_color', '&HFFFFFF'))
+                src_outline = st.text_input(t("Source Outline Color"), value=src_style.get('outline_color', '&H000000'))
+                src_outline_w = st.number_input(t("Source Outline Width"), value=float(src_style.get('outline_width', 1.0)), min_value=0.0, step=0.5)
+                src_shadow_color = st.text_input(t("Source Shadow Color"), value=src_style.get('shadow_color', '&H80000000'))
+                src_border_opts = sorted(set([1, 3, 4] + [int(src_style.get('border_style', 1))]))
+                src_border_default = int(src_style.get('border_style', 1))
+                src_border = st.selectbox(t("Source Border Style"), options=src_border_opts, index=src_border_opts.index(src_border_default) if src_border_default in src_border_opts else 0)
+                align_opts = sorted(set(list(range(1, 10)) + [int(src_style.get('alignment', 8))]))
+                src_align_default = int(src_style.get('alignment', 8))
+                src_align = st.selectbox(t("Source Alignment"), options=align_opts, index=align_opts.index(src_align_default) if src_align_default in align_opts else 7)
+                src_marginv = st.number_input(t("Source Margin V"), value=int(src_style.get('margin_v', 10)), min_value=0)
+                src_marginl = st.number_input(t("Source Margin L"), value=int(src_style.get('margin_l', 10)), min_value=0)
+                src_marginr = st.number_input(t("Source Margin R"), value=int(src_style.get('margin_r', 10)), min_value=0)
+
+                st.subheader(t("Translation Subtitle Style"))
+                trans_fontname = st.text_input(t("Translation Font Name"), value=trans_style.get('fontname', 'Arial'))
+                trans_fontsize = st.number_input(t("Translation Font Size"), value=int(trans_style.get('fontsize', 17)), min_value=1)
+                trans_primary = st.text_input(t("Translation Primary Color"), value=trans_style.get('primary_color', '&H00FFFF'))
+                trans_outline = st.text_input(t("Translation Outline Color"), value=trans_style.get('outline_color', '&H000000'))
+                trans_outline_w = st.number_input(t("Translation Outline Width"), value=float(trans_style.get('outline_width', 1.0)), min_value=0.0, step=0.5)
+                trans_back = st.text_input(t("Translation Back Color"), value=trans_style.get('back_color', '&H33000000'))
+                trans_border_opts = sorted(set([1, 3, 4] + [int(trans_style.get('border_style', 4))]))
+                trans_border_default = int(trans_style.get('border_style', 4))
+                trans_border = st.selectbox(t("Translation Border Style"), options=trans_border_opts, index=trans_border_opts.index(trans_border_default) if trans_border_default in trans_border_opts else 0)
+                trans_align_opts = sorted(set(list(range(1, 10)) + [int(trans_style.get('alignment', 2))]))
+                trans_align_default = int(trans_style.get('alignment', 2))
+                trans_align = st.selectbox(t("Translation Alignment"), options=trans_align_opts, index=trans_align_opts.index(trans_align_default) if trans_align_default in trans_align_opts else 1)
+                trans_marginv = st.number_input(t("Translation Margin V"), value=int(trans_style.get('margin_v', 27)), min_value=0)
+                trans_marginl = st.number_input(t("Translation Margin L"), value=int(trans_style.get('margin_l', 10)), min_value=0)
+                trans_marginr = st.number_input(t("Translation Margin R"), value=int(trans_style.get('margin_r', 10)), min_value=0)
+
+                if st.button(t("Save SRT Style")):
+                    update_key("subtitle.srt_style.source", {
+                        'fontname': src_fontname, 'fontsize': src_fontsize,
+                        'primary_color': src_primary, 'outline_color': src_outline,
+                        'outline_width': src_outline_w, 'shadow_color': src_shadow_color,
+                        'border_style': src_border, 'alignment': src_align,
+                        'margin_v': src_marginv, 'margin_l': src_marginl, 'margin_r': src_marginr,
+                    })
+                    update_key("subtitle.srt_style.translation", {
+                        'fontname': trans_fontname, 'fontsize': trans_fontsize,
+                        'primary_color': trans_primary, 'outline_color': trans_outline,
+                        'outline_width': trans_outline_w, 'back_color': trans_back,
+                        'border_style': trans_border, 'alignment': trans_align,
+                        'margin_v': trans_marginv, 'margin_l': trans_marginl, 'margin_r': trans_marginr,
+                    })
+                    st.toast(t("SRT style saved"))
+        elif subtitle_format == 'ass':
             with st.expander(t("ASS Style Settings")):
                 ass_style = load_key("subtitle.ass_style") or {}
 

@@ -163,5 +163,12 @@
     "Translation": "Translation",
     "Both": "Both",
     "Import Style": "Import Style",
-    "Style imported successfully": "Style imported successfully"
+    "Style imported successfully": "Style imported successfully",
+    "SRT Style Settings": "SRT Style Settings",
+    "Save SRT Style": "Save SRT Style",
+    "SRT style saved": "SRT style saved",
+    "Source Margin L": "Source Margin L",
+    "Source Margin R": "Source Margin R",
+    "Translation Margin L": "Translation Margin L",
+    "Translation Margin R": "Translation Margin R"
 }
