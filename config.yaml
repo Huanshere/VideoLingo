@@ -15,6 +15,8 @@ api:
   base_url: 'https://yunwu.ai'
   model: ''
   llm_support_json: false
+  # LLM provider: 'openai' (default, OpenAI-compatible API) or 'litellm' (100+ providers via LiteLLM)
+  provider: 'openai'
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4
 

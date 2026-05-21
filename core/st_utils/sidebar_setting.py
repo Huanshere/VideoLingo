@@ -65,11 +65,25 @@ def page_setting():
     #     config_input(t("Cookies Path"), "youtube.cookies_path")
 
     with st.expander(t("LLM Configuration"), expanded=True):
+        providers = ["openai", "litellm"]
+        current_provider = load_key("api.provider")
+        if current_provider not in providers:
+            current_provider = "openai"
+        selected_provider = st.selectbox(
+            t("LLM Provider"),
+            options=providers,
+            index=providers.index(current_provider),
+            help=t("'openai' for OpenAI-compatible APIs, 'litellm' for 100+ providers (Anthropic, Google, Azure, etc.) via LiteLLM"),
+        )
+        if selected_provider != load_key("api.provider"):
+            update_key("api.provider", selected_provider)
+            st.rerun()
+
         config_input(t("API_KEY"), "api.key", placeholder=t("Enter your API key"))
         config_input(
             t("BASE_URL"),
             "api.base_url",
-            help=t("Openai format, will add /v1/chat/completions automatically"),
+            help=t("Openai format, will add /v1/chat/completions automatically") if selected_provider == "openai" else t("Optional: custom endpoint URL (leave empty to use provider defaults)"),
         )
 
         # Try to use searchbox for model selection, fall back to text_input
