@@ -1,5 +1,6 @@
 import streamlit as st
 import os, sys, time
+import cv2  # Preload OpenCV before the heavier core import chain on Windows.
 from core.st_utils.imports_and_utils import *
 from core.st_utils.task_runner import TaskRunner
 from core import *
