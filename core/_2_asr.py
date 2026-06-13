@@ -1,6 +1,6 @@
 from core.utils import *
 from core.asr_backend.demucs_vl import demucs_audio
-from core.asr_backend.audio_preprocess import process_transcription, convert_video_to_audio, split_audio, save_results, normalize_audio_volume
+from core.asr_backend.audio_preprocess import process_transcription, convert_video_to_audio, split_audio, save_results, save_segments, normalize_audio_volume
 from core._1_ytdlp import find_video_files
 from core.utils.models import *
 
@@ -43,6 +43,7 @@ def transcribe():
         combined_result['segments'].extend(result['segments'])
     
     # 6. Process df
+    save_segments(combined_result)
     df = process_transcription(combined_result)
     save_results(df)
         

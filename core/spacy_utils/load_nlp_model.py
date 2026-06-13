@@ -12,7 +12,8 @@ def get_spacy_model(language: str):
 
 @except_handler("Failed to load NLP Spacy model")
 def init_nlp():
-    language = "en" if load_key("whisper.language") == "en" else load_key("whisper.detected_language")
+    whisper_language = load_key("whisper.language")
+    language = load_key("whisper.detected_language") if whisper_language == "auto" else whisper_language
     model = get_spacy_model(language)
     rprint(f"[blue]⏳ Loading NLP Spacy model: <{model}> ...[/blue]")
     try:

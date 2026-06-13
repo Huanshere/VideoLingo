@@ -177,5 +177,30 @@ def save_results(df: pd.DataFrame):
     df.to_excel(_2_CLEANED_CHUNKS, index=False)
     rprint(f"[green]📊 Excel file saved to {_2_CLEANED_CHUNKS}[/green]")
 
+def save_segments(result: Dict):
+    """Save ASR segment-level text for NLP splitting.
+
+    Word/character-level rows remain in cleaned_chunks.xlsx for precise timestamp
+    alignment. Segment text is a better input for spaCy/LLM splitting in CJK
+    languages where WhisperX alignment may be character-level.
+    """
+    os.makedirs('output/log', exist_ok=True)
+    rows = []
+    for segment in result.get('segments', []):
+        text = str(segment.get('text', '')).strip()
+        if not text and segment.get('words'):
+            text = ''.join(str(word.get('word', word.get('text', ''))) for word in segment['words']).strip()
+        if not text:
+            continue
+        rows.append({
+            'text': text,
+            'start': segment.get('start'),
+            'end': segment.get('end'),
+            'speaker_id': segment.get('speaker_id')
+        })
+
+    pd.DataFrame(rows, columns=['text', 'start', 'end', 'speaker_id']).to_excel(_2_ASR_SEGMENTS, index=False)
+    rprint(f"[green]📊 Segment file saved to {_2_ASR_SEGMENTS}[/green]")
+
 def save_language(language: str):
     update_key("whisper.detected_language", language)
