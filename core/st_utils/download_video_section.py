@@ -7,11 +7,11 @@ from time import sleep
 import streamlit as st
 from core._1_ytdlp import download_video_ytdlp, find_video_files
 from core.utils import *
+from core.workspace import output_path
 from translations.translations import translate as t
 
-OUTPUT_DIR = "output"
-
 def download_video_section():
+    output_dir = str(output_path())
     st.header(t("a. Download or Upload Video"))
     with st.container(border=True):
         try:
@@ -19,8 +19,8 @@ def download_video_section():
             st.video(video_file)
             if st.button(t("Delete and Reselect"), key="delete_video_button"):
                 os.remove(video_file)
-                if os.path.exists(OUTPUT_DIR):
-                    shutil.rmtree(OUTPUT_DIR)
+                if os.path.exists(output_dir):
+                    shutil.rmtree(output_dir)
                 sleep(1)
                 st.rerun()
             return True
@@ -47,25 +47,25 @@ def download_video_section():
 
             uploaded_file = st.file_uploader(t("Or upload video"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
             if uploaded_file:
-                if os.path.exists(OUTPUT_DIR):
-                    shutil.rmtree(OUTPUT_DIR)
-                os.makedirs(OUTPUT_DIR, exist_ok=True)
+                if os.path.exists(output_dir):
+                    shutil.rmtree(output_dir)
+                os.makedirs(output_dir, exist_ok=True)
                 
                 raw_name = uploaded_file.name.replace(' ', '_')
                 name, ext = os.path.splitext(raw_name)
                 clean_name = re.sub(r'[^\w\-_\.]', '', name) + ext.lower()
                     
-                with open(os.path.join(OUTPUT_DIR, clean_name), "wb") as f:
+                with open(os.path.join(output_dir, clean_name), "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
                 if ext.lower() in load_key("allowed_audio_formats"):
-                    convert_audio_to_video(os.path.join(OUTPUT_DIR, clean_name))
+                    convert_audio_to_video(os.path.join(output_dir, clean_name))
                 st.rerun()
             else:
                 return False
 
 def convert_audio_to_video(audio_file: str) -> str:
-    output_video = os.path.join(OUTPUT_DIR, 'black_screen.mp4')
+    output_video = os.path.join(str(output_path()), 'black_screen.mp4')
     if not os.path.exists(output_video):
         print(f"🎵➡️🎬 Converting audio to video with FFmpeg ......")
         ffmpeg_cmd = ['ffmpeg', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=640x360', '-i', audio_file, '-shortest', '-c:v', 'libx264', '-c:a', 'aac', '-pix_fmt', 'yuv420p', output_video]

@@ -1,7 +1,7 @@
 import os
 from core.st_utils.imports_and_utils import *
-from core.utils.onekeycleanup import cleanup
 from core.utils import load_key
+from core.workspace import output_path
 import shutil
 from functools import partial
 from rich.panel import Panel
@@ -11,14 +11,11 @@ from core import *
 console = Console()
 
 INPUT_DIR = 'batch/input'
-OUTPUT_DIR = 'output'
-SAVE_DIR = 'batch/output'
-ERROR_OUTPUT_DIR = 'batch/output/ERROR'
 YTB_RESOLUTION_KEY = "ytb_resolution"
 
 def process_video(file, dubbing=False, is_retry=False):
     if not is_retry:
-        prepare_output_folder(OUTPUT_DIR)
+        prepare_output_folder(str(output_path()))
     
     text_steps = [
         ("🎥 Processing input file", partial(process_input_file, file)),
@@ -60,7 +57,6 @@ def process_video(file, dubbing=False, is_retry=False):
                         border_style="red"
                     )
                     console.print(error_panel)
-                    cleanup(ERROR_OUTPUT_DIR)
                     return False, current_step, str(e)
                 console.print(Panel(
                     f"[yellow]Attempt {attempt + 1} failed. Retrying...[/]",
@@ -68,7 +64,6 @@ def process_video(file, dubbing=False, is_retry=False):
                 ))
     
     console.print(Panel("[bold green]All steps completed successfully! 🎉[/]", border_style="green"))
-    cleanup(SAVE_DIR)
     return True, "", ""
 
 def prepare_output_folder(output_folder):
@@ -82,7 +77,7 @@ def process_input_file(file):
         video_file = _1_ytdlp.find_video_files()
     else:
         input_file = os.path.join('batch', 'input', file)
-        output_file = os.path.join(OUTPUT_DIR, file)
+        output_file = os.path.join(str(output_path()), file)
         shutil.copy(input_file, output_file)
         video_file = output_file
     return {'video_file': video_file}

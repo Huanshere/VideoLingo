@@ -9,12 +9,13 @@ from core._1_ytdlp import find_video_files
 from core.asr_backend.audio_preprocess import normalize_audio_volume
 from core.utils import *
 from core.utils.models import *
+from core.workspace import output_path
 
 console = Console()
 
-DUB_VIDEO = "output/output_dub.mp4"
-DUB_SUB_FILE = 'output/dub.srt'
-DUB_AUDIO = 'output/dub.mp3'
+DUB_VIDEO = output_path("output_dub.mp4")
+DUB_SUB_FILE = output_path("dub.srt")
+DUB_AUDIO = output_path("dub.mp3")
 
 TRANS_FONT_SIZE = 17
 TRANS_FONT_NAME = 'Arial'
@@ -31,7 +32,10 @@ TRANS_BACK_COLOR = '&H33000000'
 def merge_video_audio():
     """Merge video and audio, and reduce video volume"""
     VIDEO_FILE = find_video_files()
-    background_file = _BACKGROUND_AUDIO_FILE
+    background_file = str(_BACKGROUND_AUDIO_FILE)
+    dub_video = str(DUB_VIDEO)
+    dub_audio = str(DUB_AUDIO)
+    dub_sub_file = str(DUB_SUB_FILE)
     
     if not load_key("burn_subtitles"):
         rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as subtitles are not burned in.[/bold yellow]")
@@ -39,7 +43,7 @@ def merge_video_audio():
         # Create a black frame
         frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(DUB_VIDEO, fourcc, 1, (1920, 1080))
+        out = cv2.VideoWriter(dub_video, fourcc, 1, (1920, 1080))
         out.write(frame)
         out.release()
 
@@ -47,8 +51,8 @@ def merge_video_audio():
         return
 
     # Normalize dub audio
-    normalized_dub_audio = 'output/normalized_dub.wav'
-    normalize_audio_volume(DUB_AUDIO, normalized_dub_audio)
+    normalized_dub_audio = str(output_path("normalized_dub.wav"))
+    normalize_audio_volume(dub_audio, normalized_dub_audio)
     
     # Merge video and audio with translated subtitles
     video = cv2.VideoCapture(VIDEO_FILE)
@@ -58,7 +62,7 @@ def merge_video_audio():
     rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
     
     subtitle_filter = (
-        f"subtitles={DUB_SUB_FILE}:force_style='FontSize={TRANS_FONT_SIZE},"
+        f"subtitles={dub_sub_file}:force_style='FontSize={TRANS_FONT_SIZE},"
         f"FontName={TRANS_FONT_NAME},PrimaryColour={TRANS_FONT_COLOR},"
         f"OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
         f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
@@ -79,10 +83,10 @@ def merge_video_audio():
     else:
         cmd.extend(['-map', '[v]', '-map', '[a]'])
     
-    cmd.extend(['-c:a', 'aac', '-b:a', '96k', DUB_VIDEO])
+    cmd.extend(['-c:a', 'aac', '-b:a', '96k', dub_video])
     
     subprocess.run(cmd)
-    rprint(f"[bold green]Video and audio successfully merged into {DUB_VIDEO}[/bold green]")
+    rprint(f"[bold green]Video and audio successfully merged into {dub_video}[/bold green]")
 
 if __name__ == '__main__':
     merge_video_audio()

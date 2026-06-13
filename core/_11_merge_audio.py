@@ -6,12 +6,16 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskPr
 from rich.console import Console
 from core.utils import *
 from core.utils.models import *
+from core.workspace import output_path
 console = Console()
 
-DUB_VOCAL_FILE = 'output/dub.mp3'
+DUB_VOCAL_FILE = output_path("dub.mp3")
 
-DUB_SUB_FILE = 'output/dub.srt'
-OUTPUT_FILE_TEMPLATE = f"{_AUDIO_SEGS_DIR}/{{}}.wav"
+DUB_SUB_FILE = output_path("dub.srt")
+
+
+def output_file_path(number, line_index):
+    return os.path.join(str(_AUDIO_SEGS_DIR), f"{number}_{line_index}.wav")
 
 def load_and_flatten_data(excel_file):
     """Load and flatten Excel data"""
@@ -31,7 +35,7 @@ def get_audio_files(df):
         number = row['number']
         line_count = len(eval(row['lines']) if isinstance(row['lines'], str) else row['lines'])
         for line_index in range(line_count):
-            temp_file = OUTPUT_FILE_TEMPLATE.format(f"{number}_{line_index}")
+            temp_file = output_file_path(number, line_index)
             audios.append(temp_file)
     return audios
 
@@ -123,7 +127,7 @@ def merge_full_audio():
     
     with console.status("[bold cyan]💾 Exporting final audio file...[/bold cyan]"):
         merged_audio = merged_audio.set_frame_rate(16000).set_channels(1)
-        merged_audio.export(DUB_VOCAL_FILE, format="mp3", parameters=["-b:a", "64k"])
+        merged_audio.export(str(DUB_VOCAL_FILE), format="mp3", parameters=["-b:a", "64k"])
     console.print(f"[bold green]✅ Audio file successfully merged![/bold green]")
     console.print(f"[bold green]📁 Output file: {DUB_VOCAL_FILE}[/bold green]")
 

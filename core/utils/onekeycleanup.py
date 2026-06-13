@@ -2,13 +2,19 @@ import os
 import glob
 from core._1_ytdlp import find_video_files
 import shutil
+from core.workspace import get_active_workspace, output_path
 
 def cleanup(history_dir="history"):
     # Get video file name
     video_file = find_video_files()
-    video_name = video_file.split("/")[1]
+    video_name = os.path.basename(video_file)
     video_name = os.path.splitext(video_name)[0]
     video_name = sanitize_filename(video_name)
+
+    output_dir = str(output_path())
+    active_workspace = get_active_workspace()
+    if active_workspace:
+        history_dir = os.path.join(active_workspace, "artifacts", "history")
     
     # Create required folders
     os.makedirs(history_dir, exist_ok=True)
@@ -19,23 +25,23 @@ def cleanup(history_dir="history"):
     os.makedirs(gpt_log_dir, exist_ok=True)
 
     # Move non-log files
-    for file in glob.glob("output/*"):
+    for file in glob.glob(os.path.join(output_dir, "*")):
         if not file.endswith(('log', 'gpt_log')):
             move_file(file, video_history_dir)
 
     # Move log files
-    for file in glob.glob("output/log/*"):
+    for file in glob.glob(os.path.join(output_dir, "log", "*")):
         move_file(file, log_dir)
 
     # Move gpt_log files
-    for file in glob.glob("output/gpt_log/*"):
+    for file in glob.glob(os.path.join(output_dir, "gpt_log", "*")):
         move_file(file, gpt_log_dir)
 
     # Delete empty output directories
     try:
-        os.rmdir("output/log")
-        os.rmdir("output/gpt_log")
-        os.rmdir("output")
+        os.rmdir(os.path.join(output_dir, "log"))
+        os.rmdir(os.path.join(output_dir, "gpt_log"))
+        os.rmdir(output_dir)
     except OSError:
         pass  # Ignore errors when deleting directories
 

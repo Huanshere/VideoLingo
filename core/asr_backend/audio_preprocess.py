@@ -158,7 +158,7 @@ def process_transcription(result: Dict) -> pd.DataFrame:
     return pd.DataFrame(all_words)
 
 def save_results(df: pd.DataFrame):
-    os.makedirs('output/log', exist_ok=True)
+    os.makedirs(os.path.dirname(str(_2_CLEANED_CHUNKS)), exist_ok=True)
 
     # Remove rows where 'text' is empty
     initial_rows = len(df)

@@ -17,9 +17,16 @@ from core.tts_backend.tts_main import tts_main
 
 console = Console()
 
-TEMP_FILE_TEMPLATE = f"{_AUDIO_TMP_DIR}/{{}}_temp.wav"
-OUTPUT_FILE_TEMPLATE = f"{_AUDIO_SEGS_DIR}/{{}}.wav"
 WARMUP_SIZE = 5
+
+
+def temp_file_path(number, line_index):
+    return os.path.join(str(_AUDIO_TMP_DIR), f"{number}_{line_index}_temp.wav")
+
+
+def output_file_path(number, line_index):
+    return os.path.join(str(_AUDIO_SEGS_DIR), f"{number}_{line_index}.wav")
+
 
 def parse_df_srt_time(time_str: str) -> float:
     """Convert SRT time format to seconds"""
@@ -68,7 +75,7 @@ def process_row(row: pd.Series, tasks_df: pd.DataFrame) -> Tuple[int, float]:
     lines = eval(row['lines']) if isinstance(row['lines'], str) else row['lines']
     real_dur = 0
     for line_index, line in enumerate(lines):
-        temp_file = TEMP_FILE_TEMPLATE.format(f"{number}_{line_index}")
+        temp_file = temp_file_path(number, line_index)
         tts_main(line, temp_file, number, tasks_df)
         real_dur += get_audio_duration(temp_file)
     return number, real_dur
@@ -165,8 +172,8 @@ def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
                 lines = eval(row['lines']) if isinstance(row['lines'], str) else row['lines']
                 for line_index, line in enumerate(lines):
                     # 🔄 Step2: Start speed change and save as OUTPUT_FILE_TEMPLATE
-                    temp_file = TEMP_FILE_TEMPLATE.format(f"{number}_{line_index}")
-                    output_file = OUTPUT_FILE_TEMPLATE.format(f"{number}_{line_index}")
+                    temp_file = temp_file_path(number, line_index)
+                    output_file = output_file_path(number, line_index)
                     adjust_audio_speed(temp_file, output_file, speed_factor)
                     ad_dur = get_audio_duration(output_file)
                     new_sub_times.append([cur_time, cur_time+ad_dur])
@@ -186,7 +193,7 @@ def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
                     last_number = tasks_df.iloc[index]['number']
                     last_lines = eval(tasks_df.iloc[index]['lines']) if isinstance(tasks_df.iloc[index]['lines'], str) else tasks_df.iloc[index]['lines']
                     last_line_index = len(last_lines) - 1
-                    last_file = OUTPUT_FILE_TEMPLATE.format(f"{last_number}_{last_line_index}")
+                    last_file = output_file_path(last_number, last_line_index)
                     
                     # Calculate the duration to keep
                     audio = AudioSegment.from_wav(last_file)

@@ -1,5 +1,6 @@
 from ruamel.yaml import YAML
 import threading
+from pathlib import Path
 
 CONFIG_PATH = 'config.yaml'
 lock = threading.Lock()
@@ -11,9 +12,23 @@ yaml.preserve_quotes = True
 # load & update config
 # -----------------------
 
+def _active_config_path():
+    try:
+        from core.workspace import CONFIG_SNAPSHOT_FILE, get_active_workspace
+
+        active_workspace = get_active_workspace()
+        if active_workspace:
+            snapshot = Path(active_workspace) / CONFIG_SNAPSHOT_FILE
+            if snapshot.exists():
+                return str(snapshot)
+    except Exception:
+        pass
+    return CONFIG_PATH
+
+
 def load_key(key):
     with lock:
-        with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
+        with open(_active_config_path(), 'r', encoding='utf-8') as file:
             data = yaml.load(file)
 
     keys = key.split('.')
@@ -27,7 +42,8 @@ def load_key(key):
 
 def update_key(key, new_value):
     with lock:
-        with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
+        config_path = _active_config_path()
+        with open(config_path, 'r', encoding='utf-8') as file:
             data = yaml.load(file)
 
         keys = key.split('.')
@@ -40,7 +56,7 @@ def update_key(key, new_value):
 
         if isinstance(current, dict) and keys[-1] in current:
             current[keys[-1]] = new_value
-            with open(CONFIG_PATH, 'w', encoding='utf-8') as file:
+            with open(config_path, 'w', encoding='utf-8') as file:
                 yaml.dump(data, file)
             return True
         else:

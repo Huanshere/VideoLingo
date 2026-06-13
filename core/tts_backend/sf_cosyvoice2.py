@@ -2,6 +2,7 @@ from openai import OpenAI
 from pathlib import Path
 import base64
 from core.utils import *
+from core.workspace import output_path
 
 def wav_to_base64(wav_file_path):
     with open(wav_file_path, 'rb') as audio_file:
@@ -14,12 +15,11 @@ def cosyvoice_tts_for_videolingo(text, save_as, number, task_df):
     prompt_text = task_df.loc[task_df['number'] == number, 'origin'].values[0]
     API_KEY = load_key("sf_cosyvoice2.api_key")
     # 设置参考音频路径
-    current_dir = Path.cwd()
-    ref_audio_path = current_dir / f"output/audio/refers/{number}.wav"
+    ref_audio_path = Path(str(output_path("audio", "refers", f"{number}.wav")))
     
     # 如果参考音频不存在，使用第一个音频作为备选
     if not ref_audio_path.exists():
-        ref_audio_path = current_dir / "output/audio/refers/1.wav"
+        ref_audio_path = Path(str(output_path("audio", "refers", "1.wav")))
         if not ref_audio_path.exists():
             try:
                 from core._9_refer_audio import extract_refer_audio_main

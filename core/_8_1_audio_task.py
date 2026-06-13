@@ -7,12 +7,13 @@ from core.prompts import get_subtitle_trim_prompt
 from core.tts_backend.estimate_duration import init_estimator, estimate_duration
 from core.utils import *
 from core.utils.models import *
+from core.workspace import output_path
 
 console = Console()
 speed_factor = load_key("speed_factor")
 
-TRANS_SUBS_FOR_AUDIO_FILE = 'output/audio/trans_subs_for_audio.srt'
-SRC_SUBS_FOR_AUDIO_FILE = 'output/audio/src_subs_for_audio.srt'
+TRANS_SUBS_FOR_AUDIO_FILE = output_path("audio", "trans_subs_for_audio.srt")
+SRC_SUBS_FOR_AUDIO_FILE = output_path("audio", "src_subs_for_audio.srt")
 ESTIMATOR = None
 
 def check_len_then_trim(text, duration):

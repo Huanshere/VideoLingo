@@ -6,18 +6,19 @@ from openai import OpenAI
 from core.utils.config_utils import load_key
 from rich import print as rprint
 from core.utils.decorator import except_handler
+from core.workspace import output_path
 
 # ------------
 # cache gpt response
 # ------------
 
 LOCK = Lock()
-GPT_LOG_FOLDER = 'output/gpt_log'
+GPT_LOG_FOLDER = output_path("gpt_log")
 
 def _save_cache(model, prompt, resp_content, resp_type, resp, message=None, log_title="default"):
     with LOCK:
         logs = []
-        file = os.path.join(GPT_LOG_FOLDER, f"{log_title}.json")
+        file = os.path.join(str(GPT_LOG_FOLDER), f"{log_title}.json")
         os.makedirs(os.path.dirname(file), exist_ok=True)
         if os.path.exists(file):
             with open(file, 'r', encoding='utf-8') as f:
@@ -28,7 +29,7 @@ def _save_cache(model, prompt, resp_content, resp_type, resp, message=None, log_
 
 def _load_cache(prompt, resp_type, log_title):
     with LOCK:
-        file = os.path.join(GPT_LOG_FOLDER, f"{log_title}.json")
+        file = os.path.join(str(GPT_LOG_FOLDER), f"{log_title}.json")
         if os.path.exists(file):
             with open(file, 'r', encoding='utf-8') as f:
                 for item in json.load(f):

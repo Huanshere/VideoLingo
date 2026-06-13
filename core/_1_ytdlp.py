@@ -3,6 +3,7 @@ import glob
 import re
 import subprocess
 from core.utils import *
+from core.workspace import output_path
 
 def sanitize_filename(filename):
     # Remove or replace illegal characters
@@ -23,7 +24,8 @@ def update_ytdlp():
     from yt_dlp import YoutubeDL
     return YoutubeDL
 
-def download_video_ytdlp(url, save_path='output', resolution='1080'):
+def download_video_ytdlp(url, save_path=None, resolution='1080'):
+    save_path = str(save_path or output_path())
     os.makedirs(save_path, exist_ok=True)
     ydl_opts = {
         'format': 'bestvideo+bestaudio/best' if resolution == 'best' else f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]',
@@ -52,12 +54,13 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
             if new_filename != filename:
                 os.rename(os.path.join(save_path, file), os.path.join(save_path, new_filename + ext))
 
-def find_video_files(save_path='output'):
+def find_video_files(save_path=None):
+    save_path = str(save_path or output_path())
     video_files = [file for file in glob.glob(save_path + "/*") if os.path.splitext(file)[1][1:].lower() in load_key("allowed_video_formats")]
     # change \\ to /, this happen on windows
     if sys.platform.startswith('win'):
         video_files = [file.replace("\\", "/") for file in video_files]
-    video_files = [file for file in video_files if not file.startswith("output/output")]
+    video_files = [file for file in video_files if not os.path.basename(file).startswith("output")]
     if len(video_files) != 1:
         raise ValueError(f"Number of videos found {len(video_files)} is not unique. Please check.")
     return video_files[0]

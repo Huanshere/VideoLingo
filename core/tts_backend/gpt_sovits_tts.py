@@ -5,6 +5,7 @@ import subprocess
 import socket
 import time
 from core.utils import *
+from core.workspace import output_path
 
 def check_lang(text_lang, prompt_lang):
     # only support zh and en
@@ -61,7 +62,6 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     DUBBING_CHARACTER = sovits_set["character"]
     REFER_MODE = sovits_set["refer_mode"]
 
-    current_dir = Path.cwd()
     prompt_lang = load_key("whisper.detected_language") if WHISPER_LANGUAGE == 'auto' else WHISPER_LANGUAGE
     prompt_text = task_df.loc[task_df['number'] == number, 'origin'].values[0]
 
@@ -86,7 +86,7 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
         prompt_text = content
     elif REFER_MODE in [2, 3]:
         # Check if the reference audio file exists
-        ref_audio_path = current_dir / ("output/audio/refers/1.wav" if REFER_MODE == 2 else f"output/audio/refers/{number}.wav")
+        ref_audio_path = Path(str(output_path("audio", "refers", "1.wav" if REFER_MODE == 2 else f"{number}.wav")))
         if not ref_audio_path.exists():
             # If the file does not exist, try to extract the reference audio
             try:
@@ -102,7 +102,7 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     success = gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
     if not success and REFER_MODE == 3:
         rprint(f"[bold red]TTS request failed, switching back to mode 2 and retrying[/bold red]")
-        ref_audio_path = current_dir / "output/audio/refers/1.wav"
+        ref_audio_path = Path(str(output_path("audio", "refers", "1.wav")))
         gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
 
 
