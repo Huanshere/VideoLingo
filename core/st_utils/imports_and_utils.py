@@ -11,7 +11,7 @@ def download_subtitle_zip_button(text: str):
     
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
         for file_name in os.listdir(output_dir):
-            if file_name.endswith(".srt"):
+            if file_name.endswith(".srt") or file_name.endswith(".ass"):
                 file_path = os.path.join(output_dir, file_name)
                 with open(file_path, "rb") as file:
                     zip_file.writestr(file_name, file.read())

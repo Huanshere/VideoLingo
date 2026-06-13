@@ -26,6 +26,16 @@ _AUDIO_SEGS_DIR = "output/audio/segs"
 _AUDIO_TMP_DIR = "output/audio/tmp"
 
 # ------------------------------------------
+# ASS 字幕文件
+# ------------------------------------------
+
+_SRC_ASS = "output/src.ass"
+_TRANS_ASS = "output/trans.ass"
+_SRC_TRANS_ASS = "output/src_trans.ass"
+_TRANS_SRC_ASS = "output/trans_src.ass"
+_DUB_ASS = "output/dub.ass"
+
+# ------------------------------------------
 # 导出
 # ------------------------------------------
 
@@ -45,5 +55,10 @@ __all__ = [
     "_BACKGROUND_AUDIO_FILE",
     "_AUDIO_REFERS_DIR",
     "_AUDIO_SEGS_DIR",
-    "_AUDIO_TMP_DIR"
+    "_AUDIO_TMP_DIR",
+    "_SRC_ASS",
+    "_TRANS_ASS",
+    "_SRC_TRANS_ASS",
+    "_TRANS_SRC_ASS",
+    "_DUB_ASS"
 ]

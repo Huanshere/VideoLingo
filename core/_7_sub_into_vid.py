@@ -1,38 +1,61 @@
-import os, subprocess, time
+import os, subprocess, time, platform
 from core._1_ytdlp import find_video_files
 import cv2
 import numpy as np
-import platform
 from core.utils import *
-
-SRC_FONT_SIZE = 15
-TRANS_FONT_SIZE = 17
-FONT_NAME = 'Arial'
-TRANS_FONT_NAME = 'Arial'
-
-# Linux need to install google noto fonts: apt-get install fonts-noto
-if platform.system() == 'Linux':
-    FONT_NAME = 'NotoSansCJK-Regular'
-    TRANS_FONT_NAME = 'NotoSansCJK-Regular'
-# Mac OS has different font names
-elif platform.system() == 'Darwin':
-    FONT_NAME = 'Arial Unicode MS'
-    TRANS_FONT_NAME = 'Arial Unicode MS'
-
-SRC_FONT_COLOR = '&HFFFFFF'
-SRC_OUTLINE_COLOR = '&H000000'
-SRC_OUTLINE_WIDTH = 1
-SRC_SHADOW_COLOR = '&H80000000'
-TRANS_FONT_COLOR = '&H00FFFF'
-TRANS_OUTLINE_COLOR = '&H000000'
-TRANS_OUTLINE_WIDTH = 1 
-TRANS_BACK_COLOR = '&H33000000'
+from core.utils.models import *
 
 OUTPUT_DIR = "output"
 OUTPUT_VIDEO = f"{OUTPUT_DIR}/output_sub.mp4"
 SRC_SRT = f"{OUTPUT_DIR}/src.srt"
 TRANS_SRT = f"{OUTPUT_DIR}/trans.srt"
-    
+SRC_ASS = f"{OUTPUT_DIR}/src.ass"
+TRANS_ASS = f"{OUTPUT_DIR}/trans.ass"
+
+SRT_SRC_DEFAULTS = {
+    'fontname': 'Arial', 'fontsize': 15,
+    'primary_color': '&HFFFFFF', 'outline_color': '&H000000',
+    'outline_width': 1.0, 'shadow_color': '&H80000000', 'border_style': 1,
+    'alignment': 8, 'margin_v': 10, 'margin_l': 10, 'margin_r': 10,
+}
+SRT_TRANS_DEFAULTS = {
+    'fontname': 'Arial', 'fontsize': 17,
+    'primary_color': '&H00FFFF', 'outline_color': '&H000000',
+    'outline_width': 1.0, 'back_color': '&H33000000', 'border_style': 4,
+    'alignment': 2, 'margin_v': 27, 'margin_l': 10, 'margin_r': 10,
+}
+
+def _platform_fontname():
+    if platform.system() == 'Linux':
+        return 'NotoSansCJK-Regular'
+    elif platform.system() == 'Darwin':
+        return 'Arial Unicode MS'
+    return 'Arial'
+
+def _build_srt_force_style(style_key):
+    defaults = SRT_SRC_DEFAULTS if style_key == 'source' else SRT_TRANS_DEFAULTS
+    config_key = f"subtitle.srt_style.{style_key}"
+    style = load_key(config_key) or {}
+    merged = {**defaults, **style}
+    if 'fontname' not in style:
+        merged['fontname'] = _platform_fontname()
+    parts = [
+        f"FontSize={merged['fontsize']}",
+        f"FontName={merged['fontname']}",
+        f"PrimaryColour={merged['primary_color']}",
+        f"OutlineColour={merged['outline_color']}",
+        f"OutlineWidth={merged['outline_width']}",
+    ]
+    if style_key == 'source':
+        parts.append(f"ShadowColour={merged['shadow_color']}")
+        parts.append(f"BorderStyle={merged['border_style']}")
+    else:
+        parts.append(f"BackColour={merged['back_color']}")
+        parts.append(f"Alignment={merged['alignment']}")
+        parts.append(f"MarginV={merged['margin_v']}")
+        parts.append(f"BorderStyle={merged['border_style']}")
+    return ','.join(parts)
+
 def check_gpu_available():
     try:
         result = subprocess.run(['ffmpeg', '-encoders'], capture_output=True, text=True)
@@ -44,7 +67,6 @@ def merge_subtitles_to_video():
     video_file = find_video_files()
     os.makedirs(os.path.dirname(OUTPUT_VIDEO), exist_ok=True)
 
-    # Check resolution
     if not load_key("burn_subtitles"):
         rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as subtitles are not burned in.[/bold yellow]")
 
@@ -58,26 +80,38 @@ def merge_subtitles_to_video():
         rprint("[bold green]Placeholder video has been generated.[/bold green]")
         return
 
-    if not os.path.exists(SRC_SRT) or not os.path.exists(TRANS_SRT):
-        rprint("Subtitle files not found in the 'output' directory.")
-        exit(1)
+    subtitle_format = load_key("subtitle.format") or 'srt'
 
     video = cv2.VideoCapture(video_file)
     TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     video.release()
     rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
+
+    if subtitle_format == 'ass':
+        if not os.path.exists(SRC_ASS) or not os.path.exists(TRANS_ASS):
+            rprint("ASS subtitle files not found in the 'output' directory.")
+            exit(1)
+
+        src_style = f"subtitles={SRC_ASS}"
+        trans_style = f"subtitles={TRANS_ASS}"
+    else:
+        if not os.path.exists(SRC_SRT) or not os.path.exists(TRANS_SRT):
+            rprint("Subtitle files not found in the 'output' directory.")
+            exit(1)
+
+        src_force = _build_srt_force_style('source')
+        trans_force = _build_srt_force_style('translation')
+        src_style = f"subtitles={SRC_SRT}:force_style='{src_force}'"
+        trans_style = f"subtitles={TRANS_SRT}:force_style='{trans_force}'"
+
     ffmpeg_cmd = [
         'ffmpeg', '-i', video_file,
         '-vf', (
             f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
             f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,"
-            f"subtitles={SRC_SRT}:force_style='FontSize={SRC_FONT_SIZE},FontName={FONT_NAME}," 
-            f"PrimaryColour={SRC_FONT_COLOR},OutlineColour={SRC_OUTLINE_COLOR},OutlineWidth={SRC_OUTLINE_WIDTH},"
-            f"ShadowColour={SRC_SHADOW_COLOR},BorderStyle=1',"
-            f"subtitles={TRANS_SRT}:force_style='FontSize={TRANS_FONT_SIZE},FontName={TRANS_FONT_NAME},"
-            f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
-            f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
+            f"{src_style},"
+            f"{trans_style}"
         ).encode('utf-8'),
     ]
 
