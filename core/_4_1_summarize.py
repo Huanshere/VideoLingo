@@ -3,6 +3,8 @@ from core.prompts import get_summary_prompt
 import pandas as pd
 from core.utils import *
 from core.utils.models import _3_2_SPLIT_BY_MEANING, _4_1_TERMINOLOGY
+from core.utils.pegasus_context import get_visual_context
+from core._1_ytdlp import find_video_files
 
 CUSTOM_TERMS_PATH = 'custom_terms.xlsx'
 
@@ -47,7 +49,9 @@ def get_summary():
     if len(custom_terms) > 0:
         rprint(f"📖 Custom Terms Loaded: {len(custom_terms)} terms")
         rprint("📝 Terms Content:", json.dumps(custom_terms_json, indent=2, ensure_ascii=False))
-    summary_prompt = get_summary_prompt(src_content, custom_terms_json)
+    # opt-in: enrich the summary with TwelveLabs Pegasus on-screen visual context
+    visual_context = get_visual_context(find_video_files())
+    summary_prompt = get_summary_prompt(src_content, custom_terms_json, visual_context)
     rprint("📝 Summarizing and extracting terminology ...")
     
     def valid_summary(response_data):

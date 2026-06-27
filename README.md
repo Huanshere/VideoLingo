@@ -166,6 +166,18 @@ VideoLingo supports OpenAI-Like API format and various TTS interfaces:
 
 > **Note:** VideoLingo works with **[302.ai](https://gpt302.saaslink.net/C2oHR9)** - one API key for all services (LLM, WhisperX, TTS). Or run locally with Ollama and Edge-TTS for free, no API needed!
 
+### Optional: TwelveLabs Pegasus visual context
+
+The summary/terminology step works from the **transcript only**, so it can't see on-screen text, product/brand names, UI labels, or charts. Enabling [TwelveLabs](https://twelvelabs.io) Pegasus lets VideoLingo describe that visual layer once and feed it into the summary + terminology prompt, disambiguating segmentation and translation of on-screen content. It is **opt-in and non-breaking** — disabled by default, and with no key configured behavior is unchanged. Enable it in `config.yaml`:
+
+```yaml
+pegasus:
+  enabled: true
+  api_key: ''   # or leave blank and set the TWELVELABS_API_KEY environment variable
+```
+
+Grab a free API key at [twelvelabs.io](https://twelvelabs.io) — there's a generous free tier.
+
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Current Limitations

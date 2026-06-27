@@ -63,6 +63,21 @@ summary_length: 8000
 # *Maximum number of words for the first rough cut, below 18 will cut too finely affecting translation, above 22 is too long and will make subsequent subtitle splitting difficult to align
 max_split_length: 20
 
+# *TwelveLabs Pegasus on-screen visual context (opt-in, non-breaking)
+# When enabled, Pegasus describes on-screen text/products/UI/charts that the
+# audio transcript misses, and feeds that into the summary + terminology step
+# to disambiguate segmentation and translation of on-screen content.
+# Disabled by default; behavior is unchanged unless enabled with a key set.
+# Free key + generous free tier: https://twelvelabs.io
+pegasus:
+  enabled: false
+  # API key; leave blank to fall back to the TWELVELABS_API_KEY environment variable
+  api_key: ''
+  # *max output tokens for the description (>= 512 required by the model)
+  max_tokens: 1024
+  # *optional custom analysis prompt; leave blank to use the built-in default
+  prompt: ''
+
 # *Whether to reflect the translation result in the original text
 reflect_translate: true
 
