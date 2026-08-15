@@ -29,7 +29,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 - **✅ 按照 Netflix 标准检查单行长度，绝无双行字幕**
 
-- **🗣️ 支持 GPT-SoVITS、Azure、OpenAI 等多种配音方案**
+- **🗣️ 支持 GPT-SoVITS（程序自动识别与项目根目录同级的SoVITS）、Azure、OpenAI 等多种配音方案**
 
 - 🚀 一键启动，在 streamlit 中一键出片
 

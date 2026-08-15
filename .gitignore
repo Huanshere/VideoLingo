@@ -176,3 +176,6 @@ installer_files/
 # Streamlit runtime logs from OneKeyStart.bat
 logs/
 videolingo_*.log
+
+# YouTube login cookies (sensitive, keep local)
+cookies.txt

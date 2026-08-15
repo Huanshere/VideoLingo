@@ -11,12 +11,12 @@ set "C_CYAN=%ESC%[36m"
 set "C_BOLD=%ESC%[1m"
 
 if not exist "logs" mkdir "logs"
-for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set dt=%%I
-set "LOGFILE=logs\videolingo_%dt:~0,8%_%dt:~8,6%.log"
+for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "dt=%%I"
+set "LOGFILE=logs\videolingo_%dt%.log"
 set "CHECK_ONLY="
 if /I "%~1"=="--check-only" set "CHECK_ONLY=1"
 
-echo [%date% %time%] VideoLingo starting... > "%LOGFILE%"
+powershell -NoProfile -Command "Set-Content -LiteralPath '%LOGFILE%' -Value ('[{0}] VideoLingo starting...' -f (Get-Date -Format 'yyyy/MM/dd HH:mm:ss')) -Encoding Unicode"
 echo %C_CYAN%Log file:%C_RESET% %LOGFILE%
 
 set "VENV_LABEL="
