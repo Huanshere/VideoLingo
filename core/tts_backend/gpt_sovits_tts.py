@@ -179,8 +179,9 @@ def start_gpt_sovits_server():
     while time.time() - start_time < 50:
         try:
             time.sleep(15)
-            response = requests.get('http://127.0.0.1:9880/ping')
-            if response.status_code == 200:
+            # Some GPT-SoVITS builds lack a /ping route; treat any HTTP response (other than 5xx) as ready
+            response = requests.get('http://127.0.0.1:9880/control', timeout=10)
+            if response.status_code < 500:
                 print("GPT-SoVITS server is ready.")
                 return process
         except requests.exceptions.RequestException:

@@ -22,7 +22,7 @@ max_workers: 4
 target_language: '简体中文'
 
 # Whether to use Demucs for vocal separation before transcription
-demucs: false
+demucs: true
 
 whisper:
   # ["large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
@@ -71,7 +71,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
-tts_method: 'azure_tts'
+tts_method: 'gpt_sovits'
 
 # SiliconFlow FishTTS
 sf_fish_tts:
