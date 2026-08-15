@@ -3,6 +3,10 @@ import glob
 import json
 import re
 import subprocess
+try:
+    from yt_dlp.networking.impersonate import ImpersonateTarget
+except ImportError:
+    ImpersonateTarget = None
 from core.utils import *
 
 OUTPUT_DIR = "output"
@@ -36,6 +40,10 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
         'noplaylist': True,
         'writethumbnail': True,
         'merge_output_format': 'mp4',
+        'js_runtimes': {'node': {}},
+        'remote_components': {'ejs:github'},
+        'proxy': 'http://127.0.0.1:7897',
+        'impersonate': ImpersonateTarget('chrome', version='136') if ImpersonateTarget else None,
         'postprocessors': [{'key': 'FFmpegThumbnailsConvertor', 'format': 'jpg'}],
     }
 

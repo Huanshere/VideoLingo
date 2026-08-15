@@ -11,10 +11,10 @@ display_language: "zh-CN"
 
 # API settings
 api:
-  key: 'YOUR_API_KEY'
-  base_url: 'https://yunwu.ai'
-  model: 'gpt-5.5'
-  llm_support_json: false
+  key: 'sk-977207959114458a9100eb7f10af5b46'
+  base_url: 'https://api.deepseek.com'
+  model: 'deepseek-v4-flash'
+  llm_support_json: true
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4
 
@@ -46,7 +46,7 @@ ffmpeg_gpu: false
 
 # *Youtube settings
 youtube:
-  cookies_path: ''
+  cookies_path: 'E:/common/VideoLingoV2/cookies.txt'
 
 # *Default resolution for downloading YouTube videos [360, 1080, best]
 ytb_resolution: '1080'
