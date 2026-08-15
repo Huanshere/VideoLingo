@@ -194,7 +194,7 @@ VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
 
 ## ⭐ Star 歷史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.dera.page/#Huanshere/VideoLingo&Timeline)
 
 ---
 

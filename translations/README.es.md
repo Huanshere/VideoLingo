@@ -194,7 +194,7 @@ Este proyecto está licenciado bajo la Licencia Apache 2.0. Un agradecimiento es
 
 ## ⭐ Historial de Estrellas
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.dera.page/#Huanshere/VideoLingo&Timeline)
 
 ---
 

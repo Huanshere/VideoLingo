@@ -194,7 +194,7 @@ VideoLingoはOpenAIライクなAPI形式と様々なTTSインターフェース�
 
 ## ⭐ スター履歴
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.dera.page/#Huanshere/VideoLingo&Timeline)
 
 ---
 
