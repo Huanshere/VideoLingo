@@ -12,8 +12,8 @@ display_language: "zh-CN"
 # API settings
 api:
   key: 'YOUR_API_KEY'
-  base_url: 'https://yunwu.ai'
-  model: 'gpt-5.5'
+  base_url: 'https://openrouter.ai/api/v1'
+  model: 'openai/gpt-5.2'
   llm_support_json: false
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4

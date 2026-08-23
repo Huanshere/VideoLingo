@@ -19,7 +19,7 @@ VideoLingo requires an LLM and TTS(optional). For the best quality, use `claude-
 
 > **Tip:** Model pricing changes frequently. Check each vendor's website for current rates. [models.dev](https://models.dev) offers cross-vendor price and capability comparison.
 >
-> **API proxy:** If you cannot access overseas APIs directly, [OpenRouter](https://openrouter.ai) is recommended (supports all models above, unified OpenAI-format API, pay-per-use with no monthly fee).
+> **API proxy:** If you cannot access overseas APIs directly, [OpenRouter](https://openrouter.ai) is recommended (OpenAI-compatible endpoint: `https://openrouter.ai/api/v1`, supports all models above, pay-per-use with no monthly fee).
 
 Note: Supports OpenAI format, you can try different models at your risk. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
 
