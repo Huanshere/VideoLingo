@@ -1,7 +1,7 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-VideoLingo requires an LLM and TTS(optional). For the best quality, use `claude-sonnet-4.6` or `gpt-5.4` with Azure TTS. Alternatively, for a fully local setup with no API key needed, use Ollama for the LLM and Edge TTS for dubbing. In this case, set `max_workers` to 1 and `summary_length` to a low value like 2000 in `config.yaml`.
+VideoLingo requires an LLM and TTS(optional). The default recommendation is DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) through OpenRouter. Alternatively, for a fully local setup with no API key needed, use Ollama for the LLM and Edge TTS for dubbing. In this case, set `max_workers` to 1 and `summary_length` to a low value like 2000 in `config.yaml`.
 
 ### 1. **Get API_KEY for LLM**:
 
@@ -9,7 +9,7 @@ VideoLingo requires an LLM and TTS(optional). For the best quality, use `claude-
 |:-----|:---------|:-----|:---------|
 | claude-sonnet-4-6 | [Anthropic](https://www.anthropic.com) | 🤩 | ⭐⭐⭐ |
 | claude-opus-4-6 | [Anthropic](https://www.anthropic.com) | 🏆 | ⭐⭐ |
-| gpt-5.2 | [OpenAI](https://openai.com) | 🤩 | ⭐⭐⭐ |
+| DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) | [OpenRouter](https://openrouter.ai) | 😃 | ⭐⭐⭐⭐⭐ |
 | gemini-3-flash | [Google](https://ai.google.dev) | 😃 | ⭐⭐⭐⭐⭐ |
 | gemini-3.1-pro | [Google](https://ai.google.dev) | 🤩 | ⭐⭐⭐ |
 | minimax-m2.5 | [MiniMax](https://www.minimax.io) | 😃 | ⭐⭐⭐⭐⭐ |
@@ -17,6 +17,8 @@ VideoLingo requires an LLM and TTS(optional). For the best quality, use `claude-
 | deepseek-v3 | [DeepSeek](https://www.deepseek.com) | 🥳 | ⭐⭐⭐⭐ |
 | qwen3-32b | [Ollama](https://ollama.ai) self-hosted | 😃 | ♾️ Free |
 
+> **Default model:** DeepSeek V4 Flash is a 284B MoE model (13B active per request). The default prioritizes price and speed for the structured JSON used in translation alignment, not peak reasoning. Stronger models remain available on OpenRouter.
+>
 > **Tip:** Model pricing changes frequently. Check each vendor's website for current rates. [models.dev](https://models.dev) offers cross-vendor price and capability comparison.
 >
 > **API proxy:** If you cannot access overseas APIs directly, [OpenRouter](https://openrouter.ai) is recommended (OpenAI-compatible endpoint: `https://openrouter.ai/api/v1`, supports all models above, pay-per-use with no monthly fee).

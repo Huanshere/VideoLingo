@@ -13,7 +13,7 @@ display_language: "zh-CN"
 api:
   key: 'YOUR_API_KEY'
   base_url: 'https://openrouter.ai/api/v1'
-  model: 'openai/gpt-5.2'
+  model: 'deepseek/deepseek-v4-flash'
   llm_support_json: false
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4

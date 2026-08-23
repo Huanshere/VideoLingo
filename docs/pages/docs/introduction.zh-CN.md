@@ -101,7 +101,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
-- `claude-sonnet-4-6`, `gpt-5.2`, `gemini-3-flash`, `deepseek-v3`, `minimax-m2.5`, `kimi-k2.5`, ...（按效果排序）
+- 大模型默认使用 OpenRouter（`https://openrouter.ai/api/v1`）上的 DeepSeek V4 Flash（`deepseek/deepseek-v4-flash`），侧重结构化 JSON 翻译对齐任务的性价比和速度；如需更强能力，可在 OpenRouter 上选择其他模型。
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
 详细的安装、 API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)

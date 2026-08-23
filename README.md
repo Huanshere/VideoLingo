@@ -160,7 +160,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
-- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (sorted by quality; for budget options try `gemini-3-flash` or `gpt-5.4-mini`)
+- LLM default: DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) via OpenRouter (`https://openrouter.ai/api/v1`), selected for price and speed on structured JSON used in translation alignment. Stronger models remain available on OpenRouter.
 - WhisperX: Run whisperX (large-v3) locally or use 302.ai API
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(You can modify your own TTS in custom_tts.py!)
 

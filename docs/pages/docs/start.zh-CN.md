@@ -1,7 +1,7 @@
 # 🚀 开始使用
 
 ## 📋 API 配置指南
-本项目需使用大模型和 TTS。追求最佳质量请使用 `claude-sonnet-4.6` 或 `gpt-5.4` 与 Azure TTS。也可以选择完全本地化体验，使用 Ollama 作为大模型，Edge TTS 作为配音，无需任何 API key（此时需要在 `config.yaml` 中将 `max_workers` 设为 1，`summary_length` 调低至 2000）。
+本项目需使用大模型和 TTS。默认推荐通过 OpenRouter 使用 DeepSeek V4 Flash（`deepseek/deepseek-v4-flash`）。也可以选择完全本地化体验，使用 Ollama 作为大模型，Edge TTS 作为配音，无需任何 API key（此时需要在 `config.yaml` 中将 `max_workers` 设为 1，`summary_length` 调低至 2000）。
 
 ### 1. **大模型的 API_KEY**：
 
@@ -9,7 +9,7 @@
 |:-----|:---------|:-----|:---------|
 | claude-sonnet-4-6 | [Anthropic](https://www.anthropic.com) | 🤩 | ⭐⭐⭐ |
 | claude-opus-4-6 | [Anthropic](https://www.anthropic.com) | 🏆 | ⭐⭐ |
-| gpt-5.2 | [OpenAI](https://openai.com) | 🤩 | ⭐⭐⭐ |
+| DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) | [OpenRouter](https://openrouter.ai) | 😃 | ⭐⭐⭐⭐⭐ |
 | gemini-3-flash | [Google](https://ai.google.dev) | 😃 | ⭐⭐⭐⭐⭐ |
 | gemini-3.1-pro | [Google](https://ai.google.dev) | 🤩 | ⭐⭐⭐ |
 | minimax-m2.5 | [MiniMax](https://www.minimax.io) | 😃 | ⭐⭐⭐⭐⭐ |
@@ -17,6 +17,8 @@
 | deepseek-v3 | [DeepSeek](https://www.deepseek.com) | 🥳 | ⭐⭐⭐⭐ |
 | qwen3-32b | [Ollama](https://ollama.ai) 本地部署 | 😃 | ♾️ 免费 |
 
+> **默认模型：** DeepSeek V4 Flash 是 284B MoE 模型（每次激活 13B），针对翻译对齐所需的结构化 JSON，默认选择侧重价格和速度，而非峰值推理能力。如需更强模型，可继续在 OpenRouter 上选择其他模型。
+>
 > **提示：** 模型价格变动频繁，请前往各厂商官网查看最新定价。[models.dev](https://models.dev) 可横向比较各家模型的价格和能力。
 >
 > **API 中转推荐：** 如果无法直接访问海外 API，推荐使用 [OpenRouter](https://openrouter.ai)（OpenAI 兼容接口：`https://openrouter.ai/api/v1`，支持上述所有海外模型，按量付费无月费）。
