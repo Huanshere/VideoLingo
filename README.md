@@ -194,7 +194,7 @@ This project is licensed under the Apache 2.0 License. Special thanks to the fol
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.dera.page/#Huanshere/VideoLingo&Timeline)
 
 ---
 

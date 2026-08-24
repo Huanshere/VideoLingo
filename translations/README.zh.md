@@ -202,4 +202,4 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.dera.page/#Huanshere/VideoLingo&Timeline)
