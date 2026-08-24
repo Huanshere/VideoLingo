@@ -36,6 +36,7 @@ TORCH_INDEX = "https://download.pytorch.org/whl"
 BOOTSTRAP_PACKAGES = ["requests", "rich", "ruamel.yaml", "InquirerPy", "packaging"]
 FILTERED_REQUIREMENTS = {"spacy", "whisperx"}
 DEMUX_GIT = "demucs[dev]@git+https://github.com/adefossez/demucs@b9ab48cad45976ba42b2ff17b229c071f0df9390"
+FUNASR_REQUIREMENT = "funasr>=1.3.9,<2"
 
 
 def run(cmd: list[str], retries: int = 0, env: dict[str, str] | None = None) -> None:
@@ -97,6 +98,18 @@ def package_ok(name: str, prefix: str | None = None) -> bool:
     return prefix is None or version.split("+")[0].startswith(prefix)
 
 
+def package_satisfies_requirement(name: str, requirement: str) -> bool:
+    version = package_version(name)
+    if version is None:
+        return False
+    try:
+        from packaging.requirements import Requirement
+
+        return Requirement(requirement).specifier.contains(version, prereleases=True)
+    except (ImportError, ValueError):
+        return False
+
+
 def import_ok(module: str) -> bool:
     try:
         importlib.import_module(module)
@@ -130,6 +143,7 @@ def save_state() -> None:
         "torchaudio": package_version("torchaudio"),
         "spacy": package_version("spacy"),
         "whisperx": package_version("whisperx"),
+        "funasr": package_version("funasr"),
         "demucs": package_version("demucs"),
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
@@ -261,6 +275,20 @@ def install_whisperx(force: bool = False) -> None:
     pip_install(["whisperx>=3.8.1"], retries=3)
 
 
+def install_funasr(force: bool = False) -> None:
+    print("\n[optional] Install FunASR / SenseVoice backend")
+    installed_version = package_version("funasr")
+    if not force and package_satisfies_requirement("funasr", FUNASR_REQUIREMENT):
+        print(f"  funasr {installed_version} already satisfies {FUNASR_REQUIREMENT}.")
+        return
+    if installed_version is not None and not force:
+        print(
+            f"  funasr {installed_version} does not satisfy "
+            f"{FUNASR_REQUIREMENT}; upgrading."
+        )
+    pip_install([FUNASR_REQUIREMENT], retries=3)
+
+
 def install_demucs(force: bool = False, require: bool = False) -> None:
     print("\n[7/7] Install Demucs (optional)")
     if not force and package_version("demucs") is not None and import_ok("demucs.api"):
@@ -347,7 +375,12 @@ def install_linux_noto_fonts() -> None:
         print(f"  Warning: failed to install Noto CJK fonts automatically: {exc}")
 
 
-def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True) -> int:
+def health_check(
+    quiet: bool = False,
+    require_demucs: bool = False,
+    require_funasr: bool = False,
+    check_state: bool = True,
+) -> int:
     errors: list[str] = []
     warnings: list[str] = []
     state = load_state()
@@ -375,13 +408,21 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         errors.append("missing optional package required by flag: demucs")
     elif package_version("demucs") is None:
         warnings.append("demucs is not installed; vocal separation will be unavailable")
+    if require_funasr and not package_satisfies_requirement(
+        "funasr", FUNASR_REQUIREMENT
+    ):
+        installed_version = package_version("funasr") or "missing"
+        errors.append(
+            f"funasr version {installed_version} does not satisfy "
+            f"required {FUNASR_REQUIREMENT}"
+        )
     if platform.system() == "Linux" and not noto_cjk_font_available():
         warnings.append("Noto CJK fonts are not installed; CJK subtitle burn-in may fail")
     if not shutil.which("ffmpeg"):
         errors.append("ffmpeg not found in PATH")
     if not quiet:
         print("\nEnvironment check")
-        for package in ["streamlit", "torch", "torchaudio", "spacy", "whisperx", "demucs"]:
+        for package in ["streamlit", "torch", "torchaudio", "spacy", "whisperx", "funasr", "demucs"]:
             print(f"  {package}: {package_version(package) or 'missing'}")
         for warning in warnings:
             print(f"  WARN: {warning}")
@@ -403,13 +444,18 @@ def install_all(args: argparse.Namespace) -> int:
     install_base_requirements(force=args.force)
     install_spacy(force=args.force)
     install_whisperx(force=args.force)
+    if args.with_funasr:
+        install_funasr(force=args.force)
     if not args.skip_demucs:
         install_demucs(force=args.force, require=args.require_demucs)
     install_project_metadata()
     install_linux_noto_fonts()
     ffmpeg_ok = check_ffmpeg()
     save_state()
-    status = health_check(require_demucs=args.require_demucs)
+    status = health_check(
+        require_demucs=args.require_demucs,
+        require_funasr=args.with_funasr,
+    )
     if not ffmpeg_ok or status != 0:
         return 1
     if args.launch:
@@ -426,6 +472,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--auto-mirror", action="store_true", help="auto-select and configure a PyPI mirror")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")
+    parser.add_argument("--with-funasr", action="store_true", help="install the optional FunASR/SenseVoice backend")
     parser.add_argument("--launch", action="store_true", help="launch Streamlit after a successful install")
     parser.add_argument("--yes", action="store_true", help="accepted for non-interactive wrappers")
     parser.add_argument("--no-launch", action="store_true", help="compatibility alias; launching is opt-in")
@@ -438,7 +485,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.no_launch:
         args.launch = False
     if args.check:
-        return health_check(quiet=args.quiet, require_demucs=args.require_demucs)
+        return health_check(
+            quiet=args.quiet,
+            require_demucs=args.require_demucs,
+            require_funasr=args.with_funasr,
+        )
     return install_all(args)
 
 

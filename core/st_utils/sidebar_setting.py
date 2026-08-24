@@ -146,38 +146,60 @@ def page_setting():
             update_key("api.llm_support_json", llm_support_json)
             st.rerun()
     with st.expander(t("Subtitles Settings"), expanded=True):
+        current_runtime = load_key("whisper.runtime")
         c1, c2 = st.columns(2)
         with c1:
-            langs = {
-                "🇺🇸 English": "en",
-                "🇨🇳 简体中文": "zh",
-                "🇪🇸 Español": "es",
-                "🇷🇺 Русский": "ru",
-                "🇫🇷 Français": "fr",
-                "🇩🇪 Deutsch": "de",
-                "🇮🇹 Italiano": "it",
-                "🇯🇵 日本語": "ja",
-            }
+            if current_runtime == "funasr":
+                langs = {
+                    "🇨🇳 简体中文": "zh",
+                    "🇺🇸 English": "en",
+                    "🇯🇵 日本語": "ja",
+                }
+            else:
+                langs = {
+                    "🇺🇸 English": "en",
+                    "🇨🇳 简体中文": "zh",
+                    "🇪🇸 Español": "es",
+                    "🇷🇺 Русский": "ru",
+                    "🇫🇷 Français": "fr",
+                    "🇩🇪 Deutsch": "de",
+                    "🇮🇹 Italiano": "it",
+                    "🇯🇵 日本語": "ja",
+                }
+            language_values = list(langs.values())
+            configured_language = load_key("whisper.language")
+            language_index = (
+                language_values.index(configured_language)
+                if configured_language in language_values
+                else 0
+            )
             lang = st.selectbox(
                 t("Recog Lang"),
                 options=list(langs.keys()),
-                index=list(langs.values()).index(load_key("whisper.language")),
+                index=language_index,
             )
             if langs[lang] != load_key("whisper.language"):
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
         runtime = st.selectbox(
-            t("WhisperX Runtime"),
-            options=["local", "cloud", "elevenlabs"],
-            index=["local", "cloud", "elevenlabs"].index(load_key("whisper.runtime")),
+            t("ASR Runtime"),
+            options=["local", "cloud", "elevenlabs", "funasr"],
+            index=["local", "cloud", "elevenlabs", "funasr"].index(current_runtime),
             format_func=lambda x: {
                 "local": t("Local"),
                 "cloud": t("Cloud"),
                 "elevenlabs": t("ElevenLabs"),
+                "funasr": "FunASR (SenseVoice)",
             }[x],
-            help=t(
-                "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key"
+            help=(
+                t(
+                    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key"
+                )
+                + " "
+                + t(
+                    "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr."
+                )
             ),
         )
         if runtime != load_key("whisper.runtime"):
@@ -187,6 +209,22 @@ def page_setting():
             config_input(t("WhisperX 302ai API"), "whisper.whisperX_302_api_key")
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
+        if runtime == "funasr":
+            config_input(t("FunASR model"), "funasr.model")
+            funasr_devices = ["auto", "cpu", "cuda"]
+            configured_funasr_device = load_key("funasr.device")
+            funasr_device = st.selectbox(
+                t("FunASR device"),
+                options=funasr_devices,
+                index=(
+                    funasr_devices.index(configured_funasr_device)
+                    if configured_funasr_device in funasr_devices
+                    else 0
+                ),
+            )
+            if funasr_device != load_key("funasr.device"):
+                update_key("funasr.device", funasr_device)
+                st.rerun()
 
         with c2:
             target_language = st.text_input(

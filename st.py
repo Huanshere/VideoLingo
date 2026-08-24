@@ -122,7 +122,7 @@ def _clear_path(path):
 def _get_text_steps():
     """Return the subtitle processing steps as (label, callable) list."""
     steps = [
-        (t("WhisperX word-level transcription"), _2_asr.transcribe),
+        (t("ASR word-level transcription"), _2_asr.transcribe),
         (
             t("Sentence segmentation using NLP and LLM"),
             lambda: (
@@ -234,7 +234,7 @@ def text_processing_section():
         <p style='font-size: 20px;'>
         {t("This stage includes the following steps:")}
         <p style='font-size: 20px;'>
-            1. {t("WhisperX word-level transcription")}<br>
+            1. {t("ASR word-level transcription")}<br>
             2. {t("Sentence segmentation using NLP and LLM")}<br>
             3. {t("Summarization and multi-step translation")}<br>
             4. {t("Cutting and aligning long subtitles")}<br>

@@ -35,6 +35,11 @@ def transcribe():
     elif runtime == "elevenlabs":
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")
+    elif runtime == "funasr":
+        from core.asr_backend.funasr_local import transcribe_audio as ts
+        rprint("[cyan]🎤 Transcribing audio with local FunASR/SenseVoice...[/cyan]")
+    else:
+        raise ValueError(f"Unsupported ASR runtime: {runtime}")
 
     for start, end in segments:
         check_cancel()

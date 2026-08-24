@@ -19,7 +19,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 主要特点和功能：
 - 🎥 使用 yt-dlp 从 Youtube 链接下载视频
 
-- **🎙️ 使用 WhisperX 进行单词级和低幻觉字幕识别**
+- **🎙️ 使用 WhisperX 或可选的 FunASR/SenseVoice 进行词级字幕识别**
 
 - **📝 使用 NLP 和 AI 进行字幕分割**
 
@@ -128,6 +128,13 @@ python setup_env.py
 
 或者在 Windows 上双击 `OneKeyStart_uv.bat`。
 
+安装完成后，可按需启用本地 FunASR/SenseVoice 语音识别后端：
+
+```bash
+.venv\Scripts\python installer.py --with-funasr  # Windows
+.venv/bin/python installer.py --with-funasr       # macOS / Linux
+```
+
 ### 方式二：使用 Conda
 
 > ⚠️ **不推荐。** 此方式今后将不再维护，请使用上方的 uv（方式一）。
@@ -170,6 +177,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
 - LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ...（按质量排序；预算方案可尝试 `gemini-3-flash` 或 `gpt-5.4-mini`）
 - WhisperX: 本地运行 WhisperX 或使用 302.ai API
+- FunASR: 在 CPU 或 CUDA 上本地运行 SenseVoice，并使用原生词级时间戳（需按上文单独安装）
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(你可以在 custom_tts.py 中自定义 TTS!)
 
 > **注意：** VideoLingo 现已与 **[302.ai](https://gpt302.saaslink.net/C2oHR9)** 集成，**一个 API KEY** 即可同时支持 LLM、WhisperX 和 TTS！同时也支持完全本地部署，使用 Ollama 作为 LLM 和 Edge-TTS 作为配音，无需云端 API！

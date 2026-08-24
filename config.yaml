@@ -30,12 +30,19 @@ whisper:
   # Whisper specified recognition language ISO 639-1
   language: 'en'
   detected_language: 'en'
-  # Whisper running mode ["local", "cloud", "elevenlabs"]. Specifies where to run, cloud uses 302.ai API
+  # ASR runtime ["local", "cloud", "elevenlabs", "funasr"]. Cloud uses 302.ai API.
   runtime: 'local'
   # 302.ai API key
   whisperX_302_api_key: 'your_302_api_key'
   # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'
+
+# Optional local FunASR/SenseVoice backend. Install with:
+# python installer.py --with-funasr
+funasr:
+  model: 'iic/SenseVoiceSmall'
+  # ["auto", "cpu", "cuda"]
+  device: 'auto'
 
 # Whether to burn subtitles into the video
 burn_subtitles: true

@@ -17,7 +17,7 @@ VideoLingo is an all-in-one video translation, localization, and dubbing tool ai
 Key features:
 - 🎥 YouTube video download via yt-dlp
 
-- **🎙️ Word-level and Low-illusion subtitle recognition with WhisperX**
+- **🎙️ Word-level subtitle recognition with WhisperX or optional FunASR/SenseVoice**
 
 - **📝 NLP and AI-powered subtitle segmentation**
 
@@ -120,6 +120,15 @@ python setup_env.py
 
 Or double-click `OneKeyStart.bat` on Windows.
 
+To enable the optional local FunASR/SenseVoice ASR backend after setup:
+
+```bash
+.venv\Scripts\python installer.py --with-funasr  # Windows
+.venv/bin/python installer.py --with-funasr       # macOS / Linux
+```
+
+Installing the package does not select the backend. Restart VideoLingo, open **Subtitles Settings**, and select **FunASR (SenseVoice)** under **ASR Runtime**. Alternatively, set `whisper.runtime` to `funasr` in `config.yaml` before launch.
+
 ### Option B: Using Conda
 
 > ⚠️ **Not recommended.** This method will not be maintained going forward. Please use uv (Option A) above.
@@ -162,6 +171,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
 - LLM default: DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) via OpenRouter (`https://openrouter.ai/api/v1`), selected for price and speed on structured JSON used in translation alignment. Stronger models remain available on OpenRouter.
 - WhisperX: Run whisperX (large-v3) locally or use 302.ai API
+- FunASR: Run SenseVoice locally on CPU or CUDA with native word timestamps (optional install above)
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(You can modify your own TTS in custom_tts.py!)
 
 > **Note:** VideoLingo works with **[302.ai](https://gpt302.saaslink.net/C2oHR9)** - one API key for all services (LLM, WhisperX, TTS). Or run locally with Ollama and Edge-TTS for free, no API needed!
@@ -182,7 +192,9 @@ For detailed installation, API configuration, and batch mode instructions, pleas
 
 ## 📄 License
 
-This project is licensed under the Apache 2.0 License. Special thanks to the following open source projects for their contributions:
+This project's source code is licensed under the Apache 2.0 License. Special thanks to the following open source projects for their contributions:
+
+The optional FunASR backend downloads model weights separately. The default `iic/SenseVoiceSmall` weights are not covered by VideoLingo's Apache 2.0 license; review the [SenseVoiceSmall model card](https://huggingface.co/FunAudioLLM/SenseVoiceSmall) and [FunASR MODEL_LICENSE](https://github.com/modelscope/FunASR/blob/main/MODEL_LICENSE) before downloading or using them.
 
 [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
 

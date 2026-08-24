@@ -21,6 +21,17 @@ def check_package(name, import_name=None):
     except ImportError:
         return None
 
+
+def configured_asr_runtime():
+    try:
+        import yaml
+
+        with open(SCRIPT_DIR / "config.yaml", encoding="utf-8") as config_file:
+            config = yaml.safe_load(config_file) or {}
+        return config.get("whisper", {}).get("runtime", "local")
+    except Exception:
+        return "local"
+
 def main():
     errors = []
     warnings = []
@@ -43,8 +54,13 @@ def main():
             warnings.append("torch has no CUDA support. GPU disabled. Reinstall: python install.py")
             log(f"torch: {torch_ver} (CPU only)")
 
-    if not check_package("whisperx"):
-        warnings.append("whisperx not installed. ASR will fail.")
+    asr_runtime = configured_asr_runtime()
+    if asr_runtime == "local" and not check_package("whisperx"):
+        warnings.append("whisperx not installed. Local WhisperX ASR will fail.")
+    if asr_runtime == "funasr" and not check_package("funasr"):
+        warnings.append(
+            "funasr not installed. Run: python installer.py --with-funasr"
+        )
 
     # ffmpeg
     if not shutil.which("ffmpeg"):
