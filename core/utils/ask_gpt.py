@@ -3,6 +3,7 @@ import json
 from threading import Lock
 import json_repair
 from openai import OpenAI
+import litellm
 from core.utils.config_utils import load_key
 from rich import print as rprint
 from core.utils.decorator import except_handler
@@ -40,6 +41,37 @@ def _load_cache(prompt, resp_type, log_title):
 # ask gpt once
 # ------------
 
+def _call_openai(model, messages, response_format, base_url, api_key):
+    if 'ark' in base_url:
+        base_url = "https://ark.cn-beijing.volces.com/api/v3"
+    elif 'v1' not in base_url:
+        base_url = base_url.strip('/') + '/v1'
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    params = dict(
+        model=model,
+        messages=messages,
+        response_format=response_format,
+        timeout=300
+    )
+    return client.chat.completions.create(**params)
+
+
+def _call_litellm(model, messages, response_format, base_url, api_key):
+    params = dict(
+        model=model,
+        messages=messages,
+        drop_params=True,
+        timeout=300,
+    )
+    if response_format:
+        params["response_format"] = response_format
+    if api_key:
+        params["api_key"] = api_key
+    if base_url:
+        params["api_base"] = base_url
+    return litellm.completion(**params)
+
+
 @except_handler("GPT request failed", retry=5)
 def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
     if not load_key("api.key"):
@@ -52,22 +84,16 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
 
     model = load_key("api.model")
     base_url = load_key("api.base_url")
-    if 'ark' in base_url:
-        base_url = "https://ark.cn-beijing.volces.com/api/v3" # huoshan base url
-    elif 'v1' not in base_url:
-        base_url = base_url.strip('/') + '/v1'
-    client = OpenAI(api_key=load_key("api.key"), base_url=base_url)
+    api_key = load_key("api.key")
     response_format = {"type": "json_object"} if resp_type == "json" and load_key("api.llm_support_json") else None
 
     messages = [{"role": "user", "content": prompt}]
 
-    params = dict(
-        model=model,
-        messages=messages,
-        response_format=response_format,
-        timeout=300
-    )
-    resp_raw = client.chat.completions.create(**params)
+    provider = load_key("api.provider")
+    if provider == "litellm":
+        resp_raw = _call_litellm(model, messages, response_format, base_url, api_key)
+    else:
+        resp_raw = _call_openai(model, messages, response_format, base_url, api_key)
 
     # process and return full result
     resp_content = resp_raw.choices[0].message.content
@@ -75,13 +101,13 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
         resp = json_repair.loads(resp_content)
     else:
         resp = resp_content
-    
+
     # check if the response format is valid
     if valid_def:
         valid_resp = valid_def(resp)
         if valid_resp['status'] != 'success':
             _save_cache(model, prompt, resp_content, resp_type, resp, log_title="error", message=valid_resp['message'])
-            raise ValueError(f"❎ API response error: {valid_resp['message']}")
+            raise ValueError(f"API response error: {valid_resp['message']}")
 
     _save_cache(model, prompt, resp_content, resp_type, resp, log_title=log_title)
     return resp
@@ -89,6 +115,6 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
 
 if __name__ == '__main__':
     from rich import print as rprint
-    
+
     result = ask_gpt("""test respond ```json\n{\"code\": 200, \"message\": \"success\"}\n```""", resp_type="json")
     rprint(f"Test json output result: {result}")
