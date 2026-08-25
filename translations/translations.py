@@ -8,6 +8,7 @@ DISPLAY_LANGUAGES = {
     "🇪🇸 Español": "es",
     "🇷🇺 Русский": "ru",
     "🇫🇷 Français": "fr",
+    "🇸🇪 Svenska": "sv",
 }
 
 SUPPORTED_LANGUAGES = set(DISPLAY_LANGUAGES.values())
