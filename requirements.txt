@@ -37,3 +37,6 @@ pypinyin
 g2p-en
 xmltodict
 
+# Optional: TwelveLabs Pegasus on-screen visual context (config `pegasus.enabled`)
+twelvelabs>=1.2.8
+

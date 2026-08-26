@@ -50,10 +50,10 @@ Note: Start you answer with ```json and end with ```, do not add any other text.
 
 ## ================================================================
 # @ step4_1_summarize.py
-def get_summary_prompt(source_content, custom_terms_json=None):
+def get_summary_prompt(source_content, custom_terms_json=None, visual_context=None):
     src_lang = load_key("whisper.detected_language")
     tgt_lang = load_key("target_language")
-    
+
     # add custom terms note
     terms_note = ""
     if custom_terms_json:
@@ -61,7 +61,17 @@ def get_summary_prompt(source_content, custom_terms_json=None):
         for term in custom_terms_json['terms']:
             terms_list.append(f"- {term['src']}: {term['tgt']} ({term['note']})")
         terms_note = "\n### Existing Terms\nPlease exclude these terms in your extraction:\n" + "\n".join(terms_list)
-    
+
+    # optional TwelveLabs Pegasus on-screen visual context (transcript is blind to the screen)
+    visual_note = ""
+    if visual_context:
+        visual_note = (
+            "\n### On-screen Visual Context\n"
+            "The following describes what is shown on screen (the transcript above is "
+            "audio-only). Use it to disambiguate proper nouns and on-screen terms when "
+            "extracting terminology and writing the summary:\n" + visual_context
+        )
+
     summary_prompt = f"""
 ## Role
 You are a video translation expert and terminology consultant, specializing in {src_lang} comprehension and {tgt_lang} expression optimization.
@@ -73,6 +83,7 @@ For the provided {src_lang} video text:
 3. Provide brief explanation for each term
 
 {terms_note}
+{visual_note}
 
 Steps:
 1. Topic Summary:
