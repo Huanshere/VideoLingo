@@ -64,9 +64,10 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
     params = dict(
         model=model,
         messages=messages,
-        response_format=response_format,
         timeout=300
     )
+    if response_format is not None:
+        params["response_format"] = response_format
     resp_raw = client.chat.completions.create(**params)
 
     # process and return full result
