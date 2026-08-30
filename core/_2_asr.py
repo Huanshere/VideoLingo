@@ -3,6 +3,7 @@ from core.asr_backend.demucs_vl import demucs_audio
 from core.asr_backend.audio_preprocess import process_transcription, convert_video_to_audio, prepare_audio_for_asr, split_audio, save_results, normalize_audio_volume
 from core._1_ytdlp import find_media_file
 from core.utils.models import *
+from core.asr_backend.transcript_quality import validate_transcript_quality
 
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
@@ -48,6 +49,7 @@ def transcribe():
     
     # 6. Process df
     df = process_transcription(combined_result)
+    validate_transcript_quality(df)
     save_results(df)
         
 if __name__ == "__main__":

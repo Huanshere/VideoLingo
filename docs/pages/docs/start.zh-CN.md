@@ -211,6 +211,12 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 6. （可选）更多设置可以在 `config.yaml` 中手动修改，运行过程请注意命令行输出。如需使用自定义术语，请在处理前将术语添加到 `custom_terms.xlsx` 中，例如 `Biden | 登子 | 美国的瞌睡总统`。
 
+### 大模型用量保护
+
+- `api.max_total_tokens`：累计 token 达到设定值后停止发起新的付费请求；用量记录位于 `output/gpt_log/usage.json`。默认值 `0` 表示不限制。
+- `api.thinking`：使用 DeepSeek 官方 API 时控制思考模式（`enabled` 或 `disabled`）。默认关闭，避免 DeepSeek V4 默认高强度思考产生额外 token。
+- `whisper.max_repetition_cycles`：转写出现明显的单词或短语循环时，在进入付费大模型步骤前终止。设为 `0` 可关闭检查。
+
 > 需要帮助？我们的 [AI助手](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) 随时解答问题！
 
 

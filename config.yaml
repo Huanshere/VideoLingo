@@ -15,6 +15,10 @@ api:
   base_url: 'https://openrouter.ai/api/v1'
   model: 'deepseek/deepseek-v4-flash'
   llm_support_json: false
+  # Stop scheduling new requests after this many billed tokens (0 = unlimited).
+  max_total_tokens: 0
+  # Used by the official DeepSeek API. V4 enables high-effort thinking by default.
+  thinking: 'disabled'
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4
 
@@ -32,6 +36,8 @@ whisper:
   detected_language: 'en'
   # Whisper running mode ["local", "cloud", "elevenlabs"]. Specifies where to run, cloud uses 302.ai API
   runtime: 'local'
+  # Abort before LLM steps when ASR contains an obvious repetition loop (0 = disabled).
+  max_repetition_cycles: 12
   # 302.ai API key
   whisperX_302_api_key: 'your_302_api_key'
   # ElevenLabs API key (experimental)

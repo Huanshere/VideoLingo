@@ -211,6 +211,12 @@ Before installing VideoLingo, ensure you have installed Git and Anaconda.
 
 6. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation. To use custom terms, add them to `custom_terms.xlsx` before processing, e.g. `Baguette | French bread | Not just any bread!`.
 
+### LLM usage safeguards
+
+- `api.max_total_tokens` stops scheduling new paid requests after the cumulative token count in `output/gpt_log/usage.json` reaches the configured value. The default `0` means unlimited.
+- `api.thinking` controls thinking mode when using the official DeepSeek API (`enabled` or `disabled`). It defaults to `disabled` because DeepSeek V4 otherwise enables high-effort thinking by default.
+- `whisper.max_repetition_cycles` aborts before paid LLM steps when transcription contains an obvious repeated word or phrase loop. Set it to `0` to disable the check.
+
 > Need help? Our [AI Assistant](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) is here to guide you through any issues!
 
 ## 🏭 Batch Mode (beta)

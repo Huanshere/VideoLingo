@@ -3,6 +3,10 @@ import time
 import os
 from rich import print as rprint
 
+
+class NonRetryableError(RuntimeError):
+    """An error that retries cannot resolve (for example, a usage limit)."""
+
 # ------------------------------
 # retry decorator
 # ------------------------------
@@ -17,6 +21,8 @@ def except_handler(error_msg, retry=0, delay=1, default_return=None):
                     return func(*args, **kwargs)
                 except Exception as e:
                     last_exception = e
+                    if isinstance(e, NonRetryableError):
+                        raise
                     rprint(f"[red]{error_msg}: {e}, retry: {i+1}/{retry}[/red]")
                     if i == retry:
                         if default_return is not None:
