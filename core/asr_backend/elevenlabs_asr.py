@@ -137,8 +137,8 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
 
 if __name__ == "__main__":
     file_path = input("Enter local audio file path (mp3 format): ")
-    language = input("Enter language code for transcription (en or zh or other...): ")
-    result = transcribe_audio_elevenlabs(file_path, language_code=language)
+    # Language is not a parameter: the request body reads whisper.language from config.
+    result = transcribe_audio_elevenlabs(file_path, file_path)
     print(result)
     
     # Save result to file
