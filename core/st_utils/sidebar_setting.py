@@ -62,6 +62,21 @@ def page_setting():
             help=t("Openai format, will add /v1/chat/completions automatically"),
         )
 
+        st.caption(t("Quick Fill Provider Presets"))
+        c_p1, c_p2 = st.columns(2)
+        with c_p1:
+            if st.button("🌐 API Route", key="preset_apiroute", use_container_width=True, help="https://global.api-route.com/v1"):
+                update_key("api.base_url", "https://global.api-route.com/v1")
+                update_key("api.model", "claude-3-7-sonnet-20250219")
+                st.toast(t("Applied API Route preset"), icon="🌐")
+                st.rerun()
+        with c_p2:
+            if st.button("⚡ OpenRouter", key="preset_openrouter", use_container_width=True, help="https://openrouter.ai/api/v1"):
+                update_key("api.base_url", "https://openrouter.ai/api/v1")
+                update_key("api.model", "deepseek/deepseek-v4-flash")
+                st.toast(t("Applied OpenRouter preset"), icon="⚡")
+                st.rerun()
+
         # Try to use searchbox for model selection, fall back to text_input
         try:
             from streamlit_searchbox import st_searchbox

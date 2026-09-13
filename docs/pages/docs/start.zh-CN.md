@@ -21,7 +21,7 @@
 >
 > **提示：** 模型价格变动频繁，请前往各厂商官网查看最新定价。[models.dev](https://models.dev) 可横向比较各家模型的价格和能力。
 >
-> **API 中转推荐：** 如果无法直接访问海外 API，推荐使用 [OpenRouter](https://openrouter.ai)（OpenAI 兼容接口：`https://openrouter.ai/api/v1`，支持上述所有海外模型，按量付费无月费）。
+> **API 中转推荐：** 如果无法直接访问海外 API，推荐使用 [API Route](https://www.api-route.com)（OpenAI 兼容接口：`https://global.api-route.com/v1`，聚合 Claude、GPT、DeepSeek 等主流模型）或 [OpenRouter](https://openrouter.ai)（OpenAI 兼容接口：`https://openrouter.ai/api/v1`），支持上述所有海外模型，按量付费无月费。
 
 注：支持 OpenAI 格式接口，可自行尝试不同模型。但处理过程涉及多步思维链和复杂的json格式，**不建议使用小于 30B 的模型**。
 
