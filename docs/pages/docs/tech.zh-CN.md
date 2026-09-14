@@ -22,9 +22,8 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系
 *   `core/asr_backend/demucs_vl.py`: 使用 Demucs 模型 (`htdemucs`) 将音频分离为人声和背景音轨，从而提高后续 ASR 的质量。
 *   `core/asr_backend/audio_preprocess.py`: 包含准备音频的基本功能：音量标准化 (`pydub`)、视频到音频的转换 (`ffmpeg`)、静音检测 (`ffmpeg`)、音频时长计算 (`ffmpeg`)、将长音频文件拆分为可管理的片段、将 ASR 结果处理为 DataFrames、保存结果以及存储检测到的语言。
 *   `core/asr_backend/whisperX_local.py`: 使用 WhisperX 库实现本地音频转录。根据可用硬件（GPU/CPU）优化性能，处理模型下载（具有镜像检查），执行转录和对齐，调整时间戳，并管理 GPU 内存。
-*   `core/asr_backend/whisperX_302.py`: 使用 302.ai WhisperX API 实现音频转录，包括缓存和时间戳调整。
 *   `core/asr_backend/elevenlabs_asr.py`: 使用 ElevenLabs 语音转文本 API 实现音频转录，处理音频切片、API 交互、格式转换（ElevenLabs 到类似 Whisper 的格式）和临时文件管理。
-*   `core/_2_asr.py`: 编排 ASR 过程。提取音频，可选择执行 Demucs 人声分离，拆分音频，调用配置的 ASR 后端（本地 WhisperX、302 API 或 Elevenlabs API），合并结果，将转录处理为 DataFrame，并保存输出。
+*   `core/_2_asr.py`: Orchestrates audio preparation, optional vocal separation, recognition with local WhisperX or ElevenLabs, and result export.
 
 **4. 文本处理和翻译模块 (`core`, `core/spacy_utils`):**
 
