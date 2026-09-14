@@ -89,7 +89,7 @@ def _read_input_manifest(save_path='output'):
     return media_file.replace("\\", "/") if sys.platform.startswith('win') else media_file, media_type
 
 def find_video_files(save_path='output'):
-    video_files = [file for file in glob.glob(save_path + "/*") if os.path.splitext(file)[1][1:].lower() in load_key("allowed_video_formats")]
+    video_files = [file for file in glob.glob(save_path + "/*") if os.path.isfile(file) and os.path.splitext(file)[1][1:].lower() in load_key("allowed_video_formats")]
     # change \\ to /, this happen on windows
     if sys.platform.startswith('win'):
         video_files = [file.replace("\\", "/") for file in video_files]
