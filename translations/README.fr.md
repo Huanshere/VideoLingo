@@ -161,10 +161,10 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo prend en charge le format d'API OpenAI et diverses interfaces TTS :
 - LLM : `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (triés par qualité ; pour les options économiques essayez `gemini-3-flash` ou `gpt-5.4-mini`)
-- WhisperX : Exécutez whisperX localement ou utilisez l'API 302.ai
+- Speech recognition: run WhisperX locally or use the ElevenLabs API.
 - TTS : `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(Vous pouvez modifier votre propre TTS dans custom_tts.py !)
 
-> **Note :** VideoLingo fonctionne avec **[302.ai](https://gpt302.saaslink.net/C2oHR9)** - une seule clé API pour tous les services (LLM, WhisperX, TTS). Ou exécutez localement avec Ollama et Edge-TTS gratuitement, sans API nécessaire !
+> **Note:** The 302.ai WhisperX recognition service has been retired. Select Local or ElevenLabs for recognition. The separate 302.ai LLM and TTS integrations remain available.
 
 Pour des instructions détaillées sur l'installation, la configuration de l'API et le mode batch, veuillez consulter la documentation : [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
@@ -198,4 +198,4 @@ Ce projet est sous licence Apache 2.0. Remerciements spéciaux aux projets open 
 
 ---
 
-<p align="center">Si vous trouvez VideoLingo utile, donnez-moi une ⭐️ !</p> 
+<p align="center">Si vous trouvez VideoLingo utile, donnez-moi une ⭐️ !</p>

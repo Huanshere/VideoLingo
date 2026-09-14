@@ -149,6 +149,7 @@ def page_setting():
         c1, c2 = st.columns(2)
         with c1:
             langs = {
+                "Auto": "auto",
                 "🇺🇸 English": "en",
                 "🇨🇳 简体中文": "zh",
                 "🇪🇸 Español": "es",
@@ -167,24 +168,25 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
+        runtimes = ["local", "elevenlabs"]
+        configured_runtime = load_key("whisper.runtime")
+        if configured_runtime not in runtimes:
+            st.warning(t("The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue."))
         runtime = st.selectbox(
             t("WhisperX Runtime"),
-            options=["local", "cloud", "elevenlabs"],
-            index=["local", "cloud", "elevenlabs"].index(load_key("whisper.runtime")),
+            options=runtimes,
+            index=runtimes.index(configured_runtime) if configured_runtime in runtimes else None,
             format_func=lambda x: {
                 "local": t("Local"),
-                "cloud": t("Cloud"),
                 "elevenlabs": t("ElevenLabs"),
             }[x],
             help=t(
-                "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key"
+                "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key."
             ),
         )
-        if runtime != load_key("whisper.runtime"):
+        if runtime is not None and runtime != configured_runtime:
             update_key("whisper.runtime", runtime)
             st.rerun()
-        if runtime == "cloud":
-            config_input(t("WhisperX 302ai API"), "whisper.whisperX_302_api_key")
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
 
