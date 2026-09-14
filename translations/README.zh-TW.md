@@ -161,10 +161,10 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
 - LLM：`claude-sonnet-4.6`、`gpt-5.4`、`gemini-3.1-pro`、`deepseek-v3`、`grok-4.1`、...（按品質排序；預算方案可嘗試 `gemini-3-flash` 或 `gpt-5.4-mini`）
-- WhisperX：本地運行 whisperX 或使用 302.ai API
+- Speech recognition: run WhisperX locally or use the ElevenLabs API.
 - TTS：`azure-tts`、`openai-tts`、`siliconflow-fishtts`、**`fish-tts`**、`GPT-SoVITS`、`edge-tts`、`*custom-tts`（您可以在 custom_tts.py 中修改自己的 TTS！）
 
-> **注意：** VideoLingo 與 **[302.ai](https://gpt302.saaslink.net/C2oHR9)** 合作 - 一個 API 密鑰即可使用所有服務（LLM、WhisperX、TTS）。或者使用 Ollama 和 Edge-TTS 在本地免費運行，無需 API！
+> **Note:** The 302.ai WhisperX recognition service has been retired. Select Local or ElevenLabs for recognition. The separate 302.ai LLM and TTS integrations remain available.
 
 詳細安裝、API 配置和批處理模式說明，請參閱文檔：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
@@ -198,4 +198,4 @@ VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
 
 ---
 
-<p align="center">如果您覺得 VideoLingo 有幫助，請給我一個 ⭐️！</p> 
+<p align="center">如果您覺得 VideoLingo 有幫助，請給我一個 ⭐️！</p>

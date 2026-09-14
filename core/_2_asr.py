@@ -5,6 +5,9 @@ from core.utils.models import *
 
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
+    runtime = load_key("whisper.runtime")
+    if runtime not in ("local", "elevenlabs"):
+        raise ValueError("Select local or elevenlabs for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
     # 1. prepare audio
     media_file, media_type = find_media_file()
     if media_type == "video":
@@ -25,13 +28,9 @@ def transcribe():
     
     # 4. Transcribe audio by clips
     all_results = []
-    runtime = load_key("whisper.runtime")
     if runtime == "local":
         from core.asr_backend.whisperX_local import transcribe_audio as ts
         rprint("[cyan]🎤 Transcribing audio with local model...[/cyan]")
-    elif runtime == "cloud":
-        from core.asr_backend.whisperX_302 import transcribe_audio_302 as ts
-        rprint("[cyan]🎤 Transcribing audio with 302 API...[/cyan]")
     elif runtime == "elevenlabs":
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")

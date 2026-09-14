@@ -169,10 +169,10 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
 - LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ...（按质量排序；预算方案可尝试 `gemini-3-flash` 或 `gpt-5.4-mini`）
-- WhisperX: 本地运行 WhisperX 或使用 302.ai API
+- Speech recognition: run WhisperX locally or use the ElevenLabs API.
 - TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(你可以在 custom_tts.py 中自定义 TTS!)
 
-> **注意：** VideoLingo 现已与 **[302.ai](https://gpt302.saaslink.net/C2oHR9)** 集成，**一个 API KEY** 即可同时支持 LLM、WhisperX 和 TTS！同时也支持完全本地部署，使用 Ollama 作为 LLM 和 Edge-TTS 作为配音，无需云端 API！
+> **Note:** The 302.ai WhisperX recognition service has been retired. Select Local or ElevenLabs for recognition. The separate 302.ai LLM and TTS integrations remain available.
 
 详细的安装、API 配置、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
