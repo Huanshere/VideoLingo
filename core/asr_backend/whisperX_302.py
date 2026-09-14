@@ -3,8 +3,7 @@ import io
 import json
 import time
 import requests
-import librosa
-import soundfile as sf
+from core.asr_backend.audio_preprocess import audio_slice_wav
 from rich import print as rprint
 from core.utils import *
 from core.utils.models import *
@@ -21,20 +20,7 @@ def transcribe_audio_302(raw_audio_path: str, vocal_audio_path: str, start: floa
     update_key("whisper.language", WHISPER_LANGUAGE)
     url = "https://api.302.ai/302/whisperx"
     
-    y, sr = librosa.load(vocal_audio_path, sr=16000)
-    audio_duration = len(y) / sr
-    
-    if start is None or end is None:
-        start = 0
-        end = audio_duration
-        
-    start_sample = int(start * sr)
-    end_sample = int(end * sr)
-    y_slice = y[start_sample:end_sample]
-    
-    audio_buffer = io.BytesIO()
-    sf.write(audio_buffer, y_slice, sr, format='WAV', subtype='PCM_16')
-    audio_buffer.seek(0)
+    audio_buffer = io.BytesIO(audio_slice_wav(vocal_audio_path, start, end))
     
     files = [('audio_input', ('audio_slice.wav', audio_buffer, 'application/octet-stream'))]
     payload = {"processing_type": "align", "language": WHISPER_LANGUAGE, "output": "raw"}

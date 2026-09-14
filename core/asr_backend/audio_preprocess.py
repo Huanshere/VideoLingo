@@ -1,5 +1,6 @@
 import os, subprocess
 import pandas as pd
+import math
 from typing import Dict, List, Tuple
 from pydub import AudioSegment
 from core.utils import *
@@ -8,6 +9,23 @@ from pydub import AudioSegment
 from pydub.silence import detect_silence
 from pydub.utils import mediainfo
 from rich import print as rprint
+
+
+def audio_slice_wav(path, start=None, end=None, sample_rate=16000):
+    """Decode only the requested interval to mono PCM WAV for cloud ASR."""
+    if any(value is not None and (not math.isfinite(value) or value < 0) for value in (start, end)):
+        raise ValueError('Audio interval must contain finite non-negative times')
+    cmd = ['ffmpeg', '-v', 'error']
+    if start is not None:
+        cmd += ['-ss', str(start)]
+    cmd += ['-i', str(path)]
+    if end is not None:
+        duration = end - (start or 0)
+        if duration <= 0:
+            raise ValueError('Audio interval must have positive duration')
+        cmd += ['-t', str(duration)]
+    cmd += ['-ac', '1', '-ar', str(sample_rate), '-c:a', 'pcm_s16le', '-f', 'wav', 'pipe:1']
+    return subprocess.run(cmd, check=True, capture_output=True).stdout
 
 def _ffmpeg_has_encoder(encoder_name: str) -> bool:
     """Check if the current ffmpeg installation supports a given audio encoder."""

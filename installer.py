@@ -34,8 +34,8 @@ REQUIREMENTS = ROOT / "requirements.txt"
 TORCH_VERSION = "2.8.0"
 TORCH_INDEX = "https://download.pytorch.org/whl"
 BOOTSTRAP_PACKAGES = ["requests", "rich", "ruamel.yaml", "InquirerPy", "packaging"]
-FILTERED_REQUIREMENTS = {"spacy", "whisperx"}
-DEMUX_GIT = "demucs[dev]@git+https://github.com/adefossez/demucs@b9ab48cad45976ba42b2ff17b229c071f0df9390"
+FILTERED_REQUIREMENTS = {"torch", "torchaudio", "torchvision"}
+DEMUCS_REQUIREMENT = "demucs>=4.1.0,<5"
 
 
 def run(cmd: list[str], retries: int = 0, env: dict[str, str] | None = None) -> None:
@@ -109,7 +109,7 @@ def requirements_hash() -> str:
     h = hashlib.sha256()
     h.update(REQUIREMENTS.read_bytes())
     h.update(f"torch={TORCH_VERSION}\n".encode())
-    h.update(DEMUX_GIT.encode())
+    h.update(DEMUCS_REQUIREMENT.encode())
     return h.hexdigest()
 
 
@@ -179,8 +179,7 @@ def detect_cuda_version_from_smi() -> tuple[int, int] | None:
 def detect_torch_index() -> str:
     cuda_version = detect_cuda_version_from_smi()
     tags = [
-        ((13, 0), "cu129"),
-        ((12, 9), "cu129"),
+        # CTranslate2 currently requires CUDA 12 cuBLAS, including on CUDA 13 drivers.
         ((12, 8), "cu128"),
         ((12, 6), "cu126"),
     ]
@@ -214,33 +213,36 @@ def maybe_configure_mirror(auto_mirror: bool) -> None:
 
 def install_torch(force: bool = False) -> None:
     print("\n[3/7] Install PyTorch / torchaudio")
-    if not force and package_ok("torch", TORCH_VERSION) and package_ok("torchaudio", TORCH_VERSION):
+    gpu = detect_nvidia_gpu()
+    gpu_build = not gpu or all("+cu12" in (package_version(name) or "") for name in ("torch", "torchaudio", "torchvision"))
+    if not force and gpu_build and package_ok("torch", TORCH_VERSION) and package_ok("torchaudio", TORCH_VERSION) and package_ok("torchvision", "0.23.0"):
         print(f"  torch {package_version('torch')} and torchaudio {package_version('torchaudio')} already installed.")
         return
-    packages = [f"torch=={TORCH_VERSION}", f"torchaudio=={TORCH_VERSION}"]
-    if detect_nvidia_gpu():
+    packages = [f"torch=={TORCH_VERSION}", f"torchaudio=={TORCH_VERSION}", "torchvision==0.23.0"]
+    if gpu:
         index = detect_torch_index()
         print(f"  NVIDIA GPU detected. Using PyTorch index: {index}")
-        pip_install(packages, retries=3, extra_args=["--index-url", index])
+        pip_install(packages, retries=3, extra_args=["--index-url", index, "--force-reinstall"])
     else:
         print("  No NVIDIA GPU detected. Installing CPU PyTorch wheels.")
-        pip_install(packages, retries=3)
+        extra = ["--index-url", f"{TORCH_INDEX}/cpu"] if platform.system() != "Darwin" else []
+        pip_install(packages, retries=3, extra_args=extra)
 
 
-def install_base_requirements(force: bool = False) -> None:
+def install_base_requirements(force: bool = False, upgrade: bool = False) -> None:
     print("\n[4/7] Install base requirements")
     state = load_state()
     current_hash = requirements_hash()
     previous_hash = state.get("requirements_hash")
-    if not force and previous_hash == current_hash and health_check(quiet=True, require_demucs=False, check_state=False) == 0:
+    if not force and not upgrade and previous_hash == current_hash and health_check(quiet=True, require_demucs=False, check_state=False) == 0:
         print("  Environment already matches requirements hash; skipping base install.")
         return
-    if not force and previous_hash is None and health_check(quiet=True, require_demucs=False, check_state=False) == 0:
+    if not force and not upgrade and previous_hash is None and health_check(quiet=True, require_demucs=False, check_state=False) == 0:
         print("  Packages are already healthy; writing fresh install state later.")
         return
     if previous_hash and previous_hash != current_hash:
         print("  requirements.txt changed; syncing base requirements.")
-    pip_install(read_base_requirements(), retries=3)
+    pip_install(read_base_requirements(), retries=3, extra_args=["--upgrade"])
 
 
 def install_spacy(force: bool = False) -> None:
@@ -258,19 +260,18 @@ def install_whisperx(force: bool = False) -> None:
     if not force and package_version("whisperx") is not None:
         print(f"  whisperx {package_version('whisperx')} already installed.")
         return
-    pip_install(["whisperx>=3.8.1"], retries=3)
+    pip_install(["whisperx>=3.8.6,<3.9"], retries=3)
 
 
 def install_demucs(force: bool = False, require: bool = False) -> None:
     print("\n[7/7] Install Demucs (optional)")
-    if not force and package_version("demucs") is not None and import_ok("demucs.api"):
+    from packaging.version import Version
+    if not force and package_version("demucs") is not None and Version("4.1.0") <= Version(package_version("demucs")) < Version("5") and import_ok("demucs.api"):
         print(f"  demucs {package_version('demucs')} already installed.")
         return
-    pip_install(["dora-search", "openunmix", "lameenc"], retries=3)
-    if soft_pip_install([DEMUX_GIT], retries=2, extra_args=["--no-deps"]):
-        return
-    print("  Falling back to PyPI demucs. Demucs is optional; install can continue if this fails.")
-    ok = soft_pip_install(["demucs==4.0.1"], retries=2, extra_args=["--no-deps"])
+    # Maintained Demucs separates inference and training dependencies. No git
+    # snapshot, no-deps installation, or torchaudio<2.2 workaround is needed.
+    ok = soft_pip_install([DEMUCS_REQUIREMENT], retries=2, extra_args=["--upgrade"])
     if require and not ok:
         raise RuntimeError("Demucs installation failed")
 
@@ -350,6 +351,21 @@ def install_linux_noto_fonts() -> None:
 def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True) -> int:
     errors: list[str] = []
     warnings: list[str] = []
+    if not (3, 10) <= sys.version_info[:2] < (3, 14):
+        errors.append("WhisperX requires Python >=3.10,<3.14; use setup_env.py")
+    try:
+        from packaging.requirements import Requirement
+        for raw in REQUIREMENTS.read_text(encoding="utf-8").splitlines():
+            if not requirement_name(raw):
+                continue
+            req = Requirement(raw)
+            if req.marker and not req.marker.evaluate():
+                continue
+            installed = package_version(req.name)
+            if installed is None or not req.specifier.contains(installed):
+                errors.append(f"unsatisfied requirement: {req} (installed: {installed})")
+    except ImportError:
+        errors.append("missing package: packaging")
     state = load_state()
     if check_state:
         if state.get("requirements_hash") and state.get("requirements_hash") != requirements_hash():
@@ -379,6 +395,8 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         warnings.append("Noto CJK fonts are not installed; CJK subtitle burn-in may fail")
     if not shutil.which("ffmpeg"):
         errors.append("ffmpeg not found in PATH")
+    if detect_nvidia_gpu() and not all("+cu12" in (package_version(name) or "") for name in ("torch", "torchaudio", "torchvision")):
+        errors.append("NVIDIA GPU detected but the matched CUDA 12 PyTorch wheels are missing; rerun installer.py")
     if not quiet:
         print("\nEnvironment check")
         for package in ["streamlit", "torch", "torchaudio", "spacy", "whisperx", "demucs"]:
@@ -397,14 +415,17 @@ def launch_streamlit() -> int:
 
 
 def install_all(args: argparse.Namespace) -> int:
+    if not (3, 10) <= sys.version_info[:2] < (3, 14):
+        print("ERROR: WhisperX requires Python >=3.10,<3.14. Run setup_env.py first.")
+        return 1
     install_bootstrap()
     maybe_configure_mirror(args.auto_mirror)
     install_torch(force=args.force)
-    install_base_requirements(force=args.force)
+    install_base_requirements(force=args.force, upgrade=args.upgrade)
     install_spacy(force=args.force)
     install_whisperx(force=args.force)
     if not args.skip_demucs:
-        install_demucs(force=args.force, require=args.require_demucs)
+        install_demucs(force=args.force or args.upgrade, require=args.require_demucs)
     install_project_metadata()
     install_linux_noto_fonts()
     ffmpeg_ok = check_ffmpeg()
@@ -423,6 +444,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--check", action="store_true", help="check environment health only")
     parser.add_argument("--quiet", action="store_true", help="quiet check output")
     parser.add_argument("--force", action="store_true", help="force reinstall staged packages")
+    parser.add_argument("--upgrade", action="store_true", help="refresh dependencies within requirements.txt compatibility bounds")
     parser.add_argument("--auto-mirror", action="store_true", help="auto-select and configure a PyPI mirror")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")

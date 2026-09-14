@@ -3,8 +3,7 @@ import json
 import time
 import requests
 import tempfile
-import librosa
-import soundfile as sf
+from core.asr_backend.audio_preprocess import audio_slice_wav
 from rich import print as rprint
 from core.utils import *
 
@@ -71,23 +70,11 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
         with open(LOG_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     
-    # Load audio and process start/end parameters
-    y, sr = librosa.load(vocal_audio_path, sr=16000)
-    audio_duration = len(y) / sr
-    
-    if start is None or end is None:
-        start = 0
-        end = audio_duration
-    
-    # Slice audio based on start/end
-    start_sample = int(start * sr)
-    end_sample = int(end * sr)
-    y_slice = y[start_sample:end_sample]
-    
-    # Create temporary file for the sliced audio
-    with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_file:
+    # Use the same FFmpeg decoder as the other cloud ASR backend.
+    audio_data = audio_slice_wav(vocal_audio_path, start, end)
+    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
         temp_filepath = temp_file.name
-        sf.write(temp_filepath, y_slice, sr, format='MP3')
+        temp_file.write(audio_data)
     
     try:
         api_key = load_key("whisper.elevenlabs_api_key")
@@ -104,7 +91,7 @@ def transcribe_audio_elevenlabs(raw_audio_path, vocal_audio_path, start = None, 
         }
         
         with open(temp_filepath, 'rb') as audio_file:
-            files = {"file": (os.path.basename(temp_filepath), audio_file, 'audio/mpeg')}
+            files = {"file": (os.path.basename(temp_filepath), audio_file, 'audio/wav')}
             start_time = time.time()
             response = requests.post(base_url, headers=headers, data=data, files=files)
             

@@ -75,7 +75,8 @@ def process_row(row: pd.Series, tasks_df: pd.DataFrame) -> Tuple[int, float]:
 
 def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
     """Generate TTS audio sequentially and calculate actual duration"""
-    tasks_df['real_dur'] = 0
+    # pandas 3 rejects fractional durations assigned into an integer column.
+    tasks_df['real_dur'] = 0.0
     rprint("[bold green]🎯 Starting TTS audio generation...[/bold green]")
     
     with Progress() as progress:
@@ -177,7 +178,7 @@ def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
                     output_file = OUTPUT_FILE_TEMPLATE.format(f"{number}_{line_index}")
                     adjust_audio_speed(temp_file, output_file, speed_factor)
                     ad_dur = get_audio_duration(output_file)
-                    new_sub_times.append([cur_time, cur_time+ad_dur])
+                    new_sub_times.append([float(cur_time), float(cur_time+ad_dur)])
                     cur_time += ad_dur
                 # 🔄 Step3: Find corresponding main DataFrame index and update new_sub_times
                 main_df_idx = tasks_df[tasks_df['number'] == row['number']].index[0]
@@ -205,7 +206,9 @@ def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
                     
                     # Update the last timestamp
                     last_times = tasks_df.at[index, 'new_sub_times']
-                    last_times[-1][1] = chunk_end_time
+                    # NumPy 2 scalar repr includes np.float64(...), which is
+                    # not a portable literal when Excel serializes this list.
+                    last_times[-1][1] = float(chunk_end_time)
                     tasks_df.at[index, 'new_sub_times'] = last_times
                 else:
                     raise Exception(f"Chunk {chunk_start} to {index} exceeds the chunk end time {chunk_end_time:.2f} seconds with current time {cur_time:.2f} seconds")
