@@ -39,6 +39,15 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
         'postprocessors': [{'key': 'FFmpegThumbnailsConvertor', 'format': 'jpg'}],
     }
 
+    # None/missing inherits yt-dlp's system/environment proxy discovery.
+    # An empty string explicitly disables proxies; a URL overrides discovery.
+    youtube = load_key("youtube")
+    proxy = youtube.get("proxy")
+    if proxy is not None:
+        if not isinstance(proxy, str):
+            raise ValueError('youtube.proxy must be null, an empty string, or a proxy URL')
+        ydl_opts['proxy'] = proxy.strip()
+
     # Read Youtube Cookie File
     cookies_path = load_key("youtube.cookies_path")
     if os.path.exists(cookies_path):

@@ -122,43 +122,55 @@ def find_and_check_config_path(dubbing_character):
 
     return gpt_sovits_dir, config_path
 
+def sovits_ready():
+    """Check API shape without invoking synthesis or control commands."""
+    try:
+        with requests.Session() as session:
+            session.trust_env = False  # Local service probes must bypass external proxies.
+            with session.get('http://127.0.0.1:9880/openapi.json', timeout=2,
+                             allow_redirects=False) as response:
+                if response.status_code != 200:
+                    return False
+                schema = response.json()
+        paths = schema.get('paths', {})
+        return all(method in paths.get(path, {}) for path, method in (
+            ('/tts', 'post'), ('/set_gpt_weights', 'get'), ('/set_sovits_weights', 'get')))
+    except (requests.RequestException, ValueError, AttributeError, TypeError):
+        return False
+
+
 def start_gpt_sovits_server():
-    current_dir = Path(__file__).resolve().parent.parent.parent
     # Check if port 9880 is already in use
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(2)
     result = sock.connect_ex(('127.0.0.1', 9880))
     if result == 0:
         sock.close()
-        return None
+        if sovits_ready():
+            return None
+        raise RuntimeError('Port 9880 is occupied, but the GPT-SoVITS API is not ready or compatible.')
     sock.close()
 
     rprint("[bold yellow]🚀 Initializing GPT-SoVITS Server...[/bold yellow]")
     rprint("[bold yellow]🚀 正在初始化 GPT-SoVITS 服务器...[/bold yellow]")
     
-    rprint("""[bold red]⏳ Please wait approximately 1 minute
-  • A new command prompt will appear for the GPT-SoVITS API
-  • Any `404 not found` warnings during startup are normal, please be patient[/bold red]""")
-    rprint("""[bold red]⏳ 请等待大约1分钟
-  • GPT-SoVITS API 将会打开一个新的命令提示符窗口
-  • 启动过程中出现 `404 not found` 警告是正常的，请耐心等待[/bold red]""")
+    rprint('[yellow]Waiting for the GPT-SoVITS API schema. '
+           'A new console will open on Windows.[/yellow]')
     
     # Find and check config path
     gpt_sovits_dir, config_path = find_and_check_config_path(load_key("gpt_sovits.character"))
 
-    # Change to the GPT-SoVITS-v2 directory
-    os.chdir(gpt_sovits_dir)
-
     # Start the GPT-SoVITS server
     if sys.platform == "win32":
         cmd = [
-            "runtime\\python.exe",
+            str(gpt_sovits_dir / "runtime" / "python.exe"),
             "api_v2.py",
             "-a", "127.0.0.1",
             "-p", "9880",
             "-c", str(config_path)
         ]
         # Open the command in a new window on Windows
-        process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE)
+        process = subprocess.Popen(cmd, cwd=gpt_sovits_dir, creationflags=subprocess.CREATE_NEW_CONSOLE)
     elif sys.platform == "darwin":  # macOS
         print("Please manually start the GPT-SoVITS server at http://127.0.0.1:9880, refer to api_v2.py.")
         while True:
@@ -171,19 +183,15 @@ def start_gpt_sovits_server():
     else:
         raise OSError("Unsupported operating system. Only Windows and macOS are supported.")
 
-    # Change back to the original directory
-    os.chdir(current_dir)
-
-    # Wait for the server to start (max 30 seconds)
-    start_time = time.time()
-    while time.time() - start_time < 50:
-        try:
-            time.sleep(15)
-            response = requests.get('http://127.0.0.1:9880/ping')
-            if response.status_code == 200:
-                print("GPT-SoVITS server is ready.")
-                return process
-        except requests.exceptions.RequestException:
-            pass
+    # Each probe is bounded; an exited child must not be reported as ready.
+    start_time = time.monotonic()
+    while time.monotonic() - start_time < 50:
+        check_cancel()
+        if process is not None and process.poll() is not None:
+            raise RuntimeError(f'GPT-SoVITS exited during startup (code {process.returncode}).')
+        if sovits_ready():
+            print("GPT-SoVITS server is ready.")
+            return process
+        time.sleep(1)
 
     raise Exception("GPT-SoVITS server failed to start within 50 seconds. Please check if GPT-SoVITS-v2-xxx folder is set correctly.")

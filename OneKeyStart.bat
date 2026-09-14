@@ -18,7 +18,7 @@ set "LOGFILE=logs\videolingo_%dt%.log"
 set "CHECK_ONLY="
 if /I "%~1"=="--check-only" set "CHECK_ONLY=1"
 
-echo [%date% %time%] VideoLingo starting... > "%LOGFILE%"
+powershell -NoProfile -Command "[IO.File]::WriteAllText($env:LOGFILE, ('[{0}] VideoLingo starting...{1}' -f (Get-Date -Format 'yyyy/MM/dd HH:mm:ss'), [Environment]::NewLine), [Text.UTF8Encoding]::new($false))"
 echo %C_CYAN%Log file:%C_RESET% %LOGFILE%
 
 set "VENV_LABEL="
@@ -61,7 +61,7 @@ if %errorlevel%==0 (
         goto end
     )
     echo %C_GREEN%Starting VideoLingo with Conda...%C_RESET%
-    python -m streamlit run st.py 2>&1 | powershell -NoProfile -Command "$input | Tee-Object -FilePath '%LOGFILE%' -Append"
+    python -m streamlit run st.py 2>&1 | powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\streamlit-log.ps1"
     goto end
 )
 
@@ -88,7 +88,7 @@ if defined CHECK_ONLY (
 )
 
 echo %C_GREEN%Starting VideoLingo with %VENV_LABEL%...%C_RESET%
-"%VENV_PY%" -m streamlit run st.py 2>&1 | powershell -NoProfile -Command "$input | Tee-Object -FilePath '%LOGFILE%' -Append"
+"%VENV_PY%" -m streamlit run st.py 2>&1 | powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\streamlit-log.ps1"
 goto end
 
 :install_failed
