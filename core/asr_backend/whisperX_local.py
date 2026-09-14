@@ -141,7 +141,8 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     torch.cuda.empty_cache()
 
     # Save language
-    update_key("whisper.language", result['language'])
+    detected_language = result['language']
+    update_key("whisper.detected_language", detected_language)
     if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
         raise ValueError("Please specify the transcription language as zh and try again!")
 
@@ -152,6 +153,7 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     # Align timestamps using vocal audio
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, vocal_audio_segment, device, return_char_alignments=False)
+    result["language"] = detected_language
     align_time = time.time() - align_start_time
     rprint(f"[cyan]⏱️ time align:[/cyan] {align_time:.2f}s")
 
