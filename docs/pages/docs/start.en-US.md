@@ -21,7 +21,7 @@ VideoLingo requires an LLM and TTS(optional). The default recommendation is Deep
 >
 > **Tip:** Model pricing changes frequently. Check each vendor's website for current rates. [models.dev](https://models.dev) offers cross-vendor price and capability comparison.
 >
-> **API proxy:** If you cannot access overseas APIs directly, [OpenRouter](https://openrouter.ai) is recommended (OpenAI-compatible endpoint: `https://openrouter.ai/api/v1`, supports all models above, pay-per-use with no monthly fee).
+> **API proxy:** If you cannot access overseas APIs directly, [API Route](https://www.api-route.com) (OpenAI-compatible endpoint: `https://global.api-route.com/v1`, aggregating Claude, GPT, DeepSeek and top models) or [OpenRouter](https://openrouter.ai) (OpenAI-compatible endpoint: `https://openrouter.ai/api/v1`) is recommended, supporting all models above with pay-per-use and no monthly fee.
 
 Note: Supports OpenAI format, you can try different models at your risk. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
 
