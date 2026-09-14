@@ -149,6 +149,7 @@ def page_setting():
         c1, c2 = st.columns(2)
         with c1:
             langs = {
+                "Auto": "auto",
                 "🇺🇸 English": "en",
                 "🇨🇳 简体中文": "zh",
                 "🇪🇸 Español": "es",
