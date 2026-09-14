@@ -25,6 +25,13 @@ def load_key(key):
             raise KeyError(f"Key '{k}' not found in configuration")
     return value
 
+def load_key_or(key, default):
+    """Read an optional key; config.yaml files written before the key existed keep working."""
+    try:
+        return load_key(key)
+    except KeyError:
+        return default
+
 def update_key(key, new_value):
     with lock:
         with open(CONFIG_PATH, 'r', encoding='utf-8') as file:

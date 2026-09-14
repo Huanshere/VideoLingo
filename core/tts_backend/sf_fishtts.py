@@ -18,6 +18,9 @@ API_URL_VOICE = "https://api.siliconflow.cn/v1/uploads/audio/voice"
 
 MODEL_NAME = "fishaudio/fish-speech-1.4"
 REFER_MAX_LENGTH = 90
+# Reference clips are 44.1 kHz WAV from Demucs; v2.2.1 merged them at 44.1 kHz.
+# 3.0.0 exported the merged reference at 16 kHz, discarding everything above 8 kHz.
+REFER_SAMPLE_RATE = 44100
 
 @except_handler("Failed to generate audio using SiliconFlow Fish TTS", retry=2, delay=1)
 def siliconflow_fish_tts(text, save_path, mode="preset", voice_id=None, ref_audio=None, ref_text=None, check_duration=False):
@@ -108,7 +111,7 @@ def merge_audio(files, output):
         combined += audio + silence
     
     # Export the combined file
-    combined.export(output, format="wav", parameters=["-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1"])
+    combined.export(output, format="wav", parameters=["-acodec", "pcm_s16le", "-ar", str(REFER_SAMPLE_RATE), "-ac", "1"])
     
     if os.path.getsize(output) == 0:
         rprint(f"[red]Output file size is 0")

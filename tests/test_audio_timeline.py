@@ -15,12 +15,14 @@ ROOT = Path(__file__).resolve().parents[1]
 def extraction_functions(directory, encoder):
     # Exercise the real extraction functions without importing ASR/ML dependencies.
     tree = ast.parse((ROOT / 'core/asr_backend/audio_preprocess.py').read_text(encoding='utf-8'))
-    names = {'convert_video_to_audio', 'prepare_audio_for_asr'}
+    names = {'convert_video_to_audio', 'prepare_audio_for_asr', '_raw_audio_command', 'raw_audio_settings'}
     tree.body = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
     namespace = {
         'os': os, 'subprocess': subprocess, 'rprint': lambda *args: None,
         '_AUDIO_DIR': str(directory), '_RAW_AUDIO_FILE': str(directory / 'raw.mp3'),
         '_ffmpeg_has_encoder': lambda _: encoder,
+        'load_key_or': lambda key, default: default,
+        'RAW_AUDIO_SAMPLE_RATE': 32000, 'RAW_AUDIO_BITRATE': '128k',
     }
     exec(compile(tree, 'audio_preprocess.py', 'exec'), namespace)
     return namespace

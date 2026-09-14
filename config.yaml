@@ -128,6 +128,12 @@ min_subtitle_duration: 2.5 # Minimum subtitle duration, will be forcibly extende
 min_trim_duration: 3.5 # Subtitles shorter than this value won't be split
 tolerance: 1.5 # Allowed extension time to the next subtitle
 
+# *Raw audio extraction quality (raw.mp3). Demucs vocals and voice-clone reference clips inherit this bandwidth;
+# *16000 caps them near 7 kHz. v2.2.1 used 32000 / 128k. Existing output/audio/raw.mp3 is not re-extracted.
+audio:
+  raw_sample_rate: 32000
+  raw_bitrate: '128k'
+
 
 
 
