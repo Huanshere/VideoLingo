@@ -1,12 +1,13 @@
 import platform
 import subprocess
+import json
+import math
 
 import cv2
 import numpy as np
 from rich.console import Console
 
 from core._1_ytdlp import find_video_files
-from core.asr_backend.audio_preprocess import normalize_audio_volume
 from core.utils import *
 from core.utils.models import *
 
@@ -27,6 +28,27 @@ TRANS_FONT_COLOR = '&H00FFFF'
 TRANS_OUTLINE_COLOR = '&H000000'
 TRANS_OUTLINE_WIDTH = 1 
 TRANS_BACK_COLOR = '&H33000000'
+
+def normalize_dub_audio(audio_path, output_path):
+    """Measure gated loudness, then apply one peak-limited gain to the whole dub."""
+    check_cancel()
+    measured = subprocess.run(
+        ['ffmpeg', '-hide_banner', '-nostdin', '-i', str(audio_path),
+         '-af', 'loudnorm=I=-20:TP=-1:LRA=11:print_format=json', '-f', 'null', '-'],
+        check=True, capture_output=True, text=True, encoding='utf-8', errors='replace',
+    )
+    # FFmpeg can write its final progress summary after the measurement object.
+    stats, _ = json.JSONDecoder().raw_decode(measured.stderr[measured.stderr.rfind('{'):])
+    loudness, peak = float(stats['input_i']), float(stats['input_tp'])
+    # Silence/very short clips may not have a measurable integrated loudness.
+    # Preserve their level rather than applying an infinite or guessed gain.
+    gain = min(-20.0 - loudness, -1.0 - peak) if math.isfinite(loudness) and math.isfinite(peak) else 0.0
+    check_cancel()
+    subprocess.run(
+        ['ffmpeg', '-hide_banner', '-nostdin', '-y', '-i', str(audio_path),
+         '-af', f'volume={gain:.8f}dB', '-c:a', 'pcm_s24le', str(output_path)],
+        check=True, capture_output=True,
+    )
 
 def merge_video_audio():
     """Merge video and audio, and reduce video volume"""
@@ -53,7 +75,7 @@ def merge_video_audio():
 
     # Normalize dub audio
     normalized_dub_audio = 'output/normalized_dub.wav'
-    normalize_audio_volume(DUB_AUDIO, normalized_dub_audio)
+    normalize_dub_audio(DUB_AUDIO, normalized_dub_audio)
     
     # Merge video and audio with translated subtitles
     video = cv2.VideoCapture(VIDEO_FILE)
@@ -84,9 +106,9 @@ def merge_video_audio():
     else:
         cmd.extend(['-map', '[v]', '-map', '[a]'])
     
-    cmd.extend(['-c:a', 'aac', '-b:a', '96k', DUB_VIDEO])
+    cmd.extend(['-c:a', 'aac', '-b:a', '192k', DUB_VIDEO])
     
-    subprocess.run(cmd)
+    subprocess.run(cmd, check=True)
     rprint(f"[bold green]Video and audio successfully merged into {DUB_VIDEO}[/bold green]")
 
 if __name__ == '__main__':
