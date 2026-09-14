@@ -3,14 +3,16 @@
 ## Maintainer handoff / 发布前说明
 
 - **Status:** release-note proposal, not a published release. The maintainer chooses the next version and tag. Repository metadata currently says `3.0.3`; this document does not change version metadata or create a tag.
-- **Scope:** [`v3.0.1`](https://github.com/Huanshere/VideoLingo/releases/tag/v3.0.1), published on 2026-02-28, through merged upstream commit [`dcf55ff`](https://github.com/Huanshere/VideoLingo/commit/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9), checked on 2026-09-14. The range contains 17 commits, including merge commits, and ten non-merge commits.
-- **Refresh before publishing:** #599, #601 and [#602](https://github.com/Huanshere/VideoLingo/pull/602) are all merged and included. Recheck commits after the cutoff before selecting the release target. Unmerged proposals are not part of these notes.
+- **Scope:** [`v3.0.1`](https://github.com/Huanshere/VideoLingo/releases/tag/v3.0.1), published on 2026-02-28, through merged upstream commit [`5cb55d8`](https://github.com/Huanshere/VideoLingo/commit/5cb55d8), checked on 2026-09-14. The range contains 22 commits, including merge commits, and 15 non-merge commits.
+- **Refresh before publishing:** #599, #601, #602, #604, #605, #606, #608 and #609 are merged and included. #607 was superseded by the maintainer's #608 landing with contributor credit retained. Recheck commits after the cutoff before selecting the release target.
+- **Pending:** [#610](https://github.com/Huanshere/VideoLingo/pull/610), the bounded dubbing-loudness/AAC-bitrate improvement related to #533, is still open at this cutoff. It is not included in the release features below. If merged before publication, add its scope and real-FFmpeg validation limitations in both languages; do not claim the full subjective voice-quality report is resolved.
 - **Publication:** review the notes and upgrade caveats, choose the release tag/target and any assets, then copy the English and Chinese sections below into a GitHub Release. Merging this documentation PR does not create or publish a release.
 - **Editorial note:** describe the final source state rather than every intermediate implementation. In particular, `setup_env.py` now defaults to Python 3.13 even though some introductory README instructions still mention 3.10. Reconcile those instructions before publishing.
 
 - **状态：**这是发布说明提案，尚未发布新版本。下一个版本号和标签由维护者决定。仓库版本元数据目前为 `3.0.3`，本文不会修改版本号或创建标签。
-- **范围：**从 2026-02-28 发布的 `v3.0.1` 到已合并的上游提交 `dcf55ff`，核对日期为 2026-09-14。包含合并提交在内共 17 个提交，其中 10 个为非合并提交。
-- **发布前更新：**#599、#601、#602 均已合并并计入下方说明。选定发布目标前应检查截止提交之后的新增改动；未合并提案不计入本说明。
+- **范围：**从 2026-02-28 发布的 `v3.0.1` 到已合并的上游提交 `5cb55d8`，核对日期为 2026-09-14。包含合并提交在内共 22 个提交，其中 15 个为非合并提交。
+- **发布前更新：**#599、#601、#602、#604、#605、#606、#608、#609 均已合并并计入下方说明。#607 由维护者通过 #608 接续合并，保留原贡献者署名。选定发布目标前应检查截止提交之后的新增改动。
+- **待合并：**与 #533 相关的 [#610](https://github.com/Huanshere/VideoLingo/pull/610) 配音音量及音频码率改进在截止时仍未合并，因此不列为下方已包含功能。若发布前合并，应同步补入两种语言的说明和真实 FFmpeg 验证边界，不应宣称原 Issue 的全部主观音质问题已解决。
 - **发布方式：**审核说明和升级注意事项，确定标签、目标提交及附件后，将下方中英文正文复制到 GitHub Release。合并此文档 PR 不会自动创建或发布版本。
 - **编辑注意：**本文描述最终代码状态，不把开发过程中的每次实现都当作独立功能。例如，`setup_env.py` 当前默认 Python 3.13，但部分 README 入门说明仍写 3.10，发布前需统一。
 
@@ -18,7 +20,7 @@
 
 ## English release notes
 
-This update brings together the changes merged since v3.0.1: easier installation with local or shared environments, searchable model selection, background task controls, an audio-only subtitle workflow, broader interface localization, and fixes for downloads, subtitle timing and dubbing compatibility.
+This update brings together all changes merged since v3.0.1: easier installation with local or shared environments, searchable model selection, background task controls, audio-only subtitles, persistent transcription reuse, broader localization, and fixes for downloads, source-language consistency, subtitle timing and dubbing compatibility. The retired 302.ai WhisperX recognition integration has been removed.
 
 ### Installation and startup
 
@@ -46,9 +48,13 @@ This update brings together the changes merged since v3.0.1: easier installation
 - Added optional `youtube.proxy`: missing/`null` keeps yt-dlp's system/environment discovery, `''` forces direct connections, and a proxy URL explicitly overrides discovery. No proxy software or port is forced. This option applies to yt-dlp, not other API requests or the existing package updater. (#602)
 - Fixed Windows Unicode console output in the app and added traceback reporting for background-task failures; the launcher log-file encoding is separately corrected by #602. (#579, #602)
 - Corrected ElevenLabs word-level output to use the fields expected by downstream processing and added fallback handling for segments lacking word entries. (#576, #599)
-- Unified cloud ASR interval decoding around FFmpeg mono PCM WAV slices, replacing whole-file librosa decoding and inconsistent audio-file encoding in the 302.ai and ElevenLabs paths. (#599)
+- Switched cloud recognition interval decoding to FFmpeg mono PCM WAV slices instead of whole-file librosa decoding. ElevenLabs uses this path; the intermediate 302.ai WhisperX implementation was subsequently removed following service retirement. (#599, #609)
 - Added project-to-global HuggingFace cache fallback, then made Whisper model resolution offline-first: check complete local directories and project/global cached snapshots before fetching missing files. Removed per-segment mirror pings and misleading cache/obsolete Torch messages. Models are still released between stages to manage GPU memory; other components such as alignment models may need their own downloads. (#577, #602)
 - Fixed cumulative subtitle drift on media whose audio presentation timestamps contain overlaps or gaps. Audio extraction now reconciles decoded samples with the source clock for video/audio-only inputs and MP3/PCM output paths. Continuous-clock media is covered by regression tests as well. (#601)
+- Accept valid inputs such as `output.mp4` and `output tutorial.mp4` during final subtitle/dubbing merges. Only exact generated video names are excluded, case-insensitively; directories with video-like extensions are not inputs, and multiple real inputs still report ambiguity. Based on @QiuLsG's #597 with expanded regression coverage. (#605; issue #596)
+- Keep manually selected recognition language consistent with downstream NLP and translation prompts. Explicit language choices override stale detection, local ASR saves detected metadata without replacing `auto`, and the sidebar accepts automatic detection. (#606; issue #549)
+- Added persistent recognition results in `.cache/asr/`, keyed by source-file MD5 plus runtime, model, language, vocal separation, package versions and cache schema. Identical renamed/reuploaded files reuse completed results; successful segments survive a later failure. Restores detected language, writes cache entries atomically and preserves audio preparation needed downstream. Replaces cloud cache reuse based only on clip times. (#607, landed via #608; issue #562)
+- Removed the retired 302.ai WhisperX backend, cloud runtime choice, obsolete template key and related documentation. Existing `whisper.runtime: cloud` configurations receive an actionable error and must explicitly select Local or ElevenLabs; they are not silently migrated. Separate 302.ai TTS integrations are retained. (#609; issue #583)
 
 ### Dependencies and dubbing
 
@@ -58,6 +64,7 @@ This update brings together the changes merged since v3.0.1: easier installation
 - Fixed fractional TTS duration assignment with pandas 3 and serialized new subtitle timestamps as plain floats for NumPy 2 compatibility. Added safe reading of legacy `np.float32(...)`/`np.float64(...)` numeric literals in dubbing task tables, rejecting arbitrary calls instead of evaluating them. Existing task files are read compatibly, not rewritten. (#599, #602)
 - Invoke Edge TTS through the active Python interpreter, avoiding an unrelated executable on PATH. (#599)
 - GPT-SoVITS readiness now checks its read-only API schema rather than the absent `/ping` endpoint or an arbitrary HTTP response. Added bounded probes, child-exit detection, loopback proxy bypass and child-specific working directories. Custom builds with OpenAPI disabled are not automatically accepted; schema validation does not prove synthesis succeeds. (#602)
+- Fixed SiliconFlow Fish custom-voice creation indexing the configuration reader as a dictionary instead of calling it. Close reference files, reject responses missing a voice URI, and preserve speech HTTP errors rather than masking them with undefined retry variables. This fixes local failures, not a guarantee of current remote model availability. (#604; issue #572)
 - Added focused dependency/audio-timeline/runtime-compatibility regression coverage and an explicitly opt-in media integration suite. The merged documentation records Windows validation and offline compatibility tests; it does not establish that every platform, live download site, provider or TTS backend was retested. (#599, #601, #602)
 
 ### Defaults and documentation
@@ -73,16 +80,18 @@ This update brings together the changes merged since v3.0.1: easier installation
 3. Check your API endpoint, model and credentials when updating an existing configuration. The new provider default is not a migration of your account or a change to its billing arrangements. Legacy Conda startup remains available, while the documentation recommends uv.
 4. Restart the application after a source update because file watching is disabled. Existing recognition audio/subtitles are retained by resume behavior: the timing fix applies to newly extracted audio and does not automatically repair older results. See [audio timeline notes](https://github.com/Huanshere/VideoLingo/blob/c28fe34a5a8da008939add4174700ae31fc6be81/docs/audio-timeline.md).
 5. If using explicit download proxies or GPT-SoVITS, review [download networking](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/download-network.md) and [runtime compatibility](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/runtime-compatibility.md). Do not publish credentials embedded in proxy URLs. An incomplete explicitly selected local Whisper model directory produces an error instead of silently switching models.
+6. Replace retired `whisper.runtime: cloud` with an explicitly chosen `local` or `elevenlabs` configuration. Local recognition requires a suitable environment; ElevenLabs requires its own credentials and may incur provider charges. A 302.ai key cannot substitute for an ElevenLabs key.
+7. Recognition cache entries contain private transcript text and timestamps and have no automatic eviction. Set `whisper.cache: false` to bypass persistent caching; clear `.cache/asr/` while idle to reclaim space or force a fresh result after an in-place model/provider change. Existing archives are not imported automatically, and existing `cleaned_chunks.xlsx` retains the normal resume/skip behavior. See [transcription cache notes](https://github.com/Huanshere/VideoLingo/blob/5cb55d8/docs/transcription-cache.md).
 
-Thanks to **@doomsday616, @phucsd1 and @Huanshere** for the contributions and maintenance in this interval.
+Thanks to **@doomsday616, @phucsd1, @QiuLsG and @Huanshere** for the contributions and maintenance in this interval, and to the issue reporters who supplied reproductions and service-status information.
 
-[Full changelog: v3.0.1 to the reviewed commit](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9)
+[Full changelog: v3.0.1 to the reviewed commit](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...5cb55d8)
 
 ---
 
 ## 中文更新说明
 
-本次汇总 v3.0.1 之后已合并的更新：支持本地及共享环境的安装方式、可搜索的模型选择、后台任务控制、纯音频生成字幕、多语言界面完善，以及下载、字幕时间轴和配音兼容性修复。
+本次汇总 v3.0.1 之后全部已合并更新：支持本地及共享环境的安装方式、可搜索的模型选择、后台任务控制、纯音频字幕、持久识别缓存、多语言界面，以及下载、源语言同步、字幕时间轴和配音兼容性修复。同时移除已经下线的 302.ai WhisperX 识别功能。
 
 ### 安装与启动
 
@@ -110,9 +119,13 @@ Thanks to **@doomsday616, @phucsd1 and @Huanshere** for the contributions and ma
 - 新增可选的 `youtube.proxy`：不填写或 `null` 沿用 yt-dlp 的系统及环境代理发现，`''` 强制直连，代理 URL 则显式覆盖。不强制代理软件或端口，仅影响 yt-dlp，不影响其他 API 请求或现有的软件包更新步骤。（#602）
 - 修复 Windows 下应用控制台的 Unicode 输出，并在后台任务失败时打印错误堆栈；启动器日志文件编码另由 #602 修复。（#579、#602）
 - 修正 ElevenLabs 的逐词结果字段，使其符合下游处理要求；对缺少逐词条目的片段增加回退处理。（#576、#599）
-- 302.ai 和 ElevenLabs 云端识别统一通过 FFmpeg 提取指定区间的单声道 PCM WAV，替代整段音频的 librosa 解码和不一致的音频编码方式。（#599）
+- 云端识别通过 FFmpeg 提取指定区间的单声道 PCM WAV，替代整段音频的 librosa 解码。ElevenLabs 当前使用这一路径；期间曾适配的 302.ai WhisperX 后端随后因服务下线而移除。（#599、#609）
 - 在项目 HuggingFace 缓存回退到全局缓存的基础上，Whisper 改为优先离线解析：先检查完整的本地目录、项目和全局缓存，再下载缺失文件。移除每段的镜像探测、误导缓存警告及过时 Torch 提示。为控制显存占用仍会在阶段间释放模型；对齐模型等其他组件可能需要独立下载。（#577、#602）
 - 修复音轨播放时间标记存在重叠或间隙时，字幕越到后面越偏移的问题。视频和纯音频提取均按原始时间轴校正，覆盖 MP3 及 PCM 输出；连续时间轴也有回归测试。（#601）
+- 修复最终字幕及配音合并误拒绝 `output.mp4`、`output tutorial.mp4` 等有效输入的问题。只按忽略大小写的完整文件名排除生成视频；扩展名像视频的目录不算输入，多个真实输入仍提示歧义。在 @QiuLsG 的 #597 基础上扩展修复和回归覆盖。（#605，对应 #596）
+- 手动选择识别语言后，下游分句和翻译提示词保持一致。明确选择的语言优先于旧检测值；本地识别只保存检测结果，不再把 `auto` 改成固定语言，侧栏也支持自动检测。（#606，对应 #549）
+- 新增 `.cache/asr/` 持久识别缓存，以源文件 MD5 加识别后端、模型、语言、人声分离、依赖版本及缓存格式版本匹配。相同文件改名或重新上传可复用完整结果，后续片段失败后可保留先前成功片段。命中时恢复检测语言，以完整替换方式写入缓存，并保留下游所需的音频准备；替代旧云端仅按片段时间复用结果的方式。（#607，通过 #608 合入，对应 #562）
+- 移除下线的 302.ai WhisperX 后端、云端选项、旧模板密钥和相关文档。已有 `whisper.runtime: cloud` 配置会收到明确提示，需要主动选择 Local 或 ElevenLabs，不会悄悄切换服务。独立的 302.ai 配音功能保留。（#609，对应 #583）
 
 ### 依赖与配音兼容性
 
@@ -122,6 +135,7 @@ Thanks to **@doomsday616, @phucsd1 and @Huanshere** for the contributions and ma
 - 修复 pandas 3 下向整数字段写入小数配音时长的错误；新生成的字幕时间改用普通浮点数保存，兼容 NumPy 2。配音任务表新增对旧 `np.float32(...)`、`np.float64(...)` 数字格式的受限解析，拒绝执行任意函数调用。旧任务文件可兼容读取，不会被重写。（#599、#602）
 - Edge TTS 使用当前 Python 解释器执行，避免误用 PATH 上其他环境的程序。（#599）
 - GPT-SoVITS 改为检查只读 API 结构，不再依赖不存在的 `/ping` 或任意 HTTP 响应。增加有超时限制的探测、子进程退出检测、本地探测绕过外部代理及仅对子进程设置工作目录。关闭 OpenAPI 的自定义版本不会被自动接受，接口结构检查也不等于已成功合成语音。（#602）
+- 修复硅基流动 Fish 创建自定义音色时，把配置读取函数当成字典访问的问题；正确关闭参考音频文件，拒绝缺失音色地址的响应，避免未定义的重试变量掩盖真实 HTTP 错误。这解决本地代码错误，不代表服务商当前模型一定可用。（#604，对应 #572）
 - 新增依赖、音频时间轴和运行兼容性的针对性回归测试，以及需主动启用的媒体集成测试。已合并文档记录了 Windows 验证和离线兼容测试，但不代表所有平台、真实下载站点、服务商及配音后端都已重新实测。（#599、#601、#602）
 
 ### 默认配置与文档
@@ -137,10 +151,12 @@ Thanks to **@doomsday616, @phucsd1 and @Huanshere** for the contributions and ma
 3. 升级现有配置时检查 API 地址、模型及凭据。默认服务变更不会迁移你的账号或改变其计费关系。旧 Conda 启动方式仍有兼容入口，文档推荐使用 uv。
 4. 代码更新后需重启应用，因为文件监听已关闭。断点续跑会保留已有识别音频和字幕：时间轴修复针对新提取音频，不会自动修复旧结果。详见[音频时间轴说明](https://github.com/Huanshere/VideoLingo/blob/c28fe34a5a8da008939add4174700ae31fc6be81/docs/audio-timeline.md)。
 5. 使用显式下载代理或 GPT-SoVITS 时，请查阅[下载网络配置](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/download-network.md)和[运行兼容性说明](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/runtime-compatibility.md)。代理 URL 中的凭据不可公开。显式选择的本地 Whisper 模型目录不完整时会报错，不会悄悄切换模型。
+6. 将已下线的 `whisper.runtime: cloud` 明确改为自己选择的 `local` 或 `elevenlabs`。本地识别需要合适的运行环境；ElevenLabs 需要独立凭据并可能产生服务商费用，302.ai 密钥不能代替 ElevenLabs 密钥。
+7. 识别缓存包含私人转录文字和时间戳，不会自动清理。可设置 `whisper.cache: false` 绕过持久缓存；在没有任务运行时清理 `.cache/asr/`，以释放空间，或在原地替换模型、服务商模型变化后强制重新识别。旧历史归档不会自动导入，已有 `cleaned_chunks.xlsx` 仍按原续跑逻辑跳过。详见[识别缓存说明](https://github.com/Huanshere/VideoLingo/blob/5cb55d8/docs/transcription-cache.md)。
 
-感谢 **@doomsday616、@phucsd1 和 @Huanshere** 在此期间的贡献与维护。
+感谢 **@doomsday616、@phucsd1、@QiuLsG 和 @Huanshere** 在此期间的贡献与维护，也感谢提供复现信息及服务状态的 Issue 提交者。
 
-[完整变更：v3.0.1 至本次核对提交](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9)
+[完整变更：v3.0.1 至本次核对提交](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...5cb55d8)
 
 ---
 
@@ -171,8 +187,13 @@ superseded later in the range.
 | `6032ae6` | #601 merge | Merge of the timeline fix / 合并时间轴修复 |
 | `c28fe34` | #599 merge | Merge of dependency/runtime fixes / 合并依赖及运行修复 |
 | `a06de02` | [#602](https://github.com/Huanshere/VideoLingo/pull/602) | Offline-first cache, optional proxy, UTF-8 logs, SoVITS readiness, safe legacy literals / 缓存优先、可选代理、UTF-8 日志、SoVITS 检测、旧数据安全解析 |
-| `dcf55ff` | #602 merge | Merge of runtime compatibility fixes; reviewed cutoff / 合并运行兼容修复，本次核对终点 |
+| `dcf55ff` | #602 merge | Merge of runtime compatibility fixes / 合并运行兼容修复 |
+| `a479d07` | [#605](https://github.com/Huanshere/VideoLingo/pull/605), based on #597 | Exact generated-video filtering, directory guard and filename regressions; QiuLsG credit retained / 精确过滤生成视频、目录检查及文件名回归，保留 QiuLsG 署名 |
+| `b8ddff7` | [#604](https://github.com/Huanshere/VideoLingo/pull/604) | SiliconFlow custom voice configuration and error handling / 硅基流动自定义音色配置读取与错误处理 |
+| `62187d6` | [#606](https://github.com/Huanshere/VideoLingo/pull/606) | Source-language synchronization, NLP/prompts and auto detection / 源语言同步、分句提示词和自动检测 |
+| `043aa7a` | [#608](https://github.com/Huanshere/VideoLingo/pull/608), landing #607 | Content-addressed full/segment recognition cache and language metadata / 按内容匹配的完整及分段识别缓存与语言元数据 |
+| `5cb55d8` | [#609](https://github.com/Huanshere/VideoLingo/pull/609) | Retired 302 WhisperX removal and legacy runtime guidance; reviewed cutoff / 下线的 302 WhisperX 移除及旧配置引导，本次核对终点 |
 
-Reproduce the scope with `git log --reverse --oneline v3.0.1..dcf55ff` and
-`git diff --stat v3.0.1..dcf55ff`. No application tests, package installation or
+Reproduce the scope with `git log --reverse --oneline v3.0.1..5cb55d8` and
+`git diff --stat v3.0.1..5cb55d8`. No application tests, package installation or
 paid API calls are needed to review this documentation-only proposal.
