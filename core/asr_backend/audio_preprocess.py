@@ -34,6 +34,8 @@ def convert_video_to_audio(video_file: str):
         if _ffmpeg_has_encoder('libmp3lame'):
             cmd = [
                 'ffmpeg', '-y', '-i', video_file, '-vn',
+                # Reconcile decoded samples with the source presentation clock.
+                '-af', 'aresample=async=1:first_pts=0',
                 '-c:a', 'libmp3lame', '-b:a', '32k',
                 '-ar', '16000', '-ac', '1',
                 '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
@@ -46,6 +48,7 @@ def convert_video_to_audio(video_file: str):
             rprint("[yellow]⚠️ libmp3lame not found in ffmpeg, falling back to WAV (PCM) encoding[/yellow]")
             cmd = [
                 'ffmpeg', '-y', '-i', video_file, '-vn',
+                '-af', 'aresample=async=1:first_pts=0',
                 '-c:a', 'pcm_s16le', '-ar', '16000', '-ac', '1',
                 '-f', 'wav', _RAW_AUDIO_FILE
             ]
@@ -59,6 +62,7 @@ def prepare_audio_for_asr(audio_file: str):
         if _ffmpeg_has_encoder('libmp3lame'):
             cmd = [
                 'ffmpeg', '-y', '-i', audio_file, '-vn',
+                '-af', 'aresample=async=1:first_pts=0',
                 '-c:a', 'libmp3lame', '-b:a', '32k',
                 '-ar', '16000', '-ac', '1',
                 '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
@@ -67,6 +71,7 @@ def prepare_audio_for_asr(audio_file: str):
             rprint("[yellow]⚠️ libmp3lame not found in ffmpeg, falling back to WAV (PCM) encoding[/yellow]")
             cmd = [
                 'ffmpeg', '-y', '-i', audio_file, '-vn',
+                '-af', 'aresample=async=1:first_pts=0',
                 '-c:a', 'pcm_s16le', '-ar', '16000', '-ac', '1',
                 '-f', 'wav', _RAW_AUDIO_FILE
             ]
