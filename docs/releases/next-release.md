@@ -3,27 +3,30 @@
 ## Maintainer handoff / 发布前说明
 
 - **Status:** release-note proposal, not a published release. The maintainer chooses the next version and tag. Repository metadata currently says `3.0.3`; this document does not change version metadata or create a tag.
-- **Scope:** [`v3.0.1`](https://github.com/Huanshere/VideoLingo/releases/tag/v3.0.1), published on 2026-02-28, through merged upstream commit [`5cb55d8`](https://github.com/Huanshere/VideoLingo/commit/5cb55d8), checked on 2026-09-14. The range contains 22 commits, including merge commits, and 15 non-merge commits.
+- **Scope:** [`v3.0.1`](https://github.com/Huanshere/VideoLingo/releases/tag/v3.0.1), published on 2026-02-28, through merged upstream commit [`c5f8fe7`](https://github.com/Huanshere/VideoLingo/commit/c5f8fe7), checked on 2026-09-15: 24 commits, including merges, and 17 non-merge commits. The release-ready text below additionally includes the intended #612 changes at `8e9eb6b`; publish it only with a release target containing that PR.
 - **Refresh before publishing:** #599, #601, #602, #604, #605, #606, #608 and #609 are merged and included. #607 was superseded by the maintainer's #608 landing with contributor credit retained. Recheck commits after the cutoff before selecting the release target.
-- **Pending:** [#610](https://github.com/Huanshere/VideoLingo/pull/610), the bounded dubbing-loudness/AAC-bitrate improvement related to #533, is still open at this cutoff. It is not included in the release features below. If merged before publication, add its scope and real-FFmpeg validation limitations in both languages; do not claim the full subjective voice-quality report is resolved.
+- **Release target:** #610 and #611 are merged. [#612](https://github.com/Huanshere/VideoLingo/pull/612) is submitted for deployment alignment and documentation, and is included in the draft body at the contributor's request. Verify its merge before publication. Issue #533 is not claimed fully resolved.
 - **Publication:** review the notes and upgrade caveats, choose the release tag/target and any assets, then copy the English and Chinese sections below into a GitHub Release. Merging this documentation PR does not create or publish a release.
-- **Editorial note:** describe the final source state rather than every intermediate implementation. In particular, `setup_env.py` now defaults to Python 3.13 even though some introductory README instructions still mention 3.10. Reconcile those instructions before publishing.
+- **Editorial note:** #612 aligns all seven README installation instructions with Python 3.13, uv and the verified FFmpeg compatibility requirements. Its complete Docker build predates the final Windows DLL helper and runtime probe; those final changes were verified on Windows, not by a second complete Docker build.
 
 - **状态：**这是发布说明提案，尚未发布新版本。下一个版本号和标签由维护者决定。仓库版本元数据目前为 `3.0.3`，本文不会修改版本号或创建标签。
-- **范围：**从 2026-02-28 发布的 `v3.0.1` 到已合并的上游提交 `5cb55d8`，核对日期为 2026-09-14。包含合并提交在内共 22 个提交，其中 15 个为非合并提交。
+- **范围：**从 2026-02-28 发布的 `v3.0.1` 到已合并的上游提交 `c5f8fe7`，核对日期为 2026-09-15，共 24 个提交，其中 17 个为非合并提交。下方最终发布稿还预先纳入 #612 的 `8e9eb6b` 改动，正式发布目标必须包含该 PR。
 - **发布前更新：**#599、#601、#602、#604、#605、#606、#608、#609 均已合并并计入下方说明。#607 由维护者通过 #608 接续合并，保留原贡献者署名。选定发布目标前应检查截止提交之后的新增改动。
-- **待合并：**与 #533 相关的 [#610](https://github.com/Huanshere/VideoLingo/pull/610) 配音音量及音频码率改进在截止时仍未合并，因此不列为下方已包含功能。若发布前合并，应同步补入两种语言的说明和真实 FFmpeg 验证边界，不应宣称原 Issue 的全部主观音质问题已解决。
+- **发布目标：**#610、#611 已合并。[#612](https://github.com/Huanshere/VideoLingo/pull/612) 部署对齐与文档修正已提交，按贡献者要求预先写入正文，发布前确认其已合并。不宣称 #533 的全部主观音质问题已解决。
 - **发布方式：**审核说明和升级注意事项，确定标签、目标提交及附件后，将下方中英文正文复制到 GitHub Release。合并此文档 PR 不会自动创建或发布版本。
-- **编辑注意：**本文描述最终代码状态，不把开发过程中的每次实现都当作独立功能。例如，`setup_env.py` 当前默认 Python 3.13，但部分 README 入门说明仍写 3.10，发布前需统一。
+- **编辑注意：**#612 已将七份 README 的安装步骤对齐 Python 3.13、uv 和实测的 FFmpeg 兼容要求。完整 Docker 构建早于最终 Windows DLL 加载与运行探测修正，这些最终修正已在 Windows 验证，未再次完整构建 Docker。
 
 ---
 
 ## English release notes
 
-This update brings together all changes merged since v3.0.1: easier installation with local or shared environments, searchable model selection, background task controls, audio-only subtitles, persistent transcription reuse, broader localization, and fixes for downloads, source-language consistency, subtitle timing and dubbing compatibility. The retired 302.ai WhisperX recognition integration has been removed.
+This update brings together the changes since v3.0.1: aligned installation across deployment methods, searchable model selection, background task controls, audio-only subtitles, persistent transcription reuse, broader localization, and fixes for downloads, source-language consistency, subtitle timing and dubbing compatibility. The retired 302.ai WhisperX recognition integration has been removed.
 
 ### Installation and startup
 
+- Aligned Docker and Colab with the shared Python 3.13 setup and application dependency constraints. Docker builds the checked-out source, defaults to CUDA 12.8.1/cu128 and offers a matched CUDA 12.6.3/cu126 variant without requiring a build-time GPU. Colab uses its own application environment and no longer launches the app during installation. (#612)
+- Added explicit `--torch-backend auto/cpu/cu126/cu128`, matching Torch-family build checks and recognition of newer `CUDA UMD Version` driver output. Unified batch launcher environment selection and corrected Noto CJK font detection. (#612)
+- Registered the selected FFmpeg DLL directory on Windows and added a real TorchCodec import probe to installation checks, catching incompatible decoding libraries that package-version checks alone miss. (#612)
 - Added a uv-based setup path without requiring Anaconda, with project-local `.venv`, shared `~/.venvs/videolingo`, or a custom environment path. New environments now default to **Python 3.13**. The Windows batch-processing launcher supports a project-local uv environment. (#537, #577, #599)
 - Added the stage-based `installer.py` with installation-state tracking, requirements/version checks, retryable package installation, explicit force/upgrade options, and optional Demucs handling. `install.py` remains a compatibility entry point. (#577, #599)
 - Consolidated Windows startup in `OneKeyStart.bat`: prefer the shared environment, then project `.venv`, with a legacy Conda fallback; check the environment before launch and repair it when checks fail. Added `--check-only`, which exits without launching or repairing. (#577, #599)
@@ -58,6 +61,8 @@ This update brings together all changes merged since v3.0.1: easier installation
 
 ### Dependencies and dubbing
 
+- Stabilized final-video dubbing loudness against silence padding using gated loudness measurement and peak-limited fixed gain; restored final video AAC audio to 192 kbps. This does not equalize every sentence or change standalone `dub.mp3` generation. (#610)
+- Restored raw extraction defaults to 32 kHz/128 kbps and SiliconFlow clone references to 44.1 kHz. Added optional `audio.raw_sample_rate` / `audio.raw_bitrate` settings with defaults for existing configurations, plus peak protection and silence handling in shared normalization. Fixed-reference 302 Fish TTS does not consume these clone references. (#611)
 - Refreshed application dependency ranges with compatibility bounds. The GPU/ASR stack uses PyTorch/torchaudio 2.8.0, torchvision 0.23.0, WhisperX 3.8.6-compatible releases and TorchCodec 0.7; Transformers stays below 5 and HuggingFace Hub below 1 to respect upstream constraints. (#599)
 - Select compatible CUDA 12.8 wheels when the NVIDIA driver supports them, otherwise CUDA 12.6, with CPU/platform fallback where applicable. This supersedes the earlier installer selection described in v3.0.1; users should not mix incompatible Torch-family wheels or infer a required CUDA toolkit version from the driver's capability label. (#599)
 - Use maintained PyPI Demucs 4.1-compatible releases with normal dependency resolution instead of the older Git-source/`--no-deps` workaround. Load Demucs only when vocal separation is requested. Removed unused direct dependencies such as MoviePy and Replicate and redundant direct Lightning/resampy requirements. (#599)
@@ -69,6 +74,7 @@ This update brings together all changes merged since v3.0.1: easier installation
 
 ### Defaults and documentation
 
+- Aligned all seven READMEs and the English/Chinese installation guides with current code: uv-only regular setup instructions, actual GPU/runtime requirements, verified download links and no model rankings. Restored the truncated Russian README. Legacy installation compatibility code remains. (#612)
 - Replaced the obsolete default LLM endpoint/model with **DeepSeek V4 Flash via OpenRouter** (`deepseek/deepseek-v4-flash`). Users still need their own provider credentials; the default does not imply free or included API access. (`814f84e`)
 - Vocal separation is now disabled by default in the shipped configuration; subtitle burn-in remains enabled for video inputs. Existing user configuration should be reviewed rather than replaced blindly. (#576, final configuration)
 - Updated multilingual READMEs and installation pages for uv, model selection, task controls and provider defaults. Added detailed runtime-dependency and audio-timeline notes. Internal version metadata progressed through 3.0.2 and 3.0.3 during this interval; these commits are consolidated here rather than presented as separately published releases. (#537, #576, #577, #599, #601)
@@ -76,25 +82,30 @@ This update brings together all changes merged since v3.0.1: easier installation
 ### Upgrade notes
 
 1. Use the environment's Python to run `python installer.py --check` before deciding whether repair or upgrade is needed. `python installer.py --upgrade` refreshes dependencies within the supported ranges. `python setup_env.py --shared` creates/reuses the shared environment; it may offer to recreate an environment using a different Python version. Do not use `--yes` unless that replacement is intended.
-2. The installer accepts Python **3.10–3.13**; fresh setup defaults to **3.13**. Python 3.14 is outside the supported range. Keep FFmpeg available on PATH; TorchCodec requires a compatible shared-library FFmpeg build. See [runtime dependency notes](https://github.com/Huanshere/VideoLingo/blob/c28fe34a5a8da008939add4174700ae31fc6be81/docs/runtime-dependencies.md).
+2. The installer accepts Python **3.10–3.13**; fresh setup defaults to **3.13**. Pinned TorchCodec 0.7 supports FFmpeg 4–7; use the documented FFmpeg 7 shared build on Windows, not FFmpeg 8/9 alone. See [deployment verification](https://github.com/doomsday616/VideoLingo/blob/8e9eb6b/docs/deployment-versions.md). Docker/Windows installation and media decoding were exercised; cu126, actual Colab and the full model/API workflow were not tested by #612.
 3. Check your API endpoint, model and credentials when updating an existing configuration. The new provider default is not a migration of your account or a change to its billing arrangements. Legacy Conda startup remains available, while the documentation recommends uv.
 4. Restart the application after a source update because file watching is disabled. Existing recognition audio/subtitles are retained by resume behavior: the timing fix applies to newly extracted audio and does not automatically repair older results. See [audio timeline notes](https://github.com/Huanshere/VideoLingo/blob/c28fe34a5a8da008939add4174700ae31fc6be81/docs/audio-timeline.md).
 5. If using explicit download proxies or GPT-SoVITS, review [download networking](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/download-network.md) and [runtime compatibility](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/runtime-compatibility.md). Do not publish credentials embedded in proxy URLs. An incomplete explicitly selected local Whisper model directory produces an error instead of silently switching models.
 6. Replace retired `whisper.runtime: cloud` with an explicitly chosen `local` or `elevenlabs` configuration. Local recognition requires a suitable environment; ElevenLabs requires its own credentials and may incur provider charges. A 302.ai key cannot substitute for an ElevenLabs key.
 7. Recognition cache entries contain private transcript text and timestamps and have no automatic eviction. Set `whisper.cache: false` to bypass persistent caching; clear `.cache/asr/` while idle to reclaim space or force a fresh result after an in-place model/provider change. Existing archives are not imported automatically, and existing `cleaned_chunks.xlsx` retains the normal resume/skip behavior. See [transcription cache notes](https://github.com/Huanshere/VideoLingo/blob/5cb55d8/docs/transcription-cache.md).
+8. Higher-quality extraction uses more storage and decoded-audio memory. Existing audio is not automatically re-extracted and extraction settings are not part of the recognition cache key. Follow [audio extraction guidance](https://github.com/Huanshere/VideoLingo/blob/c5f8fe7/docs/audio-extract-quality.md) when reprocessing. The audio changes do not establish that all subjective voice-quality or sentence-continuity issues in #533 are resolved.
+9. Docker copies the checkout's `config.yaml`: build from clean public configuration, then mount user settings and persistent data. The tested default image was approximately 19 GB. The host needs a compatible driver and NVIDIA Container Toolkit, not a separately installed CUDA Toolkit for the image.
 
 Thanks to **@doomsday616, @phucsd1, @QiuLsG and @Huanshere** for the contributions and maintenance in this interval, and to the issue reporters who supplied reproductions and service-status information.
 
-[Full changelog: v3.0.1 to the reviewed commit](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...5cb55d8)
+[Merged changelog: v3.0.1 to the reviewed commit](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...c5f8fe7), plus [deployment alignment #612](https://github.com/Huanshere/VideoLingo/pull/612).
 
 ---
 
 ## 中文更新说明
 
-本次汇总 v3.0.1 之后全部已合并更新：支持本地及共享环境的安装方式、可搜索的模型选择、后台任务控制、纯音频字幕、持久识别缓存、多语言界面，以及下载、源语言同步、字幕时间轴和配音兼容性修复。同时移除已经下线的 302.ai WhisperX 识别功能。
+本次汇总 v3.0.1 之后的更新：各部署方式的安装对齐、可搜索的模型选择、后台任务控制、纯音频字幕、持久识别缓存、多语言界面，以及下载、源语言同步、字幕时间轴和配音兼容性修复。同时移除已经下线的 302.ai WhisperX 识别功能。
 
 ### 安装与启动
 
+- Docker、Colab 与共用的 Python 3.13 安装流程及应用依赖约束对齐。Docker 构建当前检出的源码，默认 CUDA 12.8.1/cu128，也提供匹配的 CUDA 12.6.3/cu126 方案，构建时无需 GPU。Colab 使用独立应用环境，不再在安装阶段启动应用。（#612）
+- 新增 `--torch-backend auto/cpu/cu126/cu128`，检查 Torch 系列构建是否匹配，兼容新驱动的 `CUDA UMD Version` 输出。统一批处理启动器的环境选择，修正 Noto CJK 字体检测。（#612）
+- Windows 显式登记所选 FFmpeg 的 DLL 搜索目录，安装检查实际尝试导入 TorchCodec，发现单纯依赖版本检查无法识别的解码库兼容问题。（#612）
 - 新增不依赖 Anaconda 的 uv 安装方式，支持项目内 `.venv`、共享 `~/.venvs/videolingo` 以及自定义环境目录。新建环境当前默认使用 **Python 3.13**。Windows 批处理启动脚本支持项目内的 uv 环境。（#537、#577、#599）
 - 新增分阶段的 `installer.py`，支持安装状态记录、依赖版本检查、安装重试、显式强制安装及升级选项，以及可选的 Demucs 安装。`install.py` 继续作为兼容入口。（#577、#599）
 - Windows 启动入口统一为 `OneKeyStart.bat`：优先共享环境，其次项目 `.venv`，最后回退到旧 Conda 环境；启动前检查环境，检查失败时执行修复。`--check-only` 只检查，不启动应用，也不自动修复。（#577、#599）
@@ -129,6 +140,8 @@ Thanks to **@doomsday616, @phucsd1, @QiuLsG and @Huanshere** for the contributio
 
 ### 依赖与配音兼容性
 
+- 最终视频配音通过排除静音影响的响度测量和限制峰值的固定增益稳定整体音量，成片 AAC 音频恢复为 192 kbps。不逐句均衡音量，也不改变独立 `dub.mp3` 的生成。（#610）
+- 原始音轨提取默认恢复为 32 kHz/128 kbps，硅基流动克隆参考音频恢复为 44.1 kHz。新增可选 `audio.raw_sample_rate` / `audio.raw_bitrate`，旧配置缺少字段时使用默认值，共用音量归一化增加峰值保护及静音处理。使用固定人物的 302 Fish TTS 不读取这些克隆参考。（#611）
 - 更新依赖版本范围并增加兼容性上限。识别及 GPU 组件采用 PyTorch/torchaudio 2.8.0、torchvision 0.23.0、兼容 WhisperX 3.8.6 的版本和 TorchCodec 0.7；为满足上游约束，Transformers 保持低于 5，HuggingFace Hub 保持低于 1。（#599）
 - 根据 NVIDIA 驱动能力选择 CUDA 12.8 或 CUDA 12.6 安装包，并为适用的平台提供 CPU 等回退。这替代了 v3.0.1 发布说明中的旧选择逻辑；不要混装不兼容的 Torch 系列组件，也不要把驱动显示的 CUDA 能力误当成必须安装的工具包版本。（#599）
 - Demucs 改用 PyPI 上维护的 4.1 兼容版本并正常解析依赖，替代旧的 Git 源码加 `--no-deps` 安装方式；只有请求人声分离时才加载。移除 MoviePy、Replicate 等未使用的直接依赖，以及重复的 Lightning、resampy 直接约束。（#599）
@@ -140,6 +153,7 @@ Thanks to **@doomsday616, @phucsd1, @QiuLsG and @Huanshere** for the contributio
 
 ### 默认配置与文档
 
+- 七份 README 及中英文安装文档按当前代码对齐：常规安装只保留 uv，修正 GPU 和运行库要求、下载链接并移除模型排名，补全被截断的俄文 README。旧安装方式的兼容代码仍保留。（#612）
 - 默认大模型服务改为 **通过 OpenRouter 使用 DeepSeek V4 Flash**（`deepseek/deepseek-v4-flash`），替代失效的旧默认配置。用户仍需提供自己的 API 凭据，不代表包含免费调用额度。（`814f84e`）
 - 随仓库提供的配置默认关闭人声分离，视频输入的字幕压制仍默认开启。升级时应检查自己的配置，不应直接覆盖。（#576、最终配置）
 - 更新多语言 README 和安装文档，介绍 uv、模型搜索、任务控制及新的服务默认值；新增依赖兼容和音频时间轴说明。期间代码中的版本元数据曾更新至 3.0.2、3.0.3，本文统一汇总，不将其写成已经独立发布的 Release。（#537、#576、#577、#599、#601）
@@ -147,16 +161,18 @@ Thanks to **@doomsday616, @phucsd1, @QiuLsG and @Huanshere** for the contributio
 ### 升级注意事项
 
 1. 先使用环境里的 Python 执行 `python installer.py --check`，再决定是否修复或升级。`python installer.py --upgrade` 在兼容范围内升级依赖。`python setup_env.py --shared` 创建或复用共享环境；遇到不同 Python 版本时可能要求重建，不打算替换环境时不要使用 `--yes`。
-2. 安装器支持 **Python 3.10–3.13**，新环境默认 **3.13**，不支持 Python 3.14。FFmpeg 需要在 PATH 中可用；TorchCodec 需要兼容的共享库版 FFmpeg。详见[运行依赖说明](https://github.com/Huanshere/VideoLingo/blob/c28fe34a5a8da008939add4174700ae31fc6be81/docs/runtime-dependencies.md)。
+2. 安装器支持 **Python 3.10–3.13**，新环境默认 **3.13**。固定的 TorchCodec 0.7 支持 FFmpeg 4–7，Windows 请使用文档中的 FFmpeg 7 共享库版，不能只装 FFmpeg 8/9。详见[部署验证记录](https://github.com/doomsday616/VideoLingo/blob/8e9eb6b/docs/deployment-versions.md)。#612 已实测 Docker/Windows 安装及媒体解码，未实测 cu126、真实 Colab 和完整模型/API 流程。
 3. 升级现有配置时检查 API 地址、模型及凭据。默认服务变更不会迁移你的账号或改变其计费关系。旧 Conda 启动方式仍有兼容入口，文档推荐使用 uv。
 4. 代码更新后需重启应用，因为文件监听已关闭。断点续跑会保留已有识别音频和字幕：时间轴修复针对新提取音频，不会自动修复旧结果。详见[音频时间轴说明](https://github.com/Huanshere/VideoLingo/blob/c28fe34a5a8da008939add4174700ae31fc6be81/docs/audio-timeline.md)。
 5. 使用显式下载代理或 GPT-SoVITS 时，请查阅[下载网络配置](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/download-network.md)和[运行兼容性说明](https://github.com/Huanshere/VideoLingo/blob/dcf55ff078d3d3fdadcdfdbd2f790539cfbaaab9/docs/runtime-compatibility.md)。代理 URL 中的凭据不可公开。显式选择的本地 Whisper 模型目录不完整时会报错，不会悄悄切换模型。
 6. 将已下线的 `whisper.runtime: cloud` 明确改为自己选择的 `local` 或 `elevenlabs`。本地识别需要合适的运行环境；ElevenLabs 需要独立凭据并可能产生服务商费用，302.ai 密钥不能代替 ElevenLabs 密钥。
 7. 识别缓存包含私人转录文字和时间戳，不会自动清理。可设置 `whisper.cache: false` 绕过持久缓存；在没有任务运行时清理 `.cache/asr/`，以释放空间，或在原地替换模型、服务商模型变化后强制重新识别。旧历史归档不会自动导入，已有 `cleaned_chunks.xlsx` 仍按原续跑逻辑跳过。详见[识别缓存说明](https://github.com/Huanshere/VideoLingo/blob/5cb55d8/docs/transcription-cache.md)。
+8. 较高质量的音轨提取会增加磁盘和解码音频内存用量。已有音频不会自动重新提取，提取设置也不在识别缓存键内。重新处理时查阅[音频提取说明](https://github.com/Huanshere/VideoLingo/blob/c5f8fe7/docs/audio-extract-quality.md)。这些音频改动不证明 #533 的全部主观音质及句间连贯问题已经解决。
+9. Docker 会复制当前目录的 `config.yaml`，应从干净的公开配置构建，再挂载用户设置和持久数据。实测默认镜像约 19 GB。主机需要兼容驱动及 NVIDIA Container Toolkit，不需要为镜像另装 CUDA Toolkit。
 
 感谢 **@doomsday616、@phucsd1、@QiuLsG 和 @Huanshere** 在此期间的贡献与维护，也感谢提供复现信息及服务状态的 Issue 提交者。
 
-[完整变更：v3.0.1 至本次核对提交](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...5cb55d8)
+[已合并变更：v3.0.1 至本次核对提交](https://github.com/Huanshere/VideoLingo/compare/v3.0.1...c5f8fe7)，以及[部署对齐 #612](https://github.com/Huanshere/VideoLingo/pull/612)。
 
 ---
 
@@ -192,8 +208,16 @@ superseded later in the range.
 | `b8ddff7` | [#604](https://github.com/Huanshere/VideoLingo/pull/604) | SiliconFlow custom voice configuration and error handling / 硅基流动自定义音色配置读取与错误处理 |
 | `62187d6` | [#606](https://github.com/Huanshere/VideoLingo/pull/606) | Source-language synchronization, NLP/prompts and auto detection / 源语言同步、分句提示词和自动检测 |
 | `043aa7a` | [#608](https://github.com/Huanshere/VideoLingo/pull/608), landing #607 | Content-addressed full/segment recognition cache and language metadata / 按内容匹配的完整及分段识别缓存与语言元数据 |
-| `5cb55d8` | [#609](https://github.com/Huanshere/VideoLingo/pull/609) | Retired 302 WhisperX removal and legacy runtime guidance; reviewed cutoff / 下线的 302 WhisperX 移除及旧配置引导，本次核对终点 |
+| `5cb55d8` | [#609](https://github.com/Huanshere/VideoLingo/pull/609) | Retired 302 WhisperX removal and legacy runtime guidance / 下线的 302 WhisperX 移除及旧配置引导 |
+| `4404645` | [#610](https://github.com/Huanshere/VideoLingo/pull/610) | Final dubbing loudness and AAC bitrate / 成片配音响度与 AAC 码率 |
+| `c5f8fe7` | [#611](https://github.com/Huanshere/VideoLingo/pull/611) | Extraction/reference quality and peak protection; merged cutoff / 提取与参考音频质量、峰值保护，已合并核对终点 |
 
-Reproduce the scope with `git log --reverse --oneline v3.0.1..5cb55d8` and
-`git diff --stat v3.0.1..5cb55d8`. No application tests, package installation or
+Additional intended release content, outside the merged counts above / 以下为预纳入发布内容，不计入上述已合并提交数：
+
+| Commit | PR | Coverage / 对应内容 |
+| --- | --- | --- |
+| `8e9eb6b` | [#612](https://github.com/Huanshere/VideoLingo/pull/612) | Deployment alignment, runtime library checks and multilingual docs / 部署对齐、运行库检查和多语言文档 |
+
+Reproduce the merged scope with `git log --reverse --oneline v3.0.1..c5f8fe7` and
+`git diff --stat v3.0.1..c5f8fe7`, then inspect #612 separately. No application tests, package installation or
 paid API calls are needed to review this documentation-only proposal.
