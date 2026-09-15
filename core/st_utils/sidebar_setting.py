@@ -2,6 +2,13 @@ import streamlit as st
 import requests
 from translations.translations import translate as t
 from core.utils import *
+from core.utils.config_utils import (
+    ATLAS_CLOUD_API_BASE,
+    ATLAS_CLOUD_DEFAULT_MODEL,
+    ATLAS_CLOUD_ENV_KEYS,
+    is_placeholder_api_key,
+    resolve_api_key,
+)
 
 
 def config_input(label, key, help=None, placeholder=None):
@@ -14,6 +21,7 @@ def config_input(label, key, help=None, placeholder=None):
 
 def _fetch_model_list(base_url, api_key):
     """Fetch available models from OpenAI-compatible /v1/models endpoint."""
+    api_key = resolve_api_key(api_key, base_url=base_url)
     if not api_key or not base_url:
         return []
     url = base_url.rstrip("/")
@@ -61,6 +69,17 @@ def page_setting():
             "api.base_url",
             help=t("Openai format, will add /v1/chat/completions automatically"),
         )
+        if st.button(
+            "Atlas Cloud Preset",
+            key="atlascloud_preset",
+            use_container_width=True,
+        ):
+            update_key("api.base_url", ATLAS_CLOUD_API_BASE)
+            update_key("api.model", ATLAS_CLOUD_DEFAULT_MODEL)
+            if is_placeholder_api_key(load_key("api.key")):
+                update_key("api.key", ATLAS_CLOUD_ENV_KEYS[0])
+            st.session_state.pop("_model_list", None)
+            st.rerun()
 
         # Try to use searchbox for model selection, fall back to text_input
         try:
