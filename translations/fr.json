@@ -1,4 +1,11 @@
 {
+    "TTS Provider": "Fournisseur vocal",
+    "Local service": "Service local",
+    "Custom provider": "Fournisseur personnalisé",
+    "Provider API Key": "Clé API du fournisseur",
+    "Shared by all TTS methods under this provider.": "Partagée par toutes les méthodes vocales de ce fournisseur.",
+    "Use this key for all methods": "Utiliser cette clé pour toutes les méthodes",
+    "Existing methods use different keys. Editing this field replaces all keys for this provider.": "Les méthodes existantes utilisent des clés différentes. Modifier ce champ remplace toutes les clés de ce fournisseur.",
     "a. Download or Upload Video": "a. Télécharger ou importer une vidéo",
     "Delete and Reselect": "Supprimer et resélectionner",
     "Enter YouTube link:": "Entrez le lien YouTube :",

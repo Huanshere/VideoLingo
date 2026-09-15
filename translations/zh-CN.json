@@ -1,4 +1,11 @@
 {
+    "TTS Provider": "配音服务商",
+    "Local service": "本地服务",
+    "Custom provider": "自定义服务",
+    "Provider API Key": "服务商 API 密钥",
+    "Shared by all TTS methods under this provider.": "此服务商下的所有配音方法共用。",
+    "Use this key for all methods": "将此密钥用于全部方法",
+    "Existing methods use different keys. Editing this field replaces all keys for this provider.": "现有方法使用了不同密钥，编辑此字段将统一替换该服务商下的全部密钥。",
     "a. Download or Upload Video": "a. 下载或上传视频",
     "Delete and Reselect": "删除并重新选择",
     "Enter YouTube link:": "输入YouTube链接:",
