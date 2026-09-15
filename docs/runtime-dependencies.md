@@ -28,8 +28,11 @@ The installer selects CUDA 12.8 wheels on drivers supporting CUDA 12.8 or newer,
 including CUDA 13-capable drivers, and CUDA 12.6 otherwise. CTranslate2's Windows
 build needs CUDA 12 cuBLAS. Drivers can be newer than the runtime used by the app.
 CPU wheels are explicitly selected on non-NVIDIA Windows/Linux systems.
-FFmpeg must be installed separately; TorchCodec requires a shared-library build
-for its decoding features. The project itself invokes the FFmpeg CLI.
+FFmpeg must be installed separately. The pinned TorchCodec 0.7 build needs
+FFmpeg 4–7 shared libraries; FFmpeg 8/9 are not supported. On Windows use the
+[FFmpeg 7 shared build documented in the installation guide](pages/docs/start.en-US.md#ffmpeg-runtime).
+The project invokes the FFmpeg CLI, and `installer.py` probes TorchCodec at
+install/check time because package metadata can pass while decoding fails.
 
 ### Reduced installation complexity
 
@@ -59,8 +62,13 @@ dubbing through the existing background TaskRunner, plus audio-only subtitles.
 Generated outputs use pytest temporary directories and the temporary credential
 configuration is removed at teardown.
 
-Verified on Windows 11, NVIDIA RTX 4000 Ada (20 GB), Python 3.13.15 and FFmpeg 9.0.1
-shared build. The resolved environment has no dependency conflicts (`uv pip check`).
+#599 recorded a Windows 11, NVIDIA RTX 4000 Ada (20 GB), Python 3.13.15
+environment with FFmpeg 9.0.1 shared libraries and a complete translation/dubbing
+pipeline. That FFmpeg 9.0.1 note is superseded: later TorchCodec 0.7 runtime
+probing showed FFmpeg 9 can fail to load even when `pip check` is clean.
+Current requirement is TorchCodec 0.7 with FFmpeg 4–7 shared libraries
+(FFmpeg 7 on Windows). See `docs/deployment-versions.md` for that follow-up.
+The #599 resolved environment had no dependency conflicts (`uv pip check`).
 Representative versions: WhisperX 3.8.6, Torch 2.8.0+cu128, CTranslate2 4.8.2,
 pyannote-audio 4.0.7, TorchCodec 0.7.0, spaCy 3.8.16, Streamlit 1.63.0,
 pandas 3.0.5, NumPy 2.5.3, OpenAI client 3.13.0 and Demucs 4.1.0.

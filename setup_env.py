@@ -124,6 +124,7 @@ def run_installer(python_exe: Path, args: argparse.Namespace) -> None:
     env = os.environ.copy()
     env["PATH"] = str(venv_bin(python_exe.parent.parent)) + os.pathsep + env.get("PATH", "")
     cmd = [str(python_exe), str(SCRIPT_DIR / "installer.py"), "--yes"]
+    cmd.extend(["--torch-backend", args.torch_backend])
     if args.auto_mirror:
         cmd.append("--auto-mirror")
     if args.force:
@@ -140,6 +141,8 @@ def run_installer(python_exe: Path, args: argparse.Namespace) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Create and install a VideoLingo environment")
     parser.add_argument("--shared", action="store_true", help=f"use shared venv at {SHARED_VENV}")
+    parser.add_argument("--torch-backend", choices=("auto", "cpu", "cu126", "cu128"), default="auto",
+                        help="PyTorch build selection passed to installer.py")
     parser.add_argument("--path", help="custom venv path; implies --shared-style external venv")
     parser.add_argument("--skip-install", action="store_true", help="only create/reuse the venv")
     parser.add_argument("--auto-mirror", action="store_true", help="auto-select a PyPI mirror before install")

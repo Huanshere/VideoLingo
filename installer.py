@@ -168,7 +168,7 @@ def detect_nvidia_gpu() -> bool:
 def detect_cuda_version_from_smi() -> tuple[int, int] | None:
     try:
         result = subprocess.run(["nvidia-smi"], capture_output=True, text=True, timeout=10)
-        match = re.search(r"CUDA Version:\s*(\d+)\.(\d+)", result.stdout)
+        match = re.search(r"CUDA(?: UMD)? Version:\s*(\d+)\.(\d+)", result.stdout)
         if match:
             return int(match.group(1)), int(match.group(2))
     except Exception:
@@ -211,22 +211,24 @@ def maybe_configure_mirror(auto_mirror: bool) -> None:
         print(f"  Warning: mirror auto-config failed: {exc}")
 
 
-def install_torch(force: bool = False) -> None:
+def install_torch(force: bool = False, backend: str = "auto") -> None:
     print("\n[3/7] Install PyTorch / torchaudio")
-    gpu = detect_nvidia_gpu()
-    gpu_build = not gpu or all("+cu12" in (package_version(name) or "") for name in ("torch", "torchaudio", "torchvision"))
+    gpu = detect_nvidia_gpu() if backend == "auto" else backend != "cpu"
+    builds = {(package_version(name) or "").partition("+")[2] or "cpu" for name in ("torch", "torchaudio", "torchvision")}
+    expected = {backend} if backend != "auto" else ({"cu126", "cu128"} if gpu else {"cpu"})
+    gpu_build = len(builds) == 1 and builds <= expected
     if not force and gpu_build and package_ok("torch", TORCH_VERSION) and package_ok("torchaudio", TORCH_VERSION) and package_ok("torchvision", "0.23.0"):
         print(f"  torch {package_version('torch')} and torchaudio {package_version('torchaudio')} already installed.")
         return
     packages = [f"torch=={TORCH_VERSION}", f"torchaudio=={TORCH_VERSION}", "torchvision==0.23.0"]
     if gpu:
-        index = detect_torch_index()
-        print(f"  NVIDIA GPU detected. Using PyTorch index: {index}")
+        index = detect_torch_index() if backend == "auto" else f"{TORCH_INDEX}/{backend}"
+        print(f"  Using CUDA PyTorch index: {index}")
         pip_install(packages, retries=3, extra_args=["--index-url", index, "--force-reinstall"])
     else:
         print("  No NVIDIA GPU detected. Installing CPU PyTorch wheels.")
         extra = ["--index-url", f"{TORCH_INDEX}/cpu"] if platform.system() != "Darwin" else []
-        pip_install(packages, retries=3, extra_args=extra)
+        pip_install(packages, retries=3, extra_args=[*extra, "--force-reinstall"])
 
 
 def install_base_requirements(force: bool = False, upgrade: bool = False) -> None:
@@ -298,7 +300,7 @@ def noto_cjk_font_available() -> bool:
     if platform.system() != "Linux" or not shutil.which("fc-match"):
         return False
     result = subprocess.run(
-        ["fc-match", "NotoSansCJK-Regular"],
+        ["fc-match", "Noto Sans CJK SC"],
         capture_output=True,
         text=True,
     )
@@ -348,7 +350,7 @@ def install_linux_noto_fonts() -> None:
         print(f"  Warning: failed to install Noto CJK fonts automatically: {exc}")
 
 
-def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True) -> int:
+def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True, torch_backend: str = "auto") -> int:
     errors: list[str] = []
     warnings: list[str] = []
     if not (3, 10) <= sys.version_info[:2] < (3, 14):
@@ -395,8 +397,27 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         warnings.append("Noto CJK fonts are not installed; CJK subtitle burn-in may fail")
     if not shutil.which("ffmpeg"):
         errors.append("ffmpeg not found in PATH")
-    if detect_nvidia_gpu() and not all("+cu12" in (package_version(name) or "") for name in ("torch", "torchaudio", "torchvision")):
-        errors.append("NVIDIA GPU detected but the matched CUDA 12 PyTorch wheels are missing; rerun installer.py")
+    builds = {(package_version(name) or "").partition("+")[2] or "cpu" for name in ("torch", "torchaudio", "torchvision")}
+    if len(builds) != 1:
+        errors.append("torch, torchaudio and torchvision must use the same CPU/CUDA build")
+    if torch_backend == "auto":
+        if detect_nvidia_gpu() and not builds <= {"cu126", "cu128"}:
+            errors.append("NVIDIA GPU detected: auto accepts only cu126/cu128 PyTorch builds; "
+                          f"detected builds: {', '.join(sorted(builds))}. Rerun installer.py")
+    elif builds != {torch_backend}:
+        errors.append(f"PyTorch build does not match requested {torch_backend}")
+    if check_state and not errors:
+        try:
+            probe = subprocess.run(
+                [sys.executable, "-c", "from runtime_libraries import configure_ffmpeg_dlls; "
+                 "configure_ffmpeg_dlls(); import torchcodec.decoders"],
+                cwd=ROOT, capture_output=True, text=True, timeout=60,
+            )
+            if probe.returncode:
+                errors.append("TorchCodec could not load. Use FFmpeg 7 shared libraries on PATH; "
+                              "FFmpeg 8/9 are not supported by the pinned TorchCodec 0.7 build.\n" + probe.stderr)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            errors.append(f"TorchCodec runtime check failed: {exc}")
     if not quiet:
         print("\nEnvironment check")
         for package in ["streamlit", "torch", "torchaudio", "spacy", "whisperx", "demucs"]:
@@ -420,7 +441,7 @@ def install_all(args: argparse.Namespace) -> int:
         return 1
     install_bootstrap()
     maybe_configure_mirror(args.auto_mirror)
-    install_torch(force=args.force)
+    install_torch(force=args.force, backend=args.torch_backend)
     install_base_requirements(force=args.force, upgrade=args.upgrade)
     install_spacy(force=args.force)
     install_whisperx(force=args.force)
@@ -430,7 +451,7 @@ def install_all(args: argparse.Namespace) -> int:
     install_linux_noto_fonts()
     ffmpeg_ok = check_ffmpeg()
     save_state()
-    status = health_check(require_demucs=args.require_demucs)
+    status = health_check(require_demucs=args.require_demucs, torch_backend=args.torch_backend)
     if not ffmpeg_ok or status != 0:
         return 1
     if args.launch:
@@ -442,6 +463,8 @@ def install_all(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Install or check VideoLingo dependencies")
     parser.add_argument("--check", action="store_true", help="check environment health only")
+    parser.add_argument("--torch-backend", choices=("auto", "cpu", "cu126", "cu128"), default="auto",
+                        help="auto-detect on hosts; select explicitly for GPU-less image builds")
     parser.add_argument("--quiet", action="store_true", help="quiet check output")
     parser.add_argument("--force", action="store_true", help="force reinstall staged packages")
     parser.add_argument("--upgrade", action="store_true", help="refresh dependencies within requirements.txt compatibility bounds")
@@ -460,7 +483,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.no_launch:
         args.launch = False
     if args.check:
-        return health_check(quiet=args.quiet, require_demucs=args.require_demucs)
+        return health_check(quiet=args.quiet, require_demucs=args.require_demucs, torch_backend=args.torch_backend)
     return install_all(args)
 
 

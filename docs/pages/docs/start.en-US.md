@@ -1,29 +1,20 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-VideoLingo requires an LLM and TTS(optional). The default recommendation is DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) through OpenRouter. Alternatively, for a fully local setup with no API key needed, use Ollama for the LLM and Edge TTS for dubbing. In this case, set `max_workers` to 1 and `summary_length` to a low value like 2000 in `config.yaml`.
+VideoLingo uses an LLM for translation. TTS is optional and only needed for dubbing. Choose your own provider and model.
 
 ### 1. **Get API_KEY for LLM**:
 
-| Recommended Model | Vendor | Quality | Cost-efficiency |
-|:-----|:---------|:-----|:---------|
-| claude-sonnet-4-6 | [Anthropic](https://www.anthropic.com) | 🤩 | ⭐⭐⭐ |
-| claude-opus-4-6 | [Anthropic](https://www.anthropic.com) | 🏆 | ⭐⭐ |
-| DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) | [OpenRouter](https://openrouter.ai) | 😃 | ⭐⭐⭐⭐⭐ |
-| gemini-3-flash | [Google](https://ai.google.dev) | 😃 | ⭐⭐⭐⭐⭐ |
-| gemini-3.1-pro | [Google](https://ai.google.dev) | 🤩 | ⭐⭐⭐ |
-| minimax-m2.5 | [MiniMax](https://www.minimax.io) | 😃 | ⭐⭐⭐⭐⭐ |
-| kimi-k2.5 | [Moonshot AI](https://www.moonshot.cn) | 😃 | ⭐⭐⭐⭐ |
-| deepseek-v3 | [DeepSeek](https://www.deepseek.com) | 🥳 | ⭐⭐⭐⭐ |
-| qwen3-32b | [Ollama](https://ollama.ai) self-hosted | 😃 | ♾️ Free |
+Set the API URL, key and model in the sidebar. The client uses OpenAI-compatible
+Chat Completions, with structured JSON required by several processing steps.
+Use a model supported by your endpoint; parameter count alone does not establish
+translation quality or JSON reliability. Enable JSON mode only if supported.
 
-> **Default model:** DeepSeek V4 Flash is a 284B MoE model (13B active per request). The default prioritizes price and speed for the structured JSON used in translation alignment, not peak reasoning. Stronger models remain available on OpenRouter.
->
-> **Tip:** Model pricing changes frequently. Check each vendor's website for current rates. [models.dev](https://models.dev) offers cross-vendor price and capability comparison.
->
-> **API proxy:** If you cannot access overseas APIs directly, [OpenRouter](https://openrouter.ai) is recommended (OpenAI-compatible endpoint: `https://openrouter.ai/api/v1`, supports all models above, pay-per-use with no monthly fee).
-
-Note: Supports OpenAI format, you can try different models at your risk. However, the process involves multi-step reasoning chains and complex JSON formats, **not recommended to use models smaller than 30B**.
+For example, an OpenRouter API URL is `https://openrouter.ai/api/v1`; no particular
+model is required. A local compatible server can also be used. The application
+requires a non-empty key field even when that server does not authenticate requests;
+use a placeholder only for a server that explicitly ignores the key. Edge TTS
+requires network access and is not an offline synthesizer.
 
 ### 2. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
@@ -34,12 +25,12 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
 | 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Authentic native | Limited official models | 🤩 | 😂 |
 | 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
-| 🗣 Edge TTS | Local | Completely free | Average effect | 😐 | 😐 |
+| Edge TTS | Online service | No separate API key in this adapter | Requires network access | — | — |
 | 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
 - For OpenAI TTS, Azure TTS, and Fish TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to all three services
-> Wanna use your own TTS? Modify in `core/all_tts_functions/custom_tts.py`!
+> For a custom TTS adapter, edit `core/tts_backend/custom_tts.py`.
 
 <details>
 <summary>SiliconFlow FishTTS Tutorial</summary>
@@ -47,8 +38,8 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 Currently supports 3 modes:
 
 1. `preset`: Uses fixed voice, can preview on [Official Playground](https://cloud.siliconflow.cn/playground/text-to-speech/17885302608), default is `anna`.
-2. `clone(stable)`: Corresponds to fishtts api's `custom`, uses voice from uploaded audio, automatically samples first 10 seconds of video for voice, better voice consistency.
-3. `clone(dynamic)`: Corresponds to fishtts api's `dynamic`, uses each sentence as reference audio during TTS, may have inconsistent voice but better effect.
+2. `clone(stable)`: API mode `custom`; combines eligible reference segments from the task list, subject to text-length and duration limits, and uploads a reusable voice. This is not necessarily the first ten seconds of the video.
+3. `clone(dynamic)`: API mode `dynamic`; uses the current sentence's reference clip. Voice consistency and quality depend on the reference and service, with no guaranteed improvement over custom mode.
 
 </details>
 
@@ -127,24 +118,34 @@ After configuration, select `Reference Audio Mode` in the sidebar (see Yuque doc
 
 VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 
-> **Note:** To use NVIDIA GPU acceleration on Windows, please complete the following steps first:
-> 1. Install [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) or newer (12.8 / 12.9 / 13.x all work — the install script auto-adapts)
-> 2. Install [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. Add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to your system PATH
-> 4. Restart your computer
->
-> ⚠️ **Pitfall:** The install script uses `nvidia-smi` to detect your driver's CUDA version and auto-selects the best PyTorch wheel (cu129 / cu128 / cu126). For RTX 50 series (Blackwell) GPUs, cu129 wheels with sm_100 kernels are selected automatically. **Do NOT manually install cu130/cu131 PyTorch** — this causes ctranslate2 to fail with `cublas64_12.dll not found`.
+### Prerequisites
 
-> **Note:** FFmpeg is required. Please install it via package managers:
-> - Windows: ```choco install ffmpeg``` (via [Chocolatey](https://chocolatey.org/))
-> - macOS: ```brew install ffmpeg``` (via [Homebrew](https://brew.sh/))
-> - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu) or ```sudo dnf install ffmpeg``` (Fedora)
->
-> ⚠️ **Pitfall:** Do NOT use conda-forge ffmpeg (it lacks the libmp3lame encoder). Use the system package manager to install a full build.
+Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html). The linked uv page provides standalone installers that do not require Python. Reopen your terminal and check `git --version`, `uv --version` and `ffmpeg -version`.
 
-### Option A: Using uv (Recommended)
+On Windows, choose an FFmpeg shared-library build and add its `bin` directory to PATH. On macOS use `brew install ffmpeg`; on Debian/Ubuntu use `sudo apt install ffmpeg`. TorchCodec needs compatible FFmpeg shared libraries in addition to the CLI. Subtitle rendering needs the subtitles filter and suitable fonts; the installer checks/installs Noto CJK fonts on Linux.
 
-[uv](https://docs.astral.sh/uv/) is a fast Python package manager that automatically downloads the correct Python version and creates an isolated environment. No need to install Python or Anaconda yourself. (~30 MB vs ~4 GB for Anaconda, 10-100x faster package installs.)
+<a id="ffmpeg-runtime"></a>
+The pinned TorchCodec 0.7 supports FFmpeg 4–7, not FFmpeg 8/9. Use a shared
+FFmpeg 7 build. On Windows, this [BtbN 7.1 shared build](https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-07-31-14-15/ffmpeg-n7.1.1-56-gc2184b65d2-win64-gpl-shared-7.1.zip)
+was downloaded and verified with real audio decoding. Extract it and put its
+`bin` directory ahead of other FFmpeg versions on PATH. VideoLingo registers that
+directory for Windows DLL loading. Package managers may supply newer incompatible
+FFmpeg libraries, so check the version rather than assuming latest works.
+
+<a id="gpu-runtime"></a>
+### GPU runtime
+
+- Install a driver compatible with your NVIDIA GPU. `nvidia-smi` reports the driver's CUDA capability, not an installed Toolkit version.
+- On hosts, the installer selects PyTorch `cu128` for a reported capability >=12.8, otherwise `cu126` when NVIDIA is detected. An unreadable capability falls back to cu126, which is not a guarantee of compatibility with an old driver. Without NVIDIA it selects CPU packages. Compatible existing packages may be reused.
+- Local WhisperX GPU execution needs **CUDA 12 cuBLAS and cuDNN 9** accessible to the process. See [faster-whisper's GPU requirements](https://github.com/SYSTRAN/faster-whisper#gpu) and [CTranslate2 4.5's cuDNN 9 transition](https://github.com/OpenNMT/CTranslate2/releases/tag/v4.5.0).
+- If the libraries are missing on Windows, obtain CUDA 12 libraries from NVIDIA's [CUDA 12.8 Update 1 archive](https://developer.nvidia.com/cuda-12-8-1-download-archive) and cuDNN 9 **for CUDA 12** from [NVIDIA](https://developer.nvidia.com/cudnn-downloads). Add the actual DLL directories to PATH and reopen the terminal. Do not invent a cuDNN directory by substituting the PyTorch build tag into an example path.
+- On Linux, follow faster-whisper's linked instructions for exposing the installed cuBLAS/cuDNN libraries through `LD_LIBRARY_PATH` before starting Python. The Docker image includes these runtime libraries.
+
+The installer selects Python wheels; it does not install a system CUDA Toolkit. Newer CUDA 13-capable drivers do not require CUDA 13 Python packages for this project.
+
+### Install with uv
+
+uv provisions Python 3.13 in `.venv`. Existing application environments are supported on Python 3.10–3.13. The bootstrap command below does not require a preinstalled Python.
 
 1. Clone the project:
    ```bash
@@ -152,12 +153,12 @@ VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
    cd VideoLingo
    ```
 
-2. One-command setup (installs uv + Python 3.10 + all dependencies):
+2. Create the environment and install dependencies:
    ```bash
-   python setup_env.py
+    uv run --no-project --python 3.13 setup_env.py
    ```
 
-   > ⚠️ **Install order matters:** `install.py` (called automatically by `setup_env.py`) installs dependencies in the correct order: PyTorch first (locks CUDA version), then demucs with `--no-deps` (prevents torchaudio downgrade), then the rest. **Do not rearrange manually.**
+   `setup_env.py` delegates to `installer.py`: bootstrap packages, matched Torch/torchaudio/torchvision, application requirements, spaCy/WhisperX checks, optional PyPI Demucs 4.1, project metadata, fonts and environment checks. Demucs uses normal dependency resolution. Use `--shared` to select `~/.venvs/videolingo`, or `--path` for a custom location.
 
 3. 🎉 Launch Streamlit app:
    ```bash
@@ -166,50 +167,11 @@ VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
    ```
    Or double-click `OneKeyStart.bat` on Windows.
 
-4. Set key in sidebar of popup webpage and start using~
-
-### Option B: Using Conda
-
-> ⚠️ **Not recommended.** This method will not be maintained going forward. Please use uv (Option A) above.
-
-<details>
-<summary>Click to expand Conda installation steps</summary>
-
-Before installing VideoLingo, ensure you have installed Git and Anaconda.
-
-1. Clone the project:
-   ```bash
-   git clone https://github.com/Huanshere/VideoLingo.git
-   cd VideoLingo
-   ```
-
-2. Create and activate virtual environment (**must be python=3.10.0**):
-   ```bash
-   conda create -n videolingo python=3.10.0 -y
-   conda activate videolingo
-   ```
-
-   > ⚠️ **Pitfall:** Make sure pip is using the conda env's site-packages. On Windows, if the `site-packages` directory is not writable (e.g. under `C:\ProgramData\anaconda3\`), pip silently installs to the user directory instead. If this happens, run the terminal as administrator.
-
-3. Run installation script:
-   ```bash
-   python install.py
-   ```
-
-   > ⚠️ **Install order matters:** `install.py` installs dependencies in the correct order: PyTorch first (locks CUDA version), then demucs with `--no-deps` (prevents torchaudio downgrade), then the rest. **Do not rearrange manually.**
-
-4. 🎉 Launch Streamlit app by running the command or double-clicking `OneKeyStart.bat`:
-   ```bash
-   streamlit run st.py
-   ```
-
-5. Set key in sidebar of popup webpage and start using~
-
-</details>
+4. Open `http://localhost:8501` and configure your OpenAI-compatible API URL, key and model in the sidebar. `OneKeyStart.bat` prefers the shared venv, then the project's `.venv`; use the explicit environment command above if you want that checkout's local environment.
 
    ![tutorial](./en_page.png)
 
-6. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation. To use custom terms, add them to `custom_terms.xlsx` before processing, e.g. `Baguette | French bread | Not just any bread!`.
+5. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation. To use custom terms, add them to `custom_terms.xlsx` before processing, e.g. `Baguette | French bread | Not just any bread!`.
 
 > Need help? Our [AI Assistant](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) is here to guide you through any issues!
 
@@ -224,13 +186,13 @@ Note: This section is still in early development and may have limited functional
 1. **'All array must be of the same length' or 'Key Error' during translation**: 
    - Reason 1: Weaker models have poor JSON format compliance causing response parsing errors.
    - Reason 2: LLM may refuse to translate sensitive content.
-   Solution: Check `response` and `msg` fields in `output/gpt_log/error.json`, delete the `output/gpt_log` folder and retry.
+    Inspect `resp_content`, `resp` and `message` in `output/gpt_log/error.json`. Failed validation is logged separately from successful response caches. Diagnose the failing stage before clearing its cached results.
 
 2. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China please switch network nodes and retry.
 
-3. **local_files_only=True**: Model download failure due to network issues, need to verify network can ping `huggingface.co`.
+3. **local_files_only=True**: The selected local model or cache is incomplete. Check the model path and required files. An offline lookup cannot download missing weights; a ping alone does not establish model availability.
 
-4. **`cublas64_12.dll not found`**: Installed CUDA 13.x and used cu130/cu131 PyTorch wheels. **Solution:** Must use cu129, cu128, or cu126 wheels (`install.py` handles this automatically via `nvidia-smi` detection) because ctranslate2 only supports CUDA 12. Re-run `python install.py`.
+4. **`cublas64_12.dll not found`**: The process cannot locate CUDA 12 cuBLAS. Check the selected environment, its Torch CUDA build and library search paths using the GPU instructions above. A newer driver alone does not supply this DLL.
 
 5. **Whisper model loading segfaults silently**: ctranslate2 version mismatches cuDNN version. **Solution:** Ensure `ctranslate2>=4.5.0` (supports cuDNN 9, which PyTorch 2.6+ ships with).
 
@@ -238,9 +200,9 @@ Note: This section is still in early development and may have limited functional
 
 7. **WhisperX transcription hangs in Streamlit (CPU/GPU idle)**: `librosa.load()` deadlocks in Streamlit's non-main thread. **Solution:** Already fixed by replacing with `whisperx.audio.load_audio()` (ffmpeg subprocess). If you see this, your code is not up to date.
 
-8. **spacy `Can't find model 'xx_core_web_md'` (but pip says installed)**: pip installed the model to user directory instead of conda env. **Solution:** Run terminal as administrator, or manually install with conda env's python:
+8. **spaCy model missing**: Check that the model was installed into the same environment used to launch VideoLingo. For example, install the English model using that environment's Python:
    ```bash
-   python -m pip install xx-core-web-md --no-user --force-reinstall --no-deps
+    .venv\Scripts\python -m spacy download en_core_web_md
    ```
 
-9. **torchaudio version drops to 1.x or 2.1.x after pip install**: demucs's `torchaudio<2.2` constraint causes downgrade. **Solution:** Never `pip install demucs` directly — must use `--no-deps`. `install.py` handles this correctly.
+9. **Torch package versions disagree**: Run the selected environment's `python installer.py --check`, then `python installer.py` to repair. The supported family is Torch/torchaudio 2.8.0 with torchvision 0.23.0, using one matching CPU/CUDA build. Current Demucs is PyPI 4.1, not the older Git package requiring a `--no-deps` workaround.

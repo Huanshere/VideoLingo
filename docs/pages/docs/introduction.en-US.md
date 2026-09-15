@@ -58,15 +58,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Installation
 
-> **Note:** To use NVIDIA GPU acceleration on Windows, please complete the following steps first:
-> 1. Install [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) or newer (12.8 / 13.x all work — the install script auto-adapts)
-> 2. Install [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. Add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to your system PATH
-> 4. Restart your computer
-
-> **Note:** For Windows and macOS users, it's recommended to install FFmpeg via package managers (Chocolatey/Homebrew):
-> ```choco install ffmpeg``` (Windows) or ```brew install ffmpeg``` (macOS). 
-> ⚠️ Do NOT use conda-forge ffmpeg (lacks libmp3lame encoder). Use the system package manager to install a full build.
+Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html) first. Reopen your terminal and verify they are on PATH. For FFmpeg shared libraries and NVIDIA runtime requirements, follow the [installation guide](start.en-US.md#gpu-runtime).
 
 1. Clone the repository
 
@@ -75,22 +67,21 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. Install dependencies(requires `python=3.10`)
+2. Create the Python 3.13 environment and install dependencies
 
 ```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. Start the application
 
 ```bash
-streamlit run st.py
+.venv\Scripts\python -m streamlit run st.py  # Windows
+.venv/bin/python -m streamlit run st.py     # macOS / Linux
 ```
 
 ### Docker
-Alternatively, you can use Docker (requires CUDA 12.4 and NVIDIA Driver version >550), see [Docker docs](/docs/pages/docs/docker.en-US.md):
+For Linux NVIDIA containers, use Docker with a compatible driver and NVIDIA Container Toolkit. The image uses the same Python 3.13 setup; see [Docker docs](/docs/pages/docs/docker.en-US.md):
 
 ```bash
 docker build -t videolingo .
@@ -99,7 +90,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 The project supports OpenAI-Like API format and various dubbing interfaces:
-- The LLM default is DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) on OpenRouter (`https://openrouter.ai/api/v1`), selected for price and speed on structured JSON translation alignment; stronger models remain available on OpenRouter.
+- Choose an OpenAI-compatible Chat Completions provider and a model capable of returning structured JSON. Set the API URL, key and model in the sidebar.
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

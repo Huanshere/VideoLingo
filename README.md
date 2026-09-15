@@ -12,20 +12,20 @@
 
 ## 🌟 Overview ([Try VL Now!](https://videolingo.io))
 
-VideoLingo is an all-in-one video translation, localization, and dubbing tool aimed at generating Netflix-quality subtitles. It eliminates stiff machine translations and multi-line subtitles while adding high-quality dubbing, enabling global knowledge sharing across language barriers.
+VideoLingo combines speech recognition, subtitle translation, segmentation and dubbing in a Streamlit interface. It produces subtitle files and optionally subtitled or dubbed videos. Translation quality depends on the source audio, language and chosen models.
 
 Key features:
 - 🎥 YouTube video download via yt-dlp
 
-- **🎙️ Word-level and Low-illusion subtitle recognition with WhisperX**
+- Word-level speech recognition and alignment with WhisperX
 
 - **📝 NLP and AI-powered subtitle segmentation**
 
 - **📚 Custom + AI-generated terminology for coherent translation**
 
-- **🔄 3-step Translate-Reflect-Adaptation for cinematic quality**
+- Direct translation with optional reflection and natural rewriting
 
-- **✅ Netflix-standard, Single-line subtitles Only**
+- Subtitle segmentation with configurable length limits
 
 - **🗣️ Dubbing with GPT-SoVITS, Azure, OpenAI, and more**
 
@@ -39,7 +39,7 @@ Key features:
 
 - ⏯️ Task control — pause, resume, or stop processing at any step
 
-Difference from similar projects: **Single-line subtitles only, superior translation quality, seamless dubbing experience**
+The workflow combines transcription, translation, subtitle layout and dubbing in one project.
 
 ## 🎥 Demo
 
@@ -75,28 +75,26 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 English 🤩 | 🇷🇺 Russian 😊 | 🇫🇷 French 🤩 | 🇩🇪 German 🤩 | 🇮🇹 Italian 🤩 | 🇪🇸 Spanish 🤩 | 🇯🇵 Japanese 😐 | 🇨🇳 Chinese* 😊
 
-> *Chinese uses a separate punctuation-enhanced whisper model, for now...
+> *For local Chinese recognition, explicitly select Chinese to use the punctuation-enhanced Belle Whisper model.
 
-**Translation supports all languages, while dubbing language depends on the chosen TTS method.**
+Translation languages depend on the selected LLM; dubbing languages depend on the selected TTS method.
 
 ## Installation
 
 Meet any problem? Chat with our free online AI agent [**here**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) to help you.
 
-> **Note:** For Windows users with NVIDIA GPU, follow these steps before installation:
-> 1. Install [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-> 2. Install [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. Add `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` to your system PATH
-> 4. Restart your computer
+Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html) first. Reopen your terminal after installation and check `git --version`, `uv --version` and `ffmpeg -version`.
+
+For NVIDIA acceleration, install a driver compatible with your GPU. The host installer selects PyTorch `cu128` when `nvidia-smi` reports CUDA >=12.8, otherwise `cu126`; without NVIDIA it selects CPU packages. This selects Python packages, not a system CUDA Toolkit. Local WhisperX GPU recognition also needs CUDA 12 cuBLAS and cuDNN 9 libraries available to the process; see [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Note:** FFmpeg is required. Please install it via package managers:
-> - Windows: ```choco install ffmpeg``` (via [Chocolatey](https://chocolatey.org/))
+> - Windows: choose a **shared-library build** from the Windows builds linked on the [FFmpeg download page](https://ffmpeg.org/download.html), then add its `bin` directory to PATH.
 > - macOS: ```brew install ffmpeg``` (via [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
-### Option A: Using uv (Recommended, No Anaconda Required)
+### Install with uv
 
-[uv](https://docs.astral.sh/uv/) automatically downloads Python 3.10 and creates an isolated environment — no need to install Python or Anaconda yourself.
+uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. Use **FFmpeg 7 shared libraries** for the pinned TorchCodec 0.7; FFmpeg 8/9 alone is not compatible. See the [verified Windows build](docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Clone the repository
 
@@ -105,10 +103,10 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. One-command setup (installs uv + Python 3.10 + all dependencies)
+2. Create the environment and install dependencies
 
 ```bash
-python setup_env.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. Start the application
@@ -118,40 +116,10 @@ python setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-Or double-click `OneKeyStart.bat` on Windows.
-
-### Option B: Using Conda
-
-> ⚠️ **Not recommended.** This method will not be maintained going forward. Please use uv (Option A) above.
-
-<details>
-<summary>Click to expand Conda installation steps</summary>
-
-1. Clone the repository
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. Install dependencies (requires `python=3.10`)
-
-```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
-```
-
-3. Start the application
-
-```bash
-streamlit run st.py
-```
-
-</details>
+Or double-click `OneKeyStart.bat` on Windows. It prefers `~/.venvs/videolingo` when present, then the project `.venv`. Open `http://localhost:8501` and enter your API URL, key and model in the sidebar.
 
 ### Docker
-Alternatively, you can use Docker (requires CUDA 12.4 and NVIDIA Driver version >550), see [Docker docs](/docs/pages/docs/docker.en-US.md):
+For a Linux NVIDIA container deployment, install Docker, a compatible GPU driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). The image uses the same Python 3.13 setup and application dependencies, with CUDA 12.8.1/cu128 by default. See [Docker docs](/docs/pages/docs/docker.en-US.md) for the matched CUDA 12.6 alternative and persistence settings.
 
 ```bash
 docker build -t videolingo .
@@ -160,25 +128,23 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
-- LLM default: DeepSeek V4 Flash (`deepseek/deepseek-v4-flash`) via OpenRouter (`https://openrouter.ai/api/v1`), selected for price and speed on structured JSON used in translation alignment. Stronger models remain available on OpenRouter.
-- Speech recognition: run WhisperX (large-v3) locally or use the ElevenLabs API.
-- TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(You can modify your own TTS in custom_tts.py!)
-
-> **Note:** The 302.ai WhisperX recognition service has been retired. Select Local or ElevenLabs for recognition. The separate 302.ai LLM and TTS integrations remain available.
+- LLM: choose an OpenAI-compatible Chat Completions provider and model that can return the structured JSON required by the workflow. Configure the API URL, key and model in the sidebar.
+- Speech recognition: run WhisperX locally or use the ElevenLabs API.
+- TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS and a custom adapter in `core/tts_backend/custom_tts.py`.
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Current Limitations
 
-1. WhisperX transcription performance may be affected by video background noise, as it uses wav2vac model for alignment. For videos with loud background music, please enable Voice Separation Enhancement. Additionally, subtitles ending with numbers or special characters may be truncated early due to wav2vac's inability to map numeric characters (e.g., "1") to their spoken form ("one").
+1. Background noise and language-specific alignment models affect recognition and word timestamps. Vocal separation may help. Numbers and symbols may lack reliable word timings; inspect the resulting subtitles.
 
-2. Using weaker models can lead to errors during processes due to strict JSON format requirements for responses (tried my best to prompt llm😊). If this error occurs, please delete the `output` folder and retry with a different LLM, otherwise repeated execution will read the previous erroneous response causing the same error.
+2. LLM output must satisfy the workflow's JSON structure. For failures, inspect `output/gpt_log/error.json`. Existing successful response caches and completed outputs can be reused on retry; changing the model alone does not regenerate every completed stage. Do not delete all output as the first troubleshooting step.
 
-3. The dubbing feature may not be 100% perfect due to differences in speech rates and intonation between languages, as well as the impact of the translation step. However, this project has implemented extensive engineering processing for speech rates to ensure the best possible dubbing results.
+3. Dubbing quality and timing depend on translation, the TTS service and speech rate. Speed adjustment does not guarantee natural delivery or perfect synchronization.
 
-4. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, and will delete unrecognized languages.
+4. Local WhisperX uses one recognition/alignment language per segment. Mixed-language speech is not guaranteed to retain accurate text and timing in every language.
 
-5. **For now, cannot dub multiple characters separately**, as whisperX's speaker distinction capability is not sufficiently reliable.
+5. The dubbing workflow does not automatically assign a separate voice to each speaker.
 
 ## 📄 License
 
