@@ -119,6 +119,7 @@ def test_health_checks_build_family(monkeypatch, builds, backend, expected):
     (('cu126', 'cu126', 'cu126'), 0),
     (('cu118', 'cu118', 'cu118'), 1),
     (('cu129', 'cu129', 'cu129'), 1),
+    (('cu126', 'cu128', 'cu126'), 1),
     (('cpu', 'cpu', 'cpu'), 1),
 ])
 def test_health_check_auto_gpu_accepts_only_cu126_cu128(monkeypatch, builds, expected):
@@ -126,14 +127,41 @@ def test_health_check_auto_gpu_accepts_only_cu126_cu128(monkeypatch, builds, exp
     assert installer.health_check(quiet=True, check_state=False, torch_backend='auto') == expected
 
 
-def test_torchcodec_probe_failure_is_an_error(monkeypatch):
+@pytest.mark.parametrize('returncode', [0, 1])
+def test_torchcodec_probe_result(monkeypatch, capsys, returncode):
     _patch_health_environment(monkeypatch, _requirement_versions(('', '', '')), gpu=False)
-    monkeypatch.setattr(
-        installer.subprocess,
-        'run',
-        lambda *a, **k: subprocess.CompletedProcess(a, 1, stdout='', stderr='incompatible libavcodec'),
-    )
-    assert installer.health_check(quiet=True, check_state=True, torch_backend='cpu') == 1
+    calls = []
+    def probe(cmd, **kwargs):
+        calls.append(cmd)
+        assert cmd[:2] == [installer.sys.executable, '-c']
+        assert 'import torchcodec.decoders' in cmd[2]
+        assert kwargs['timeout'] == 60
+        return subprocess.CompletedProcess(cmd, returncode, stdout='', stderr='incompatible libavcodec' if returncode else '')
+    monkeypatch.setattr(installer.subprocess, 'run', probe)
+    assert installer.health_check(check_state=True, torch_backend='cpu') == returncode
+    assert len(calls) == 1
+    output = capsys.readouterr().out
+    if returncode:
+        assert 'TorchCodec could not load' in output
+        assert 'FFmpeg 7 shared libraries' in output
+        assert 'incompatible libavcodec' in output
+    else:
+        assert 'ERROR:' not in output
+
+
+@pytest.mark.parametrize('error', [
+    OSError('synthetic process launch failure'),
+    subprocess.TimeoutExpired('torchcodec probe', 60),
+])
+def test_torchcodec_probe_exception_is_an_error(monkeypatch, capsys, error):
+    _patch_health_environment(monkeypatch, _requirement_versions(), gpu=False)
+    def probe(*args, **kwargs):
+        raise error
+    monkeypatch.setattr(installer.subprocess, 'run', probe)
+    assert installer.health_check(check_state=True, torch_backend='cpu') == 1
+    output = capsys.readouterr().out
+    assert 'TorchCodec runtime check failed' in output
+    assert str(error) in output
 
 
 def test_noninteractive_setup_entry_points_pass_yes():

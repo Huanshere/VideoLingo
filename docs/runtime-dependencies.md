@@ -30,8 +30,7 @@ build needs CUDA 12 cuBLAS. Drivers can be newer than the runtime used by the ap
 CPU wheels are explicitly selected on non-NVIDIA Windows/Linux systems.
 FFmpeg must be installed separately. The pinned TorchCodec 0.7 build needs
 FFmpeg 4–7 shared libraries; FFmpeg 8/9 are not supported. On Windows use the
-FFmpeg 7 shared build documented in
-`docs/pages/docs/start.en-US.md#ffmpeg-runtime`.
+[FFmpeg 7 shared build documented in the installation guide](pages/docs/start.en-US.md#ffmpeg-runtime).
 The project invokes the FFmpeg CLI, and `installer.py` probes TorchCodec at
 install/check time because package metadata can pass while decoding fails.
 
