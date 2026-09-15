@@ -19,6 +19,22 @@ def test_cuda_index(monkeypatch, cuda, tag):
     assert installer.detect_torch_index().endswith('/' + tag)
 
 
+@pytest.mark.parametrize('output', ['CUDA Version: 13.3', 'CUDA UMD Version: 13.3'])
+def test_driver_cuda_output_formats(monkeypatch, output):
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: subprocess.CompletedProcess(a, 0, stdout=output))
+    assert installer.detect_cuda_version_from_smi() == (13, 3)
+
+
+def test_noto_lookup_uses_font_family(monkeypatch):
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Linux')
+    monkeypatch.setattr(installer.shutil, 'which', lambda _: '/usr/bin/fc-match')
+    def match(cmd, **kwargs):
+        assert cmd == ['fc-match', 'Noto Sans CJK SC']
+        return subprocess.CompletedProcess(cmd, 0, stdout='NotoSansCJK-Regular.ttc: "Noto Sans CJK SC"', stderr='')
+    monkeypatch.setattr(installer.subprocess, 'run', match)
+    assert installer.noto_cjk_font_available()
+
+
 def test_requirements_exclude_staged_torch():
     names = {installer.requirement_name(r) for r in installer.read_base_requirements()}
     assert not names.intersection({'torch', 'torchaudio', 'torchvision'})
@@ -36,6 +52,70 @@ def test_cpu_torch_repaired_on_gpu(monkeypatch):
     installer.install_torch()
     assert calls and 'torchvision==0.23.0' in calls[0][0]
     assert '--force-reinstall' in calls[0][1]['extra_args']
+
+
+@pytest.mark.parametrize('backend', ['cu126', 'cu128', 'cpu'])
+def test_explicit_backend_without_gpu(monkeypatch, backend):
+    monkeypatch.setattr(installer, 'package_version', lambda _: None)
+    monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: pytest.fail('Explicit build must not probe GPU'))
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Linux')
+    calls = []
+    monkeypatch.setattr(installer, 'pip_install', lambda packages, **kwargs: calls.append((packages, kwargs)))
+    installer.install_torch(backend=backend)
+    assert calls[0][0] == ['torch==2.8.0', 'torchaudio==2.8.0', 'torchvision==0.23.0']
+    assert installer.TORCH_INDEX + '/' + backend in calls[0][1]['extra_args']
+
+
+def test_mixed_cuda_builds_are_repaired(monkeypatch):
+    versions = {'torch': '2.8.0+cu128', 'torchaudio': '2.8.0+cu126', 'torchvision': '0.23.0+cu128'}
+    monkeypatch.setattr(installer, 'package_version', versions.get)
+    calls = []
+    monkeypatch.setattr(installer, 'pip_install', lambda *args, **kwargs: calls.append(args))
+    installer.install_torch(backend='cu128')
+    assert len(calls) == 1
+
+
+def test_plain_macos_cpu_versions_are_reused(monkeypatch):
+    versions = {'torch': '2.8.0', 'torchaudio': '2.8.0', 'torchvision': '0.23.0'}
+    monkeypatch.setattr(installer, 'package_version', versions.get)
+    monkeypatch.setattr(installer, 'pip_install', lambda *args, **kwargs: pytest.fail('Compatible packages should be reused'))
+    installer.install_torch(backend='cpu')
+
+
+@pytest.mark.parametrize('builds,backend,expected', [
+    (('cu128', 'cu128', 'cu128'), 'cu128', 0),
+    (('cu128', 'cu126', 'cu128'), 'auto', 1),
+    (('cpu', 'cpu', 'cpu'), 'cu128', 1),
+    (('', '', ''), 'cpu', 0),
+])
+def test_health_checks_build_family(monkeypatch, builds, backend, expected):
+    from packaging.requirements import Requirement
+    versions = {}
+    for raw in installer.REQUIREMENTS.read_text(encoding='utf-8').splitlines():
+        if installer.requirement_name(raw):
+            req = Requirement(raw)
+            lower = [s.version for s in req.specifier if s.operator in ('==', '>=')]
+            versions[req.name] = lower[0] if lower else '1.0'
+    for name, version, build in zip(('torch', 'torchaudio', 'torchvision'), ('2.8.0', '2.8.0', '0.23.0'), builds):
+        versions[name] = version + ('+' + build if build else '')
+    monkeypatch.setattr(installer, 'package_version', versions.get)
+    monkeypatch.setattr(installer, 'load_state', lambda: {})
+    monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: False)
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin')
+    monkeypatch.setattr(installer.shutil, 'which', lambda _: '/example/ffmpeg')
+    assert installer.health_check(quiet=True, check_state=False, torch_backend=backend) == expected
+
+
+def test_setup_forwards_backend_without_installing(monkeypatch):
+    setup_spec = importlib.util.spec_from_file_location('setup_env', ROOT / 'setup_env.py')
+    setup = importlib.util.module_from_spec(setup_spec)
+    setup_spec.loader.exec_module(setup)
+    calls = []
+    monkeypatch.setattr(setup, 'run', lambda cmd, **kwargs: calls.append(cmd))
+    args = setup.build_parser().parse_args(['--torch-backend', 'cu126'])
+    setup.run_installer(Path('/example/bin/python'), args)
+    assert calls[0][calls[0].index('--torch-backend') + 1] == 'cu126'
+    assert 'installer.py' == Path(calls[0][1]).name
 
 
 def test_audio_slice(tmp_path):

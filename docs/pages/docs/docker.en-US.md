@@ -1,67 +1,57 @@
-# Docker Installation
+# Docker installation
 
-VideoLingo provides a Dockerfile that you can use to build the current VideoLingo package. Here are detailed instructions for building and running:
+## Requirements
 
-## System Requirements
+Use a Linux NVIDIA GPU host with Docker, a compatible driver and the
+[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+The host does not need the CUDA Toolkit installed separately for this image.
+The driver must support the selected image runtime and the GPU itself.
 
-- CUDA version > 12.4
-- NVIDIA Driver version > 550
+## Build the checked-out source
 
-## Building and Running the Docker Image or Pulling from DockerHub
+Run in a clean public checkout before adding credentials to `config.yaml`.
+The Dockerfile copies this checkout, including its configuration, rather than
+cloning another revision from GitHub. `.dockerignore` excludes local caches,
+outputs and private notes, but does not sanitize a modified configuration file.
 
 ```bash
-# Build the Docker image
 docker build -t videolingo .
-
-# Run the Docker container
-docker run -d -p 8501:8501 --gpus all videolingo
 ```
 
-### Pulling from DockerHub
-
-You can directly pull the pre-built VideoLingo image from DockerHub:
+Default: `nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04`, Python 3.13 and PyTorch
+cu128. For the matched CUDA 12.6 variant:
 
 ```bash
-docker pull rqlove/videolingo:latest
+docker build --build-arg CUDA_VERSION=12.6.3 -t videolingo:cu126 .
 ```
 
-After pulling, use the following command to run the container:
+That selects `12.6.3-cudnn-runtime-ubuntu24.04` and cu126 together. No GPU is
+required at build time: `setup_env.py` passes an explicit build choice to the
+same `installer.py` used on hosts. Other CUDA_VERSION values are rejected.
+
+Both variants use Torch/torchaudio 2.8.0, torchvision 0.23.0 and the same
+`requirements.txt` bounds, including WhisperX 3.8, TorchCodec 0.7, Transformers 4
+and Hub <1. Demucs 4.1 uses normal dependency resolution. Ubuntu supplies FFmpeg
+and its shared libraries, Noto CJK fonts and image runtime libraries.
+
+## Run and preserve data
 
 ```bash
-docker run -d -p 8501:8501 --gpus all rqlove/videolingo:latest
+docker run -d --name videolingo --gpus all -p 127.0.0.1:8501:8501 -v videolingo-output:/app/output -v videolingo-history:/app/history -v videolingo-models:/app/_model_cache -v videolingo-cache:/app/.cache -v videolingo-hf:/root/.cache/huggingface videolingo
 ```
 
-Note: 
-- The `-d` parameter runs the container in the background
-- `-p 8501:8501` maps port 8501 of the container to port 8501 of the host
-- `--gpus all` enables support for all available GPUs
-- Make sure to use the full image name `rqlove/videolingo:latest`
+Open `http://localhost:8501`. Named volumes preserve output, history and model/ASR
+caches when the container is replaced. Mount a local `config.yaml` and
+`custom_terms.xlsx` separately if those settings must also persist; the files
+must exist before mounting, and configuration needs write access for sidebar edits.
+For cu126, use `videolingo:cu126` instead of `videolingo`.
 
-## Models
+Models are downloaded as needed during processing, not bundled at build time.
+Stop the container with `docker stop videolingo`. Port binding above is local-only;
+remote access requires an intentionally configured listening address and access controls.
 
-The Whisper model is not included in the image and will be automatically downloaded when the container is first run. If you want to skip the automatic download process, you can download the model weights from [here](https://drive.google.com/file/d/10gPu6qqv92WbmIMo1iJCqQxhbd1ctyVw/view?usp=drive_link) or [Baidu Netdisk](https://pan.baidu.com/s/1hZjqSGVn3z_WSg41-6hCqA?pwd=2kgs) (Passcode: 2kgs).
+## Verification scope
 
-After downloading, use the following command to run the container, mounting the model file into the container:
-
-```bash
-docker run -d -p 8501:8501 --gpus all -v /path/to/your/model:/app/_model_cache rqlove/videolingo:latest
-```
-
-Please replace `/path/to/your/model` with the actual local path where you downloaded the model file.
-
-## Additional Information
-
-- Base image: nvidia/cuda:12.4.1-devel-ubuntu20.04
-- Python version: 3.10
-- Pre-installed software: git, curl, sudo, ffmpeg, fonts-noto, etc.
-- PyTorch version: 2.8.0 (CUDA 12.x build target)
-  > ⚠️ The install script uses `nvidia-smi` to detect the driver's CUDA version and selects the best wheel (cu129 for RTX 50 series / Blackwell GPUs, cu128 or cu126 for older GPUs). We use cu12x wheels instead of cu130/cu131 because ctranslate2 (a core whisperX dependency) is only compiled for CUDA 12 and requires `cublas64_12.dll`, which only cu12x wheels ship. NVIDIA drivers are backward-compatible, so a CUDA 13.x host runs cu12x wheels perfectly.
-- Exposed port: 8501 (Streamlit application)
-
-For more detailed information, please refer to the Dockerfile.
-
-## Future Plans
-
-- Continue to improve the Dockerfile to reduce image size
-- Push the Docker image to Docker Hub
-- Support mounting required models to the host machine using the -v parameter
+The Dockerfile runs the shared installation checks and `pip check` during a build.
+Source-level checks do not prove a successful image build or GPU processing.
+Third-party prebuilt images are not guaranteed to match this checkout's dependencies.

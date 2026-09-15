@@ -14,20 +14,20 @@
 
 ## 🌟 简介（[在线体验！](https://videolingo.io)）
 
-VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Netflix 级别的高质量字幕，告别生硬机翻，告别多行字幕，还能加上高质量的克隆配音，让全世界的知识能够跨越语言的障碍共享。
+VideoLingo 在 Streamlit 界面中整合语音识别、字幕翻译、分句和配音，可生成字幕文件，以及可选的字幕视频或配音视频。翻译质量取决于原始音频、语言和所选模型。
 
 主要特点和功能：
 - 🎥 使用 yt-dlp 从 Youtube 链接下载视频
 
-- **🎙️ 使用 WhisperX 进行单词级和低幻觉字幕识别**
+- 使用 WhisperX 进行词级语音识别与时间对齐
 
 - **📝 使用 NLP 和 AI 进行字幕分割**
 
 - **📚 自定义 + AI 生成术语库，保证翻译连贯性**
 
-- **🔄 三步直译、反思、意译，实现影视级翻译质量**
+- 直译，以及可选的反思和自然改写
 
-- **✅ 按照 Netflix 标准检查单行长度，绝无双行字幕**
+- 按可配置的长度限制切分字幕
 
 - **🗣️ 支持 GPT-SoVITS、Azure、OpenAI 等多种配音方案**
 
@@ -41,7 +41,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 
 - ⏯️ 任务控制 — 处理过程中可随时暂停、继续或停止
 
-与同类项目相比的优势：**绝无多行字幕，最佳的翻译质量，无缝的配音体验**
+在同一个项目中完成转录、翻译、字幕排版和配音。
 
 ## 🎥 演示
 
@@ -77,34 +77,26 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 英语 🤩  |  🇷🇺 俄语 😊  |  🇫🇷 法语 🤩  |  🇩🇪 德语 🤩  |  🇮🇹 意大利语 🤩  |  🇪🇸 西班牙语 🤩  |  🇯🇵 日语 😐  |  🇨🇳 中文* 😊
 
-> *中文使用单独的标点增强后的 whisper 模型
+> *本地识别中文时，请明确选择中文，以使用带标点增强的 Belle Whisper 模型。
 
-**翻译语言支持所有语言，配音语言取决于选取的TTS。**
+翻译语言取决于所选 LLM，配音语言取决于所选 TTS。
 
 ## 安装
 
 遇到问题？在[**这里**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)与我们的免费在线AI助手交流获取帮助。
 
-> **注意:** 在 Windows 上使用 NVIDIA GPU 加速需要先完成以下步骤:
-> 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-> 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. 将 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加到系统环境变量 PATH 中
-> 4. 重启电脑
+先安装 [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 [FFmpeg](https://ffmpeg.org/download.html)。安装后重新打开终端，检查 `git --version`、`uv --version` 和 `ffmpeg -version`。
+
+使用 NVIDIA 加速时，需要安装与显卡兼容的驱动。主机安装器根据 `nvidia-smi` 报告的 CUDA 支持版本选择 PyTorch：>=12.8 使用 `cu128`，否则使用 `cu126`；没有 NVIDIA 时使用 CPU 包。这是在选择 Python 包，不会自动安装系统 CUDA Toolkit。本地 WhisperX 的 GPU 识别还需要进程能够找到 CUDA 12 cuBLAS 和 cuDNN 9 库，详见 [GPU 运行库要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
 > **注意:** FFmpeg 是必需的，请通过包管理器安装：
-> - Windows：```choco install ffmpeg```（通过 [Chocolatey](https://chocolatey.org/)）
+> - Windows：从 [FFmpeg 下载页](https://ffmpeg.org/download.html)列出的 Windows 构建中选择**共享库版**，将其 `bin` 目录加入 PATH。
 > - macOS：```brew install ffmpeg```（通过 [Homebrew](https://brew.sh/)）
 > - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 
-### 方式一：使用 uv（推荐，无需安装 Anaconda）
+### 使用 uv 安装
 
-[uv](https://docs.astral.sh/uv/) 会自动下载 Python 3.10 并创建隔离环境，你不需要自己安装 Python 或 Anaconda。
-
-> **为什么用 uv 而不是 conda？**
-> - Anaconda 安装包约 4GB，而 uv 只有约 30MB
-> - uv 能自动下载并管理所需的 Python 版本，不会和系统已有的 Python 冲突
-> - 安装速度快 10-100 倍（Rust 编写，并行下载）
-> - 一条命令搞定，不需要学习 conda 命令
+uv 自动下载 Python 3.13 并创建隔离的 `.venv`，下面的命令不需要预装 Python。应用支持 Python 3.10–3.13。固定的 TorchCodec 0.7 请配套 **FFmpeg 7 共享库**，仅有 FFmpeg 8/9 不兼容。见[已验证的 Windows 构建](../docs/pages/docs/start.zh-CN.md#ffmpeg-runtime)。
 
 1. 克隆仓库
 
@@ -113,10 +105,10 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. 一键安装（自动安装 uv + Python 3.10 + 所有依赖）
+2. 创建环境并安装依赖
 
 ```bash
-python setup_env.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. 启动应用
@@ -126,40 +118,10 @@ python setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-或者在 Windows 上双击 `OneKeyStart_uv.bat`。
-
-### 方式二：使用 Conda
-
-> ⚠️ **不推荐。** 此方式今后将不再维护，请使用上方的 uv（方式一）。
-
-<details>
-<summary>点击展开 Conda 安装步骤</summary>
-
-1. 克隆仓库
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. 安装依赖（需要 `python=3.10`）
-
-```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
-```
-
-3. 启动应用
-
-```bash
-streamlit run st.py
-```
-
-</details>
+或者在 Windows 上双击 `OneKeyStart.bat`。它优先使用已有的 `~/.venvs/videolingo`，其次使用项目 `.venv`。打开 `http://localhost:8501`，在侧栏填写 API 地址、密钥和模型。
 
 ### Docker
-还可以选择使用 Docker（要求 CUDA 12.4 和 NVIDIA Driver 版本 >550），详见[Docker文档](/docs/pages/docs/docker.zh-CN.md)：
+在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、兼容的显卡驱动和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。镜像使用相同的 Python 3.13 安装流程和应用依赖，默认 CUDA 12.8.1/cu128。匹配的 CUDA 12.6 方案及数据持久化设置见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)。
 
 ```bash
 docker build -t videolingo .
@@ -168,24 +130,22 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
-- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ...（按质量排序；预算方案可尝试 `gemini-3-flash` 或 `gpt-5.4-mini`）
-- Speech recognition: run WhisperX locally or use the ElevenLabs API.
-- TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(你可以在 custom_tts.py 中自定义 TTS!)
-
-> **Note:** The 302.ai WhisperX recognition service has been retired. Select Local or ElevenLabs for recognition. The separate 302.ai LLM and TTS integrations remain available.
+- LLM：自行选择兼容 OpenAI Chat Completions、能够返回流程所需结构化 JSON 的服务和模型，在侧栏配置 API 地址、密钥和模型。
+- 语音识别：本地运行 WhisperX 或使用 ElevenLabs API。
+- TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自定义适配器。
 
 详细的安装、API 配置、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 当前限制
-1. WhisperX 转录效果可能受到视频背景声影响，因为使用了 wav2vac 模型进行对齐。对于背景音乐较大的视频，请开启人声分离增强。另外，如果字幕以数字或特殊符号结尾，可能会导致提前截断，这是因为 wav2vac 无法将数字字符（如"1"）映射到其发音形式（"one"）。
+1. 背景噪音和各语言的对齐模型会影响识别及词级时间戳，人声分离可能有所帮助。数字、符号可能缺少可靠的词级时间，需要检查生成的字幕。
 
-2. 使用较弱模型时容易在中间过程报错，这是因为对响应的 json 格式要求较为严格。如果出现此错误，请删除 `output` 文件夹后更换 llm 重试，否则重复执行会读取上次错误的响应导致同样错误。
+2. LLM 输出需满足流程要求的 JSON 结构，失败时检查 `output/gpt_log/error.json`。重试可能复用已成功的响应缓存和已完成的输出，仅更换模型不会重做所有步骤。不要一开始就删除全部输出。
 
-3. 配音功能由于不同语言的语速和语调差异，还受到翻译步骤的影响，可能不能 100% 完美，但本项目做了非常多的语速上的工程处理，尽可能保证配音效果。
+3. 配音质量和时间匹配取决于翻译、TTS 服务及语速，变速处理不能保证表达自然或完全同步。
 
-4. **多语言视频转录识别仅仅只会保留主要语言**，这是由于 whisperX 在强制对齐单词级字幕时使用的是针对单个语言的特化模型，会因为不认识另一种语言而删去。
+4. 本地 WhisperX 每个片段使用一种识别和对齐语言，混合语言语音不保证每种语言的文字和时间都准确。
 
-5. **无法多角色分别配音**，whisperX 的说话人区分效果不够好用。
+5. 配音流程不会自动为每个说话人分配不同的声音。
 
 ## 📄 许可证
 

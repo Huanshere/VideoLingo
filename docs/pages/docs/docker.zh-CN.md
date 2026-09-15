@@ -1,65 +1,52 @@
-# Docker安装
+# Docker 安装
 
-VideoLingo 提供了Dockerfile,可自行使用Dockerfile打包目前VideoLingo。以下是打包和运行的详细说明:
+## 环境要求
 
-## 系统要求
+使用 Linux NVIDIA GPU 主机，安装 Docker、兼容的显卡驱动和
+[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。
+本镜像不要求主机另外安装 CUDA Toolkit，驱动需支持所选镜像运行库和显卡本身。
 
-- CUDA版本 > 12.4
-- NVIDIA Driver版本> 550
+## 构建当前代码
 
-## 构建和运行Docker镜像或者从DokerHub拉取
+在填写 `config.yaml` 凭据之前，从干净的公开代码目录构建。
+Dockerfile 复制当前目录及配置，不会另行从 GitHub 克隆不同版本。
+`.dockerignore` 排除本地缓存、输出和私人笔记，但不会清除已修改配置里的凭据。
 
 ```bash
-# 构建Docker镜像
 docker build -t videolingo .
-
-# 运行Docker容器
-docker run -d -p 8501:8501 --gpus all videolingo
 ```
 
-### 从DockerHub拉取
-
-您可以直接从DockerHub拉取预构建的VideoLingo镜像:
+默认使用 `nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04`、Python 3.13 和 PyTorch
+cu128。匹配的 CUDA 12.6 方案：
 
 ```bash
-docker pull rqlove/videolingo:latest
+docker build --build-arg CUDA_VERSION=12.6.3 -t videolingo:cu126 .
 ```
 
-拉取完成后,使用以下命令运行容器:
+这会同时选择 `12.6.3-cudnn-runtime-ubuntu24.04` 和 cu126。构建时不需要 GPU：
+`setup_env.py` 把明确的构建选择传给与主机共用的 `installer.py`。
+其他 CUDA_VERSION 值会被拒绝。
+
+两个方案均采用 Torch/torchaudio 2.8.0、torchvision 0.23.0 和相同的
+`requirements.txt` 约束，包括 WhisperX 3.8、TorchCodec 0.7、Transformers 4、
+Hub <1。Demucs 4.1 使用正常依赖解析。Ubuntu 提供 FFmpeg 及共享库、Noto CJK
+字体和图像运行库。
+
+## 启动并保留数据
 
 ```bash
-docker run -d -p 8501:8501 --gpus all rqlove/videolingo:latest
+docker run -d --name videolingo --gpus all -p 127.0.0.1:8501:8501 -v videolingo-output:/app/output -v videolingo-history:/app/history -v videolingo-models:/app/_model_cache -v videolingo-cache:/app/.cache -v videolingo-hf:/root/.cache/huggingface videolingo
 ```
 
-注意: 
-- `-d` 参数使容器在后台运行
-- `-p 8501:8501` 将容器的8501端口映射到主机的8501端口
-- `--gpus all` 启用所有可用的GPU支持
-- 确保使用完整的镜像名称 `rqlove/videolingo:latest`
+打开 `http://localhost:8501`。命名卷让输出、历史和模型/识别缓存在替换容器后保留。
+如需保留配置和术语表，另行挂载本地 `config.yaml` 和 `custom_terms.xlsx`。
+挂载前文件必须存在，侧栏修改配置需要写权限。使用 cu126 时，将镜像名替换为
+`videolingo:cu126`。
 
-## 模型
+模型在处理时按需下载，不包含在构建镜像内。执行 `docker stop videolingo` 停止。
+上述端口仅监听本机，远程访问需要明确配置监听地址及访问控制。
 
-whisper 模型不包含在镜像中,会在容器首次运行时自动下载。如果您希望跳过自动下载过程,可以从以下链接下载模型权重:
+## 验证范围
 
-- [Google Drive链接](https://drive.google.com/file/d/10gPu6qqv92WbmIMo1iJCqQxhbd1ctyVw/view?usp=drive_link)
-- [百度网盘链接](https://pan.baidu.com/s/1hZjqSGVn3z_WSg41-6hCqA?pwd=2kgs)
-
-下载后,使用以下命令运行容器,将模型文件挂载到容器中:
-
-```bash
-docker run -d -p 8501:8501 --gpus all -v /path/to/your/model:/app/_model_cache rqlove/videolingo:latest
-```
-
-请注意将 `/path/to/your/model` 替换为您实际下载模型文件的本地路径。
-
-## 其他说明
-
-- 基础镜像: nvidia/cuda:12.4.1-devel-ubuntu20.04
-- Python版本: 3.10
-- 预装软件: git, curl, sudo, ffmpeg, fonts-noto等
-- PyTorch版本: 2.8.0 (CUDA 12.x 编译目标)
-  > ⚠️ 安装脚本通过 `nvidia-smi` 检测驱动的 CUDA 版本，自动选择最佳轮子（RTX 50 系列 / Blackwell 显卡使用 cu129，旧显卡使用 cu128 或 cu126）。使用 cu12x 而非 cu130/cu131 的原因是 ctranslate2（whisperX 的核心依赖）仅为 CUDA 12 编译，需要 `cublas64_12.dll`，只有 cu12x 轮子才包含此文件。NVIDIA 驱动向后兼容，因此 CUDA 13.x 宿主机可以正常运行 cu12x 轮子。
-- 暴露端口: 8501 (Streamlit应用)
-
-如需更多详细信息,请参考Dockerfile。
-
+Dockerfile 在构建时执行共用安装检查和 `pip check`。源码检查不等于已经成功构建
+镜像或完成 GPU 处理。第三方预构建镜像不保证与当前代码的依赖一致。

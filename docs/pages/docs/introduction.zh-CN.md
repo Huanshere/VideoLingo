@@ -60,15 +60,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-> **注意:** 在 Windows 上使用 NVIDIA GPU 加速需要先完成以下步骤:
-> 1. 安装 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe) 或更高版本（12.8 / 13.x 均可，安装脚本会自动适配）
-> 2. 安装 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. 将 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加到系统环境变量 PATH 中
-> 4. 重启电脑
-
-> **注意:** Windows 和 macOS 用户建议通过包管理器（Chocolatey/Homebrew）安装 FFmpeg：
-> ```choco install ffmpeg```（Windows）或 ```brew install ffmpeg```（macOS）。
-> ⚠️ 不要使用 conda-forge 的 ffmpeg（缺少 libmp3lame 编码器），建议用系统包管理器安装完整版。
+先安装 [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 [FFmpeg](https://ffmpeg.org/download.html)，重开终端并确认可从 PATH 调用。FFmpeg 共享库及 NVIDIA 运行库要求见[安装指南](start.zh-CN.md#gpu-runtime)。
 
 1. 克隆仓库
 
@@ -77,22 +69,21 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. 安装依赖（需要 `python=3.10`）
+2. 创建 Python 3.13 环境并安装依赖
 
 ```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. 启动应用
 
 ```bash
-streamlit run st.py
+.venv\Scripts\python -m streamlit run st.py  # Windows
+.venv/bin/python -m streamlit run st.py     # macOS / Linux
 ```
 
 ### Docker
-还可以选择使用 Docker（要求 CUDA 12.4 和 NVIDIA Driver 版本 >550），详见[Docker文档](/docs/pages/docs/docker.zh-CN.md)：
+Linux NVIDIA 容器使用 Docker、兼容驱动和 NVIDIA Container Toolkit。镜像采用相同的 Python 3.13 安装流程，详见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)：
 
 ```bash
 docker build -t videolingo .
@@ -101,7 +92,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
-- 大模型默认使用 OpenRouter（`https://openrouter.ai/api/v1`）上的 DeepSeek V4 Flash（`deepseek/deepseek-v4-flash`），侧重结构化 JSON 翻译对齐任务的性价比和速度；如需更强能力，可在 OpenRouter 上选择其他模型。
+- 自行选择兼容 OpenAI Chat Completions、能返回结构化 JSON 的服务和模型，在侧栏配置 API 地址、密钥和模型。
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
 详细的安装、 API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
