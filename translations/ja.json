@@ -1,4 +1,11 @@
 {
+    "TTS Provider": "音声合成プロバイダー",
+    "Local service": "ローカルサービス",
+    "Custom provider": "カスタムサービス",
+    "Provider API Key": "プロバイダー API キー",
+    "Shared by all TTS methods under this provider.": "このプロバイダーの全音声合成方式で共用します。",
+    "Use this key for all methods": "このキーを全方式に使用",
+    "Existing methods use different keys. Editing this field replaces all keys for this provider.": "既存の方式で異なるキーが設定されています。編集するとこのプロバイダーの全キーを置き換えます。",
     "a. Download or Upload Video": "a. 動画のダウンロードまたはアップロード",
     "Delete and Reselect": "削除して再選択",
     "Enter YouTube link:": "YouTubeリンクを入力:",
