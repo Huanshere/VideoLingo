@@ -82,13 +82,7 @@ def test_plain_macos_cpu_versions_are_reused(monkeypatch):
     installer.install_torch(backend='cpu')
 
 
-@pytest.mark.parametrize('builds,backend,expected', [
-    (('cu128', 'cu128', 'cu128'), 'cu128', 0),
-    (('cu128', 'cu126', 'cu128'), 'auto', 1),
-    (('cpu', 'cpu', 'cpu'), 'cu128', 1),
-    (('', '', ''), 'cpu', 0),
-])
-def test_health_checks_build_family(monkeypatch, builds, backend, expected):
+def _requirement_versions(builds=('cpu', 'cpu', 'cpu')):
     from packaging.requirements import Requirement
     versions = {}
     for raw in installer.REQUIREMENTS.read_text(encoding='utf-8').splitlines():
@@ -98,12 +92,55 @@ def test_health_checks_build_family(monkeypatch, builds, backend, expected):
             versions[req.name] = lower[0] if lower else '1.0'
     for name, version, build in zip(('torch', 'torchaudio', 'torchvision'), ('2.8.0', '2.8.0', '0.23.0'), builds):
         versions[name] = version + ('+' + build if build else '')
+    return versions
+
+
+def _patch_health_environment(monkeypatch, versions, gpu=False):
     monkeypatch.setattr(installer, 'package_version', versions.get)
-    monkeypatch.setattr(installer, 'load_state', lambda: {})
-    monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: False)
+    monkeypatch.setattr(installer, 'load_state', lambda: {'requirements_hash': installer.requirements_hash()})
+    monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: gpu)
     monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin')
     monkeypatch.setattr(installer.shutil, 'which', lambda _: '/example/ffmpeg')
+
+
+@pytest.mark.parametrize('builds,backend,expected', [
+    (('cu128', 'cu128', 'cu128'), 'cu128', 0),
+    (('cu128', 'cu126', 'cu128'), 'auto', 1),
+    (('cpu', 'cpu', 'cpu'), 'cu128', 1),
+    (('', '', ''), 'cpu', 0),
+])
+def test_health_checks_build_family(monkeypatch, builds, backend, expected):
+    _patch_health_environment(monkeypatch, _requirement_versions(builds), gpu=False)
     assert installer.health_check(quiet=True, check_state=False, torch_backend=backend) == expected
+
+
+@pytest.mark.parametrize('builds,expected', [
+    (('cu128', 'cu128', 'cu128'), 0),
+    (('cu126', 'cu126', 'cu126'), 0),
+    (('cu118', 'cu118', 'cu118'), 1),
+    (('cu129', 'cu129', 'cu129'), 1),
+    (('cpu', 'cpu', 'cpu'), 1),
+])
+def test_health_check_auto_gpu_accepts_only_cu126_cu128(monkeypatch, builds, expected):
+    _patch_health_environment(monkeypatch, _requirement_versions(builds), gpu=True)
+    assert installer.health_check(quiet=True, check_state=False, torch_backend='auto') == expected
+
+
+def test_torchcodec_probe_failure_is_an_error(monkeypatch):
+    _patch_health_environment(monkeypatch, _requirement_versions(('', '', '')), gpu=False)
+    monkeypatch.setattr(
+        installer.subprocess,
+        'run',
+        lambda *a, **k: subprocess.CompletedProcess(a, 1, stdout='', stderr='incompatible libavcodec'),
+    )
+    assert installer.health_check(quiet=True, check_state=True, torch_backend='cpu') == 1
+
+
+def test_noninteractive_setup_entry_points_pass_yes():
+    dockerfile = (ROOT / 'Dockerfile').read_text(encoding='utf-8')
+    assert 'setup_env.py --yes' in dockerfile
+    notebook = (ROOT / 'VideoLingo_colab.ipynb').read_text(encoding='utf-8')
+    assert "setup_env.py', '--yes'" in notebook or 'setup_env.py", "--yes"' in notebook
 
 
 def test_setup_forwards_backend_without_installing(monkeypatch):

@@ -20,7 +20,7 @@ RUN case "$CUDA_VERSION" in \
         12.6.3) backend=cu126 ;; \
         *) echo "Use CUDA_VERSION=12.8.1 or 12.6.3" >&2; exit 1 ;; \
     esac \
-    && python3 setup_env.py --path /opt/videolingo --torch-backend "$backend" --require-demucs \
+    && python3 setup_env.py --yes --path /opt/videolingo --torch-backend "$backend" --require-demucs \
     && /opt/videolingo/bin/python -m pip check
 
 ENV PATH="/opt/videolingo/bin:${PATH}"

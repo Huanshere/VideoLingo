@@ -397,12 +397,13 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         warnings.append("Noto CJK fonts are not installed; CJK subtitle burn-in may fail")
     if not shutil.which("ffmpeg"):
         errors.append("ffmpeg not found in PATH")
-    if torch_backend != "cpu" and detect_nvidia_gpu() and not all("+cu12" in (package_version(name) or "") for name in ("torch", "torchaudio", "torchvision")):
-        errors.append("NVIDIA GPU detected but the matched CUDA 12 PyTorch wheels are missing; rerun installer.py")
     builds = {(package_version(name) or "").partition("+")[2] or "cpu" for name in ("torch", "torchaudio", "torchvision")}
     if len(builds) != 1:
         errors.append("torch, torchaudio and torchvision must use the same CPU/CUDA build")
-    if torch_backend != "auto" and builds != {torch_backend}:
+    if torch_backend == "auto":
+        if detect_nvidia_gpu() and not builds <= {"cu126", "cu128"}:
+            errors.append("NVIDIA GPU detected but the matched CUDA 12 PyTorch wheels are missing; rerun installer.py")
+    elif builds != {torch_backend}:
         errors.append(f"PyTorch build does not match requested {torch_backend}")
     if check_state and not errors:
         try:
