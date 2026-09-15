@@ -1,7 +1,11 @@
 """Regression checks for staged installation and shared audio decoding."""
+import ast
 import importlib.util
 import io
+import json
 from pathlib import Path
+import re
+import shlex
 import subprocess
 import wave
 
@@ -122,9 +126,13 @@ def test_health_checks_build_family(monkeypatch, builds, backend, expected):
     (('cu126', 'cu128', 'cu126'), 1),
     (('cpu', 'cpu', 'cpu'), 1),
 ])
-def test_health_check_auto_gpu_accepts_only_cu126_cu128(monkeypatch, builds, expected):
+def test_health_check_auto_gpu_accepts_only_cu126_cu128(monkeypatch, capsys, builds, expected):
     _patch_health_environment(monkeypatch, _requirement_versions(builds), gpu=True)
-    assert installer.health_check(quiet=True, check_state=False, torch_backend='auto') == expected
+    assert installer.health_check(check_state=False, torch_backend='auto') == expected
+    output = capsys.readouterr().out
+    if not set(builds) <= {'cu126', 'cu128'}:
+        assert 'auto accepts only cu126/cu128' in output
+        assert f"detected builds: {', '.join(sorted(set(builds)))}" in output
 
 
 @pytest.mark.parametrize('returncode', [0, 1])
@@ -164,11 +172,95 @@ def test_torchcodec_probe_exception_is_an_error(monkeypatch, capsys, error):
     assert str(error) in output
 
 
-def test_noninteractive_setup_entry_points_pass_yes():
-    dockerfile = (ROOT / 'Dockerfile').read_text(encoding='utf-8')
-    assert 'setup_env.py --yes' in dockerfile
-    notebook = (ROOT / 'VideoLingo_colab.ipynb').read_text(encoding='utf-8')
-    assert "setup_env.py', '--yes'" in notebook or 'setup_env.py", "--yes"' in notebook
+def _docker_setup_args(dockerfile):
+    # Join Docker continuations, then tokenize only RUN instructions. Shell
+    # comments and adjacent commands must not supply the missing argument.
+    dockerfile = '\n'.join(line for line in dockerfile.splitlines() if not line.lstrip().startswith('#'))
+    dockerfile = dockerfile.replace('\\\n', ' ')
+    calls = []
+    for shell in re.findall(r'^\s*RUN\s+(.+)$', dockerfile, flags=re.MULTILINE | re.IGNORECASE):
+        lexer = shlex.shlex(shell, posix=True, punctuation_chars=';&|')
+        lexer.whitespace_split = True
+        command = []
+        for token in [*lexer, ';']:
+            if set(token) <= set(';&|'):
+                if len(command) >= 2 and Path(command[0]).name in {'python', 'python3'} and command[1] == 'setup_env.py':
+                    calls.append(command[2:])
+                command = []
+            else:
+                command.append(token)
+    return calls
+
+
+def _colab_setup_args(notebook):
+    calls = []
+    for cell in json.loads(notebook)['cells']:
+        if cell['cell_type'] != 'code':
+            continue
+        source = ''.join(cell['source'])
+        # The clone cell uses IPython shell/magic commands.
+        source = '\n'.join('pass' if line.lstrip().startswith(('!', '%')) else line for line in source.splitlines())
+        for node in ast.walk(ast.parse(source)):
+            if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                    and isinstance(node.func.value, ast.Name) and node.func.value.id == 'subprocess'
+                    and node.func.attr == 'run' and node.args and isinstance(node.args[0], (ast.List, ast.Tuple))):
+                continue
+            args = node.args[0].elts
+            if len(args) >= 2 and isinstance(args[1], ast.Constant) and args[1].value == 'setup_env.py':
+                calls.append([arg.value for arg in args[2:] if isinstance(arg, ast.Constant)])
+    return calls
+
+
+@pytest.mark.parametrize('filename,extract', [
+    ('Dockerfile', _docker_setup_args),
+    ('VideoLingo_colab.ipynb', _colab_setup_args),
+])
+def test_noninteractive_setup_entry_points_pass_yes(filename, extract):
+    calls = extract((ROOT / filename).read_text(encoding='utf-8'))
+    assert calls, 'No setup_env.py invocation found'
+    assert all('--yes' in args for args in calls)
+
+
+def test_setup_argument_checks_ignore_decoys():
+    dockerfile = '# RUN python3 setup_env.py --yes\nRUN python3 setup_env.py && echo --yes # --yes\n'
+    assert _docker_setup_args(dockerfile) == [[]]
+    notebook = json.dumps({'cells': [
+        {'cell_type': 'markdown', 'source': ["subprocess.run([sys.executable, 'setup_env.py', '--yes'])"]},
+        {'cell_type': 'code', 'source': [
+            "# subprocess.run([sys.executable, 'setup_env.py', '--yes'])\n",
+            "\"subprocess.run([sys.executable, 'setup_env.py', '--yes'])\"\n",
+            "subprocess.run([sys.executable, 'setup_env.py'])\n",
+        ], 'outputs': [{'text': ["setup_env.py', '--yes'"]}]},
+    ]})
+    assert _colab_setup_args(notebook) == [[]]
+
+
+@pytest.mark.parametrize('yes', [True, False])
+def test_setup_recreation_confirmation(monkeypatch, tmp_path, yes):
+    setup_spec = importlib.util.spec_from_file_location('setup_env', ROOT / 'setup_env.py')
+    setup = importlib.util.module_from_spec(setup_spec)
+    setup_spec.loader.exec_module(setup)
+    args = setup.build_parser().parse_args(['--yes'] if yes else [])
+    checks = iter([False, True])
+    monkeypatch.setattr(setup, 'python_version_ok', lambda _: next(checks))
+    removed, commands, prompts = [], [], []
+    monkeypatch.setattr(setup.shutil, 'rmtree', lambda path, **kw: removed.append(path))
+    monkeypatch.setattr(setup, 'run', lambda cmd, **kw: commands.append(cmd))
+    def answer(prompt):
+        assert not yes, '--yes must not prompt'
+        prompts.append(prompt)
+        return 'n'
+    monkeypatch.setattr('builtins.input', answer)
+    if yes:
+        assert setup.create_venv(tmp_path, yes=args.yes) == setup.venv_python(tmp_path)
+        assert removed == [tmp_path]
+        assert commands == [['uv', 'venv', '--seed', '--python', setup.PYTHON_VERSION, str(tmp_path)]]
+        assert not prompts
+    else:
+        with pytest.raises(SystemExit, match='Cancelled'):
+            setup.create_venv(tmp_path, yes=args.yes)
+        assert len(prompts) == 1
+        assert not removed and not commands
 
 
 def test_setup_forwards_backend_without_installing(monkeypatch):

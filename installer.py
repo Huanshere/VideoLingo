@@ -402,7 +402,8 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         errors.append("torch, torchaudio and torchvision must use the same CPU/CUDA build")
     if torch_backend == "auto":
         if detect_nvidia_gpu() and not builds <= {"cu126", "cu128"}:
-            errors.append("NVIDIA GPU detected but the matched CUDA 12 PyTorch wheels are missing; rerun installer.py")
+            errors.append("NVIDIA GPU detected: auto accepts only cu126/cu128 PyTorch builds; "
+                          f"detected builds: {', '.join(sorted(builds))}. Rerun installer.py")
     elif builds != {torch_backend}:
         errors.append(f"PyTorch build does not match requested {torch_backend}")
     if check_state and not errors:
