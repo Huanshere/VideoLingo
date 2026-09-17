@@ -130,7 +130,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
 - LLM：自行選擇相容 OpenAI Chat Completions、能回傳流程所需結構化 JSON 的服務與模型，在側欄設定 API 網址、金鑰和模型。
 - 語音辨識：本地執行 WhisperX 或使用 ElevenLabs API。
-- TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自訂適配器。
+- TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS、ModelBest VoxCPM，以及 `core/tts_backend/custom_tts.py` 中的自訂適配器。
 
 詳細安裝、API 配置和批處理模式說明，請參閱文檔：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 

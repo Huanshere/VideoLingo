@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
 import wave
 
@@ -293,6 +294,125 @@ def test_homepage():
     from streamlit.testing.v1 import AppTest
     app = AppTest.from_file(ROOT / 'st.py', default_timeout=60).run()
     assert not app.exception
+
+
+def test_voxcpm_mode_selector_shows_three_distinct_choices(tmp_path, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+    import yaml
+
+    config = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
+    config["tts_method"] = "voxcpm"
+    config["display_language"] = "en"
+    config["voxcpm"]["api_key"] = ""
+    config["voxcpm"].pop("model_id", None)
+    config["voxcpm"]["mode"] = "clone"
+    config["voxcpm"]["prompt_text"] = ""
+    (tmp_path / "config.yaml").write_text(
+        yaml.safe_dump(config, allow_unicode=True), encoding="utf-8"
+    )
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "logo.png").write_bytes((ROOT / "docs" / "logo.png").read_bytes())
+    shutil.copytree(ROOT / "translations", tmp_path / "translations")
+    monkeypatch.chdir(tmp_path)
+
+    app = AppTest.from_file(ROOT / "st.py", default_timeout=60).run()
+    assert not app.exception
+    mode = next(item for item in app.segmented_control if item.label == "VoxCPM Mode")
+    model_id = next(item for item in app.text_input if item.label == "VoxCPM Model ID")
+    assert model_id.value == "VoxCPM2"
+    assert mode.options == ["Default Voice", "Voice Clone", "High Fidelity"]
+    assert mode.value == "clone"
+    assert any(item.label == "Reference audio" for item in app.file_uploader)
+    assert not any(item.label == "Matching transcript" for item in app.text_area)
+
+    mode.set_value("high_fidelity").run()
+    assert not app.exception
+    assert any(item.label == "Reference audio" for item in app.file_uploader)
+    assert any(item.label == "Matching transcript" for item in app.text_area)
+
+    mode = next(item for item in app.segmented_control if item.label == "VoxCPM Mode")
+    mode.set_value("default").run()
+    assert not app.exception
+    assert not any(item.label == "Reference audio" for item in app.file_uploader)
+    assert not any(item.label == "Matching transcript" for item in app.text_area)
+
+
+def test_voxcpm_clear_reference_resets_transcript(tmp_path, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+    import yaml
+
+    config = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
+    config["tts_method"] = "voxcpm"
+    config["display_language"] = "en"
+    config["voxcpm"]["mode"] = "high_fidelity"
+    config["voxcpm"]["prompt_text"] = "Old transcript"
+    (tmp_path / "config.yaml").write_text(
+        yaml.safe_dump(config, allow_unicode=True), encoding="utf-8"
+    )
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "logo.png").write_bytes((ROOT / "docs" / "logo.png").read_bytes())
+    shutil.copytree(ROOT / "translations", tmp_path / "translations")
+    reference = tmp_path / "runtime" / "voxcpm" / "reference.wav"
+    uploaded_audio = io.BytesIO()
+    with wave.open(uploaded_audio, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(16000)
+        wav_file.writeframes(b"\x00\x00" * 160)
+    monkeypatch.chdir(tmp_path)
+
+    app = AppTest.from_file(ROOT / "st.py", default_timeout=60).run()
+    transcript = next(
+        item for item in app.text_area if item.label == "Matching transcript"
+    )
+    assert transcript.value == "Old transcript"
+    uploader = next(item for item in app.file_uploader if item.label == "Reference audio")
+    uploader.upload("reference.wav", uploaded_audio.getvalue(), "audio/wav").run()
+
+    assert not app.exception
+    assert reference.exists()
+    transcript = next(
+        item for item in app.text_area if item.label == "Matching transcript"
+    )
+    assert transcript.value == ""
+    clear = next(item for item in app.button if item.label == "Clear reference audio")
+    clear.click().run()
+
+    assert not app.exception
+    assert not reference.exists()
+    transcript = next(
+        item for item in app.text_area if item.label == "Matching transcript"
+    )
+    assert transcript.value == ""
+
+
+def test_reference_audio_module_import_does_not_require_demucs(monkeypatch):
+    import builtins
+    import importlib
+    import sys
+
+    real_import = builtins.__import__
+
+    def guarded_import(name, *args, **kwargs):
+        if name == "demucs" or name.startswith("demucs."):
+            raise ImportError("synthetic missing optional dependency")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded_import)
+    sys.modules.pop("core._9_refer_audio", None)
+    module = importlib.import_module("core._9_refer_audio")
+    assert callable(module.extract_refer_audio_main)
+
+
+def test_reference_audio_uses_raw_track_when_demucs_is_disabled(monkeypatch, tmp_path):
+    from core import _9_refer_audio as references
+
+    raw = tmp_path / "raw.mp3"
+    raw.write_bytes(b"audio")
+    monkeypatch.setattr(references, "_RAW_AUDIO_FILE", str(raw))
+    monkeypatch.setattr(references, "_VOCAL_AUDIO_FILE", str(tmp_path / "vocal.mp3"))
+    monkeypatch.setattr(references, "load_key", lambda key: False)
+    assert references._reference_source_audio() == str(raw)
 
 
 def test_fractional_tts_durations(monkeypatch):

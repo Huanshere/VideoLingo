@@ -32,28 +32,28 @@ def _inject_file_uploader_i18n():
         f"""
         <style>
         /* Title line */
-        div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(1) {{
+        .st-key-main_media_upload div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(1) {{
             font-size: 0 !important;
             line-height: 1.4;
         }}
-        div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(1)::before {{
+        .st-key-main_media_upload div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(1)::before {{
             content: "{drag_text}";
             font-size: 1rem;
         }}
         /* Sub line (limit + accepted formats) */
-        div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(2) {{
+        .st-key-main_media_upload div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(2) {{
             font-size: 0 !important;
             line-height: 1.4;
         }}
-        div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(2)::before {{
+        .st-key-main_media_upload div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(2)::before {{
             content: "{limit_text}";
             font-size: 0.8rem;
         }}
         /* Browse files button */
-        div[data-testid="stFileUploader"] button[kind="secondary"] {{
+        .st-key-main_media_upload div[data-testid="stFileUploader"] button[kind="secondary"] {{
             font-size: 0 !important;
         }}
-        div[data-testid="stFileUploader"] button[kind="secondary"]::before {{
+        .st-key-main_media_upload div[data-testid="stFileUploader"] button[kind="secondary"]::before {{
             content: "{browse_text}";
             font-size: 0.875rem;
         }}
@@ -112,7 +112,11 @@ def download_video_section():
                 st.rerun()
 
         _inject_file_uploader_i18n()
-        uploaded_file = st.file_uploader(t("Upload local media file"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
+        uploaded_file = st.file_uploader(
+            t("Upload local media file"),
+            type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"),
+            key="main_media_upload",
+        )
         if uploaded_file:
             upload_id = f"{uploaded_file.name}:{uploaded_file.size}"
             if st.session_state.get("_processed_upload_id") == upload_id:

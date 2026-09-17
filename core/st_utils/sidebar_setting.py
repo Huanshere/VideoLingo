@@ -1,14 +1,106 @@
-import streamlit as st
+import hashlib
+
 import requests
+import streamlit as st
+
 from translations.translations import translate as t
+from core.tts_backend.voxcpm_tts import (
+    MANUAL_REFERENCE_AUDIO_PATH,
+    save_voxcpm_reference_audio,
+)
 from core.utils import *
 
 
-def config_input(label, key, help=None, placeholder=None):
+_MISSING = object()
+
+
+def _css_text(value):
+    return str(value).replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _inject_voxcpm_styles():
+    browse_text = _css_text(t("Upload attachment"))
+    st.markdown(
+        f"""
+        <style>
+        .st-key-voxcpm_voice_settings {{
+            border-top: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+            margin-top: 0.75rem;
+            padding-top: 0.85rem;
+        }}
+        .st-key-voxcpm_mode_selector [data-testid="stSegmentedControl"] {{
+            width: 100%;
+        }}
+        .st-key-voxcpm_mode_selector [data-testid="stSegmentedControl"] button {{
+            min-height: 2.5rem;
+            flex: 1 1 0;
+        }}
+        .st-key-voxcpm_mode_selector [role="radio"][aria-checked="true"] {{
+            color: var(--text-color) !important;
+            background: var(--background-color) !important;
+            box-shadow: inset 0 -2px 0 var(--primary-color);
+        }}
+        .st-key-voxcpm_reference_upload {{
+            margin-top: -0.3rem;
+        }}
+        .st-key-voxcpm_reference_upload [data-testid="stFileUploaderDropzone"] {{
+            min-height: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }}
+        .st-key-voxcpm_reference_upload div[data-testid="stFileUploaderDropzoneInstructions"] {{
+            display: none !important;
+        }}
+        .st-key-voxcpm_reference_upload div[data-testid="stFileUploader"] button[kind="secondary"] {{
+            width: 100%;
+            min-height: 2.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            font-size: 0 !important;
+        }}
+        .st-key-voxcpm_reference_upload div[data-testid="stFileUploader"] button[kind="secondary"] > div {{
+            display: none !important;
+        }}
+        .st-key-voxcpm_reference_upload div[data-testid="stFileUploader"] button[kind="secondary"]::before {{
+            content: "{browse_text}";
+            font-size: 0.875rem;
+        }}
+        .st-key-voxcpm_reference_upload div[data-testid="stFileUploader"] button[kind="secondary"]::after {{
+            content: "upload";
+            font-family: "Material Symbols Rounded";
+            font-size: 1.05rem;
+            font-weight: 400;
+            line-height: 1;
+        }}
+        [class*="st-key-voxcpm_reference_transcript_"] {{
+            margin-top: -0.35rem;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def config_input(label, key, help=None, placeholder=None, input_type="default", default=_MISSING):
     """Generic config input handler"""
-    val = st.text_input(label, value=load_key(key), help=help, placeholder=placeholder)
-    if val != load_key(key):
-        update_key(key, val)
+    current = load_key(key) if default is _MISSING else load_key_or(key, default)
+    val = st.text_input(
+        label,
+        value=current,
+        help=help,
+        placeholder=placeholder,
+        type=input_type,
+    )
+    if val != current:
+        if default is _MISSING:
+            update_key(key, val)
+        else:
+            set_key(key, val)
     return val
 
 
@@ -47,7 +139,15 @@ def _search_models(search_term, **kwargs):
 def page_setting():
     # Widen the sidebar slightly to accommodate the model searchbox
     st.markdown(
-        """<style>[data-testid="stSidebar"] {min-width: 420px; max-width: 420px;}</style>""",
+        """
+        <style>
+        [data-testid="stSidebar"] {
+            width: min(420px, 100vw) !important;
+            min-width: min(420px, 100vw) !important;
+            max-width: 420px !important;
+        }
+        </style>
+        """,
         unsafe_allow_html=True,
     )
 
@@ -244,6 +344,7 @@ def page_setting():
             "custom_tts",
             "sf_cosyvoice2",
             "f5tts",
+            "voxcpm",
         ]
         tts_method_labels = {
             "azure_tts": t("Azure TTS"),
@@ -255,6 +356,7 @@ def page_setting():
             "custom_tts": t("Custom TTS"),
             "sf_cosyvoice2": t("SiliconFlow CosyVoice2"),
             "f5tts": t("F5-TTS"),
+            "voxcpm": t("ModelBest VoxCPM"),
         }
         select_tts = st.selectbox(
             t("TTS Method"),
@@ -341,6 +443,143 @@ def page_setting():
 
         elif select_tts == "f5tts":
             config_input(t("302ai API"), "f5tts.302_api")
+
+        elif select_tts == "voxcpm":
+            _inject_voxcpm_styles()
+
+            with st.container(key="voxcpm_service_settings"):
+                st.markdown(f"**{t('VoxCPM Service Settings')}**")
+                config_input(
+                    t("VoxCPM API Key"),
+                    "voxcpm.api_key",
+                    input_type="password",
+                    default="",
+                )
+                config_input(
+                    t("VoxCPM Model ID"),
+                    "voxcpm.model_id",
+                    default="VoxCPM2",
+                )
+                config_input(
+                    t("VoxCPM Base URL"),
+                    "voxcpm.base_url",
+                    default="https://api.modelbest.cn/v1",
+                )
+
+            mode_options = ["default", "clone", "high_fidelity"]
+            current_mode = load_key_or("voxcpm.mode", None)
+            if current_mode not in mode_options:
+                legacy_high_fidelity = load_key_or("voxcpm.high_fidelity", None)
+                if legacy_high_fidelity is True:
+                    current_mode = "high_fidelity"
+                elif legacy_high_fidelity is False:
+                    current_mode = "default"
+                else:
+                    current_mode = "clone"
+            mode_labels = {
+                "default": t("VoxCPM Default Voice"),
+                "clone": t("VoxCPM Voice Clone"),
+                "high_fidelity": t("VoxCPM High-fidelity Clone"),
+            }
+            mode_captions = {
+                "default": t("VoxCPM Default Voice Caption"),
+                "clone": t("VoxCPM Voice Clone Caption"),
+                "high_fidelity": t("VoxCPM High-fidelity Clone Caption"),
+            }
+            with st.container(key="voxcpm_voice_settings"):
+                st.markdown(f"**{t('VoxCPM Voice Settings')}**")
+                selected_mode = st.segmented_control(
+                    t("VoxCPM Mode"),
+                    options=mode_options,
+                    default=current_mode,
+                    format_func=lambda mode: mode_labels[mode],
+                    help=t("VoxCPM Mode Help"),
+                    width="stretch",
+                    key="voxcpm_mode_selector",
+                    label_visibility="collapsed",
+                )
+                if selected_mode:
+                    st.caption(mode_captions[selected_mode])
+            if selected_mode and selected_mode != current_mode:
+                set_key("voxcpm.mode", selected_mode)
+                st.rerun()
+
+            if selected_mode != "default":
+                reference_path = MANUAL_REFERENCE_AUDIO_PATH
+                previous_reference_id = (
+                    hashlib.sha256(reference_path.read_bytes()).hexdigest()
+                    if reference_path.exists()
+                    else None
+                )
+                uploader_version = st.session_state.get(
+                    "_voxcpm_reference_uploader_version", 0
+                )
+                prompt_version = st.session_state.get("_voxcpm_prompt_version", 0)
+                with st.container(key="voxcpm_reference_upload"):
+                    uploaded_reference = st.file_uploader(
+                        t("VoxCPM Reference Audio"),
+                        type=load_key("allowed_audio_formats"),
+                        key=f"voxcpm_reference_audio_upload_{uploader_version}",
+                        help=t("VoxCPM Reference Audio Help"),
+                        max_upload_size=50,
+                    )
+                if uploaded_reference is not None:
+                    uploaded_bytes = uploaded_reference.getvalue()
+                    upload_id = hashlib.sha256(uploaded_bytes).hexdigest()
+                    if st.session_state.get("_voxcpm_reference_upload_id") != upload_id:
+                        try:
+                            save_voxcpm_reference_audio(uploaded_bytes)
+                        except ValueError as exc:
+                            st.error(
+                                t("VoxCPM Reference Audio Error").replace(
+                                    "{error}", str(exc)
+                                )
+                            )
+                        else:
+                            saved_reference_id = hashlib.sha256(
+                                reference_path.read_bytes()
+                            ).hexdigest()
+                            if saved_reference_id != previous_reference_id:
+                                set_key("voxcpm.prompt_text", "")
+                                prompt_version += 1
+                                st.session_state["_voxcpm_prompt_version"] = prompt_version
+                            st.session_state["_voxcpm_reference_upload_id"] = upload_id
+                            st.success(t("VoxCPM Reference Audio Saved"))
+
+                if reference_path.exists():
+                    st.caption(t("VoxCPM Reference Audio Ready"))
+                    st.audio(str(reference_path), format="audio/wav")
+                    if st.button(
+                        t("Clear VoxCPM Reference Audio"),
+                        key="clear_voxcpm_reference_audio",
+                        icon=":material/delete:",
+                        width="stretch",
+                    ):
+                        reference_path.unlink(missing_ok=True)
+                        set_key("voxcpm.prompt_text", "")
+                        st.session_state.pop("_voxcpm_reference_upload_id", None)
+                        st.session_state["_voxcpm_reference_uploader_version"] = (
+                            uploader_version + 1
+                        )
+                        st.session_state["_voxcpm_prompt_version"] = prompt_version + 1
+                        st.rerun()
+                else:
+                    st.caption(t("VoxCPM Automatic Reference Audio"))
+
+                if selected_mode == "high_fidelity":
+                    current_prompt_text = load_key_or("voxcpm.prompt_text", "") or ""
+                    prompt_text = st.text_area(
+                        t("VoxCPM Reference Transcript"),
+                        value=current_prompt_text,
+                        height=96,
+                        placeholder=t("VoxCPM Reference Transcript Placeholder"),
+                        help=t("VoxCPM Reference Transcript Help"),
+                        key=f"voxcpm_reference_transcript_{prompt_version}",
+                    )
+                    if prompt_text != current_prompt_text:
+                        set_key("voxcpm.prompt_text", prompt_text)
+                    if reference_path.exists() and not prompt_text.strip():
+                        st.warning(t("VoxCPM Reference Transcript Required"))
 
 
 def check_api():
