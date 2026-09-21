@@ -12,20 +12,20 @@
 
 ## 🌟 Descripción General ([¡Prueba VL Gratis!](https://videolingo.io))
 
-VideoLingo es una herramienta todo en uno para traducción, localización y doblaje de videos, diseñada para generar subtítulos de calidad Netflix. Elimina las traducciones mecánicas y los subtítulos de múltiples líneas mientras agrega doblaje de alta calidad, permitiendo compartir conocimiento globalmente a través de las barreras del idioma.
+VideoLingo reúne reconocimiento de voz, traducción, segmentación de subtítulos y doblaje en Streamlit. Genera archivos de subtítulos y, opcionalmente, videos subtitulados o doblados. La calidad depende del audio original, el idioma y los modelos elegidos.
 
 Características principales:
 - 🎥 Descarga de videos de YouTube mediante yt-dlp
 
-- **🎙️ Reconocimiento de subtítulos a nivel de palabra y baja ilusión con WhisperX**
+- Reconocimiento y alineación de voz a nivel de palabra con WhisperX
 
 - **📝 Segmentación de subtítulos impulsada por NLP e IA**
 
 - **📚 Terminología personalizada + generada por IA para una traducción coherente**
 
-- **🔄 Proceso de 3 pasos Traducción-Reflexión-Adaptación para calidad cinematográfica**
+- Traducción directa con reflexión y reformulación natural opcionales
 
-- **✅ Solo subtítulos de una línea, estándar Netflix**
+- Segmentación de subtítulos con límites de longitud configurables
 
 - **🗣️ Doblaje con GPT-SoVITS, Azure, OpenAI y más**
 
@@ -39,7 +39,7 @@ Características principales:
 
 - ⏯️ Control de tareas — pausa, reanuda o detén el procesamiento en cualquier paso
 
-Diferencia con proyectos similares: **Solo subtítulos de una línea, calidad superior de traducción, experiencia de doblaje perfecta**
+El proyecto integra transcripción, traducción, composición de subtítulos y doblaje.
 
 ## 🎥 Demo
 
@@ -75,28 +75,26 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 Inglés 🤩 | 🇷🇺 Ruso 😊 | 🇫🇷 Francés 🤩 | 🇩🇪 Alemán 🤩 | 🇮🇹 Italiano 🤩 | 🇪🇸 Español 🤩 | 🇯🇵 Japonés 😐 | 🇨🇳 Chino* 😊
 
-> *El chino utiliza un modelo whisper mejorado con puntuación por ahora...
+> *Para reconocer chino localmente, selecciona chino explícitamente para usar el modelo Belle Whisper con puntuación mejorada.
 
-**La traducción admite todos los idiomas, mientras que el idioma del doblaje depende del método TTS elegido.**
+Los idiomas de traducción dependen del LLM elegido; los de doblaje, del método TTS.
 
 ## Instalación
 
 ¿Tienes algún problema? Chatea con nuestro agente de IA en línea gratuito [**aquí**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) para ayudarte.
 
-> **Nota:** Para usuarios de Windows con GPU NVIDIA, sigue estos pasos antes de la instalación:
-> 1. Instala [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-> 2. Instala [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. Agrega `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` a tu PATH del sistema
-> 4. Reinicia tu computadora
+Instala [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) y [FFmpeg](https://ffmpeg.org/download.html). Abre de nuevo la terminal y comprueba `git --version`, `uv --version` y `ffmpeg -version`.
+
+Para NVIDIA, instala un controlador compatible con tu GPU. El instalador selecciona PyTorch `cu128` si `nvidia-smi` indica CUDA >=12.8, y `cu126` en caso contrario; sin NVIDIA, selecciona paquetes CPU. Selecciona paquetes Python, no instala el CUDA Toolkit del sistema. WhisperX en GPU también necesita las bibliotecas CUDA 12 cuBLAS y cuDNN 9 accesibles al proceso; consulta los [requisitos GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Nota:** Se requiere FFmpeg. Por favor, instálalo a través de gestores de paquetes:
-> - Windows: ```choco install ffmpeg``` (vía [Chocolatey](https://chocolatey.org/))
+> - Windows: elige una compilación con **bibliotecas compartidas** desde la [página de FFmpeg](https://ffmpeg.org/download.html) y añade su directorio `bin` al PATH.
 > - macOS: ```brew install ffmpeg``` (vía [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
-### Opcion A: Usando uv (Recomendado)
+### Instalación con uv
 
-[uv](https://docs.astral.sh/uv/) descarga automaticamente Python 3.10 y crea un entorno aislado. No necesitas instalar Python o Anaconda manualmente.
+uv descarga Python 3.13 y crea un entorno `.venv` aislado, sin Python preinstalado. La aplicación admite Python 3.10–3.13. Usa **bibliotecas compartidas FFmpeg 7** con TorchCodec 0.7; FFmpeg 8/9 solo no es compatible. Consulta la [compilación Windows verificada](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Clona el repositorio
 
@@ -105,10 +103,10 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. Configuracion con un solo comando (instala uv + Python 3.10 + todas las dependencias)
+2. Crea el entorno e instala las dependencias
 
 ```bash
-python setup_env.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. Inicia la aplicacion
@@ -118,40 +116,10 @@ python setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-O haz doble clic en `OneKeyStart_uv.bat` en Windows.
-
-### Opcion B: Usando Conda
-
-> ⚠️ **No recomendado.** Este método no se mantendrá en el futuro. Por favor usa uv (Opción A) arriba.
-
-<details>
-<summary>Haz clic para expandir los pasos de instalacion con Conda</summary>
-
-1. Clona el repositorio
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. Instala las dependencias (requiere `python=3.10`)
-
-```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
-```
-
-3. Inicia la aplicacion
-
-```bash
-streamlit run st.py
-```
-
-</details>
+O haz doble clic en `OneKeyStart.bat` en Windows. Prefiere `~/.venvs/videolingo` si existe y después el `.venv` del proyecto. Abre `http://localhost:8501` y configura la URL API, la clave y el modelo en la barra lateral.
 
 ### Docker
-Alternativamente, puedes usar Docker (requiere CUDA 12.4 y versión del controlador NVIDIA >550), consulta la [documentación de Docker](/docs/pages/docs/docker.en-US.md):
+Para un contenedor NVIDIA en Linux, instala Docker, un controlador compatible y [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). La imagen utiliza la misma instalación de Python 3.13 y las mismas dependencias, con CUDA 12.8.1/cu128 por defecto. Consulta la [documentación de Docker](/docs/pages/docs/docker.en-US.md) para la variante CUDA 12.6 y la persistencia de datos.
 
 ```bash
 docker build -t videolingo .
@@ -160,25 +128,23 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo admite formato de API similar a OpenAI y varias interfaces TTS:
-- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (ordenados por calidad; para opciones económicas prueba `gemini-3-flash` o `gpt-5.4-mini`)
-- WhisperX: Ejecuta whisperX localmente o usa la API de 302.ai
-- TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(¡Puedes modificar tu propio TTS en custom_tts.py!)
-
-> **Nota:** VideoLingo funciona con **[302.ai](https://gpt302.saaslink.net/C2oHR9)** - una clave API para todos los servicios (LLM, WhisperX, TTS). ¡O ejecútalo localmente con Ollama y Edge-TTS gratis, sin necesidad de API!
+- LLM: elige un proveedor compatible con OpenAI Chat Completions y un modelo capaz de devolver el JSON estructurado requerido. Configura la URL API, la clave y el modelo en la barra lateral.
+- Reconocimiento de voz: WhisperX local o la API ElevenLabs.
+- TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS y un adaptador personalizado en `core/tts_backend/custom_tts.py`.
 
 Para instrucciones detalladas de instalación, configuración de API y modo por lotes, consulta la documentación: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Limitaciones Actuales
 
-1. El rendimiento de transcripción de WhisperX puede verse afectado por el ruido de fondo del video, ya que utiliza el modelo wav2vac para la alineación. Para videos con música de fondo fuerte, activa la Mejora de Separación de Voz. Además, los subtítulos que terminan con números o caracteres especiales pueden truncarse temprano debido a la incapacidad de wav2vac para mapear caracteres numéricos (por ejemplo, "1") a su forma hablada ("uno").
+1. El ruido y los modelos de alineación de cada idioma afectan al reconocimiento y los tiempos de las palabras. La separación de voz puede ayudar. Revisa los subtítulos: números y símbolos pueden carecer de tiempos fiables.
 
-2. El uso de modelos más débiles puede provocar errores durante los procesos intermedios debido a los estrictos requisitos de formato JSON para las respuestas. Si ocurre este error, elimina la carpeta `output` y vuelve a intentarlo con un LLM diferente, de lo contrario, la ejecución repetida leerá la respuesta errónea anterior causando el mismo error.
+2. Las respuestas deben cumplir la estructura JSON requerida. Si fallan, revisa `output/gpt_log/error.json`. Se pueden reutilizar respuestas correctas en caché y etapas completadas; cambiar el modelo no las regenera todas. No empieces eliminando toda la salida.
 
-3. La función de doblaje puede no ser 100% perfecta debido a las diferencias en las velocidades de habla y entonación entre idiomas, así como al impacto del paso de traducción. Sin embargo, este proyecto ha implementado un extenso procesamiento de ingeniería para las velocidades de habla para garantizar los mejores resultados posibles de doblaje.
+3. La calidad y los tiempos del doblaje dependen de la traducción, el servicio TTS y la velocidad del habla. Ajustar la velocidad no garantiza naturalidad ni sincronización perfecta.
 
-4. **El reconocimiento de transcripción de video multilingüe solo mantendrá el idioma principal**. Esto se debe a que whisperX utiliza un modelo especializado para un solo idioma al alinear forzosamente los subtítulos a nivel de palabra, y eliminará los idiomas no reconocidos.
+4. WhisperX local utiliza un idioma de reconocimiento y alineación por segmento. El habla multilingüe no garantiza texto y tiempos precisos para todos los idiomas.
 
-5. **No se pueden doblar múltiples personajes por separado**, ya que la capacidad de distinción de hablantes de whisperX no es suficientemente confiable.
+5. El flujo de doblaje no asigna automáticamente una voz distinta a cada hablante.
 
 ## 📄 Licencia
 
@@ -198,4 +164,4 @@ Este proyecto está licenciado bajo la Licencia Apache 2.0. Un agradecimiento es
 
 ---
 
-<p align="center">Si encuentras útil VideoLingo, ¡por favor dame una ⭐️!</p> 
+<p align="center">Si encuentras útil VideoLingo, ¡por favor dame una ⭐️!</p>

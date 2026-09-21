@@ -76,12 +76,9 @@
     "Merge dubbing to the video": "Merge dubbing to the video",
     "Audio processing complete! 🎇": "Audio processing complete! 🎇",
     "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!",
-    "ASR Runtime": "ASR Runtime",
-    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key": "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key",
-    "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr.": "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr.",
-    "FunASR model": "FunASR model",
-    "FunASR device": "FunASR device",
-    "WhisperX 302ai API": "WhisperX 302ai API",
+    "WhisperX Runtime": "WhisperX Runtime",
+    "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key.": "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key.",
+    "The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue.": "The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue.",
     "=====NOTE2=====": "BELOW IS in install.py",
     "🚀 Starting Installation": "🚀 Starting Installation",
     "Do you need to auto-configure PyPI mirrors? (Recommended if you have difficulty accessing pypi.org)": "Do you need to auto-configure PyPI mirrors? (Recommended if you have difficulty accessing pypi.org)",
@@ -162,5 +159,9 @@
     "Suggested: 18-25. Below 18 cuts too finely and hurts translation; above 25 makes downstream subtitle splitting hard to align.": "Suggested: 18-25. Below 18 cuts too finely and hurts translation; above 25 makes downstream subtitle splitting hard to align.",
     "max_length (max characters per subtitle line)": "max_length (max characters per subtitle line)",
     "Suggested: 50-90. Lower if a subtitle line looks crowded on screen; raise if lines are split too aggressively.": "Suggested: 50-90. Lower if a subtitle line looks crowded on screen; raise if lines are split too aggressively.",
-    "Restore defaults ({split}/{length})": "Restore defaults ({split}/{length})"
+    "Restore defaults ({split}/{length})": "Restore defaults ({split}/{length})",
+    "ASR Runtime": "ASR Runtime",
+    "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr.": "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr.",
+    "FunASR model": "FunASR model",
+    "FunASR device": "FunASR device"
 }

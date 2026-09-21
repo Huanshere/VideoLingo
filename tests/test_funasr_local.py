@@ -215,6 +215,27 @@ class InstallerWiringTest(unittest.TestCase):
 
         self.assertTrue(args.with_funasr)
 
+    def test_health_check_retains_funasr_and_torch_backend_options(self):
+        installer = importlib.import_module("installer")
+        with patch.object(installer, "health_check", return_value=0) as check:
+            self.assertEqual(
+                installer.main(
+                    [
+                        "--check",
+                        "--with-funasr",
+                        "--torch-backend",
+                        "cpu",
+                    ]
+                ),
+                0,
+            )
+        check.assert_called_once_with(
+            quiet=False,
+            require_demucs=False,
+            require_funasr=True,
+            torch_backend="cpu",
+        )
+
     def test_optional_install_uses_bounded_funasr_requirement(self):
         installer = importlib.import_module("installer")
 
@@ -257,6 +278,58 @@ class InstallerWiringTest(unittest.TestCase):
             reloaded = importlib.reload(launch)
 
             self.assertEqual(reloaded.configured_asr_runtime(), "local")
+
+
+def test_sidebar_switches_funasr_without_losing_whisperx_auto(monkeypatch):
+    from streamlit.testing.v1 import AppTest
+    from core.st_utils import sidebar_setting as sidebar
+
+    with Path("config.yaml").open(encoding="utf-8") as config_file:
+        config = YAML(typ="safe").load(config_file)
+    config["whisper"].update(runtime="local", language="auto")
+    config["api"]["key"] = ""
+
+    def load_key(key):
+        value = config
+        for part in key.split("."):
+            value = value[part]
+        return value
+
+    def update_key(key, value):
+        target = config
+        parts = key.split(".")
+        for part in parts[:-1]:
+            target = target[part]
+        target[parts[-1]] = value
+
+    monkeypatch.setattr(sidebar, "load_key", load_key)
+    monkeypatch.setattr(sidebar, "update_key", update_key)
+    monkeypatch.setattr(sidebar, "t", lambda text: text)
+    app = AppTest.from_string(
+        "from core.st_utils.sidebar_setting import page_setting\npage_setting()",
+        default_timeout=30,
+    ).run()
+
+    def selectbox(label):
+        return next(box for box in app.selectbox if box.label == label)
+
+    assert not app.exception
+    assert config["whisper"]["language"] == "auto"
+    auto_label = selectbox("Recog Lang").value
+    selectbox("ASR Runtime").select("funasr").run()
+    assert not app.exception
+    assert config["whisper"]["runtime"] == "funasr"
+    assert config["whisper"]["language"] == "zh"
+    assert auto_label not in selectbox("Recog Lang").options
+    selectbox("FunASR device").select("cpu").run()
+    assert not app.exception
+    assert config["funasr"]["device"] == "cpu"
+    selectbox("ASR Runtime").select("local").run()
+    assert not app.exception
+    assert auto_label in selectbox("Recog Lang").options
+    selectbox("Recog Lang").select(auto_label).run()
+    assert not app.exception
+    assert config["whisper"]["language"] == "auto"
 
 
 if __name__ == "__main__":

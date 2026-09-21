@@ -8,6 +8,7 @@ from core.utils import *
 OUTPUT_DIR = "output"
 INPUT_MANIFEST = "input_manifest.json"
 GENERATED_AUDIO_NAMES = {"dub.mp3", "normalized_dub.wav"}
+GENERATED_VIDEO_NAMES = {"output_sub.mp4", "output_dub.mp4"}
 
 def sanitize_filename(filename):
     # Remove or replace illegal characters
@@ -38,6 +39,15 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
         'merge_output_format': 'mp4',
         'postprocessors': [{'key': 'FFmpegThumbnailsConvertor', 'format': 'jpg'}],
     }
+
+    # None/missing inherits yt-dlp's system/environment proxy discovery.
+    # An empty string explicitly disables proxies; a URL overrides discovery.
+    youtube = load_key("youtube")
+    proxy = youtube.get("proxy")
+    if proxy is not None:
+        if not isinstance(proxy, str):
+            raise ValueError('youtube.proxy must be null, an empty string, or a proxy URL')
+        ydl_opts['proxy'] = proxy.strip()
 
     # Read Youtube Cookie File
     cookies_path = load_key("youtube.cookies_path")
@@ -79,11 +89,15 @@ def _read_input_manifest(save_path='output'):
     return media_file.replace("\\", "/") if sys.platform.startswith('win') else media_file, media_type
 
 def find_video_files(save_path='output'):
-    video_files = [file for file in glob.glob(save_path + "/*") if os.path.splitext(file)[1][1:].lower() in load_key("allowed_video_formats")]
+    video_files = [file for file in glob.glob(save_path + "/*") if os.path.isfile(file) and os.path.splitext(file)[1][1:].lower() in load_key("allowed_video_formats")]
     # change \\ to /, this happen on windows
     if sys.platform.startswith('win'):
         video_files = [file.replace("\\", "/") for file in video_files]
-    video_files = [file for file in video_files if not file.startswith("output/output")]
+    video_files = [
+        file
+        for file in video_files
+        if os.path.basename(file).lower() not in GENERATED_VIDEO_NAMES
+    ]
     if len(video_files) != 1:
         raise ValueError(f"Number of videos found {len(video_files)} is not unique. Please check.")
     return video_files[0]

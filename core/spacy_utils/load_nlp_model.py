@@ -1,6 +1,6 @@
 import spacy
 from spacy.cli import download
-from core.utils import rprint, load_key, except_handler
+from core.utils import rprint, load_key, except_handler, get_source_language
 
 SPACY_MODEL_MAP = load_key("spacy_model_map")
 
@@ -12,7 +12,7 @@ def get_spacy_model(language: str):
 
 @except_handler("Failed to load NLP Spacy model")
 def init_nlp():
-    language = "en" if load_key("whisper.language") == "en" else load_key("whisper.detected_language")
+    language = get_source_language()
     model = get_spacy_model(language)
     rprint(f"[blue]⏳ Loading NLP Spacy model: <{model}> ...[/blue]")
     try:

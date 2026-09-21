@@ -1,7 +1,7 @@
 # * Settings marked with * are advanced settings that won't appear in the Streamlit page and can only be modified manually in config.py
 # recommend to set in streamlit page
 # -------------------
-# version: "3.0.3"
+# version: "3.0.4"
 # author: "Huanshere"
 # -------------------
 
@@ -12,8 +12,8 @@ display_language: "zh-CN"
 # API settings
 api:
   key: 'YOUR_API_KEY'
-  base_url: 'https://yunwu.ai'
-  model: 'gpt-5.5'
+  base_url: 'https://openrouter.ai/api/v1'
+  model: 'deepseek/deepseek-v4-flash'
   llm_support_json: false
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4
@@ -30,10 +30,8 @@ whisper:
   # Whisper specified recognition language ISO 639-1
   language: 'en'
   detected_language: 'en'
-  # ASR runtime ["local", "cloud", "elevenlabs", "funasr"]. Cloud uses 302.ai API.
+  # Recognition runtime: "local", "elevenlabs" or optional "funasr".
   runtime: 'local'
-  # 302.ai API key
-  whisperX_302_api_key: 'your_302_api_key'
   # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'
 
@@ -136,6 +134,12 @@ speed_factor:
 min_subtitle_duration: 2.5 # Minimum subtitle duration, will be forcibly extended
 min_trim_duration: 3.5 # Subtitles shorter than this value won't be split
 tolerance: 1.5 # Allowed extension time to the next subtitle
+
+# *Raw audio extraction quality (raw.mp3). Demucs vocals and voice-clone reference clips inherit this bandwidth;
+# *16000 caps them near 7 kHz. v2.2.1 used 32000 / 128k. Existing output/audio/raw.mp3 is not re-extracted.
+audio:
+  raw_sample_rate: 32000
+  raw_bitrate: '128k'
 
 
 

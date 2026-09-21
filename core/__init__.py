@@ -1,3 +1,7 @@
+from runtime_libraries import configure_ffmpeg_dlls
+
+configure_ffmpeg_dlls()
+
 # use try-except to avoid error when installing
 try:
     from . import (

@@ -12,20 +12,20 @@
 
 ## 🌟 概要 ([VLを試す！](https://videolingo.io))
 
-VideoLingoは、Netflixクオリティの字幕を生成することを目的とした、オールインワンの動画翻訳、ローカライゼーション、吹き替えツールです。機械的な翻訳や複数行の字幕を排除し、高品質な吹き替えを追加することで、言語の壁を越えた世界的な知識共有を可能にします。
+VideoLingo は Streamlit 上で音声認識、字幕翻訳、分割、吹き替えを統合します。字幕ファイルと、必要に応じて字幕付き・吹き替え動画を生成します。翻訳品質は元の音声、言語、選択したモデルに依存します。
 
 主な機能：
 - 🎥 yt-dlpによるYouTube動画のダウンロード
 
-- **🎙️ WhisperXによる単語レベルの低誤認識字幕認識**
+- WhisperX による単語単位の音声認識と時間整合
 
 - **📝 NLPとAIを活用した字幕セグメンテーション**
 
 - **📚 一貫性のある翻訳のためのカスタム＋AI生成用語**
 
-- **🔄 映画品質のための3ステップ（翻訳-反映-適応）プロセス**
+- 直訳と、任意の振り返り・自然な書き換え
 
-- **✅ Netflixスタンダードの1行字幕のみ**
+- 設定可能な文字数制限による字幕分割
 
 - **🗣️ GPT-SoVITS、Azure、OpenAIなどによる吹き替え**
 
@@ -39,7 +39,7 @@ VideoLingoは、Netflixクオリティの字幕を生成することを目的と
 
 - ⏯️ タスクコントロール — 処理中いつでも一時停止・再開・中止が可能
 
-類似プロジェクトとの違い：**1行字幕のみ、優れた翻訳品質、シームレスな吹き替え体験**
+文字起こし、翻訳、字幕レイアウト、吹き替えを一つのプロジェクトで扱います。
 
 ## 🎥 デモ
 
@@ -75,28 +75,26 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 英語 🤩 | 🇷🇺 ロシア語 😊 | 🇫🇷 フランス語 🤩 | 🇩🇪 ドイツ語 🤩 | 🇮🇹 イタリア語 🤩 | 🇪🇸 スペイン語 🤩 | 🇯🇵 日本語 😐 | 🇨🇳 中国語* 😊
 
-> *中国語は現在、句読点強化されたwhisperモデルを使用しています。
+> *ローカルで中国語を認識する場合は、中国語を明示的に選択すると句読点強化版 Belle Whisper を使用します。
 
-**翻訳はすべての言語に対応していますが、吹き替えの言語は選択したTTS方式によって異なります。**
+翻訳言語は選択した LLM、吹き替え言語は選択した TTS に依存します。
 
 ## インストール
 
 問題がありましたか？無料のオンラインAIエージェントと[**こちら**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)でチャットして支援を受けられます。
 
-> **注意：** NVIDIA GPUを搭載したWindowsユーザーは、インストール前に以下の手順を実行してください：
-> 1. [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)をインストール
-> 2. [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)をインストール
-> 3. `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6`をシステムPATHに追加
-> 4. コンピュータを再起動
+先に [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/)、[FFmpeg](https://ffmpeg.org/download.html) をインストールします。ターミナルを開き直し、`git --version`、`uv --version`、`ffmpeg -version` を確認してください。
+
+NVIDIA を使用する場合は、GPU に対応するドライバーが必要です。インストーラーは `nvidia-smi` が CUDA >=12.8 を示す場合に PyTorch `cu128`、それ以外は `cu126` を選択し、NVIDIA がなければ CPU パッケージを選択します。これは Python パッケージの選択であり、システムの CUDA Toolkit は自動インストールしません。WhisperX の GPU 認識には、プロセスから利用できる CUDA 12 cuBLAS と cuDNN 9 も必要です。[GPU 要件](../docs/pages/docs/start.en-US.md#gpu-runtime)を参照してください。
 
 > **注意：** FFmpegが必要です。パッケージマネージャーを使用してインストールしてください：
-> - Windows: ```choco install ffmpeg``` ([Chocolatey](https://chocolatey.org/)経由)
+> - Windows: [FFmpeg ダウンロードページ](https://ffmpeg.org/download.html)の Windows ビルドから**共有ライブラリ版**を選び、`bin` ディレクトリを PATH に追加します。
 > - macOS: ```brew install ffmpeg``` ([Homebrew](https://brew.sh/)経由)
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
-### オプションA：uvを使用（推奨）
+### uv でインストール
 
-[uv](https://docs.astral.sh/uv/)はPython 3.10を自動的にダウンロードし、隔離された環境を作成します。PythonやAnacondaを手動でインストールする必要はありません。
+uv が Python 3.13 を取得して `.venv` を作成するため、Python の事前インストールは不要です。アプリは Python 3.10–3.13 に対応します。TorchCodec 0.7 には **FFmpeg 7 共有ライブラリ**を使用してください。FFmpeg 8/9 のみでは非互換です。[検証済み Windows ビルド](../docs/pages/docs/start.en-US.md#ffmpeg-runtime)を参照してください。
 
 1. リポジトリをクローン
 
@@ -105,10 +103,10 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. ワンコマンドセットアップ（uv + Python 3.10 + すべての依存関係を自動インストール）
+2. 環境を作成して依存関係をインストール
 
 ```bash
-python setup_env.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. アプリケーションの起動
@@ -118,40 +116,10 @@ python setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-またはWindowsで`OneKeyStart_uv.bat`をダブルクリック。
-
-### オプションB：Condaを使用
-
-> ⚠️ **非推奨。** この方法は今後メンテナンスされません。上記の uv（オプションA）をご利用ください。
-
-<details>
-<summary>クリックしてCondaのインストール手順を展開</summary>
-
-1. リポジトリをクローン
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. 依存関係のインストール（`python=3.10`が必要）
-
-```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
-```
-
-3. アプリケーションの起動
-
-```bash
-streamlit run st.py
-```
-
-</details>
+Windows では `OneKeyStart.bat` をダブルクリックすることもできます。既存の `~/.venvs/videolingo` を優先し、次にプロジェクトの `.venv` を使用します。`http://localhost:8501` を開き、サイドバーで API URL、キー、モデルを設定してください。
 
 ### Docker
-または、Docker（CUDA 12.4とNVIDIAドライバーバージョン>550が必要）を使用することもできます。[Dockerドキュメント](/docs/pages/docs/docker.en-US.md)を参照してください：
+Linux の NVIDIA コンテナーには Docker、互換ドライバー、[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) が必要です。イメージは同じ Python 3.13 セットアップとアプリ依存関係を使用し、既定は CUDA 12.8.1/cu128 です。CUDA 12.6 の組み合わせとデータ永続化は [Docker ドキュメント](/docs/pages/docs/docker.en-US.md)を参照してください。
 
 ```bash
 docker build -t videolingo .
@@ -160,25 +128,23 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 VideoLingoはOpenAIライクなAPI形式と様々なTTSインターフェースをサポートしています：
-- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (品質順；予算重視なら `gemini-3-flash` または `gpt-5.4-mini`)
-- WhisperX: ローカルでwhisperXを実行するか302.ai APIを使用
-- TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(custom_tts.pyで独自のTTSを修正可能！)
-
-> **注意：** VideoLingoは**[302.ai](https://gpt302.saaslink.net/C2oHR9)**と連携しています - すべてのサービス（LLM、WhisperX、TTS）に1つのAPIキーで対応。またはOllamaとEdge-TTSを使用してローカルで無料で実行可能で、APIは不要です！
+- LLM: OpenAI Chat Completions 互換で、処理に必要な構造化 JSON を返せるサービスとモデルを選びます。API URL、キー、モデルはサイドバーで設定します。
+- 音声認識：ローカル WhisperX または ElevenLabs API。
+- TTS: Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS、および `core/tts_backend/custom_tts.py` のカスタムアダプター。
 
 詳細なインストール方法、API設定、バッチモードの説明については、ドキュメントを参照してください：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 現在の制限事項
 
-1. WhisperX文字起こしのパフォーマンスは、アライメントにwav2vacモデルを使用しているため、動画の背景ノイズの影響を受ける可能性があります。大きな背景音楽がある動画の場合は、音声分離強化を有効にしてください。また、wav2vacが数字文字（例：「1」）を発話形式（「one」）にマッピングできないため、数字や特殊文字で終わる字幕は早期に切り捨てられる可能性があります。
+1. 背景雑音と言語別の整合モデルは、認識と単語の時刻に影響します。音声分離が役立つ場合があります。数字や記号の時刻は不確かな場合があるため、生成字幕を確認してください。
 
-2. より弱いモデルを使用すると、レスポンスに厳密なJSON形式が要求されるため、中間プロセスでエラーが発生する可能性があります。このエラーが発生した場合は、`output`フォルダを削除して別のLLMで再試行してください。そうしないと、繰り返し実行時に前回の誤ったレスポンスを読み込んで同じエラーが発生します。
+2. 応答は必要な JSON 構造を満たす必要があります。失敗時は `output/gpt_log/error.json` を確認してください。成功した応答のキャッシュや完了済み出力は再利用されるため、モデル変更だけでは全工程を再生成しません。最初から全出力を削除しないでください。
 
-3. 吹き替え機能は、言語間の発話速度やイントネーションの違い、および翻訳ステップの影響により、100%完璧ではない可能性があります。ただし、このプロジェクトでは発話速度に関する広範なエンジニアリング処理を実装し、可能な限り最高の吹き替え結果を確保しています。
+3. 吹き替えの品質とタイミングは翻訳、TTS、発話速度に依存します。速度調整で自然さや完全な同期が保証されるわけではありません。
 
-4. **多言語ビデオの文字起こし認識は主要言語のみを保持します**。これは、whisperXが単語レベルの字幕を強制的にアライメントする際に単一言語用の特殊モデルを使用し、認識されない言語を削除するためです。
+4. ローカル WhisperX は各区間で一つの認識・整合言語を使用します。複数言語が混ざる音声では、すべての言語の文字と時刻が正確になる保証はありません。
 
-5. **複数のキャラクターを個別に吹き替えることはできません**。これは、whisperXの話者区別機能が十分に信頼できないためです。
+5. 吹き替え処理は、話者ごとに異なる声を自動割り当てしません。
 
 ## 📄 ライセンス
 
@@ -198,4 +164,4 @@ VideoLingoはOpenAIライクなAPI形式と様々なTTSインターフェース�
 
 ---
 
-<p align="center">VideoLingoが役立つと感じた場合は、⭐️をお願いします！</p> 
+<p align="center">VideoLingoが役立つと感じた場合は、⭐️をお願いします！</p>

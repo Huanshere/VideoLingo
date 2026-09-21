@@ -149,21 +149,21 @@ def page_setting():
         current_runtime = load_key("whisper.runtime")
         c1, c2 = st.columns(2)
         with c1:
+            langs = {
+                "Auto": "auto",
+                "🇺🇸 English": "en",
+                "🇨🇳 简体中文": "zh",
+                "🇪🇸 Español": "es",
+                "🇷🇺 Русский": "ru",
+                "🇫🇷 Français": "fr",
+                "🇩🇪 Deutsch": "de",
+                "🇮🇹 Italiano": "it",
+                "🇯🇵 日本語": "ja",
+            }
             if current_runtime == "funasr":
                 langs = {
                     "🇨🇳 简体中文": "zh",
                     "🇺🇸 English": "en",
-                    "🇯🇵 日本語": "ja",
-                }
-            else:
-                langs = {
-                    "🇺🇸 English": "en",
-                    "🇨🇳 简体中文": "zh",
-                    "🇪🇸 Español": "es",
-                    "🇷🇺 Русский": "ru",
-                    "🇫🇷 Français": "fr",
-                    "🇩🇪 Deutsch": "de",
-                    "🇮🇹 Italiano": "it",
                     "🇯🇵 日本語": "ja",
                 }
             language_values = list(langs.values())
@@ -182,31 +182,28 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
+        runtimes = ["local", "elevenlabs", "funasr"]
+        configured_runtime = load_key("whisper.runtime")
+        if configured_runtime not in runtimes:
+            st.warning(t("The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue."))
         runtime = st.selectbox(
             t("ASR Runtime"),
-            options=["local", "cloud", "elevenlabs", "funasr"],
-            index=["local", "cloud", "elevenlabs", "funasr"].index(current_runtime),
+            options=runtimes,
+            index=runtimes.index(configured_runtime) if configured_runtime in runtimes else None,
             format_func=lambda x: {
                 "local": t("Local"),
-                "cloud": t("Cloud"),
                 "elevenlabs": t("ElevenLabs"),
                 "funasr": "FunASR (SenseVoice)",
             }[x],
-            help=(
-                t(
-                    "Local runtime requires >8GB GPU, cloud runtime requires 302ai API key, elevenlabs runtime requires ElevenLabs API key"
-                )
-                + " "
-                + t(
-                    "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr."
-                )
+            help=t(
+                "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key."
+            ) + " " + t(
+                "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr."
             ),
         )
-        if runtime != load_key("whisper.runtime"):
+        if runtime is not None and runtime != configured_runtime:
             update_key("whisper.runtime", runtime)
             st.rerun()
-        if runtime == "cloud":
-            config_input(t("WhisperX 302ai API"), "whisper.whisperX_302_api_key")
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
         if runtime == "funasr":

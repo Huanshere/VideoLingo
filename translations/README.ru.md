@@ -12,20 +12,20 @@
 
 ## 🌟 Обзор ([Попробуйте VL бесплатно!](https://videolingo.io))
 
-VideoLingo - это универсальный инструмент для перевода, локализации и дубляжа видео, направленный на создание субтитров качества Netflix. Он устраняет механические переводы и многострочные субтитры, добавляя высококачественный дубляж, что позволяет делиться знаниями по всему миру, преодолевая языковые барьеры.
+VideoLingo объединяет распознавание речи, перевод, разбиение субтитров и озвучивание в интерфейсе Streamlit. Он создаёт файлы субтитров и, при необходимости, видео с субтитрами или озвучиванием. Качество перевода зависит от исходного звука, языка и выбранных моделей.
 
 Ключевые особенности:
 - 🎥 Загрузка видео с YouTube через yt-dlp
 
-- **🎙️ Пословное распознавание субтитров с низким уровнем искажений с помощью WhisperX**
+- Пословное распознавание речи и временное выравнивание с WhisperX
 
 - **📝 Сегментация субтитров на основе NLP и ИИ**
 
 - **📚 Пользовательская + ИИ-генерируемая терминология для согласованного перевода**
 
-- **🔄 3-этапный процесс Перевод-Осмысление-Адаптация для кинематографического качества**
+- Прямой перевод с необязательным анализом и естественной переформулировкой
 
-- **✅ Только однострочные субтитры стандарта Netflix**
+- Разбиение субтитров с настраиваемыми ограничениями длины
 
 - **🗣️ Дубляж с помощью GPT-SoVITS, Azure, OpenAI и других**
 
@@ -39,7 +39,7 @@ VideoLingo - это универсальный инструмент для пе�
 
 - ⏯️ Управление задачами — пауза, возобновление или остановка обработки на любом этапе
 
-Отличие от похожих проектов: **Только однострочные субтитры, превосходное качество перевода, безупречный опыт дубляжа**
+Проект объединяет транскрипцию, перевод, оформление субтитров и озвучивание.
 
 ## 🎥 Демонстрация
 
@@ -75,28 +75,26 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 Английский 🤩 | 🇷🇺 Русский 😊 | 🇫🇷 Французский 🤩 | 🇩🇪 Немецкий 🤩 | 🇮🇹 Итальянский 🤩 | 🇪🇸 Испанский 🤩 | 🇯🇵 Японский 😐 | 🇨🇳 Китайский* 😊
 
-> *Китайский пока использует отдельную модель whisper с улучшенной пунктуацией...
+> *Для локального распознавания китайского явно выберите китайский язык, чтобы использовать Belle Whisper с улучшенной пунктуацией.
 
-**Перевод поддерживает все языки, в то время как язык дубляжа зависит от выбранного метода TTS.**
+Языки перевода зависят от выбранной LLM, а языки озвучивания — от метода TTS.
 
 ## Установка
 
 Возникли проблемы? Общайтесь с нашим бесплатным онлайн ИИ-агентом [**здесь**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh), который поможет вам.
 
-> **Примечание:** Для пользователей Windows с GPU NVIDIA выполните следующие шаги перед установкой:
-> 1. Установите [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-> 2. Установите [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. Добавьте `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` в системный PATH
-> 4. Перезагрузите компьютер
+Установите [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) и [FFmpeg](https://ffmpeg.org/download.html). Откройте терминал заново и проверьте `git --version`, `uv --version` и `ffmpeg -version`.
+
+Для NVIDIA нужен совместимый с GPU драйвер. Установщик выбирает PyTorch `cu128`, если `nvidia-smi` сообщает CUDA >=12.8, иначе `cu126`; без NVIDIA используются пакеты CPU. Это выбор пакетов Python, а не установка системного CUDA Toolkit. Для WhisperX на GPU также нужны доступные процессу библиотеки CUDA 12 cuBLAS и cuDNN 9; см. [требования GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Примечание:** Требуется FFmpeg. Установите его через менеджеры пакетов:
-> - Windows: ```choco install ffmpeg``` (через [Chocolatey](https://chocolatey.org/))
+> - Windows: выберите сборку с **разделяемыми библиотеками** на [странице FFmpeg](https://ffmpeg.org/download.html) и добавьте её каталог `bin` в PATH.
 > - macOS: ```brew install ffmpeg``` (через [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
-### Вариант А: Используя uv (Рекомендуется)
+### Установка через uv
 
-[uv](https://docs.astral.sh/uv/) автоматически загружает Python 3.10 и создает изолированную среду. Не нужно устанавливать Python или Anaconda вручную.
+uv загружает Python 3.13 и создаёт `.venv` без предварительной установки Python. Приложение поддерживает Python 3.10–3.13. Для TorchCodec 0.7 используйте **разделяемые библиотеки FFmpeg 7**; одного FFmpeg 8/9 недостаточно. См. [проверенную сборку Windows](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Клонируйте репозиторий
 
@@ -105,10 +103,10 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. Установка одной командой (устанавливает uv + Python 3.10 + все зависимости)
+2. Создайте среду и установите зависимости
 
 ```bash
-python setup_env.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. Запустите приложение
@@ -118,40 +116,10 @@ python setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-Или дважды щелкните `OneKeyStart_uv.bat` в Windows.
-
-### Вариант Б: Используя Conda
-
-> ⚠️ **Не рекомендуется.** Этот метод больше не будет поддерживаться. Пожалуйста, используйте uv (Вариант А) выше.
-
-<details>
-<summary>Нажмите, чтобы развернуть шаги установки с Conda</summary>
-
-1. Клонируйте репозиторий
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. Установите зависимости (требуется `python=3.10`)
-
-```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
-```
-
-3. Запустите приложение
-
-```bash
-streamlit run st.py
-```
-
-</details>
+Или запустите `OneKeyStart.bat` в Windows. Он сначала выбирает существующую `~/.venvs/videolingo`, затем `.venv` проекта. Откройте `http://localhost:8501` и укажите URL API, ключ и модель на боковой панели.
 
 ### Docker
-Альтернативно, вы можете использовать Docker (требуется CUDA 12.4 и версия драйвера NVIDIA >550), см. [документацию Docker](/docs/pages/docs/docker.en-US.md):
+Для контейнера NVIDIA в Linux нужны Docker, совместимый драйвер и [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Образ использует ту же установку Python 3.13 и зависимости приложения, по умолчанию CUDA 12.8.1/cu128. Вариант CUDA 12.6 и сохранение данных описаны в [документации Docker](/docs/pages/docs/docker.en-US.md).
 
 ```bash
 docker build -t videolingo .
@@ -160,16 +128,40 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## API
 VideoLingo поддерживает формат API, подобный OpenAI, и различные интерфейсы TTS:
-- LLM: `claude-sonnet-4.6`, `gpt-5.4`, `gemini-3.1-pro`, `deepseek-v3`, `grok-4.1`, ... (отсортировано по качеству; бюджетные варианты: `gemini-3-flash` или `gpt-5.4-mini`)
-- WhisperX: Запускайте whisperX локально или используйте API 302.ai
-- TTS: `azure-tts`, `openai-tts`, `siliconflow-fishtts`, **`fish-tts`**, `GPT-SoVITS`, `edge-tts`, `*custom-tts`(Вы можете модифицировать свой собственный TTS в custom_tts.py!)
-
-> **Примечание:** VideoLingo работает с **[302.ai](https://gpt302.saaslink.net/C2oHR9)** - один API-ключ для всех сервисов (LLM, WhisperX, TTS). Или запускайте локально с Ollama и Edge-TTS бесплатно, без необходимости в API!
+- LLM: выберите провайдера OpenAI-совместимого Chat Completions и модель, способную возвращать нужный структурированный JSON. URL API, ключ и модель задаются на боковой панели.
+- Распознавание речи: локальный WhisperX или API ElevenLabs.
+- TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS и собственный адаптер в `core/tts_backend/custom_tts.py`.
 
 Для подробных инструкций по установке, настройке API и пакетному режиму обратитесь к документации: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Текущие ограничения
 
-1. Производительность транскрипции WhisperX может быть затронута фоновым шумом видео, так как для выравнивания используется модель wav2vac. Для видео с громкой фоновой музыкой включите Улучшение разделения голоса. Кроме того, субтитры, заканчивающиеся цифрами или специальными символами, могут быть обрезаны раньше из-за неспособности wav2vac сопоставлять цифровые символы (например, "1") с их произносимой формой ("один").
+1. Шум и языковые модели выравнивания влияют на распознавание и время слов. Разделение голоса может помочь. Проверяйте субтитры: числа и символы могут не иметь надёжных временных меток.
 
-2. Использование более слабых моделей может привести к ошибкам во время промежуточных процессов из-за строгих требований к формату JSON для ответов. Если возникает эта ошибка, удалите пап
+2. Ответы LLM должны соответствовать требуемой структуре JSON. При ошибке проверьте `output/gpt_log/error.json`. Успешные ответы в кэше и завершённые этапы могут использоваться повторно; смена модели не пересоздаёт все результаты. Не начинайте с удаления всех выходных данных.
+
+3. Качество и тайминг озвучивания зависят от перевода, сервиса TTS и темпа речи. Изменение скорости не гарантирует естественности и идеальной синхронизации.
+
+4. Локальный WhisperX использует один язык распознавания и выравнивания на сегмент. Для смешанной речи точный текст и время на всех языках не гарантируются.
+
+5. Озвучивание не назначает автоматически отдельный голос каждому говорящему.
+
+## Лицензия
+
+Проект распространяется по лицензии Apache 2.0. Благодарим проекты:
+
+[whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
+
+## Контакты
+
+- [Issues](https://github.com/Huanshere/VideoLingo/issues) и [Pull Requests](https://github.com/Huanshere/VideoLingo/pulls) на GitHub
+- Twitter: [@Huanshere](https://twitter.com/Huanshere)
+- Email: team@videolingo.io
+
+## История звёзд
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Huanshere/VideoLingo&type=Timeline)](https://star-history.com/#Huanshere/VideoLingo&Timeline)
+
+---
+
+<p align="center">Если VideoLingo вам полезен, поставьте звезду проекту!</p>

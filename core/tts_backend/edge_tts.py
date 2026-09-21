@@ -1,5 +1,5 @@
 from pathlib import Path
-import edge_tts
+import sys
 from core.utils import *
 import subprocess
 
@@ -21,7 +21,7 @@ def edge_tts(text, save_path):
     speech_file_path = Path(save_path)
     speech_file_path.parent.mkdir(parents=True, exist_ok=True)
     
-    cmd = ["edge-tts", "--voice", voice, "--text", text, "--write-media", str(speech_file_path)]
+    cmd = [sys.executable, "-m", "edge_tts", "--voice", voice, "--text", text, "--write-media", str(speech_file_path)]
     subprocess.run(cmd, check=True)
     print(f"Audio saved to {speech_file_path}")
 

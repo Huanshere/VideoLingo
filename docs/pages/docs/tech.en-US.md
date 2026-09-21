@@ -22,9 +22,8 @@ The following outlines the core technical modules and workflows:
 *   `core/asr_backend/demucs_vl.py`: Employs the Demucs model (`htdemucs`) to separate audio into vocal and background tracks, improving the quality of subsequent ASR.
 *   `core/asr_backend/audio_preprocess.py`: Contains fundamental functions for preparing audio: volume normalization (`pydub`), video-to-audio conversion (`ffmpeg`), silence detection (`ffmpeg`), audio duration calculation (`ffmpeg`), splitting long audio files into manageable segments, processing ASR results into DataFrames, saving results, and storing detected languages.
 *   `core/asr_backend/whisperX_local.py`: Implements local audio transcription using the WhisperX library. Optimizes performance based on available hardware (GPU/CPU), handles model downloads (with mirror checking), performs transcription and alignment, adjusts timestamps, and manages GPU memory.
-*   `core/asr_backend/whisperX_302.py`: Implements audio transcription using the 302.ai WhisperX API, including caching and timestamp adjustment.
 *   `core/asr_backend/elevenlabs_asr.py`: Implements audio transcription using the ElevenLabs Speech to Text API, handling audio slicing, API interaction, format conversion (ElevenLabs to Whisper-like format), and temporary file management.
-*   `core/_2_asr.py`: Orchestrates the ASR process. Extracts audio, optionally performs Demucs vocal separation, splits audio, invokes the configured ASR backend (local WhisperX, 302 API, or Elevenlabs API), merges results, processes transcriptions into a DataFrame, and saves the output.
+*   `core/_2_asr.py`: Orchestrates audio preparation, optional vocal separation, recognition with local WhisperX or ElevenLabs, and result export.
 
 **4. Text Processing and Translation Module (`core`, `core/spacy_utils`):**
 

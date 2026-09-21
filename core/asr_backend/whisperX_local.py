@@ -1,7 +1,6 @@
 import os
 import warnings
 import time
-import subprocess
 import torch
 import functools
 from pathlib import Path
@@ -36,48 +35,50 @@ from core.utils import *
 MODEL_DIR = load_key("model_dir")
 
 
-def _hf_cache_dir_for_repo(cache_root, repo_id):
-    return Path(cache_root) / f"models--{repo_id.replace('/', '--')}"
+def _complete_model_directory(path):
+    required = ('config.json', 'model.bin', 'tokenizer.json')
+    return all((Path(path) / name).is_file() and (Path(path) / name).stat().st_size > 0
+               for name in required)
 
 
-def _has_complete_hf_snapshot(cache_root, repo_id):
-    repo_dir = _hf_cache_dir_for_repo(cache_root, repo_id)
-    snapshots = repo_dir / "snapshots"
-    if not snapshots.exists():
-        return False
-    required_files = {"config.json", "model.bin", "tokenizer.json"}
-    for snapshot in snapshots.iterdir():
-        if snapshot.is_dir() and all((snapshot / name).exists() for name in required_files):
-            return True
-    return False
+def resolve_whisper_model(model_name, model_dir):
+    """Resolve complete local files before allowing any Hub request."""
+    from faster_whisper.utils import download_model
+    from huggingface_hub.errors import LocalEntryNotFoundError
 
-@except_handler("failed to check hf mirror", default_return=None)
-def check_hf_mirror():
-    mirrors = {'Official': 'huggingface.co', 'Mirror': 'hf-mirror.com'}
-    fastest_url = f"https://{mirrors['Official']}"
-    best_time = float('inf')
-    rprint("[cyan]🔍 Checking HuggingFace mirrors...[/cyan]")
-    for name, domain in mirrors.items():
-        if os.name == 'nt':
-            cmd = ['ping', '-n', '1', '-w', '3000', domain]
-        else:
-            cmd = ['ping', '-c', '1', '-W', '3', domain]
-        start = time.time()
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        response_time = time.time() - start
-        if result.returncode == 0:
-            if response_time < best_time:
-                best_time = response_time
-                fastest_url = f"https://{domain}"
-            rprint(f"[green]✓ {name}:[/green] {response_time:.2f}s")
-    if best_time == float('inf'):
-        rprint("[yellow]⚠️ All mirrors failed, using default[/yellow]")
-    rprint(f"[cyan]🚀 Selected mirror:[/cyan] {fastest_url} ({best_time:.2f}s)")
-    return fastest_url
+    explicit = Path(model_name)
+    project = Path(model_dir) / model_name
+    for directory in (explicit, project):
+        if directory.is_dir():
+            if not _complete_model_directory(directory):
+                raise ValueError(
+                    f'Local model directory is incomplete: {directory}. '
+                    'Expected non-empty config.json, model.bin and tokenizer.json.'
+                )
+            rprint(f'[green]Using local Whisper model (no Hub lookup): {directory.resolve()}[/green]')
+            return str(directory.resolve())
+
+    # The installed loader owns aliases (large/turbo/distil) and HF cache locations.
+    # local_files_only resolves the cached revision without checking the network.
+    for cache_dir in (str(model_dir), None):
+        try:
+            snapshot = download_model(model_name, cache_dir=cache_dir, local_files_only=True)
+        except LocalEntryNotFoundError:
+            continue
+        if _complete_model_directory(snapshot):
+            rprint(f'[green]Using cached Whisper model (no Hub lookup): {snapshot}[/green]')
+            return snapshot
+
+    rprint('[yellow]No complete Whisper model found locally. Fetching missing files '
+           'from the configured HuggingFace endpoint into the global cache.[/yellow]')
+    snapshot = download_model(model_name)
+    if not _complete_model_directory(snapshot):
+        raise RuntimeError('Downloaded Whisper model is incomplete')
+    rprint(f'[green]Whisper model files ready: {snapshot}[/green]')
+    return snapshot
 
 @except_handler("WhisperX processing error:")
 def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
-    os.environ['HF_ENDPOINT'] = check_hf_mirror()
     WHISPER_LANGUAGE = load_key("whisper.language")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     rprint(f"🚀 Starting WhisperX using device: {device} ...")
@@ -93,44 +94,26 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
         rprint(f"[cyan]📦 Batch size:[/cyan] {batch_size}, [cyan]⚙️ Compute type:[/cyan] {compute_type}")
     rprint(f"[green]▶️ Starting WhisperX for segment {start:.2f}s to {end:.2f}s...[/green]")
     
-    download_root = MODEL_DIR
     if WHISPER_LANGUAGE == 'zh':
         model_name = "Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper"
-        local_model = os.path.join(MODEL_DIR, "Belle-whisper-large-v3-zh-punct-fasterwhisper")
+        local_model = Path(MODEL_DIR) / "Belle-whisper-large-v3-zh-punct-fasterwhisper"
+        if local_model.is_dir():
+            model_name = str(local_model.resolve())
     else:
         model_name = load_key("whisper.model")
-        local_model = os.path.join(MODEL_DIR, model_name)
-        
-    if os.path.exists(local_model):
-        rprint(f"[green]📥 Loading local WHISPER model:[/green] {local_model} ...")
-        model_name = local_model
-        download_root = None
-    else:
-        rprint(f"[green]📥 Using WHISPER model from HuggingFace:[/green] {model_name} ...")
-        # If the project-local cache is missing or only partially downloaded,
-        # let HuggingFace use the default global cache. This avoids getting
-        # stuck on a half-created ./_model_cache after a network interruption.
-        repo_id = model_name if "/" in model_name else f"Systran/faster-whisper-{model_name}"
-        if not _has_complete_hf_snapshot(MODEL_DIR, repo_id):
-            rprint(
-                "[yellow]⚠️ Project model cache is incomplete; "
-                "falling back to the global HuggingFace cache.[/yellow]"
-            )
-            download_root = None
+    model_name = resolve_whisper_model(model_name, MODEL_DIR)
 
     vad_options = {"vad_onset": 0.500,"vad_offset": 0.363}
     asr_options = {"temperatures": [0],"initial_prompt": "",}
     whisper_language = None if 'auto' in WHISPER_LANGUAGE else WHISPER_LANGUAGE
-    rprint("[bold yellow] You can ignore warning of `Model was trained with torch 1.10.0+cu102, yours is 2.0.0+cu118...`[/bold yellow]")
     load_kwargs = dict(
         device=device,
         compute_type=compute_type,
         language=whisper_language,
         vad_options=vad_options,
         asr_options=asr_options,
+        local_files_only=True,
     )
-    if download_root:
-        load_kwargs["download_root"] = download_root
     model = whisperx.load_model(model_name, **load_kwargs)
 
     def load_audio_segment(audio_file, start, end):
@@ -158,7 +141,8 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     torch.cuda.empty_cache()
 
     # Save language
-    update_key("whisper.language", result['language'])
+    detected_language = result['language']
+    update_key("whisper.detected_language", detected_language)
     if result['language'] == 'zh' and WHISPER_LANGUAGE != 'zh':
         raise ValueError("Please specify the transcription language as zh and try again!")
 
@@ -169,6 +153,7 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     # Align timestamps using vocal audio
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, vocal_audio_segment, device, return_char_alignments=False)
+    result["language"] = detected_language
     align_time = time.time() - align_start_time
     rprint(f"[cyan]⏱️ time align:[/cyan] {align_time:.2f}s")
 

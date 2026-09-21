@@ -18,6 +18,9 @@ API_URL_VOICE = "https://api.siliconflow.cn/v1/uploads/audio/voice"
 
 MODEL_NAME = "fishaudio/fish-speech-1.4"
 REFER_MAX_LENGTH = 90
+# Reference clips are 44.1 kHz WAV from Demucs; v2.2.1 merged them at 44.1 kHz.
+# 3.0.0 exported the merged reference at 16 kHz, discarding everything above 8 kHz.
+REFER_SAMPLE_RATE = 44100
 
 @except_handler("Failed to generate audio using SiliconFlow Fish TTS", retry=2, delay=1)
 def siliconflow_fish_tts(text, save_path, mode="preset", voice_id=None, ref_audio=None, ref_text=None, check_duration=False):
@@ -55,19 +58,15 @@ def siliconflow_fish_tts(text, save_path, mode="preset", voice_id=None, ref_audi
         rprint(f"[green]Successfully generated audio file: {wav_file_path}")
         return True
         
-    error_msg = response.json()
-    rprint(f"[red]Failed to generate audio | HTTP {response.status_code} (Attempt {attempt + 1}/{max_retries})")
-    rprint(f"[red]Text: {text}")
-    rprint(f"[red]Error details: {error_msg}")
-            
-    return False
+    response.raise_for_status()
+    raise ValueError(f"Unexpected speech response: HTTP {response.status_code}")
 
 @except_handler("Failed to create custom voice")
 def create_custom_voice(audio_path, text, custom_name=None):
     if not Path(audio_path).exists():
         raise FileNotFoundError(f"Audio file not found at {audio_path}")
     
-    audio_base64 = f"data:audio/wav;base64,{base64.b64encode(open(audio_path, 'rb').read()).decode('utf-8')}"
+    audio_base64 = f"data:audio/wav;base64,{base64.b64encode(Path(audio_path).read_bytes()).decode('utf-8')}"
     rprint(f"[yellow]✅ Successfully encoded audio file")
     
     payload = {
@@ -78,11 +77,13 @@ def create_custom_voice(audio_path, text, custom_name=None):
     }
     
     rprint(f"[yellow]🚀 Sending request to create voice...")
-    response = requests.post(API_URL_VOICE, json=payload, headers={"Authorization": f'Bearer {load_key["sf_fish_tts"]["api_key"]}', "Content-Type": "application/json"})
+    response = requests.post(API_URL_VOICE, json=payload, headers={"Authorization": f'Bearer {load_key("sf_fish_tts.api_key")}', "Content-Type": "application/json"})
     response_json = response.json()
     
     if response.status_code == 200:
         voice_id = response_json.get('uri')
+        if not isinstance(voice_id, str) or not voice_id.strip():
+            raise ValueError("Custom voice response is missing a voice URI")
         status_text = Text()
         status_text.append("✨ Successfully created custom voice!\n", style="green")
         status_text.append(f"🎙️ Voice ID: {voice_id}\n", style="green")
@@ -110,7 +111,7 @@ def merge_audio(files, output):
         combined += audio + silence
     
     # Export the combined file
-    combined.export(output, format="wav", parameters=["-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1"])
+    combined.export(output, format="wav", parameters=["-acodec", "pcm_s16le", "-ar", str(REFER_SAMPLE_RATE), "-ac", "1"])
     
     if os.path.getsize(output) == 0:
         rprint(f"[red]Output file size is 0")

@@ -1,5 +1,6 @@
 import os, subprocess
 import pandas as pd
+import math
 from typing import Dict, List, Tuple
 from pydub import AudioSegment
 from core.utils import *
@@ -8,6 +9,23 @@ from pydub import AudioSegment
 from pydub.silence import detect_silence
 from pydub.utils import mediainfo
 from rich import print as rprint
+
+
+def audio_slice_wav(path, start=None, end=None, sample_rate=16000):
+    """Decode only the requested interval to mono PCM WAV for cloud ASR."""
+    if any(value is not None and (not math.isfinite(value) or value < 0) for value in (start, end)):
+        raise ValueError('Audio interval must contain finite non-negative times')
+    cmd = ['ffmpeg', '-v', 'error']
+    if start is not None:
+        cmd += ['-ss', str(start)]
+    cmd += ['-i', str(path)]
+    if end is not None:
+        duration = end - (start or 0)
+        if duration <= 0:
+            raise ValueError('Audio interval must have positive duration')
+        cmd += ['-t', str(duration)]
+    cmd += ['-ac', '1', '-ar', str(sample_rate), '-c:a', 'pcm_s16le', '-f', 'wav', 'pipe:1']
+    return subprocess.run(cmd, check=True, capture_output=True).stdout
 
 def _ffmpeg_has_encoder(encoder_name: str) -> bool:
     """Check if the current ffmpeg installation supports a given audio encoder."""
@@ -19,58 +37,74 @@ def _ffmpeg_has_encoder(encoder_name: str) -> bool:
     except Exception:
         return False
 
-def normalize_audio_volume(audio_path, output_path, target_db = -20.0, format = "wav"):
+# Raw extraction quality. v2.2.1 extracted 32 kHz / 128 kbps; the 3.0.0 refactor
+# dropped this to 16 kHz / 32 kbps. Whisper resamples to 16 kHz anyway, but every
+# other consumer inherits the extraction bandwidth: Demucs vocals, the per-line
+# reference clips for voice cloning (sf_fish_tts / sf_cosyvoice2 / gpt_sovits /
+# f5tts) and the timing analysis. See docs/audio-extract-quality.md.
+RAW_AUDIO_SAMPLE_RATE = 32000
+RAW_AUDIO_BITRATE = '128k'
+
+def raw_audio_settings():
+    """Sample rate and MP3 bitrate for raw.mp3; the keys are optional so old config.yaml files keep working."""
+    sample_rate = int(load_key_or('audio.raw_sample_rate', RAW_AUDIO_SAMPLE_RATE))
+    bitrate = str(load_key_or('audio.raw_bitrate', RAW_AUDIO_BITRATE))
+    if sample_rate < 16000:
+        raise ValueError('audio.raw_sample_rate must be at least 16000 Hz for speech recognition')
+    return sample_rate, bitrate
+
+def _raw_audio_command(input_file: str):
+    sample_rate, bitrate = raw_audio_settings()
+    if _ffmpeg_has_encoder('libmp3lame'):
+        return [
+            'ffmpeg', '-y', '-i', input_file, '-vn',
+            # Reconcile decoded samples with the source presentation clock.
+            '-af', 'aresample=async=1:first_pts=0',
+            '-c:a', 'libmp3lame', '-b:a', bitrate,
+            '-ar', str(sample_rate), '-ac', '1',
+            '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
+        ]
+    # Fallback: conda-forge ffmpeg often lacks libmp3lame.
+    # Output as WAV (PCM) which all ffmpeg builds support.
+    # Downstream readers (pydub, librosa, whisperX) detect format by
+    # file header, not extension, so .mp3 path with WAV content works.
+    rprint("[yellow]⚠️ libmp3lame not found in ffmpeg, falling back to WAV (PCM) encoding[/yellow]")
+    return [
+        'ffmpeg', '-y', '-i', input_file, '-vn',
+        '-af', 'aresample=async=1:first_pts=0',
+        '-c:a', 'pcm_s16le', '-ar', str(sample_rate), '-ac', '1',
+        '-f', 'wav', _RAW_AUDIO_FILE
+    ]
+
+def normalize_audio_volume(audio_path, output_path, target_db = -20.0, format = "wav", peak_ceiling_db = -1.0):
     audio = AudioSegment.from_file(audio_path)
     change_in_dBFS = target_db - audio.dBFS
+    # pydub applies gain on integer samples, so a quiet track with sharp peaks
+    # (speech separated by long silences) would clip. Cap the gain so peaks stay
+    # under the ceiling; attenuation is never limited.
+    headroom = peak_ceiling_db - audio.max_dBFS
+    if not math.isfinite(change_in_dBFS) or not math.isfinite(headroom):
+        change_in_dBFS = 0.0
+    elif change_in_dBFS > headroom:
+        rprint(f"[yellow]⚠️ Gain limited to {headroom:+.1f}dB (wanted {change_in_dBFS:+.1f}dB) to keep peaks under {peak_ceiling_db:.1f}dBFS[/yellow]")
+        change_in_dBFS = headroom
     normalized_audio = audio.apply_gain(change_in_dBFS)
     normalized_audio.export(output_path, format=format)
-    rprint(f"[green]✅ Audio normalized from {audio.dBFS:.1f}dB to {target_db:.1f}dB[/green]")
+    rprint(f"[green]✅ Audio normalized from {audio.dBFS:.1f}dB to {audio.dBFS + change_in_dBFS:.1f}dB[/green]")
     return output_path
 
 def convert_video_to_audio(video_file: str):
     os.makedirs(_AUDIO_DIR, exist_ok=True)
     if not os.path.exists(_RAW_AUDIO_FILE):
         rprint(f"[blue]🎬➡️🎵 Converting to high quality audio with FFmpeg ......[/blue]")
-        if _ffmpeg_has_encoder('libmp3lame'):
-            cmd = [
-                'ffmpeg', '-y', '-i', video_file, '-vn',
-                '-c:a', 'libmp3lame', '-b:a', '32k',
-                '-ar', '16000', '-ac', '1',
-                '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
-            ]
-        else:
-            # Fallback: conda-forge ffmpeg often lacks libmp3lame.
-            # Output as WAV (PCM) which all ffmpeg builds support.
-            # Downstream readers (pydub, librosa, whisperX) detect format by
-            # file header, not extension, so .mp3 path with WAV content works.
-            rprint("[yellow]⚠️ libmp3lame not found in ffmpeg, falling back to WAV (PCM) encoding[/yellow]")
-            cmd = [
-                'ffmpeg', '-y', '-i', video_file, '-vn',
-                '-c:a', 'pcm_s16le', '-ar', '16000', '-ac', '1',
-                '-f', 'wav', _RAW_AUDIO_FILE
-            ]
-        subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
+        subprocess.run(_raw_audio_command(video_file), check=True, stderr=subprocess.PIPE)
         rprint(f"[green]🎬➡️🎵 Converted <{video_file}> to <{_RAW_AUDIO_FILE}> with FFmpeg\n[/green]")
 
 def prepare_audio_for_asr(audio_file: str):
     os.makedirs(_AUDIO_DIR, exist_ok=True)
     if not os.path.exists(_RAW_AUDIO_FILE):
         rprint(f"[blue]🎵 Preparing uploaded audio for ASR with FFmpeg ......[/blue]")
-        if _ffmpeg_has_encoder('libmp3lame'):
-            cmd = [
-                'ffmpeg', '-y', '-i', audio_file, '-vn',
-                '-c:a', 'libmp3lame', '-b:a', '32k',
-                '-ar', '16000', '-ac', '1',
-                '-metadata', 'encoding=UTF-8', _RAW_AUDIO_FILE
-            ]
-        else:
-            rprint("[yellow]⚠️ libmp3lame not found in ffmpeg, falling back to WAV (PCM) encoding[/yellow]")
-            cmd = [
-                'ffmpeg', '-y', '-i', audio_file, '-vn',
-                '-c:a', 'pcm_s16le', '-ar', '16000', '-ac', '1',
-                '-f', 'wav', _RAW_AUDIO_FILE
-            ]
-        subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
+        subprocess.run(_raw_audio_command(audio_file), check=True, stderr=subprocess.PIPE)
         rprint(f"[green]🎵 Prepared <{audio_file}> as <{_RAW_AUDIO_FILE}>\n[/green]")
 
 def get_audio_duration(audio_file: str) -> float:

@@ -12,20 +12,20 @@
 
 ## 🌟 概述 ([立即體驗 VL！](https://videolingo.io))
 
-VideoLingo 是一個全方位的影片翻譯、本地化和配音工具，旨在生成 Netflix 品質的字幕。它消除了機器翻譯的生硬感和多行字幕，同時提供高品質配音，實現跨越語言障礙的全球知識共享。
+VideoLingo 在 Streamlit 介面中整合語音辨識、字幕翻譯、分句和配音，可產生字幕檔案，以及可選的字幕影片或配音影片。翻譯品質取決於原始音訊、語言和所選模型。
 
 主要功能：
 - 🎥 通過 yt-dlp 下載 YouTube 影片
 
-- **🎙️ 使用 WhisperX 進行詞級別和低幻覺字幕識別**
+- 使用 WhisperX 進行詞級語音辨識與時間對齊
 
 - **📝 基於 NLP 和 AI 的字幕分段**
 
 - **📚 自定義 + AI 生成術語庫確保翻譯一致性**
 
-- **🔄 三步驟翻譯-反思-調適實現影院級品質**
+- 直譯，以及可選的反思和自然改寫
 
-- **✅ Netflix 標準，僅單行字幕**
+- 按可設定的長度限制切分字幕
 
 - **🗣️ 使用 GPT-SoVITS、Azure、OpenAI 等進行配音**
 
@@ -39,7 +39,7 @@ VideoLingo 是一個全方位的影片翻譯、本地化和配音工具，旨在
 
 - ⏯️ 任務控制 — 處理過程中可隨時暫停、繼續或停止
 
-與類似項目的區別：**僅單行字幕、更優質的翻譯、無縫配音體驗**
+在同一個專案中完成轉錄、翻譯、字幕排版和配音。
 
 ## 🎥 演示
 
@@ -75,28 +75,26 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 英語 🤩 | 🇷🇺 俄語 😊 | 🇫🇷 法語 🤩 | 🇩🇪 德語 🤩 | 🇮🇹 義大利語 🤩 | 🇪🇸 西班牙語 🤩 | 🇯🇵 日語 😐 | 🇨🇳 中文* 😊
 
-> *中文目前使用單獨的標點增強版 whisper 模型...
+> *本地辨識中文時，請明確選擇中文，以使用帶標點增強的 Belle Whisper 模型。
 
-**翻譯支持所有語言，配音語言則取決於所選的 TTS 方法。**
+翻譯語言取決於所選 LLM，配音語言取決於所選 TTS。
 
 ## 安裝
 
 遇到任何問題？在[**這裡**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)與我們的免費在線 AI 助手聊天以獲取幫助。
 
-> **注意：** Windows 用戶如使用 NVIDIA GPU，請在安裝前執行以下步驟：
-> 1. 安裝 [CUDA Toolkit 12.6](https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.76_windows.exe)
-> 2. 安裝 [CUDNN 9.3.0](https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn_9.3.0_windows.exe)
-> 3. 將 `C:\Program Files\NVIDIA\CUDNN\v9.3\bin\12.6` 添加到系統 PATH
-> 4. 重啟電腦
+先安裝 [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 [FFmpeg](https://ffmpeg.org/download.html)。安裝後重新開啟終端，檢查 `git --version`、`uv --version` 和 `ffmpeg -version`。
+
+使用 NVIDIA 加速時，需要安裝與顯卡相容的驅動。主機安裝器依據 `nvidia-smi` 報告的 CUDA 支援版本選擇 PyTorch：>=12.8 使用 `cu128`，否則使用 `cu126`；沒有 NVIDIA 時使用 CPU 套件。這是在選擇 Python 套件，不會自動安裝系統 CUDA Toolkit。本地 WhisperX 的 GPU 辨識還需要程序能找到 CUDA 12 cuBLAS 和 cuDNN 9 函式庫，詳見 [GPU 執行庫要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
 > **注意：** 需要安裝 FFmpeg。請通過包管理器安裝：
-> - Windows：```choco install ffmpeg```（通過 [Chocolatey](https://chocolatey.org/)）
+> - Windows：從 [FFmpeg 下載頁](https://ffmpeg.org/download.html)列出的 Windows 建置中選擇**共享函式庫版**，將其 `bin` 目錄加入 PATH。
 > - macOS：```brew install ffmpeg```（通過 [Homebrew](https://brew.sh/)）
 > - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 
-### 方式一：使用 uv（推薦）
+### 使用 uv 安裝
 
-[uv](https://docs.astral.sh/uv/) 會自動下載 Python 3.10 並建立隔離環境，無需手動安裝 Python 或 Anaconda。
+uv 自動下載 Python 3.13 並建立隔離的 `.venv`，以下命令不需要預裝 Python。應用程式支援 Python 3.10–3.13。固定的 TorchCodec 0.7 請搭配 **FFmpeg 7 共享函式庫**，僅有 FFmpeg 8/9 並不相容。見[已驗證的 Windows 建置](../docs/pages/docs/start.zh-CN.md#ffmpeg-runtime)。
 
 1. 複製倉庫
 
@@ -105,10 +103,10 @@ git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
 ```
 
-2. 一鍵安裝（自動安裝 uv + Python 3.10 + 所有依賴）
+2. 建立環境並安裝依賴
 
 ```bash
-python setup_env.py
+uv run --no-project --python 3.13 setup_env.py
 ```
 
 3. 啟動應用
@@ -118,40 +116,10 @@ python setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-或在 Windows 上雙擊 `OneKeyStart_uv.bat`。
-
-### 方式二：使用 Conda
-
-> ⚠️ **不推薦。** 此方式今後將不再維護，請使用上方的 uv（方式一）。
-
-<details>
-<summary>點擊展開 Conda 安裝步驟</summary>
-
-1. 複製倉庫
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. 安裝依賴（需要 `python=3.10`）
-
-```bash
-conda create -n videolingo python=3.10.0 -y
-conda activate videolingo
-python install.py
-```
-
-3. 啟動應用
-
-```bash
-streamlit run st.py
-```
-
-</details>
+或在 Windows 上雙擊 `OneKeyStart.bat`。它優先使用既有的 `~/.venvs/videolingo`，其次使用專案 `.venv`。開啟 `http://localhost:8501`，在側欄填寫 API 網址、金鑰和模型。
 
 ### Docker
-或者，您可以使用 Docker（需要 CUDA 12.4 和 NVIDIA 驅動版本 >550），參見 [Docker 文檔](/docs/pages/docs/docker.en-US.md)：
+在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、相容的顯卡驅動和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。映像檔使用相同的 Python 3.13 安裝流程和應用程式依賴，預設 CUDA 12.8.1/cu128。相容的 CUDA 12.6 方案及資料持久化設定見 [Docker 文件](/docs/pages/docs/docker.zh-CN.md)。
 
 ```bash
 docker build -t videolingo .
@@ -160,25 +128,23 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
-- LLM：`claude-sonnet-4.6`、`gpt-5.4`、`gemini-3.1-pro`、`deepseek-v3`、`grok-4.1`、...（按品質排序；預算方案可嘗試 `gemini-3-flash` 或 `gpt-5.4-mini`）
-- WhisperX：本地運行 whisperX 或使用 302.ai API
-- TTS：`azure-tts`、`openai-tts`、`siliconflow-fishtts`、**`fish-tts`**、`GPT-SoVITS`、`edge-tts`、`*custom-tts`（您可以在 custom_tts.py 中修改自己的 TTS！）
-
-> **注意：** VideoLingo 與 **[302.ai](https://gpt302.saaslink.net/C2oHR9)** 合作 - 一個 API 密鑰即可使用所有服務（LLM、WhisperX、TTS）。或者使用 Ollama 和 Edge-TTS 在本地免費運行，無需 API！
+- LLM：自行選擇相容 OpenAI Chat Completions、能回傳流程所需結構化 JSON 的服務與模型，在側欄設定 API 網址、金鑰和模型。
+- 語音辨識：本地執行 WhisperX 或使用 ElevenLabs API。
+- TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自訂適配器。
 
 詳細安裝、API 配置和批處理模式說明，請參閱文檔：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 當前限制
 
-1. WhisperX 轉錄性能可能受到視頻背景噪音影響，因為它使用 wav2vac 模型進行對齊。對於有大量背景音樂的視頻，請啟用語音分離增強。此外，由於 wav2vac 無法將數字字符（如"1"）映射到其口語形式（"one"），以數字或特殊字符結尾的字幕可能會提前截斷。
+1. 背景雜音和各語言的對齊模型會影響辨識及詞級時間戳，人聲分離可能有所幫助。數字、符號可能缺少可靠的詞級時間，需要檢查產生的字幕。
 
-2. 使用較弱的模型可能會由於對響應的嚴格 JSON 格式要求而在中間過程中出錯。如果出現此錯誤，請刪除 `output` 文件夾並使用不同的 LLM 重試，否則重複執行將讀取先前的錯誤響應導致相同錯誤。
+2. LLM 輸出需滿足流程要求的 JSON 結構，失敗時檢查 `output/gpt_log/error.json`。重試可能重用已成功的回應快取和已完成的輸出，僅更換模型不會重做所有步驟。不要一開始就刪除全部輸出。
 
-3. 由於語言之間的語速和語調差異，以及翻譯步驟的影響，配音功能可能無法 100% 完美。但是，本項目已經對語速進行了大量工程處理，以確保最佳的配音效果。
+3. 配音品質和時間匹配取決於翻譯、TTS 服務及語速，變速處理不能保證表達自然或完全同步。
 
-4. **多語言視頻轉錄識別將只保留主要語言**。這是因為 whisperX 在強制對齊詞級字幕時使用單一語言的專用模型，並會刪除無法識別的語言。
+4. 本地 WhisperX 每個片段使用一種辨識和對齊語言，混合語言語音不保證每種語言的文字和時間都準確。
 
-5. **無法分別為多個角色配音**，因為 whisperX 的說話人區分能力尚不夠可靠。
+5. 配音流程不會自動為每個說話人分配不同的聲音。
 
 ## 📄 許可證
 
@@ -198,4 +164,4 @@ VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
 
 ---
 
-<p align="center">如果您覺得 VideoLingo 有幫助，請給我一個 ⭐️！</p> 
+<p align="center">如果您覺得 VideoLingo 有幫助，請給我一個 ⭐️！</p>

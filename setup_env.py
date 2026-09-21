@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 
-PYTHON_VERSION = "3.10"
+PYTHON_VERSION = "3.13"
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOCAL_VENV = SCRIPT_DIR / ".venv"
 SHARED_VENV = Path.home() / ".venvs" / "videolingo"
@@ -94,7 +94,7 @@ def python_version_ok(python_exe: Path) -> bool:
     if not python_exe.is_file():
         return False
     result = subprocess.run([str(python_exe), "--version"], capture_output=True, text=True)
-    return "3.10" in (result.stdout or result.stderr)
+    return f"Python {PYTHON_VERSION}." in (result.stdout or result.stderr)
 
 
 def create_venv(path: Path, yes: bool = False) -> Path:
@@ -107,7 +107,7 @@ def create_venv(path: Path, yes: bool = False) -> Path:
 
     if path.exists():
         if not yes:
-            answer = input(f"  Existing venv at {path} is not Python 3.10. Remove and recreate it? [y/N] ").strip().lower()
+            answer = input(f"  Existing venv at {path} is not Python {PYTHON_VERSION}. Remove and recreate it? [y/N] ").strip().lower()
             if answer != "y":
                 raise SystemExit("Cancelled.")
         shutil.rmtree(path, ignore_errors=True)
@@ -115,7 +115,7 @@ def create_venv(path: Path, yes: bool = False) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     run(["uv", "venv", "--seed", "--python", PYTHON_VERSION, str(path)], cwd=SCRIPT_DIR)
     if not python_version_ok(python_exe):
-        raise SystemExit("ERROR: failed to create a Python 3.10 virtual environment")
+        raise SystemExit(f"ERROR: failed to create a Python {PYTHON_VERSION} virtual environment")
     return python_exe
 
 
@@ -124,10 +124,13 @@ def run_installer(python_exe: Path, args: argparse.Namespace) -> None:
     env = os.environ.copy()
     env["PATH"] = str(venv_bin(python_exe.parent.parent)) + os.pathsep + env.get("PATH", "")
     cmd = [str(python_exe), str(SCRIPT_DIR / "installer.py"), "--yes"]
+    cmd.extend(["--torch-backend", args.torch_backend])
     if args.auto_mirror:
         cmd.append("--auto-mirror")
     if args.force:
         cmd.append("--force")
+    if args.upgrade:
+        cmd.append("--upgrade")
     if args.skip_demucs:
         cmd.append("--skip-demucs")
     if args.require_demucs:
@@ -138,12 +141,15 @@ def run_installer(python_exe: Path, args: argparse.Namespace) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Create and install a VideoLingo environment")
     parser.add_argument("--shared", action="store_true", help=f"use shared venv at {SHARED_VENV}")
+    parser.add_argument("--torch-backend", choices=("auto", "cpu", "cu126", "cu128"), default="auto",
+                        help="PyTorch build selection passed to installer.py")
     parser.add_argument("--path", help="custom venv path; implies --shared-style external venv")
     parser.add_argument("--skip-install", action="store_true", help="only create/reuse the venv")
     parser.add_argument("--auto-mirror", action="store_true", help="auto-select a PyPI mirror before install")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")
     parser.add_argument("--force", action="store_true", help="force reinstall staged packages")
+    parser.add_argument("--upgrade", action="store_true", help="refresh dependencies within compatibility bounds")
     parser.add_argument("--yes", action="store_true", help="non-interactive; recreate wrong-version venvs")
     return parser
 

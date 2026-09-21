@@ -1,5 +1,7 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
+chcp 65001 >nul
+set "PYTHONUTF8=1"
 cd /D "%~dp0"
 
 for /F "tokens=1,2 delims=#" %%A in ('"prompt #$H#$E# & echo on & for %%B in (1) do rem"') do set "ESC=%%B"
@@ -11,12 +13,12 @@ set "C_CYAN=%ESC%[36m"
 set "C_BOLD=%ESC%[1m"
 
 if not exist "logs" mkdir "logs"
-for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set dt=%%I
-set "LOGFILE=logs\videolingo_%dt:~0,8%_%dt:~8,6%.log"
+for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "dt=%%I"
+set "LOGFILE=logs\videolingo_%dt%.log"
 set "CHECK_ONLY="
 if /I "%~1"=="--check-only" set "CHECK_ONLY=1"
 
-echo [%date% %time%] VideoLingo starting... > "%LOGFILE%"
+powershell -NoProfile -Command "[IO.File]::WriteAllText($env:LOGFILE, ('[{0}] VideoLingo starting...{1}' -f (Get-Date -Format 'yyyy/MM/dd HH:mm:ss'), [Environment]::NewLine), [Text.UTF8Encoding]::new($false))"
 echo %C_CYAN%Log file:%C_RESET% %LOGFILE%
 
 set "VENV_LABEL="
@@ -48,6 +50,7 @@ if %errorlevel%==0 (
         goto install_failed
     )
     python installer.py --check --quiet
+    if defined CHECK_ONLY exit /b !errorlevel!
     if errorlevel 1 (
         echo %C_YELLOW%Conda env is incomplete or outdated. Repairing...%C_RESET%
         python installer.py --yes
@@ -58,7 +61,7 @@ if %errorlevel%==0 (
         goto end
     )
     echo %C_GREEN%Starting VideoLingo with Conda...%C_RESET%
-    python -m streamlit run st.py 2>&1 | powershell -NoProfile -Command "$input | Tee-Object -FilePath '%LOGFILE%' -Append"
+    python -m streamlit run st.py 2>&1 | powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\streamlit-log.ps1"
     goto end
 )
 
@@ -69,8 +72,10 @@ echo   python setup_env.py
 goto end
 
 :venv_found
+for %%I in ("%VENV_PY%") do set "PATH=%%~dpI;%PATH%"
 echo %C_GREEN%Detected %VENV_LABEL%:%C_RESET% %VENV_PY%
 "%VENV_PY%" installer.py --check --quiet
+if defined CHECK_ONLY exit /b %errorlevel%
 if errorlevel 1 (
     echo %C_YELLOW%Environment is incomplete or outdated. Repairing with installer.py...%C_RESET%
     "%VENV_PY%" installer.py --yes
@@ -83,7 +88,7 @@ if defined CHECK_ONLY (
 )
 
 echo %C_GREEN%Starting VideoLingo with %VENV_LABEL%...%C_RESET%
-"%VENV_PY%" -m streamlit run st.py 2>&1 | powershell -NoProfile -Command "$input | Tee-Object -FilePath '%LOGFILE%' -Append"
+"%VENV_PY%" -m streamlit run st.py 2>&1 | powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\streamlit-log.ps1"
 goto end
 
 :install_failed

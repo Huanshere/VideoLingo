@@ -101,11 +101,12 @@ def merge_subtitles_to_video():
         if process.returncode == 0:
             rprint(f"\n✅ Done! Time taken: {time.time() - start_time:.2f} seconds")
         else:
-            rprint("\n❌ FFmpeg execution error")
+            raise subprocess.CalledProcessError(process.returncode, ffmpeg_cmd)
     except Exception as e:
         rprint(f"\n❌ Error occurred: {e}")
         if process.poll() is None:
             process.kill()
+        raise
 
 if __name__ == "__main__":
     merge_subtitles_to_video()
