@@ -17,7 +17,7 @@ VideoLingo 使用大模型进行翻译，TTS 仅在配音时需要。服务商�
 | 质量更好 | GPT-6 Sol | `gpt-6-sol` | ≈ $0.074 | ≈ $0.37 |
 | 质量最好 | Claude Opus 5.5 | `claude-opus-5-5` | ≈ $0.71 | ≈ $3.53 |
 
-也可以使用其他兼容服务，例如 OpenRouter（地址 `https://openrouter.ai/api/v1`）或本地兼容服务。即使服务不验证凭据，应用仍要求密钥字段非空，只有在服务明确忽略密钥时才使用占位值。Edge TTS 需要联网，不是离线语音合成。
+也可以使用其他兼容服务，例如 OpenRouter，地址填 `https://openrouter.ai/api/v1`，或使用本地兼容服务。即使服务不验证凭据，应用仍要求密钥字段非空，只有在服务明确忽略密钥时才使用占位值。Edge TTS 需要联网，不是离线语音合成。
 
 ### 2. **TTS 的 API**
 VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配音可跳过）
