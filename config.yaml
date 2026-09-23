@@ -12,8 +12,8 @@ display_language: "zh-CN"
 # API settings
 api:
   key: 'YOUR_API_KEY'
-  base_url: 'https://openrouter.ai/api/v1'
-  model: 'deepseek/deepseek-v4-flash'
+  base_url: 'https://api.openlux.ai/v1'
+  model: 'gpt-6-luna'
   llm_support_json: false
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4
