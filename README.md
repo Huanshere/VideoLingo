@@ -128,7 +128,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 ## APIs
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
-- LLM: choose an OpenAI-compatible Chat Completions provider and model that can return the structured JSON required by the workflow. Configure the API URL, key and model in the sidebar.
+- LLM: [OpenLux](https://www.openlux.ai/register?aff=wKYu) (`https://api.openlux.ai/v1`) is the recommended gateway. Prefer `gpt-6-luna` (lower cost), `gpt-6-sol` (better quality), or `claude-opus-5-5` (best quality). Other OpenAI-compatible Chat Completions providers that return the structured JSON required by the workflow also work. Set the API URL, key and model in the sidebar.
 - Speech recognition: run WhisperX locally or use the ElevenLabs API.
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS and a custom adapter in `core/tts_backend/custom_tts.py`.
 

@@ -1,17 +1,25 @@
 # 🚀 开始使用
 
 ## 📋 API 配置指南
-VideoLingo 使用大模型进行翻译，TTS 仅在配音时需要。服务商和模型由用户自行选择。
+VideoLingo 使用大模型进行翻译，TTS 仅在配音时需要。LLM 推荐使用下方的 OpenLux；其他兼容服务仍可自行配置。
 
 ### 1. **大模型的 API_KEY**：
 
-在侧栏设置 API 地址、密钥和模型。客户端使用兼容 OpenAI 的 Chat Completions，
-多个步骤需要结构化 JSON。选择接口实际支持的模型，参数量本身不能证明翻译质量
-或 JSON 可靠性。仅在服务支持时开启 JSON 模式。
+推荐使用 [OpenLux](https://www.openlux.ai/register?aff=wKYu)（兼容 OpenAI 的中转）作为 LLM 渠道。在侧栏填写 API 地址、密钥和模型。客户端使用 Chat Completions，多个步骤需要结构化 JSON。选择接口实际支持的模型；参数量本身不能证明翻译质量或 JSON 可靠性。仅在服务支持时开启 JSON 模式。
 
-例如 OpenRouter 地址为 `https://openrouter.ai/api/v1`，不限定某个模型。
-也可以使用本地兼容服务。即使服务不验证凭据，应用仍要求密钥字段非空，
-只有在服务明确忽略密钥时才使用占位值。Edge TTS 需要联网，不是离线语音合成。
+- API 地址：`https://api.openlux.ai/v1`
+
+建议按下面三档选择模型。价格为 OpenLux 目录标价（美元 / 百万 token）：
+
+| 建议 | 模型 | 输入 | 输出 |
+|:-----|:-----|-----:|-----:|
+| 默认，更便宜 | `gpt-6-luna`（GPT-6 Luna） | $0.10 | $0.50 |
+| 质量更好 | `gpt-6-sol`（GPT-6 Sol） | $2.00 | $10.00 |
+| 质量最好 | `claude-opus-5-5`（Claude Opus 5.5） | $4.00 | $20.00 |
+
+OpenLux 实际结算可能按更低的分组折扣计费；上表为目录标价。
+
+其他兼容 OpenAI 的服务也可以使用，包括本地兼容服务。即使服务不验证凭据，应用仍要求密钥字段非空，只有在服务明确忽略密钥时才使用占位值。Edge TTS 需要联网，不是离线语音合成。
 
 ### 2. **TTS 的 API**
 VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配音可跳过）

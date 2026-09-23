@@ -1,20 +1,25 @@
 # 🚀 Getting Started
 
 ## 📋 API Configuration
-VideoLingo uses an LLM for translation. TTS is optional and only needed for dubbing. Choose your own provider and model.
+VideoLingo uses an LLM for translation. TTS is optional and only needed for dubbing. OpenLux is the recommended LLM channel below; other compatible providers can still be configured.
 
 ### 1. **Get API_KEY for LLM**:
 
-Set the API URL, key and model in the sidebar. The client uses OpenAI-compatible
-Chat Completions, with structured JSON required by several processing steps.
-Use a model supported by your endpoint; parameter count alone does not establish
-translation quality or JSON reliability. Enable JSON mode only if supported.
+[OpenLux](https://www.openlux.ai/register?aff=wKYu) is the recommended OpenAI-compatible gateway. Set the API URL, key and model in the sidebar. The client uses Chat Completions, and several steps require structured JSON. Use a model the endpoint actually supports; parameter count alone does not establish translation quality or JSON reliability. Enable JSON mode only if the service supports it.
 
-For example, an OpenRouter API URL is `https://openrouter.ai/api/v1`; no particular
-model is required. A local compatible server can also be used. The application
-requires a non-empty key field even when that server does not authenticate requests;
-use a placeholder only for a server that explicitly ignores the key. Edge TTS
-requires network access and is not an offline synthesizer.
+- API base URL: `https://api.openlux.ai/v1`
+
+Use one of these three models. Prices are OpenLux catalog list rates (USD per 1M tokens):
+
+| Recommendation | Model | Input | Output |
+|:---------------|:------|------:|-------:|
+| Default, lower cost | `gpt-6-luna` (GPT-6 Luna) | $0.10 | $0.50 |
+| Better quality | `gpt-6-sol` (GPT-6 Sol) | $2.00 | $10.00 |
+| Best quality | `claude-opus-5-5` (Claude Opus 5.5) | $4.00 | $20.00 |
+
+OpenLux may apply lower group-discount rates in practice; the figures above are catalog list prices.
+
+Other OpenAI-compatible providers, including a local compatible server, can still be used. The application requires a non-empty key field even when that server does not authenticate requests; use a placeholder only for a server that explicitly ignores the key. Edge TTS requires network access and is not an offline synthesizer.
 
 ### 2. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
