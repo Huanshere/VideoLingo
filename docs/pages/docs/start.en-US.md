@@ -14,7 +14,7 @@ translation quality or JSON reliability. Enable JSON mode only if supported.
 
 | Recommendation | Model ID | Input | Output |
 |:---------------|:---------|------:|-------:|
-| Default, lower cost | `gpt-6-luna` | $0.006 | $0.029 |
+| Default, best value | `gpt-6-luna` | $0.006 | $0.029 |
 | Better quality | `gpt-6-sol` | $0.074 | $0.37 |
 | Best quality | `claude-opus-5-5` | $0.71 | $3.53 |
 
