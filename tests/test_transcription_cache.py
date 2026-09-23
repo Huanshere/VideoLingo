@@ -35,6 +35,12 @@ class TranscriptionCacheTests(unittest.TestCase):
         for change in ({"language": "ja"}, {"runtime": "local"}, {"model": "tiny"}):
             self.assertNotEqual(key, cache.cache_key(self.media, dict(self.whisper, **change), False))
         self.assertNotEqual(key, cache.cache_key(self.media, self.whisper, True))
+        assemblyai = dict(self.whisper, runtime="assemblyai", assemblyai_model="assemblyai/universal-3-5-pro")
+        self.assertNotEqual(key, cache.cache_key(self.media, assemblyai, False))
+        self.assertNotEqual(
+            cache.cache_key(self.media, assemblyai, False),
+            cache.cache_key(self.media, dict(assemblyai, assemblyai_model="other/model"), False),
+        )
         self.media.write_bytes(b"synthetic input two")
         self.assertNotEqual(key, cache.cache_key(self.media, self.whisper, False))
 

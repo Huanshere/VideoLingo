@@ -16,6 +16,21 @@ requires a non-empty key field even when that server does not authenticate reque
 use a placeholder only for a server that explicitly ignores the key. Edge TTS
 requires network access and is not an offline synthesizer.
 
+After ASR, set `api.model` to any Chat Completions model on that endpoint, for
+example `deepseek/deepseek-v4.1-flash`.
+
+### 1b. **Speech recognition (optional AssemblyAI via OpenRouter)**
+
+Default recognition is local WhisperX. ElevenLabs is also supported. An
+experimental third option uses OpenRouter Sync transcription with
+`assemblyai/universal-3-5-pro`. Set `whisper.runtime` to `assemblyai` (or pick
+**AssemblyAI (OpenRouter)** in the sidebar). Auth is
+`OPENROUTER_API_KEY`, `whisper.openrouter_api_key`, or `api.key`.
+
+OpenRouter accepts at most ~120 seconds per Sync request. VideoLingo chunks
+longer audio (~110s windows), then stitches word timestamps. Details and a Mac
+test recipe: [AssemblyAI via OpenRouter](/docs/assemblyai-openrouter.md).
+
 ### 2. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
 
