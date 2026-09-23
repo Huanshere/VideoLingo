@@ -26,9 +26,12 @@ def cache_key(media_file, whisper, demucs):
         except PackageNotFoundError:
             packages[name] = None
     # Deliberately exclude credentials, filenames and translation/TTS settings.
+    model = whisper["model"]
+    if whisper.get("runtime") == "assemblyai":
+        model = whisper.get("assemblyai_model") or "assemblyai/universal-3-5-pro"
     identity = {
         "schema": SCHEMA, "media_md5": digest.hexdigest(), "packages": packages,
-        "runtime": whisper["runtime"], "model": whisper["model"],
+        "runtime": whisper["runtime"], "model": model,
         "language": whisper["language"], "demucs": bool(demucs),
     }
     return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()

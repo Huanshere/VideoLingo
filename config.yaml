@@ -12,6 +12,7 @@ display_language: "zh-CN"
 # API settings
 api:
   key: 'YOUR_API_KEY'
+  # OpenRouter Chat Completions. Example LLM after ASR: deepseek/deepseek-v4.1-flash
   base_url: 'https://openrouter.ai/api/v1'
   model: 'deepseek/deepseek-v4-flash'
   llm_support_json: false
@@ -30,10 +31,17 @@ whisper:
   # Whisper specified recognition language ISO 639-1
   language: 'en'
   detected_language: 'en'
-  # Recognition runtime: "local" or "elevenlabs".
+  # Recognition runtime: "local", "elevenlabs", or "assemblyai" (experimental OpenRouter Sync).
   runtime: 'local'
   # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'
+  # Optional dedicated OpenRouter key for AssemblyAI ASR. Falls back to
+  # OPENROUTER_API_KEY, then api.key. Leave empty to reuse the LLM key.
+  openrouter_api_key: ''
+  # Optional override; default is https://openrouter.ai/api/v1
+  openrouter_base_url: 'https://openrouter.ai/api/v1'
+  # OpenRouter STT model when runtime is assemblyai (max ~120s per Sync request)
+  assemblyai_model: 'assemblyai/universal-3-5-pro'
 
 # Whether to burn subtitles into the video
 burn_subtitles: true

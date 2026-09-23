@@ -168,10 +168,10 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
-        runtimes = ["local", "elevenlabs"]
+        runtimes = ["local", "elevenlabs", "assemblyai"]
         configured_runtime = load_key("whisper.runtime")
         if configured_runtime not in runtimes:
-            st.warning(t("The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue."))
+            st.warning(t("The 302.ai WhisperX cloud service has been retired. Select Local, ElevenLabs, or AssemblyAI to continue."))
         runtime = st.selectbox(
             t("WhisperX Runtime"),
             options=runtimes,
@@ -179,9 +179,10 @@ def page_setting():
             format_func=lambda x: {
                 "local": t("Local"),
                 "elevenlabs": t("ElevenLabs"),
+                "assemblyai": t("AssemblyAI (OpenRouter)"),
             }[x],
             help=t(
-                "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key."
+                "Local runtime requires >8GB GPU; ElevenLabs needs an ElevenLabs API key; AssemblyAI uses OpenRouter Sync (max ~120s per request, auto-chunked)."
             ),
         )
         if runtime is not None and runtime != configured_runtime:
@@ -189,6 +190,12 @@ def page_setting():
             st.rerun()
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
+        if runtime == "assemblyai":
+            config_input(
+                t("OpenRouter API (optional)"),
+                "whisper.openrouter_api_key",
+                help=t("Leave empty to reuse api.key or the OPENROUTER_API_KEY environment variable."),
+            )
 
         with c2:
             target_language = st.text_input(

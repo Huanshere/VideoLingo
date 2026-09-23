@@ -13,6 +13,19 @@ VideoLingo 使用大模型进行翻译，TTS 仅在配音时需要。服务商�
 也可以使用本地兼容服务。即使服务不验证凭据，应用仍要求密钥字段非空，
 只有在服务明确忽略密钥时才使用占位值。Edge TTS 需要联网，不是离线语音合成。
 
+ASR 之后的 LLM 步骤使用同一个 `api.base_url` / `api.model`，例如
+`deepseek/deepseek-v4.1-flash`。
+
+### 1b. **语音识别（可选：OpenRouter 上的 AssemblyAI）**
+
+默认使用本地 WhisperX，也可选 ElevenLabs。实验性第三种路径通过 OpenRouter
+Sync 调用 `assemblyai/universal-3-5-pro`：将 `whisper.runtime` 设为
+`assemblyai`（或在侧栏选择 AssemblyAI (OpenRouter)）。密钥顺序为
+`OPENROUTER_API_KEY`、`whisper.openrouter_api_key`、`api.key`。
+
+OpenRouter Sync 单次最多约 120 秒，更长音频会按约 110 秒分片再拼接词级时间戳。
+说明与 Mac 测试步骤见 [AssemblyAI via OpenRouter](/docs/assemblyai-openrouter.md)。
+
 ### 2. **TTS 的 API**
 VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配音可跳过）
 

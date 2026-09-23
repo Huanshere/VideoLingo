@@ -23,7 +23,8 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系
 *   `core/asr_backend/audio_preprocess.py`: 包含准备音频的基本功能：音量标准化 (`pydub`)、视频到音频的转换 (`ffmpeg`)、静音检测 (`ffmpeg`)、音频时长计算 (`ffmpeg`)、将长音频文件拆分为可管理的片段、将 ASR 结果处理为 DataFrames、保存结果以及存储检测到的语言。
 *   `core/asr_backend/whisperX_local.py`: 使用 WhisperX 库实现本地音频转录。根据可用硬件（GPU/CPU）优化性能，处理模型下载（具有镜像检查），执行转录和对齐，调整时间戳，并管理 GPU 内存。
 *   `core/asr_backend/elevenlabs_asr.py`: 使用 ElevenLabs 语音转文本 API 实现音频转录，处理音频切片、API 交互、格式转换（ElevenLabs 到类似 Whisper 的格式）和临时文件管理。
-*   `core/_2_asr.py`: Orchestrates audio preparation, optional vocal separation, recognition with local WhisperX or ElevenLabs, and result export.
+*   `core/asr_backend/assemblyai_openrouter.py`: 实验性 OpenRouter Sync 路径，调用 AssemblyAI Universal-3.5 Pro。将音频转为 16-bit WAV，按约 120 秒上限分片，再把词级时间戳拼成与其它后端相同的 Whisper 风格结构。
+*   `core/_2_asr.py`: 编排音频准备、可选人声分离，以及本地 WhisperX / ElevenLabs / OpenRouter AssemblyAI 识别与结果导出。
 
 **4. 文本处理和翻译模块 (`core`, `core/spacy_utils`):**
 
