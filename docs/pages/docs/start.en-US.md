@@ -12,11 +12,11 @@ translation quality or JSON reliability. Enable JSON mode only if supported.
 
 [OpenLux](https://www.openlux.ai/register?aff=wKYu) is the recommended relay. Set the API base URL to `https://api.openlux.ai/v1`. Pick one of the three models below. Prices are approximate OpenLux auto-routing group rates measured on the gateway (USD per 1M tokens; they vary by routing group):
 
-| Recommendation | Name | Model ID | Input | Output |
-|:---------------|:-----|:---------|------:|-------:|
-| Default, lower cost | GPT-6 Luna | `gpt-6-luna` | ≈ $0.006 | ≈ $0.029 |
-| Better quality | GPT-6 Sol | `gpt-6-sol` | ≈ $0.074 | ≈ $0.37 |
-| Best quality | Claude Opus 5.5 | `claude-opus-5-5` | ≈ $0.71 | ≈ $3.53 |
+| Recommendation | Model ID | Input | Output |
+|:---------------|:---------|------:|-------:|
+| Default, lower cost | `gpt-6-luna` | $0.006 | $0.029 |
+| Better quality | `gpt-6-sol` | $0.074 | $0.37 |
+| Best quality | `claude-opus-5-5` | $0.71 | $3.53 |
 
 Other OpenAI-compatible providers also work, for example OpenRouter at `https://openrouter.ai/api/v1`, or a local compatible server. The application requires a non-empty key field even when that server does not authenticate requests; use a placeholder only for a server that explicitly ignores the key. Edge TTS requires network access and is not an offline synthesizer.
 
