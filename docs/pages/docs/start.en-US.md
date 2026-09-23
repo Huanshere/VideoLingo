@@ -10,11 +10,15 @@ Chat Completions, with structured JSON required by several processing steps.
 Use a model supported by your endpoint; parameter count alone does not establish
 translation quality or JSON reliability. Enable JSON mode only if supported.
 
-For example, an OpenRouter API URL is `https://openrouter.ai/api/v1`; no particular
-model is required. A local compatible server can also be used. The application
-requires a non-empty key field even when that server does not authenticate requests;
-use a placeholder only for a server that explicitly ignores the key. Edge TTS
-requires network access and is not an offline synthesizer.
+[OpenLux](https://www.openlux.ai/register?aff=wKYu) is the recommended relay. Set the API base URL to `https://api.openlux.ai/v1`. Pick one of the three models below. Prices are approximate OpenLux auto-routing group rates measured on the gateway (USD per 1M tokens; they vary by routing group):
+
+| Recommendation | Model ID | Input | Output |
+|:---------------|:---------|------:|-------:|
+| Default, best value | `gpt-6-luna` | $0.006 | $0.029 |
+| Better quality | `gpt-6-sol` | $0.074 | $0.37 |
+| Best quality | `claude-opus-5-5` | $0.71 | $3.53 |
+
+Other OpenAI-compatible providers also work, for example OpenRouter at `https://openrouter.ai/api/v1`, or a local compatible server. The application requires a non-empty key field even when that server does not authenticate requests; use a placeholder only for a server that explicitly ignores the key. Edge TTS requires network access and is not an offline synthesizer.
 
 ### 2. **TTS API**
 VideoLingo provides multiple TTS integration methods. Here's a comparison (skip if only using translation without dubbing)
