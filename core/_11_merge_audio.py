@@ -1,4 +1,8 @@
 import os
+
+# noqa: F401 - eval() of xlsx columns under numpy>=2.0 needs np in scope
+#   (pandas serializes floats as np.float64(...) repr instead of bare numbers)
+import numpy as np  # noqa: F401
 import pandas as pd
 import subprocess
 from pydub import AudioSegment
