@@ -101,6 +101,10 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
             model_name = str(local_model.resolve())
     else:
         model_name = load_key("whisper.model")
+        if "turbo" in str(model_name).lower():
+            # Measured 17-72% WER from repetition loops under WhisperX batched decoding.
+            rprint("[yellow]large-v3-turbo is unreliable in this pipeline; using large-v3 instead.[/yellow]")
+            model_name = "large-v3"
     model_name = resolve_whisper_model(model_name, MODEL_DIR)
 
     vad_options = {"vad_onset": 0.500,"vad_offset": 0.363}
