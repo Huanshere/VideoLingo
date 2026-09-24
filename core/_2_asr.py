@@ -7,8 +7,8 @@ from core.asr_backend import transcription_cache as cache
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
     runtime = load_key("whisper.runtime")
-    if runtime not in ("local", "elevenlabs"):
-        raise ValueError("Select local or elevenlabs for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
+    if runtime not in ("local", "elevenlabs", "mai"):
+        raise ValueError(f"Unsupported whisper.runtime: {runtime}. Use local, elevenlabs or mai.")
     # 1. prepare audio
     media_file, media_type = find_media_file()
     whisper = load_key("whisper")
@@ -48,6 +48,9 @@ def transcribe():
     elif runtime == "elevenlabs":
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")
+    elif runtime == "mai":
+        from core.asr_backend.mai_asr import transcribe_audio_mai as ts
+        rprint("[cyan]🎤 Transcribing audio with Azure MAI-Transcribe...[/cyan]")
     else:
         raise ValueError(f"Unsupported ASR runtime: {runtime}")
 

@@ -131,7 +131,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
 - LLM：自行选择兼容 OpenAI Chat Completions、能够返回流程所需结构化 JSON 的服务和模型。推荐 [OpenLux](https://www.openlux.ai/register?aff=wKYu) 中转，API 地址填 `https://api.openlux.ai/v1`。默认性价比高用 GPT-6 Luna，模型 ID 填 `gpt-6-luna`；质量更好用 GPT-6 Sol，模型 ID 填 `gpt-6-sol`；质量最好用 Claude Opus 5.5，模型 ID 填 `claude-opus-5-5`。OpenLux 中转约价见安装文档。在侧栏配置 API 地址、密钥和模型。
-- 语音识别：本地运行 WhisperX 或使用 ElevenLabs API。
+- 语音识别：本地运行 WhisperX，或使用 ElevenLabs API、Azure MAI-Transcribe。
 - TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自定义适配器。
 
 详细的安装、API 配置、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)

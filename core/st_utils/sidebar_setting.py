@@ -168,20 +168,19 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
-        runtimes = ["local", "elevenlabs"]
+        runtimes = ["local", "elevenlabs", "mai"]
         configured_runtime = load_key("whisper.runtime")
-        if configured_runtime not in runtimes:
-            st.warning(t("The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue."))
         runtime = st.selectbox(
-            t("WhisperX Runtime"),
+            t("Recognition Runtime"),
             options=runtimes,
             index=runtimes.index(configured_runtime) if configured_runtime in runtimes else None,
             format_func=lambda x: {
                 "local": t("Local"),
                 "elevenlabs": t("ElevenLabs"),
+                "mai": t("Azure MAI-Transcribe"),
             }[x],
             help=t(
-                "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key."
+                "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key; Azure MAI-Transcribe requires an Azure Speech key."
             ),
         )
         if runtime is not None and runtime != configured_runtime:
@@ -189,6 +188,19 @@ def page_setting():
             st.rerun()
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
+        elif runtime == "mai":
+            from core.asr_backend.mai_asr import detect_region
+            old_key = load_key("whisper.mai_api_key")
+            key = config_input(t("Azure Speech Key"), "whisper.mai_api_key", help=t("MAI_KEY_HELP"))
+            region = str(load_key("whisper.mai_region") or "")
+            if key != old_key and key.strip() and not region.startswith("https://"):
+                with st.spinner(t("Detecting Azure Speech region...")):
+                    region = detect_region(key.strip()) or ""
+                update_key("whisper.mai_region", region)
+                if not region:
+                    st.warning(t("This key was not accepted in any supported region. Check the key, or make sure the resource is in one of the listed regions."))
+            if region and not region.startswith("https://"):
+                st.caption(t("Azure Speech region detected: ") + region)
 
         with c2:
             target_language = st.text_input(
