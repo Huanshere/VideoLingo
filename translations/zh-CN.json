@@ -77,6 +77,7 @@
     "Audio processing complete! 🎇": "音频处理完成! 🎇",
     "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "欢迎来到VideoLingo。如果遇到任何问题，随时可以通过我们的免费问答助手 <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">这里</a> 获取即时解答！还可以免费试用我们的SaaS网站 <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>！",
     "Recognition Runtime": "语音识别方式",
+    "LOCAL_WHISPERX_NOT_INSTALLED": "本地 WhisperX 未安装。如需使用，请运行 `uv run --no-project --python 3.13 setup_env.py --local-whisperx`。",
     "=====NOTE2=====": "以下是install.py中的内容",
     "🚀 Starting Installation": "🚀 开始安装",
     "Do you need to auto-configure PyPI mirrors? (Recommended if you have difficulty accessing pypi.org)": "是否需要自动配置PyPI镜像？（如果访问pypi.org困难，建议使用）",

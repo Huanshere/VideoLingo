@@ -77,6 +77,7 @@
     "Audio processing complete! 🎇": "¡Procesamiento de audio completado! 🎇",
     "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "Hola, bienvenido a VideoLingo. Si encuentra algún problema, no dude en obtener respuestas instantáneas con nuestro Agente de preguntas y respuestas gratuito <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">aquí</a>. ¡También puede probar gratis nuestro sitio web SaaS en <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>!",
     "Recognition Runtime": "Motor de reconocimiento",
+    "LOCAL_WHISPERX_NOT_INSTALLED": "WhisperX local no está instalado. Para añadirlo, ejecuta `uv run --no-project --python 3.13 setup_env.py --local-whisperx`.",
     "=====NOTE2=====": "A continuación está en install.py",
     "🚀 Starting Installation": "🚀 Iniciando instalación",
     "Do you need to auto-configure PyPI mirrors? (Recommended if you have difficulty accessing pypi.org)": "¿Necesita configurar automáticamente los espejos PyPI? (Recomendado si tiene dificultades para acceder a pypi.org)",

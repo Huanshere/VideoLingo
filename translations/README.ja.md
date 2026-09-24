@@ -94,7 +94,7 @@ NVIDIA を使用する場合は、GPU に対応するドライバーが必要で
 
 ### uv でインストール
 
-uv が Python 3.13 を取得して `.venv` を作成するため、Python の事前インストールは不要です。アプリは Python 3.10–3.13 に対応します。TorchCodec 0.7 には **FFmpeg 7 共有ライブラリ**を使用してください。FFmpeg 8/9 のみでは非互換です。[検証済み Windows ビルド](../docs/pages/docs/start.en-US.md#ffmpeg-runtime)を参照してください。
+uv が Python 3.13 を取得して `.venv` を作成するため、Python の事前インストールは不要です。アプリは Python 3.10–3.13 に対応します。任意のローカル WhisperX を入れる場合、その TorchCodec 0.7 には **FFmpeg 7 共有ライブラリ**を使用してください。FFmpeg 8/9 のみでは非互換です。[検証済み Windows ビルド](../docs/pages/docs/start.en-US.md#ffmpeg-runtime)を参照してください。
 
 1. リポジトリをクローン
 
@@ -108,6 +108,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+音声認識は既定で Azure MAI-Transcribe を使います。ローカル WhisperX は任意で、セットアップ時に確認されます。`--local-whisperx` を付けてもインストールできます（8 GB 超の NVIDIA GPU 推奨）。
 
 3. アプリケーションの起動
 

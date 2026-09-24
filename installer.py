@@ -30,6 +30,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 STATE_FILE = Path(sys.prefix) / ".videolingo-install.json"
 REQUIREMENTS = ROOT / "requirements.txt"
+WHISPERX_REQUIREMENTS = ROOT / "requirements-whisperx.txt"
 
 TORCH_VERSION = "2.8.0"
 TORCH_INDEX = "https://download.pytorch.org/whl"
@@ -108,9 +109,15 @@ def import_ok(module: str) -> bool:
 def requirements_hash() -> str:
     h = hashlib.sha256()
     h.update(REQUIREMENTS.read_bytes())
+    if local_whisperx_installed():
+        h.update(WHISPERX_REQUIREMENTS.read_bytes())
     h.update(f"torch={TORCH_VERSION}\n".encode())
     h.update(DEMUCS_REQUIREMENT.encode())
     return h.hexdigest()
+
+
+def local_whisperx_installed() -> bool:
+    return package_version("whisperx") is not None
 
 
 def load_state() -> dict:
@@ -145,9 +152,9 @@ def requirement_name(line: str) -> str | None:
     return name.strip().lower().replace("_", "-") or None
 
 
-def read_base_requirements() -> list[str]:
+def read_base_requirements(path: Path = REQUIREMENTS) -> list[str]:
     reqs: list[str] = []
-    for raw in REQUIREMENTS.read_text(encoding="utf-8").splitlines():
+    for raw in path.read_text(encoding="utf-8").splitlines():
         name = requirement_name(raw)
         if not name or name in FILTERED_REQUIREMENTS:
             continue
@@ -257,12 +264,12 @@ def install_spacy(force: bool = False) -> None:
     pip_install(["spacy>=3.8.7,<3.9"], retries=3)
 
 
-def install_whisperx(force: bool = False) -> None:
-    print("\n[6/7] Install WhisperX")
-    if not force and package_version("whisperx") is not None:
+def install_whisperx(force: bool = False, upgrade: bool = False) -> None:
+    print("\n[6/7] Install local WhisperX (optional)")
+    if not force and not upgrade and local_whisperx_installed():
         print(f"  whisperx {package_version('whisperx')} already installed.")
         return
-    pip_install(["whisperx>=3.8.6,<3.9"], retries=3)
+    pip_install(read_base_requirements(WHISPERX_REQUIREMENTS), retries=3, extra_args=["--upgrade"])
 
 
 def install_demucs(force: bool = False, require: bool = False) -> None:
@@ -350,14 +357,17 @@ def install_linux_noto_fonts() -> None:
         print(f"  Warning: failed to install Noto CJK fonts automatically: {exc}")
 
 
-def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True, torch_backend: str = "auto") -> int:
+def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True, torch_backend: str = "auto",
+                 require_whisperx: bool = False) -> int:
     errors: list[str] = []
     warnings: list[str] = []
+    whisperx = require_whisperx or local_whisperx_installed()
     if not (3, 10) <= sys.version_info[:2] < (3, 14):
-        errors.append("WhisperX requires Python >=3.10,<3.14; use setup_env.py")
+        errors.append("VideoLingo requires Python >=3.10,<3.14; use setup_env.py")
     try:
         from packaging.requirements import Requirement
-        for raw in REQUIREMENTS.read_text(encoding="utf-8").splitlines():
+        files = [REQUIREMENTS, WHISPERX_REQUIREMENTS] if whisperx else [REQUIREMENTS]
+        for raw in (line for path in files for line in path.read_text(encoding="utf-8").splitlines()):
             if not requirement_name(raw):
                 continue
             req = Requirement(raw)
@@ -381,8 +391,9 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         "torch": TORCH_VERSION,
         "torchaudio": TORCH_VERSION,
         "spacy": "3.8.",
-        "whisperx": None,
     }
+    if whisperx:
+        required["whisperx"] = None
     for package, prefix in required.items():
         version = package_version(package)
         if version is None:
@@ -406,7 +417,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
                           f"detected builds: {', '.join(sorted(builds))}. Rerun installer.py")
     elif builds != {torch_backend}:
         errors.append(f"PyTorch build does not match requested {torch_backend}")
-    if check_state and not errors:
+    if check_state and whisperx and not errors:
         try:
             probe = subprocess.run(
                 [sys.executable, "-c", "from runtime_libraries import configure_ffmpeg_dlls; "
@@ -421,7 +432,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
     if not quiet:
         print("\nEnvironment check")
         for package in ["streamlit", "torch", "torchaudio", "spacy", "whisperx", "demucs"]:
-            print(f"  {package}: {package_version(package) or 'missing'}")
+            print(f"  {package}: {package_version(package) or ('not installed (optional)' if package == 'whisperx' else 'missing')}")
         for warning in warnings:
             print(f"  WARN: {warning}")
         for error in errors:
@@ -437,21 +448,27 @@ def launch_streamlit() -> int:
 
 def install_all(args: argparse.Namespace) -> int:
     if not (3, 10) <= sys.version_info[:2] < (3, 14):
-        print("ERROR: WhisperX requires Python >=3.10,<3.14. Run setup_env.py first.")
+        print("ERROR: VideoLingo requires Python >=3.10,<3.14. Run setup_env.py first.")
         return 1
     install_bootstrap()
     maybe_configure_mirror(args.auto_mirror)
     install_torch(force=args.force, backend=args.torch_backend)
     install_base_requirements(force=args.force, upgrade=args.upgrade)
     install_spacy(force=args.force)
-    install_whisperx(force=args.force)
+    local_whisperx = args.local_whisperx or local_whisperx_installed()
+    if local_whisperx:
+        install_whisperx(force=args.force, upgrade=args.upgrade)
+    else:
+        print("\n[6/7] Local WhisperX not selected (optional). Add it later with: "
+              "uv run --no-project --python 3.13 setup_env.py --local-whisperx")
     if not args.skip_demucs:
         install_demucs(force=args.force or args.upgrade, require=args.require_demucs)
     install_project_metadata()
     install_linux_noto_fonts()
     ffmpeg_ok = check_ffmpeg()
     save_state()
-    status = health_check(require_demucs=args.require_demucs, torch_backend=args.torch_backend)
+    status = health_check(require_demucs=args.require_demucs, torch_backend=args.torch_backend,
+                          require_whisperx=local_whisperx)
     if not ffmpeg_ok or status != 0:
         return 1
     if args.launch:
@@ -471,6 +488,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--auto-mirror", action="store_true", help="auto-select and configure a PyPI mirror")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")
+    parser.add_argument("--local-whisperx", action="store_true", help="also install optional local WhisperX recognition")
     parser.add_argument("--launch", action="store_true", help="launch Streamlit after a successful install")
     parser.add_argument("--yes", action="store_true", help="accepted for non-interactive wrappers")
     parser.add_argument("--no-launch", action="store_true", help="compatibility alias; launching is opt-in")

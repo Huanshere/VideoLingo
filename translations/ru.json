@@ -100,6 +100,7 @@
     "Audio processing complete! 🎇": "Обработка аудио завершена! 🎇",
     "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "Здравствуйте, добро пожаловать в VideoLingo. Если у вас возникнут вопросы, вы можете получить мгновенные ответы с помощью нашего бесплатного QA-агента <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">здесь</a>! Вы также можете бесплатно попробовать наш SaaS-сайт <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>!",
     "Recognition Runtime": "Способ распознавания",
+    "LOCAL_WHISPERX_NOT_INSTALLED": "Локальный WhisperX не установлен. Чтобы добавить его, выполните `uv run --no-project --python 3.13 setup_env.py --local-whisperx`.",
     "Detected NVIDIA GPU(s)": "Обнаружен(ы) GPU NVIDIA",
     "No NVIDIA GPU detected": "GPU NVIDIA не обнаружен",
     "No NVIDIA GPU detected or NVIDIA drivers not properly installed": "GPU NVIDIA не обнаружен или драйверы NVIDIA установлены неправильно",

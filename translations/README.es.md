@@ -94,7 +94,7 @@ Para NVIDIA, instala un controlador compatible con tu GPU. El instalador selecci
 
 ### Instalación con uv
 
-uv descarga Python 3.13 y crea un entorno `.venv` aislado, sin Python preinstalado. La aplicación admite Python 3.10–3.13. Usa **bibliotecas compartidas FFmpeg 7** con TorchCodec 0.7; FFmpeg 8/9 solo no es compatible. Consulta la [compilación Windows verificada](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
+uv descarga Python 3.13 y crea un entorno `.venv` aislado, sin Python preinstalado. La aplicación admite Python 3.10–3.13. Si instalas WhisperX local (opcional), usa **bibliotecas compartidas FFmpeg 7** con su TorchCodec 0.7; FFmpeg 8/9 solo no es compatible. Consulta la [compilación Windows verificada](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Clona el repositorio
 
@@ -108,6 +108,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+El reconocimiento de voz usa Azure MAI-Transcribe por defecto. WhisperX local es opcional: la instalación lo pregunta, o añade `--local-whisperx` (se recomienda una GPU NVIDIA de más de 8 GB).
 
 3. Inicia la aplicacion
 

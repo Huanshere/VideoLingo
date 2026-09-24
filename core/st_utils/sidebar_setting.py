@@ -168,7 +168,9 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
-        runtimes = ["local", "elevenlabs", "mai"]
+        from importlib.util import find_spec
+        local_ready = find_spec("whisperx") is not None
+        runtimes = ["mai", "elevenlabs"] + (["local"] if local_ready else [])
         configured_runtime = load_key("whisper.runtime")
         runtime = st.selectbox(
             t("Recognition Runtime"),
@@ -183,6 +185,8 @@ def page_setting():
                 "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key; Azure MAI-Transcribe requires an Azure Speech key."
             ),
         )
+        if not local_ready:
+            st.caption(t("LOCAL_WHISPERX_NOT_INSTALLED"))
         if runtime is not None and runtime != configured_runtime:
             update_key("whisper.runtime", runtime)
             st.rerun()

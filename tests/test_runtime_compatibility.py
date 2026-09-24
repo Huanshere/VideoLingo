@@ -10,7 +10,10 @@ import types
 
 import pytest
 import requests
-from huggingface_hub.errors import LocalEntryNotFoundError
+try:  # part of the optional local WhisperX install
+    from huggingface_hub.errors import LocalEntryNotFoundError
+except ImportError:
+    LocalEntryNotFoundError = None
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -67,6 +70,7 @@ def test_sovits_network_failure_is_not_ready(monkeypatch):
     assert ready() is False
 
 
+@pytest.mark.skipif(LocalEntryNotFoundError is None, reason='local WhisperX not installed')
 @pytest.mark.parametrize('mode', ['global', 'project', 'missing', 'partial', 'direct'])
 def test_cache_resolution_offline_first(tmp_path, monkeypatch, mode):
     namespace = functions('core/asr_backend/whisperX_local.py',

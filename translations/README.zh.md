@@ -96,7 +96,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### 使用 uv 安装
 
-uv 自动下载 Python 3.13 并创建隔离的 `.venv`，下面的命令不需要预装 Python。应用支持 Python 3.10–3.13。固定的 TorchCodec 0.7 请配套 **FFmpeg 7 共享库**，仅有 FFmpeg 8/9 不兼容。见[已验证的 Windows 构建](../docs/pages/docs/start.zh-CN.md#ffmpeg-runtime)。
+uv 自动下载 Python 3.13 并创建隔离的 `.venv`，下面的命令不需要预装 Python。应用支持 Python 3.10–3.13。如安装可选的本地 WhisperX，其固定的 TorchCodec 0.7 请配套 **FFmpeg 7 共享库**，仅有 FFmpeg 8/9 不兼容。见[已验证的 Windows 构建](../docs/pages/docs/start.zh-CN.md#ffmpeg-runtime)。
 
 1. 克隆仓库
 
@@ -110,6 +110,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+语音识别默认使用 Azure MAI-Transcribe。本地 WhisperX 为可选项，安装时会询问，也可加 `--local-whisperx` 安装（建议 8 GB 以上显存的 NVIDIA 显卡）。
 
 3. 启动应用
 

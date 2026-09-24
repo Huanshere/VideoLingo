@@ -9,6 +9,11 @@ def transcribe():
     runtime = load_key("whisper.runtime")
     if runtime not in ("local", "elevenlabs", "mai"):
         raise ValueError(f"Unsupported whisper.runtime: {runtime}. Use local, elevenlabs or mai.")
+    if runtime == "local":
+        from importlib.util import find_spec
+        if find_spec("whisperx") is None:
+            raise RuntimeError("Local WhisperX is not installed. Choose Azure MAI-Transcribe or ElevenLabs, or install it with: "
+                               "uv run --no-project --python 3.13 setup_env.py --local-whisperx")
     # 1. prepare audio
     media_file, media_type = find_media_file()
     whisper = load_key("whisper")

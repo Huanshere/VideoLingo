@@ -94,7 +94,7 @@ For NVIDIA acceleration, install a driver compatible with your GPU. The host ins
 
 ### Install with uv
 
-uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. Use **FFmpeg 7 shared libraries** for the pinned TorchCodec 0.7; FFmpeg 8/9 alone is not compatible. See the [verified Windows build](docs/pages/docs/start.en-US.md#ffmpeg-runtime).
+uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. If you install optional local WhisperX, use **FFmpeg 7 shared libraries** for its pinned TorchCodec 0.7; FFmpeg 8/9 alone is not compatible. See the [verified Windows build](docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Clone the repository
 
@@ -108,6 +108,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+Speech recognition uses Azure MAI-Transcribe by default. Local WhisperX is optional; the setup asks, or add `--local-whisperx` to install it (NVIDIA GPU with >8 GB recommended).
 
 3. Start the application
 

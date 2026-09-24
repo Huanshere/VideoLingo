@@ -42,8 +42,37 @@ def test_noto_lookup_uses_font_family(monkeypatch):
 def test_requirements_exclude_staged_torch():
     names = {installer.requirement_name(r) for r in installer.read_base_requirements()}
     assert not names.intersection({'torch', 'torchaudio', 'torchvision'})
-    assert {'whisperx', 'spacy', 'torchcodec'} <= names
+    assert 'spacy' in names and not names.intersection({'whisperx', 'torchcodec', 'pyannote-audio'})
     assert not names.intersection({'moviepy', 'replicate', 'resampy'})
+    optional = {installer.requirement_name(r) for r in installer.read_base_requirements(installer.WHISPERX_REQUIREMENTS)}
+    assert {'whisperx', 'torchcodec', 'pyannote-audio', 'ctranslate2'} <= optional
+
+
+def test_whisperx_is_optional_in_health_check(monkeypatch, capsys):
+    versions = _requirement_versions(('', '', ''))
+    for name in ('whisperx', 'torchcodec'):
+        versions.pop(name, None)
+    _patch_health_environment(monkeypatch, versions, gpu=False)
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: pytest.fail('No TorchCodec probe without WhisperX'))
+    assert installer.health_check(check_state=True, torch_backend='cpu') == 0
+    assert 'not installed (optional)' in capsys.readouterr().out
+    assert installer.health_check(quiet=True, check_state=False, torch_backend='cpu', require_whisperx=True) == 1
+
+
+def test_install_skips_whisperx_unless_selected(monkeypatch):
+    calls = []
+    for name in ('install_bootstrap', 'maybe_configure_mirror', 'install_torch', 'install_base_requirements', 'install_spacy',
+                 'install_demucs', 'install_project_metadata', 'install_linux_noto_fonts', 'save_state'):
+        monkeypatch.setattr(installer, name, lambda *a, **k: None)
+    monkeypatch.setattr(installer, 'check_ffmpeg', lambda: True)
+    monkeypatch.setattr(installer, 'health_check', lambda **k: calls.append(('check', k['require_whisperx'])) or 0)
+    monkeypatch.setattr(installer, 'install_whisperx', lambda **k: calls.append('whisperx'))
+    monkeypatch.setattr(installer, 'local_whisperx_installed', lambda: False)
+    installer.install_all(installer.build_parser().parse_args([]))
+    assert calls == [('check', False)]
+    calls.clear()
+    installer.install_all(installer.build_parser().parse_args(['--local-whisperx']))
+    assert calls == ['whisperx', ('check', True)]
 
 
 def test_cpu_torch_repaired_on_gpu(monkeypatch):
@@ -89,11 +118,12 @@ def test_plain_macos_cpu_versions_are_reused(monkeypatch):
 def _requirement_versions(builds=('cpu', 'cpu', 'cpu')):
     from packaging.requirements import Requirement
     versions = {}
-    for raw in installer.REQUIREMENTS.read_text(encoding='utf-8').splitlines():
-        if installer.requirement_name(raw):
-            req = Requirement(raw)
-            lower = [s.version for s in req.specifier if s.operator in ('==', '>=')]
-            versions[req.name] = lower[0] if lower else '1.0'
+    for path in (installer.REQUIREMENTS, installer.WHISPERX_REQUIREMENTS):
+        for raw in path.read_text(encoding='utf-8').splitlines():
+            if installer.requirement_name(raw):
+                req = Requirement(raw)
+                lower = [s.version for s in req.specifier if s.operator in ('==', '>=')]
+                versions[req.name] = lower[0] if lower else '1.0'
     for name, version, build in zip(('torch', 'torchaudio', 'torchvision'), ('2.8.0', '2.8.0', '0.23.0'), builds):
         versions[name] = version + ('+' + build if build else '')
     return versions
@@ -273,6 +303,26 @@ def test_setup_forwards_backend_without_installing(monkeypatch):
     setup.run_installer(Path('/example/bin/python'), args)
     assert calls[0][calls[0].index('--torch-backend') + 1] == 'cu126'
     assert 'installer.py' == Path(calls[0][1]).name
+    assert '--local-whisperx' not in calls[0]
+    setup.run_installer(Path('/example/bin/python'), setup.build_parser().parse_args(['--local-whisperx']))
+    assert '--local-whisperx' in calls[1]
+
+
+@pytest.mark.parametrize('answer,expected', [('y', True), ('', False), ('n', False)])
+def test_setup_asks_for_local_whisperx_defaulting_to_no(monkeypatch, answer, expected):
+    setup_spec = importlib.util.spec_from_file_location('setup_env', ROOT / 'setup_env.py')
+    setup = importlib.util.module_from_spec(setup_spec)
+    setup_spec.loader.exec_module(setup)
+    monkeypatch.setattr(setup.sys.stdin, 'isatty', lambda: True, raising=False)
+    monkeypatch.setattr(setup, 'has_nvidia_gpu', lambda: True)
+    monkeypatch.setattr('builtins.input', lambda prompt: answer)
+    args = setup.build_parser().parse_args([])
+    setup.ask_local_whisperx(args)
+    assert args.local_whisperx is expected
+    quiet = setup.build_parser().parse_args(['--yes'])
+    monkeypatch.setattr('builtins.input', lambda prompt: pytest.fail('--yes must not prompt'))
+    setup.ask_local_whisperx(quiet)
+    assert quiet.local_whisperx is False
 
 
 def test_audio_slice(tmp_path):

@@ -30,7 +30,7 @@ whisper:
   # Whisper specified recognition language ISO 639-1
   language: 'en'
   detected_language: 'en'
-  # Recognition runtime: "mai" (Azure MAI-Transcribe-2, default), "elevenlabs" or "local" (WhisperX).
+  # Recognition runtime: "mai" (Azure MAI-Transcribe-2, default), "elevenlabs" or "local" (WhisperX, optional install).
   runtime: 'mai'
   # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'

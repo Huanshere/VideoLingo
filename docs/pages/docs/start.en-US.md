@@ -162,7 +162,9 @@ uv provisions Python 3.13 in `.venv`. Existing application environments are supp
     uv run --no-project --python 3.13 setup_env.py
    ```
 
-   `setup_env.py` delegates to `installer.py`: bootstrap packages, matched Torch/torchaudio/torchvision, application requirements, spaCy/WhisperX checks, optional PyPI Demucs 4.1, project metadata, fonts and environment checks. Demucs uses normal dependency resolution. Use `--shared` to select `~/.venvs/videolingo`, or `--path` for a custom location.
+   `setup_env.py` delegates to `installer.py`: bootstrap packages, matched Torch/torchaudio/torchvision, application requirements, spaCy checks, optional PyPI Demucs 4.1, project metadata, fonts and environment checks. Demucs uses normal dependency resolution. Use `--shared` to select `~/.venvs/videolingo`, or `--path` for a custom location.
+
+   Speech recognition defaults to Azure MAI-Transcribe (paste an Azure Speech key in the sidebar; the region is detected). Local WhisperX is optional: the interactive setup asks whether to install it, or pass `--local-whisperx` (installs `requirements-whisperx.txt`, needs FFmpeg 7 shared libraries for TorchCodec). The Local option only appears in the sidebar once it is installed.
 
 3. 🎉 Launch Streamlit app:
    ```bash

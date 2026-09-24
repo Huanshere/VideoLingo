@@ -2,7 +2,7 @@
 
 Default behavior creates a project-local ``.venv``. Use ``--shared`` to create
 or reuse ``~/.venvs/videolingo`` so multiple VideoLingo checkouts share the same
-heavy dependencies (PyTorch, WhisperX, Demucs, etc.).
+heavy dependencies (PyTorch, Demucs, optional local WhisperX, etc.).
 """
 
 from __future__ import annotations
@@ -135,7 +135,27 @@ def run_installer(python_exe: Path, args: argparse.Namespace) -> None:
         cmd.append("--skip-demucs")
     if args.require_demucs:
         cmd.append("--require-demucs")
+    if args.local_whisperx:
+        cmd.append("--local-whisperx")
     run(cmd, cwd=SCRIPT_DIR, env=env)
+
+
+def has_nvidia_gpu() -> bool:
+    try:
+        return subprocess.run(["nvidia-smi"], capture_output=True, timeout=10).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+def ask_local_whisperx(args: argparse.Namespace) -> None:
+    """Local WhisperX is optional. Offer it interactively only; default is no."""
+    if args.local_whisperx or args.yes or not sys.stdin.isatty():
+        return
+    print("\n  Speech recognition uses Azure MAI-Transcribe (cloud, default) or ElevenLabs.")
+    print("  Local WhisperX is optional: it needs an NVIDIA GPU with >8 GB memory and several GB of downloads.")
+    hint = "An NVIDIA GPU was detected." if has_nvidia_gpu() else "No NVIDIA GPU was detected; CPU recognition is slow."
+    answer = input(f"  {hint} Install local WhisperX too? [y/N] ").strip().lower()
+    args.local_whisperx = answer == "y"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -148,6 +168,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--auto-mirror", action="store_true", help="auto-select a PyPI mirror before install")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")
+    parser.add_argument("--local-whisperx", action="store_true", help="also install optional local WhisperX recognition")
     parser.add_argument("--force", action="store_true", help="force reinstall staged packages")
     parser.add_argument("--upgrade", action="store_true", help="refresh dependencies within compatibility bounds")
     parser.add_argument("--yes", action="store_true", help="non-interactive; recreate wrong-version venvs")
@@ -172,6 +193,7 @@ def main() -> None:
         print("\n  --skip-install: dependencies were not installed")
         print(f"  To install later: {python_exe} {SCRIPT_DIR / 'installer.py'} --yes")
     else:
+        ask_local_whisperx(args)
         run_installer(python_exe, args)
 
     print("\n" + "=" * 60)
