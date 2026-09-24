@@ -30,10 +30,17 @@ whisper:
   # Whisper specified recognition language ISO 639-1
   language: 'en'
   detected_language: 'en'
-  # Recognition runtime: "local" or "elevenlabs".
+  # Recognition runtime: "local", "elevenlabs" or optional "funasr".
   runtime: 'local'
   # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'
+
+# Optional local FunASR/SenseVoice backend. Install with:
+# python installer.py --with-funasr
+funasr:
+  model: 'iic/SenseVoiceSmall'
+  # ["auto", "cpu", "cuda"]
+  device: 'auto'
 
 # Whether to burn subtitles into the video
 burn_subtitles: true

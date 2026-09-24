@@ -152,5 +152,9 @@
     "Media file detection failed: {error}": "メディアファイルの検出に失敗しました: {error}",
     "Clear output and reselect": "出力をクリアして再選択",
     "Finalize subtitle outputs": "字幕出力を仕上げる",
-    "Finalize dubbing outputs": "吹き替え出力を仕上げる"
+    "Finalize dubbing outputs": "吹き替え出力を仕上げる",
+    "ASR Runtime": "ASR ランタイム",
+    "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr.": "FunASR は、python installer.py --with-funasr でインストールできる任意のローカル CPU/CUDA バックエンドです。",
+    "FunASR model": "FunASR モデル",
+    "FunASR device": "FunASR デバイス"
 }

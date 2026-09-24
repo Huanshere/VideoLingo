@@ -159,5 +159,9 @@
     "Suggested: 18-25. Below 18 cuts too finely and hurts translation; above 25 makes downstream subtitle splitting hard to align.": "建議 18-25。小於 18 會切得太碎，影響翻譯品質；大於 25 會讓後續字幕拆分難對齊。",
     "max_length (max characters per subtitle line)": "max_length（每行字幕字元數上限）",
     "Suggested: 50-90. Lower if a subtitle line looks crowded on screen; raise if lines are split too aggressively.": "建議 50-90。如果一行字幕看著擠就調小；如果一句話被拆得太碎就調大。",
-    "Restore defaults ({split}/{length})": "恢復預設值（{split}/{length}）"
+    "Restore defaults ({split}/{length})": "恢復預設值（{split}/{length}）",
+    "ASR Runtime": "ASR 運行環境",
+    "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr.": "FunASR 是可選的本機 CPU/CUDA 後端，可透過 python installer.py --with-funasr 安裝。",
+    "FunASR model": "FunASR 模型",
+    "FunASR device": "FunASR 裝置"
 }

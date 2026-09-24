@@ -7,11 +7,13 @@ from core.asr_backend import transcription_cache as cache
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
     runtime = load_key("whisper.runtime")
-    if runtime not in ("local", "elevenlabs"):
-        raise ValueError("Select local or elevenlabs for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
+    if runtime not in ("local", "elevenlabs", "funasr"):
+        raise ValueError("Select local, elevenlabs or funasr for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
     # 1. prepare audio
     media_file, media_type = find_media_file()
     whisper = load_key("whisper")
+    if runtime == "funasr":
+        whisper = {**whisper, "funasr": load_key("funasr")}
     demucs = load_key("demucs")
     key = cache.cache_key(media_file, whisper, demucs) if whisper.get("cache", True) else None
     cached = cache.read_result(key, "complete") if key else None
@@ -48,6 +50,8 @@ def transcribe():
     elif runtime == "elevenlabs":
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")
+    elif runtime == "funasr":
+        from core.asr_backend.funasr_local import transcribe_audio as ts
     else:
         raise ValueError(f"Unsupported ASR runtime: {runtime}")
 

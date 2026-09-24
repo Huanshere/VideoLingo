@@ -31,6 +31,13 @@ def cache_key(media_file, whisper, demucs):
         "runtime": whisper["runtime"], "model": whisper["model"],
         "language": whisper["language"], "demucs": bool(demucs),
     }
+    if whisper["runtime"] == "funasr":
+        identity["model"] = whisper["funasr"]["model"]
+        identity["device"] = whisper["funasr"]["device"]
+        try:
+            packages["funasr"] = version("funasr")
+        except PackageNotFoundError:
+            packages["funasr"] = None
     return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
 
 

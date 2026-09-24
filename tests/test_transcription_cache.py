@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 import pandas as pd
 from core import _2_asr as asr
 from core.asr_backend import transcription_cache as cache, elevenlabs_asr as backend
+from core.asr_backend import funasr_local as funasr_backend
 
 
 def result(start=0):
@@ -26,6 +27,7 @@ class TranscriptionCacheTests(unittest.TestCase):
         self.media = Path("input.wav")
         self.media.write_bytes(b"synthetic input one")
         self.whisper = {"runtime": "elevenlabs", "model": "large-v3", "language": "auto"}
+        self.funasr = {"model": "iic/SenseVoiceSmall", "device": "cpu"}
 
     def test_identity_uses_content_and_settings_not_path_or_key(self):
         key = cache.cache_key(self.media, self.whisper, False)
@@ -37,6 +39,26 @@ class TranscriptionCacheTests(unittest.TestCase):
         self.assertNotEqual(key, cache.cache_key(self.media, self.whisper, True))
         self.media.write_bytes(b"synthetic input two")
         self.assertNotEqual(key, cache.cache_key(self.media, self.whisper, False))
+
+    def test_funasr_identity_includes_selected_model_device_and_version(self):
+        whisper = dict(self.whisper, runtime="funasr", funasr={
+            "model": "iic/SenseVoiceSmall", "device": "cpu",
+        })
+        with patch.object(cache, "version", return_value="1.4.16"):
+            key = cache.cache_key(self.media, whisper, False)
+            for change in ({"model": "other/model"}, {"device": "cuda"}):
+                changed = copy.deepcopy(whisper)
+                changed["funasr"].update(change)
+                self.assertNotEqual(key, cache.cache_key(self.media, changed, False))
+            changed = copy.deepcopy(whisper)
+            changed["funasr"]["api_key"] = "synthetic-secret"
+            self.assertEqual(key, cache.cache_key(self.media, changed, False))
+
+        def installed_version(name):
+            return "1.4.17" if name == "funasr" else "1.4.16"
+
+        with patch.object(cache, "version", side_effect=installed_version):
+            self.assertNotEqual(key, cache.cache_key(self.media, whisper, False))
 
     def test_corrupt_and_invalid_results_are_misses(self):
         cache.write_result("key", "complete", result(), "en")
@@ -58,12 +80,15 @@ class TranscriptionCacheTests(unittest.TestCase):
     def run_transcribe(self, transcriber, segments=((0, 1),)):
         config = {"whisper": copy.deepcopy(self.whisper), "demucs": False,
                   "whisper.runtime": self.whisper["runtime"]}
+        config["funasr"] = copy.deepcopy(self.funasr)
         with patch.object(asr, "find_media_file", return_value=(str(self.media), "audio")), patch.object(
             asr, "load_key", side_effect=config.__getitem__
         ), patch.object(asr, "update_key") as language, patch.object(asr, "check_cancel"), patch.object(
             asr, "prepare_audio_for_asr"
         ) as prepare, patch.object(asr, "split_audio", return_value=segments), patch.object(
             backend, "transcribe_audio_elevenlabs", transcriber
+        ), patch.object(
+            funasr_backend, "transcribe_audio", transcriber
         ):
             asr.transcribe()
             return language, prepare
@@ -78,6 +103,20 @@ class TranscriptionCacheTests(unittest.TestCase):
         prepare.assert_called_once_with(str(self.media))
         language.assert_called_once_with("whisper.detected_language", "en")
         pd.testing.assert_frame_equal(expected, pd.read_excel(asr._2_CLEANED_CHUNKS))
+
+    def test_funasr_dispatch_reuses_cache_until_selected_model_changes(self):
+        self.whisper.update(runtime="funasr", language="en")
+        transcriber = Mock(return_value=result())
+        self.run_transcribe(transcriber)
+        Path(asr._2_CLEANED_CHUNKS).unlink()
+        self.run_transcribe(transcriber)
+        self.assertEqual(transcriber.call_count, 1)
+
+        Path(asr._2_CLEANED_CHUNKS).unlink()
+        self.funasr["model"] = "other/model"
+        self.run_transcribe(transcriber)
+        self.assertEqual(transcriber.call_count, 2)
+        self.assertEqual(len(list(cache.CACHE_DIR.iterdir())), 2)
 
     def test_partial_failure_reuses_successful_segment(self):
         transcriber = Mock(side_effect=[result(), RuntimeError("interrupted")])

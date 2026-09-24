@@ -14,7 +14,7 @@ class RetiredRuntimeTests(unittest.TestCase):
             find.assert_not_called()
 
     def test_supported_runtimes_reach_media_discovery(self):
-        for runtime in ("local", "elevenlabs"):
+        for runtime in ("local", "elevenlabs", "funasr"):
             with self.subTest(runtime=runtime), patch.object(asr, "load_key", return_value=runtime), patch.object(
                 asr, "find_media_file", side_effect=FileNotFoundError("synthetic missing input")
             ):

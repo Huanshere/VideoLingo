@@ -17,7 +17,7 @@ VideoLingo combines speech recognition, subtitle translation, segmentation and d
 Key features:
 - 🎥 YouTube video download via yt-dlp
 
-- Word-level speech recognition and alignment with WhisperX
+- Speech recognition with WhisperX, or optional local FunASR/SenseVoice with native timings when available and estimated token timings otherwise
 
 - **📝 NLP and AI-powered subtitle segmentation**
 
@@ -118,6 +118,15 @@ uv run --no-project --python 3.13 setup_env.py
 
 Or double-click `OneKeyStart.bat` on Windows. It prefers `~/.venvs/videolingo` when present, then the project `.venv`. Open `http://localhost:8501` and enter your API URL, key and model in the sidebar.
 
+To install the optional local FunASR/SenseVoice backend, run `python installer.py --with-funasr` with the Python interpreter of the environment used to launch VideoLingo. For a project `.venv`:
+
+```bash
+.venv\Scripts\python installer.py --with-funasr  # Windows
+.venv/bin/python installer.py --with-funasr       # macOS / Linux
+```
+
+Installing the package does not select it. Restart VideoLingo and select **FunASR (SenseVoice)** under **ASR Runtime** in **Subtitles Settings**, or set `whisper.runtime` to `funasr` in `config.yaml`. If the launcher uses `~/.venvs/videolingo`, use that environment's Python instead.
+
 ### Docker
 For a Linux NVIDIA container deployment, install Docker, a compatible GPU driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). The image uses the same Python 3.13 setup and application dependencies, with CUDA 12.8.1/cu128 by default. See [Docker docs](/docs/pages/docs/docker.en-US.md) for the matched CUDA 12.6 alternative and persistence settings.
 
@@ -130,6 +139,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
 - LLM: choose an OpenAI-compatible Chat Completions provider and model that can return the structured JSON required by the workflow. [OpenLux](https://www.openlux.ai/register?aff=wKYu) is recommended; set the API URL to `https://api.openlux.ai/v1`. Prefer GPT-6 Luna with model ID `gpt-6-luna` for best value, GPT-6 Sol with `gpt-6-sol` for better quality, or Claude Opus 5.5 with `claude-opus-5-5` for best quality. OpenLux relay rates are in the install docs. Configure the API URL, key and model in the sidebar.
 - Speech recognition: run WhisperX locally or use the ElevenLabs API.
+- FunASR: optional local SenseVoice on CPU or CUDA. Available native word timings are retained; missing or mismatched alignment and split long tokens use estimated timings. Inspect subtitle timing before publishing.
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS and a custom adapter in `core/tts_backend/custom_tts.py`.
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
@@ -148,7 +158,9 @@ For detailed installation, API configuration, and batch mode instructions, pleas
 
 ## 📄 License
 
-This project is licensed under the Apache 2.0 License. Special thanks to the following open source projects for their contributions:
+This project's source code is licensed under the Apache 2.0 License. Special thanks to the following open source projects for their contributions:
+
+The optional FunASR backend downloads model weights separately. The default `iic/SenseVoiceSmall` weights are not covered by VideoLingo's Apache 2.0 license; review the [SenseVoiceSmall model card](https://huggingface.co/FunAudioLLM/SenseVoiceSmall) and [FunASR MODEL_LICENSE](https://github.com/modelscope/FunASR/blob/main/MODEL_LICENSE) before downloading or using them.
 
 [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
 

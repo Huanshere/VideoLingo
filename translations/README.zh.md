@@ -19,7 +19,7 @@ VideoLingo 在 Streamlit 界面中整合语音识别、字幕翻译、分句和�
 主要特点和功能：
 - 🎥 使用 yt-dlp 从 Youtube 链接下载视频
 
-- 使用 WhisperX 进行词级语音识别与时间对齐
+- 使用 WhisperX 或可选的本地 FunASR/SenseVoice 识别语音；FunASR 优先采用可用的原生时间戳，否则估算词元时间
 
 - **📝 使用 NLP 和 AI 进行字幕分割**
 
@@ -120,6 +120,15 @@ uv run --no-project --python 3.13 setup_env.py
 
 或者在 Windows 上双击 `OneKeyStart.bat`。它优先使用已有的 `~/.venvs/videolingo`，其次使用项目 `.venv`。打开 `http://localhost:8501`，在侧栏填写 API 地址、密钥和模型。
 
+可选的本地 FunASR/SenseVoice 后端需使用启动 VideoLingo 的同一环境中的 Python 安装。项目 `.venv` 的示例：
+
+```bash
+.venv\Scripts\python installer.py --with-funasr  # Windows
+.venv/bin/python installer.py --with-funasr       # macOS / Linux
+```
+
+安装不会自动切换后端。重启 VideoLingo，在字幕设置的 **ASR Runtime** 中选择 **FunASR (SenseVoice)**，或在 `config.yaml` 中设置 `whisper.runtime: funasr`。若启动器使用 `~/.venvs/videolingo`，请改用该环境的 Python 安装。
+
 ### Docker
 在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、兼容的显卡驱动和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。镜像使用相同的 Python 3.13 安装流程和应用依赖，默认 CUDA 12.8.1/cu128。匹配的 CUDA 12.6 方案及数据持久化设置见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)。
 
@@ -132,6 +141,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
 - LLM：自行选择兼容 OpenAI Chat Completions、能够返回流程所需结构化 JSON 的服务和模型。推荐 [OpenLux](https://www.openlux.ai/register?aff=wKYu) 中转，API 地址填 `https://api.openlux.ai/v1`。默认性价比高用 GPT-6 Luna，模型 ID 填 `gpt-6-luna`；质量更好用 GPT-6 Sol，模型 ID 填 `gpt-6-sol`；质量最好用 Claude Opus 5.5，模型 ID 填 `claude-opus-5-5`。OpenLux 中转约价见安装文档。在侧栏配置 API 地址、密钥和模型。
 - 语音识别：本地运行 WhisperX 或使用 ElevenLabs API。
+- FunASR：可选的本地 SenseVoice 后端，支持 CPU 或 CUDA。保留可用的原生词级时间；缺少或不匹配的对齐、以及超长词元拆分后的边界使用估算时间，发布字幕前需检查。
 - TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自定义适配器。
 
 详细的安装、API 配置、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)

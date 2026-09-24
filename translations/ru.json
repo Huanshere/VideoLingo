@@ -152,5 +152,9 @@
     "Media file detection failed: {error}": "Не удалось определить медиафайл: {error}",
     "Clear output and reselect": "Очистить output и выбрать заново",
     "Finalize subtitle outputs": "Финализировать вывод субтитров",
-    "Finalize dubbing outputs": "Финализировать вывод дубляжа"
+    "Finalize dubbing outputs": "Финализировать вывод дубляжа",
+    "ASR Runtime": "Среда выполнения ASR",
+    "FunASR is an optional local CPU/CUDA backend installed with python installer.py --with-funasr.": "FunASR — необязательный локальный бэкенд для CPU/CUDA, устанавливаемый командой python installer.py --with-funasr.",
+    "FunASR model": "Модель FunASR",
+    "FunASR device": "Устройство FunASR"
 }
