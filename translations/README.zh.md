@@ -96,7 +96,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### 使用 uv 安装
 
-uv 自动下载 Python 3.13 并创建隔离的 `.venv`，下面的命令不需要预装 Python。应用支持 Python 3.10–3.13。固定的 TorchCodec 0.7 请配套 **FFmpeg 7 共享库**，仅有 FFmpeg 8/9 不兼容。见[已验证的 Windows 构建](../docs/pages/docs/start.zh-CN.md#ffmpeg-runtime)。
+uv 自动下载 Python 3.13 并创建隔离的 `.venv`，下面的命令不需要预装 Python。应用支持 Python 3.10–3.13。如安装可选的本地 WhisperX，其固定的 TorchCodec 0.7 请配套 **FFmpeg 7 共享库**，仅有 FFmpeg 8/9 不兼容。见[已验证的 Windows 构建](../docs/pages/docs/start.zh-CN.md#ffmpeg-runtime)。
 
 1. 克隆仓库
 
@@ -110,6 +110,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+语音识别默认使用 Azure MAI-Transcribe。本地 WhisperX 为可选项，安装时会询问，也可加 `--local-whisperx` 安装（建议 8 GB 以上显存的 NVIDIA 显卡）。
 
 3. 启动应用
 
@@ -131,7 +133,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## API
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
 - LLM：自行选择兼容 OpenAI Chat Completions、能够返回流程所需结构化 JSON 的服务和模型。推荐 [OpenLux](https://www.openlux.ai/register?aff=wKYu) 中转，API 地址填 `https://api.openlux.ai/v1`。默认性价比高用 GPT-6 Luna，模型 ID 填 `gpt-6-luna`；质量更好用 GPT-6 Sol，模型 ID 填 `gpt-6-sol`；质量最好用 Claude Opus 5.5，模型 ID 填 `claude-opus-5-5`。OpenLux 中转约价见安装文档。在侧栏配置 API 地址、密钥和模型。
-- 语音识别：本地运行 WhisperX 或使用 ElevenLabs API。
+- 语音识别：本地运行 WhisperX，或使用 ElevenLabs API、Azure MAI-Transcribe。
 - TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自定义适配器。
 
 详细的安装、API 配置、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)

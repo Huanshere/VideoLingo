@@ -94,7 +94,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### Установка через uv
 
-uv загружает Python 3.13 и создаёт `.venv` без предварительной установки Python. Приложение поддерживает Python 3.10–3.13. Для TorchCodec 0.7 используйте **разделяемые библиотеки FFmpeg 7**; одного FFmpeg 8/9 недостаточно. См. [проверенную сборку Windows](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
+uv загружает Python 3.13 и создаёт `.venv` без предварительной установки Python. Приложение поддерживает Python 3.10–3.13. Если устанавливаете необязательный локальный WhisperX, для его TorchCodec 0.7 используйте **разделяемые библиотеки FFmpeg 7**; одного FFmpeg 8/9 недостаточно. См. [проверенную сборку Windows](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Клонируйте репозиторий
 
@@ -108,6 +108,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+По умолчанию распознавание речи выполняет Azure MAI-Transcribe. Локальный WhisperX необязателен: установщик спросит, или добавьте `--local-whisperx` (рекомендуется GPU NVIDIA более 8 ГБ).
 
 3. Запустите приложение
 
@@ -129,7 +131,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## API
 VideoLingo поддерживает формат API, подобный OpenAI, и различные интерфейсы TTS:
 - LLM: выберите провайдера OpenAI-совместимого Chat Completions и модель, способную возвращать нужный структурированный JSON. URL API, ключ и модель задаются на боковой панели.
-- Распознавание речи: локальный WhisperX или API ElevenLabs.
+- Распознавание речи: локальный WhisperX, API ElevenLabs или Azure MAI-Transcribe.
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS и собственный адаптер в `core/tts_backend/custom_tts.py`.
 
 Для подробных инструкций по установке, настройке API и пакетному режиму обратитесь к документации: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

@@ -1,0 +1,11 @@
+# Optional local WhisperX recognition (installed by `setup_env.py --local-whisperx`).
+# WhisperX 3.8 uses the matched Torch 2.8 / torchvision 0.23 / TorchCodec 0.7
+# family. Transformers 5 requires huggingface-hub >=1, which conflicts with
+# WhisperX's hub<1 requirement. Keep these constraints until upstream supports it.
+whisperx>=3.8.6,<3.9
+torchcodec>=0.7,<0.8
+huggingface-hub>=0.36.2,<1
+transformers>=4.57.6,<5
+ctranslate2>=4.5,<5
+pyannote-audio>=4.0.4,<5
+librosa>=0.11,<2

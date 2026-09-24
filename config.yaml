@@ -25,15 +25,19 @@ target_language: '简体中文'
 demucs: false
 
 whisper:
-  # ["large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
+  # Whisper model, e.g. "large-v3". "large-v3-turbo" is mapped to large-v3 (repetition loops). Note: for zh model will force to use Belle/large-v3
   model: 'large-v3'
   # Whisper specified recognition language ISO 639-1
   language: 'en'
   detected_language: 'en'
-  # Recognition runtime: "local" or "elevenlabs".
-  runtime: 'local'
+  # Recognition runtime: "mai" (Azure MAI-Transcribe-2, default), "elevenlabs" or "local" (WhisperX, optional install).
+  runtime: 'mai'
   # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'
+  # Azure Speech key for MAI-Transcribe-2 (public preview). The region is detected from the key;
+  # a full https:// resource endpoint may be set here instead.
+  mai_region: ''
+  mai_api_key: 'your_azure_speech_key'
 
 # Whether to burn subtitles into the video
 burn_subtitles: true

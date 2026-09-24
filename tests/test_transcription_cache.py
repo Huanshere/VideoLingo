@@ -38,6 +38,20 @@ class TranscriptionCacheTests(unittest.TestCase):
         self.media.write_bytes(b"synthetic input two")
         self.assertNotEqual(key, cache.cache_key(self.media, self.whisper, False))
 
+    def test_mai_key_ignores_credentials_region_and_model(self):
+        mai = dict(self.whisper, runtime="mai")
+        key = cache.cache_key(self.media, mai, False)
+        same = dict(mai, mai_api_key="secret", mai_region="westus", model="tiny")
+        self.assertEqual(key, cache.cache_key(self.media, same, False))
+        self.assertNotEqual(key, cache.cache_key(self.media, dict(mai, runtime="local"), False))
+
+    def test_turbo_never_reuses_its_own_old_results(self):
+        local = dict(self.whisper, runtime="local")
+        self.assertEqual(
+            cache.cache_key(self.media, dict(local, model="large-v3-turbo"), False),
+            cache.cache_key(self.media, dict(local, model="large-v3"), False),
+        )
+
     def test_corrupt_and_invalid_results_are_misses(self):
         cache.write_result("key", "complete", result(), "en")
         path = cache.CACHE_DIR / "key/complete.json"

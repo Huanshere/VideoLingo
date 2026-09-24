@@ -94,7 +94,7 @@ For NVIDIA acceleration, install a driver compatible with your GPU. The host ins
 
 ### Install with uv
 
-uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. Use **FFmpeg 7 shared libraries** for the pinned TorchCodec 0.7; FFmpeg 8/9 alone is not compatible. See the [verified Windows build](docs/pages/docs/start.en-US.md#ffmpeg-runtime).
+uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. If you install optional local WhisperX, use **FFmpeg 7 shared libraries** for its pinned TorchCodec 0.7; FFmpeg 8/9 alone is not compatible. See the [verified Windows build](docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Clone the repository
 
@@ -108,6 +108,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+Speech recognition uses Azure MAI-Transcribe by default. Local WhisperX is optional; the setup asks, or add `--local-whisperx` to install it (NVIDIA GPU with >8 GB recommended).
 
 3. Start the application
 
@@ -129,7 +131,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
 - LLM: choose an OpenAI-compatible Chat Completions provider and model that can return the structured JSON required by the workflow. [OpenLux](https://www.openlux.ai/register?aff=wKYu) is recommended; set the API URL to `https://api.openlux.ai/v1`. Prefer GPT-6 Luna with model ID `gpt-6-luna` for best value, GPT-6 Sol with `gpt-6-sol` for better quality, or Claude Opus 5.5 with `claude-opus-5-5` for best quality. OpenLux relay rates are in the install docs. Configure the API URL, key and model in the sidebar.
-- Speech recognition: run WhisperX locally or use the ElevenLabs API.
+- Speech recognition: run WhisperX locally, or use the ElevenLabs API or Azure MAI-Transcribe.
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS and a custom adapter in `core/tts_backend/custom_tts.py`.
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

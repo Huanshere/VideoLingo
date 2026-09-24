@@ -26,9 +26,14 @@ def cache_key(media_file, whisper, demucs):
         except PackageNotFoundError:
             packages[name] = None
     # Deliberately exclude credentials, filenames and translation/TTS settings.
+    model = whisper["model"]
+    if whisper["runtime"] == "local" and "turbo" in str(model).lower():
+        model = "large-v3"  # whisperX_local runs large-v3 instead; never reuse old turbo output
+    elif whisper["runtime"] == "mai":
+        model = None  # the MAI backend ignores whisper.model
     identity = {
         "schema": SCHEMA, "media_md5": digest.hexdigest(), "packages": packages,
-        "runtime": whisper["runtime"], "model": whisper["model"],
+        "runtime": whisper["runtime"], "model": model,
         "language": whisper["language"], "demucs": bool(demucs),
     }
     return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()

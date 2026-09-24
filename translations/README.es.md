@@ -94,7 +94,7 @@ Para NVIDIA, instala un controlador compatible con tu GPU. El instalador selecci
 
 ### Instalación con uv
 
-uv descarga Python 3.13 y crea un entorno `.venv` aislado, sin Python preinstalado. La aplicación admite Python 3.10–3.13. Usa **bibliotecas compartidas FFmpeg 7** con TorchCodec 0.7; FFmpeg 8/9 solo no es compatible. Consulta la [compilación Windows verificada](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
+uv descarga Python 3.13 y crea un entorno `.venv` aislado, sin Python preinstalado. La aplicación admite Python 3.10–3.13. Si instalas WhisperX local (opcional), usa **bibliotecas compartidas FFmpeg 7** con su TorchCodec 0.7; FFmpeg 8/9 solo no es compatible. Consulta la [compilación Windows verificada](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
 
 1. Clona el repositorio
 
@@ -108,6 +108,8 @@ cd VideoLingo
 ```bash
 uv run --no-project --python 3.13 setup_env.py
 ```
+
+El reconocimiento de voz usa Azure MAI-Transcribe por defecto. WhisperX local es opcional: la instalación lo pregunta, o añade `--local-whisperx` (se recomienda una GPU NVIDIA de más de 8 GB).
 
 3. Inicia la aplicacion
 
@@ -129,7 +131,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo admite formato de API similar a OpenAI y varias interfaces TTS:
 - LLM: elige un proveedor compatible con OpenAI Chat Completions y un modelo capaz de devolver el JSON estructurado requerido. Configura la URL API, la clave y el modelo en la barra lateral.
-- Reconocimiento de voz: WhisperX local o la API ElevenLabs.
+- Reconocimiento de voz: WhisperX local, la API ElevenLabs o Azure MAI-Transcribe.
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS y un adaptador personalizado en `core/tts_backend/custom_tts.py`.
 
 Para instrucciones detalladas de instalación, configuración de API y modo por lotes, consulta la documentación: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

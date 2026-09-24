@@ -160,7 +160,9 @@ uv 创建使用 Python 3.13 的 `.venv`，已有应用环境支持 Python 3.10�
     uv run --no-project --python 3.13 setup_env.py
    ```
 
-   `setup_env.py` 调用 `installer.py`：先安装基础工具和匹配的 Torch/torchaudio/torchvision，再安装应用依赖、检查 spaCy/WhisperX、安装可选的 PyPI Demucs 4.1，最后登记项目、检查字体及环境。Demucs 使用正常依赖解析。`--shared` 选择 `~/.venvs/videolingo`，`--path` 可指定其他目录。
+   `setup_env.py` 调用 `installer.py`：先安装基础工具和匹配的 Torch/torchaudio/torchvision，再安装应用依赖、检查 spaCy、安装可选的 PyPI Demucs 4.1，最后登记项目、检查字体及环境。Demucs 使用正常依赖解析。`--shared` 选择 `~/.venvs/videolingo`，`--path` 可指定其他目录。
+
+   语音识别默认使用 Azure MAI-Transcribe（在侧边栏粘贴 Azure 语音服务密钥，区域自动识别）。本地 WhisperX 为可选项：交互安装时会询问，或加 `--local-whisperx`（安装 `requirements-whisperx.txt`，TorchCodec 需要 FFmpeg 7 共享库）。装好后侧边栏才会出现“本地”选项。
 
 3. 🎉 启动 Streamlit 应用：
    ```bash
