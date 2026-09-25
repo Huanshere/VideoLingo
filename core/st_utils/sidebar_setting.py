@@ -234,17 +234,6 @@ def page_setting():
                 update_key("burn_subtitles", burn_subtitles)
                 st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
-        tts_methods = [
-            "azure_tts",
-            "openai_tts",
-            "fish_tts",
-            "sf_fish_tts",
-            "edge_tts",
-            "gpt_sovits",
-            "custom_tts",
-            "sf_cosyvoice2",
-            "f5tts",
-        ]
         tts_method_labels = {
             "azure_tts": t("Azure TTS"),
             "openai_tts": t("OpenAI TTS"),
@@ -256,19 +245,11 @@ def page_setting():
             "sf_cosyvoice2": t("SiliconFlow CosyVoice2"),
             "f5tts": t("F5-TTS"),
         }
-        select_tts = st.selectbox(
-            t("TTS Method"),
-            options=tts_methods,
-            index=tts_methods.index(load_key("tts_method")),
-            format_func=lambda x: tts_method_labels[x],
-        )
-        if select_tts != load_key("tts_method"):
-            update_key("tts_method", select_tts)
-            st.rerun()
+        from core.st_utils.tts_settings import select_tts_method
+        select_tts = select_tts_method(tts_method_labels)
 
         # sub settings for each tts method
         if select_tts == "sf_fish_tts":
-            config_input(t("SiliconFlow API Key"), "sf_fish_tts.api_key")
 
             # Add mode selection dropdown
             mode_options = {
@@ -291,11 +272,9 @@ def page_setting():
                 config_input(t("Voice"), "sf_fish_tts.voice")
 
         elif select_tts == "openai_tts":
-            config_input(t("302ai API"), "openai_tts.api_key")
             config_input(t("OpenAI Voice"), "openai_tts.voice")
 
         elif select_tts == "fish_tts":
-            config_input(t("302ai API"), "fish_tts.api_key")
             fish_tts_character = st.selectbox(
                 t("Fish TTS Character"),
                 options=list(load_key("fish_tts.character_id_dict").keys()),
@@ -308,7 +287,6 @@ def page_setting():
                 st.rerun()
 
         elif select_tts == "azure_tts":
-            config_input(t("302ai API"), "azure_tts.api_key")
             config_input(t("Azure Voice"), "azure_tts.voice")
 
         elif select_tts == "gpt_sovits":
@@ -336,11 +314,6 @@ def page_setting():
         elif select_tts == "edge_tts":
             config_input(t("Edge TTS Voice"), "edge_tts.voice")
 
-        elif select_tts == "sf_cosyvoice2":
-            config_input(t("SiliconFlow API Key"), "sf_cosyvoice2.api_key")
-
-        elif select_tts == "f5tts":
-            config_input(t("302ai API"), "f5tts.302_api")
 
 
 def check_api():

@@ -7,7 +7,6 @@ from core.asr_backend.audio_preprocess import normalize_audio_volume
 from core.utils import *
 from core.utils.models import *
 
-API_KEY = load_key("f5tts.302_api")
 UPLOADED_REFER_URL = None
 
 def upload_file_to_302(file_path):
@@ -29,7 +28,7 @@ def upload_file_to_302(file_path):
 def _f5_tts(text: str, refer_url: str, save_path: str) -> bool:
     conn = http.client.HTTPSConnection("api.302.ai")
     payload = json.dumps({"gen_text": text, "ref_audio_url": refer_url, "model_type": "F5-TTS"})
-    headers = {'Authorization': f'Bearer {API_KEY}', 'Content-Type': 'application/json'}
+    headers = {'Authorization': f'Bearer {load_key("f5tts.302_api")}', 'Content-Type': 'application/json'}
 
     conn.request("POST", "/302/submit/f5-tts", payload, headers)
     res = conn.getresponse()
