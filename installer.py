@@ -190,8 +190,41 @@ def unsupported_platform() -> str | None:
 
 
 # WhisperX 3.8 pins huggingface-hub<1; mlx-audio needs hub>=1, so on Apple Silicon
-# the optional WhisperX stack cannot stay in the default environment.
-WHISPERX_ONLY_PACKAGES = ("whisperx", "torchcodec")
+# the optional WhisperX stack cannot stay in the default environment. These are the
+# packages that only the WhisperX stack brings in (none is in the resolved default
+# requirements); leaving pyannote-audio without torchcodec breaks `pip check`.
+# Generic libraries it also pulled in (matplotlib, lightning, ...) stay installed.
+WHISPERX_ONLY_PACKAGES = (
+    "whisperx", "torchcodec", "faster-whisper", "ctranslate2",
+    "pyannote-audio", "pyannote-core", "pyannote-database", "pyannote-metrics",
+    "pyannote-pipeline", "pyannoteai-sdk",
+)
+
+
+def canonical_name(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def required_by_other_packages(names: list[str]) -> set[str]:
+    """Names still required by an installed distribution outside `names` (the project excluded)."""
+    from packaging.requirements import InvalidRequirement, Requirement
+    candidates = {canonical_name(name) for name in names}
+    needed: set[str] = set()
+    for dist in metadata.distributions():
+        owner = canonical_name(dist.metadata["Name"] or "")
+        # The project's own (possibly stale) metadata is re-registered from requirements.txt.
+        if owner in candidates or owner == "videolingo":
+            continue
+        for raw in dist.requires or []:
+            try:
+                req = Requirement(raw)
+            except InvalidRequirement:
+                continue
+            if req.marker and not req.marker.evaluate({"extra": ""}):
+                continue
+            if canonical_name(req.name) in candidates:
+                needed.add(canonical_name(req.name))
+    return needed
 
 
 def remove_whisperx_for_mlx() -> None:
@@ -200,11 +233,16 @@ def remove_whisperx_for_mlx() -> None:
     installed = [name for name in WHISPERX_ONLY_PACKAGES if package_version(name) is not None]
     if not installed:
         return
+    kept = required_by_other_packages(installed)
+    removable = [name for name in installed if name not in kept]
     print("  WhisperX cannot share an environment with the default MLX ASR on Apple Silicon "
-          "(huggingface-hub <1 vs >=1). Removing: " + ", ".join(installed))
+          "(huggingface-hub <1 vs >=1). Removing the WhisperX stack: " + ", ".join(removable))
+    if kept:
+        print("  Keeping (required by other installed packages): " + ", ".join(sorted(kept)))
     print("  To keep using WhisperX on this Mac, create a separate environment; "
           "see docs/pages/docs/whisperx-optional.en-US.md")
-    run([sys.executable, "-m", "pip", "uninstall", "-y", *installed])
+    if removable:
+        run([sys.executable, "-m", "pip", "uninstall", "-y", *removable])
 
 
 def detect_nvidia_gpu() -> bool:
@@ -297,6 +335,11 @@ def install_base_requirements(force: bool = False, upgrade: bool = False) -> Non
         return
     if previous_hash and previous_hash != current_hash:
         print("  requirements.txt changed; syncing base requirements.")
+        if package_version("videolingo") is not None:
+            # The installed project metadata still lists the previous requirements
+            # (e.g. whisperx, transformers<5); pip would print a resolver ERROR against
+            # it while syncing. Re-register it first (--no-deps skips pip's conflict check).
+            refresh_project_metadata()
     pip_install(read_base_requirements(), retries=3, extra_args=["--upgrade"])
 
 
@@ -323,9 +366,13 @@ def install_demucs(force: bool = False, require: bool = False) -> None:
         raise RuntimeError("Demucs installation failed")
 
 
+def refresh_project_metadata() -> bool:
+    return soft_pip_install(["-e", str(ROOT)], retries=1, extra_args=["--no-deps"])
+
+
 def install_project_metadata() -> None:
     print("\n[post] Register project metadata (no dependency resolution)")
-    soft_pip_install(["-e", str(ROOT)], retries=1, extra_args=["--no-deps"])
+    refresh_project_metadata()
 
 
 def check_ffmpeg() -> bool:

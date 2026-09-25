@@ -116,6 +116,7 @@ def _apple_silicon(monkeypatch, apple=True):
 def test_whisperx_removed_before_mlx_install(monkeypatch, apple, installed, removed):
     _apple_silicon(monkeypatch, apple)
     monkeypatch.setattr(installer, 'package_version', installed.get)
+    monkeypatch.setattr(installer, 'required_by_other_packages', lambda names: set())
     monkeypatch.setattr(installer, 'load_state', lambda: {})
     monkeypatch.setattr(installer, 'health_check', lambda **kwargs: 1)
     events = []
@@ -125,6 +126,62 @@ def test_whisperx_removed_before_mlx_install(monkeypatch, apple, installed, remo
     if removed:
         assert events[0] == ('run', [installer.sys.executable, '-m', 'pip', 'uninstall', '-y', *removed])
     assert events[-1][0] == 'pip' and all(kind == 'pip' for kind, _ in events[bool(removed):])
+
+
+def _fake_distribution(name, *requires):
+    from types import SimpleNamespace
+    return SimpleNamespace(metadata={'Name': name}, requires=list(requires))
+
+
+def test_required_by_other_packages_ignores_stack_project_and_extras(monkeypatch):
+    dists = [
+        _fake_distribution('pyannote.audio', 'torchcodec>=0.7', 'pyannote-core'),  # inside the stack
+        _fake_distribution('VideoLingo', 'whisperx<3.9'),                           # stale project metadata
+        _fake_distribution('someapp', 'CTranslate2>=4', "faster_whisper; extra == 'asr'"),
+        _fake_distribution('other', 'numpy'),
+    ]
+    monkeypatch.setattr(installer.metadata, 'distributions', lambda: dists)
+    names = ['whisperx', 'torchcodec', 'ctranslate2', 'faster-whisper', 'pyannote-audio', 'pyannote-core']
+    assert installer.required_by_other_packages(names) == {'ctranslate2'}
+
+
+def test_apple_silicon_removes_whole_whisperx_stack_but_keeps_needed(monkeypatch):
+    _apple_silicon(monkeypatch)
+    installed = {name: '1.0' for name in installer.WHISPERX_ONLY_PACKAGES}
+    monkeypatch.setattr(installer, 'package_version', installed.get)
+    monkeypatch.setattr(installer, 'required_by_other_packages', lambda names: {'ctranslate2'})
+    calls = []
+    monkeypatch.setattr(installer, 'run', lambda cmd, **kwargs: calls.append(cmd))
+    installer.remove_whisperx_for_mlx()
+    removed = calls[0][calls[0].index('-y') + 1:]
+    assert 'ctranslate2' not in removed
+    assert set(removed) == set(installer.WHISPERX_ONLY_PACKAGES) - {'ctranslate2'}
+    assert {'pyannote-audio', 'faster-whisper', 'torchcodec', 'whisperx'} <= set(removed)
+
+
+def test_whisperx_only_packages_are_not_default_requirements():
+    names = {installer.requirement_name(r) for r in installer.read_base_requirements()}
+    assert not names.intersection(installer.WHISPERX_ONLY_PACKAGES)
+
+
+@pytest.mark.parametrize('previous,installed,upgrade,refreshed', [
+    ('old-hash', True, False, True),     # upgrade from an older checkout: refresh stale metadata first
+    ('old-hash', False, False, False),   # project not registered yet: nothing to refresh
+    ('same', True, True, False),         # --upgrade with unchanged requirements
+])
+def test_stale_project_metadata_refreshed_before_sync(monkeypatch, previous, installed, upgrade, refreshed):
+    _apple_silicon(monkeypatch, False)
+    monkeypatch.setattr(installer, 'package_version', lambda name: '3.0.4' if installed and name == 'videolingo' else None)
+    monkeypatch.setattr(installer, 'load_state', lambda: {'requirements_hash': previous})
+    monkeypatch.setattr(installer, 'requirements_hash', lambda: 'same')
+    monkeypatch.setattr(installer, 'health_check', lambda **kwargs: 1)
+    calls = []
+    monkeypatch.setattr(installer, 'pip_install', lambda packages, **kwargs: calls.append((packages, kwargs)))
+    installer.install_base_requirements(upgrade=upgrade)
+    if refreshed:
+        assert calls[0] == (['-e', str(installer.ROOT)], {'retries': 1, 'extra_args': ['--no-deps']})
+    assert len(calls) == 1 + refreshed
+    assert calls[-1][0] == installer.read_base_requirements()
 
 
 def test_health_check_rejects_whisperx_next_to_mlx(monkeypatch, capsys):
