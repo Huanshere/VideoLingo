@@ -184,13 +184,19 @@ def test_plain_macos_cpu_versions_are_reused(monkeypatch):
     installer.install_torch(backend='cpu')
 
 
+# Health-check tests run as an x86_64 macOS host whatever machine runs them: markers,
+# platform.system() and platform.machine() must agree, or an Apple Silicon or Linux host
+# would select a different Qwen engine than the test expects.
+HEALTH_HOST = {'sys_platform': 'darwin', 'platform_system': 'Darwin', 'platform_machine': 'x86_64'}
+
+
 def _requirement_versions(builds=('cpu', 'cpu', 'cpu')):
     from packaging.requirements import Requirement
     versions = {}
     for raw in installer.REQUIREMENTS.read_text(encoding='utf-8').splitlines():
         if installer.requirement_name(raw):
             req = Requirement(raw)
-            if req.marker and not req.marker.evaluate():
+            if req.marker and not req.marker.evaluate(HEALTH_HOST):
                 continue
             lower = [s.version for s in req.specifier if s.operator in ('==', '>=')]
             versions[req.name] = lower[0] if lower else '1.0'
@@ -203,7 +209,13 @@ def _patch_health_environment(monkeypatch, versions, gpu=False):
     monkeypatch.setattr(installer, 'package_version', versions.get)
     monkeypatch.setattr(installer, 'load_state', lambda: {'requirements_hash': installer.requirements_hash()})
     monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: gpu)
-    monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin')
+    # Pin OS, architecture and the marker environment together (see HEALTH_HOST). With only
+    # the OS mocked, an Apple Silicon host enabled the MLX-only "whisperx next to MLX" error.
+    import packaging.markers
+    host_environment = packaging.markers.default_environment
+    monkeypatch.setattr(packaging.markers, 'default_environment', lambda: {**host_environment(), **HEALTH_HOST})
+    monkeypatch.setattr(installer.platform, 'system', lambda: HEALTH_HOST['platform_system'])
+    monkeypatch.setattr(installer.platform, 'machine', lambda: HEALTH_HOST['platform_machine'])
     monkeypatch.setattr(installer.shutil, 'which', lambda _: '/example/ffmpeg')
 
 
