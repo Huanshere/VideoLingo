@@ -152,5 +152,15 @@
     "Media file detection failed: {error}": "Error al detectar el archivo multimedia: {error}",
     "Clear output and reselect": "Limpiar salida y volver a seleccionar",
     "Finalize subtitle outputs": "Finalizar resultados de subtítulos",
-    "Finalize dubbing outputs": "Finalizar resultados de doblaje"
+    "Finalize dubbing outputs": "Finalizar resultados de doblaje",
+    "ASR Runtime": "Entorno de reconocimiento de voz",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key.": "Qwen3-ASR local funciona mejor con una GPU NVIDIA o Apple Silicon (en CPU funciona, pero lento); ElevenLabs requiere una clave de API de ElevenLabs.",
+    "Local ASR Backend": "Motor de reconocimiento local",
+    "Qwen3-ASR + ForcedAligner (default)": "Qwen3-ASR + ForcedAligner (predeterminado)",
+    "WhisperX (optional fallback)": "WhisperX (alternativa opcional)",
+    "Qwen3-ASR Model Size": "Tamaño del modelo Qwen3-ASR",
+    "1.7B (more accurate)": "1.7B (más preciso)",
+    "0.6B (faster, less memory)": "0.6B (más rápido, menos memoria)",
+    "WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps.": "WhisperX no se instala por defecto. Consulta la página \"WhisperX (opcional)\" de la documentación.",
+    "Word-level transcription and alignment": "Transcripción y alineación a nivel de palabra"
 }

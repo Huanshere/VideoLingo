@@ -159,5 +159,15 @@
     "Suggested: 18-25. Below 18 cuts too finely and hurts translation; above 25 makes downstream subtitle splitting hard to align.": "建議 18-25。小於 18 會切得太碎，影響翻譯品質；大於 25 會讓後續字幕拆分難對齊。",
     "max_length (max characters per subtitle line)": "max_length（每行字幕字元數上限）",
     "Suggested: 50-90. Lower if a subtitle line looks crowded on screen; raise if lines are split too aggressively.": "建議 50-90。如果一行字幕看著擠就調小；如果一句話被拆得太碎就調大。",
-    "Restore defaults ({split}/{length})": "恢復預設值（{split}/{length}）"
+    "Restore defaults ({split}/{length})": "恢復預設值（{split}/{length}）",
+    "ASR Runtime": "語音識別運行環境",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key.": "本地 Qwen3-ASR 建議使用 NVIDIA GPU 或 Apple Silicon（CPU 可用但較慢）；ElevenLabs 需要 ElevenLabs API Key。",
+    "Local ASR Backend": "本地識別後端",
+    "Qwen3-ASR + ForcedAligner (default)": "Qwen3-ASR + ForcedAligner（預設）",
+    "WhisperX (optional fallback)": "WhisperX（可選備選）",
+    "Qwen3-ASR Model Size": "Qwen3-ASR 模型大小",
+    "1.7B (more accurate)": "1.7B（更準確）",
+    "0.6B (faster, less memory)": "0.6B（更快、更省顯存）",
+    "WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps.": "WhisperX 預設不安裝，安裝步驟見文件「WhisperX（可選）」頁。",
+    "Word-level transcription and alignment": "詞級語音識別與對齊"
 }

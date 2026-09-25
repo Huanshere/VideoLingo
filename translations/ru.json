@@ -152,5 +152,15 @@
     "Media file detection failed: {error}": "Не удалось определить медиафайл: {error}",
     "Clear output and reselect": "Очистить output и выбрать заново",
     "Finalize subtitle outputs": "Финализировать вывод субтитров",
-    "Finalize dubbing outputs": "Финализировать вывод дубляжа"
+    "Finalize dubbing outputs": "Финализировать вывод дубляжа",
+    "ASR Runtime": "Среда распознавания речи",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key.": "Локальный Qwen3-ASR лучше всего работает на GPU NVIDIA или Apple Silicon (на CPU работает, но медленно); для ElevenLabs нужен API-ключ ElevenLabs.",
+    "Local ASR Backend": "Локальный движок распознавания",
+    "Qwen3-ASR + ForcedAligner (default)": "Qwen3-ASR + ForcedAligner (по умолчанию)",
+    "WhisperX (optional fallback)": "WhisperX (необязательная альтернатива)",
+    "Qwen3-ASR Model Size": "Размер модели Qwen3-ASR",
+    "1.7B (more accurate)": "1.7B (точнее)",
+    "0.6B (faster, less memory)": "0.6B (быстрее, меньше памяти)",
+    "WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps.": "WhisperX не устанавливается по умолчанию. Шаги установки — на странице документации «WhisperX (необязательно)».",
+    "Word-level transcription and alignment": "Пословная транскрипция и выравнивание"
 }

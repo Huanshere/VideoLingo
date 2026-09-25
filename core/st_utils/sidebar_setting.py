@@ -173,7 +173,7 @@ def page_setting():
         if configured_runtime not in runtimes:
             st.warning(t("The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue."))
         runtime = st.selectbox(
-            t("WhisperX Runtime"),
+            t("ASR Runtime"),
             options=runtimes,
             index=runtimes.index(configured_runtime) if configured_runtime in runtimes else None,
             format_func=lambda x: {
@@ -181,12 +181,44 @@ def page_setting():
                 "elevenlabs": t("ElevenLabs"),
             }[x],
             help=t(
-                "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key."
+                "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key."
             ),
         )
         if runtime is not None and runtime != configured_runtime:
             update_key("whisper.runtime", runtime)
             st.rerun()
+        if runtime == "local":
+            backends = ["qwen", "whisperx"]
+            configured_backend = load_key_or("whisper.backend", "qwen")
+            backend = st.selectbox(
+                t("Local ASR Backend"),
+                options=backends,
+                index=backends.index(configured_backend) if configured_backend in backends else 0,
+                format_func=lambda x: {
+                    "qwen": t("Qwen3-ASR + ForcedAligner (default)"),
+                    "whisperx": t("WhisperX (optional fallback)"),
+                }[x],
+            )
+            if backend != configured_backend:
+                update_key("whisper.backend", backend, add_missing=True)
+                st.rerun()
+            if backend == "qwen":
+                sizes = ["1.7b", "0.6b"]
+                configured_size = load_key_or("whisper.qwen_model", "1.7b")
+                size = st.selectbox(
+                    t("Qwen3-ASR Model Size"),
+                    options=sizes,
+                    index=sizes.index(configured_size) if configured_size in sizes else 0,
+                    format_func=lambda x: {
+                        "1.7b": t("1.7B (more accurate)"),
+                        "0.6b": t("0.6B (faster, less memory)"),
+                    }[x],
+                )
+                if size != configured_size:
+                    update_key("whisper.qwen_model", size, add_missing=True)
+                    st.rerun()
+            else:
+                st.caption(t("WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps."))
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
 

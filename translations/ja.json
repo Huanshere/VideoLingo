@@ -152,5 +152,15 @@
     "Media file detection failed: {error}": "メディアファイルの検出に失敗しました: {error}",
     "Clear output and reselect": "出力をクリアして再選択",
     "Finalize subtitle outputs": "字幕出力を仕上げる",
-    "Finalize dubbing outputs": "吹き替え出力を仕上げる"
+    "Finalize dubbing outputs": "吹き替え出力を仕上げる",
+    "ASR Runtime": "音声認識ランタイム",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key.": "ローカルの Qwen3-ASR は NVIDIA GPU または Apple Silicon を推奨（CPU でも動作しますが低速）。ElevenLabs には ElevenLabs API キーが必要です。",
+    "Local ASR Backend": "ローカル音声認識バックエンド",
+    "Qwen3-ASR + ForcedAligner (default)": "Qwen3-ASR + ForcedAligner（デフォルト）",
+    "WhisperX (optional fallback)": "WhisperX（オプションの代替）",
+    "Qwen3-ASR Model Size": "Qwen3-ASR モデルサイズ",
+    "1.7B (more accurate)": "1.7B（高精度）",
+    "0.6B (faster, less memory)": "0.6B（高速・省メモリ）",
+    "WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps.": "WhisperX はデフォルトではインストールされません。手順はドキュメントの「WhisperX（オプション）」ページを参照してください。",
+    "Word-level transcription and alignment": "単語レベルの文字起こしとアライメント"
 }
