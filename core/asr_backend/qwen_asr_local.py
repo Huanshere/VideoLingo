@@ -147,7 +147,8 @@ def load_audio_segment(path, start, end):
 def match_length(wav, length):
     """Trim or zero-pad so the vocal track shares the raw track's sample indices.
 
-    Demucs vocals are re-encoded MP3; their decoded length can differ from the raw audio.
+    demucs_vl writes stems that start sample-aligned with raw.mp3 (FFmpeg decode and
+    encode, so MP3 encoder delay is trimmed); only the decoded tail length can differ.
     """
     if len(wav) >= length:
         return wav[:length]
