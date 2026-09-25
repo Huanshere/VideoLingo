@@ -166,7 +166,8 @@ allowed_audio_formats:
 - 'flac'
 - 'm4a'
 
-# Spacy models
+# Spacy models. Other languages use built-in defaults (ko, pt, nl, sv, da, fi, pl, el, ro, mk)
+# or, without a spaCy pipeline (e.g. ar, th, vi), punctuation-only sentence splitting.
 spacy_model_map:
   en: 'en_core_web_md'
   ru: 'ru_core_news_md'
@@ -177,6 +178,7 @@ spacy_model_map:
   it: 'it_core_news_md'
   zh: 'zh_core_web_md'
 
+# Word joiners. Languages not listed: zh/yue/ja/th/lo/km/my/bo join without spaces, all others with spaces.
 # Languages that use space as separator
 language_split_with_space:
 - 'en'

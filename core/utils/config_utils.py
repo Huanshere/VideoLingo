@@ -68,13 +68,20 @@ def get_source_language():
     return language
 
 
+# Written without spaces between words. Any other language (everything else Qwen3-ASR or
+# WhisperX can detect, e.g. ko, vi, pt, ar) joins with a space unless config.yaml says otherwise.
+LANGUAGES_WITHOUT_SPACE = {"zh", "yue", "ja", "th", "lo", "km", "my", "bo"}
+
+
 def get_joiner(language):
-    if language in load_key('language_split_with_space'):
+    if language in load_key_or('language_split_with_space', []):
         return " "
-    elif language in load_key('language_split_without_space'):
+    elif language in load_key_or('language_split_without_space', []):
         return ""
-    else:
-        raise ValueError(f"Unsupported language code: {language}")
+    if not isinstance(language, str) or not language or language == "auto":
+        raise ValueError(f"Unsupported language code: {language!r}")
+    return "" if language.lower() in LANGUAGES_WITHOUT_SPACE else " "
+
 
 if __name__ == "__main__":
     print(load_key('language_split_with_space'))
