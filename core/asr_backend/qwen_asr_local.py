@@ -14,10 +14,12 @@ Heavy libraries are imported lazily so this module imports without them.
 import gc
 import importlib.util
 import platform
+import re
 import subprocess
 import time
 import unicodedata
 from collections import Counter
+from contextlib import contextmanager
 from pathlib import Path
 
 import numpy as np
@@ -33,6 +35,24 @@ CUT_SEARCH_SECONDS = 30
 MAX_NEW_TOKENS = 2048
 # Shorter windows are dropped; MLX would otherwise zero-pad anything under its 1 s default.
 MIN_WINDOW_SECONDS = 0.1
+
+# Language detection with whisper.language = auto. Detecting on a whole window let one
+# misleading stretch decide it: 1.7B heard a Chinese/English code-switched opening as
+# English and looped "Yeah, yeah." for 120 s. Probe short clips spread over the window,
+# vote, then transcribe the window with that language forced.
+PROBE_SECONDS = 20
+PROBES_PER_WINDOW = 3
+
+# Degenerate output: a phrase repeated back to back over at least half of a transcript of
+# REPEAT_MIN_CHARS+ letters/digits, or a window transcript shorter than half of what its
+# probes (same language) heard. Retry once in RETRY_WINDOW_SECONDS windows, then fail.
+REPEAT_MIN_CHARS = 40
+REPEAT_COVERAGE = 0.5
+PROBE_MIN_CHARS = 30
+PROBE_COVERAGE = 0.5
+RETRY_WINDOW_SECONDS = 60
+RETRY_SEARCH_SECONDS = 15
+_REPEATED_UNIT = re.compile(r"(.{1,40}?)\1{3,}", re.S)
 MAX_WORD_LENGTH = 30  # process_transcription drops longer words
 
 MODELS = {
@@ -119,11 +139,18 @@ def qwen_language(language):
     return ISO_TO_QWEN[language]
 
 
-def iso_language(name):
-    """Qwen may report 'Chinese,English' for code-switched audio; the first language is primary."""
+def primary_language(name):
+    """Qwen may report 'Chinese,English' for code-switched audio; the first language is primary.
+
+    Returns the supported Qwen language name, or None.
+    """
     first = (name or "").split(",")[0].strip()
     first = first[:1].upper() + first[1:].lower()
-    return QWEN_TO_ISO.get(first)
+    return first if first in QWEN_TO_ISO else None
+
+
+def iso_language(name):
+    return QWEN_TO_ISO.get(primary_language(name))
 
 
 # ------------------------------------------------------------------
@@ -169,6 +196,113 @@ def split_windows(wav, sr=SAMPLE_RATE, window_seconds=WINDOW_SECONDS, search_sec
         start = cut
     windows.append((start, total))
     return windows
+
+
+# ------------------------------------------------------------------
+# Language probes and degenerate output
+# ------------------------------------------------------------------
+
+def probe_ranges(length, sr=SAMPLE_RATE, probe_seconds=PROBE_SECONDS, count=PROBES_PER_WINDOW):
+    """Up to `count` probe clips of probe_seconds spread evenly over a window of `length` samples."""
+    probe = int(probe_seconds * sr)
+    if length <= probe * 3 // 2:
+        return [(0, length)]
+    count = max(1, min(count, length // probe))
+    ranges = []
+    for i in range(count):
+        center = int((i + 0.5) * length / count)
+        a = min(max(0, center - probe // 2), length - probe)
+        ranges.append((a, a + probe))
+    return ranges
+
+
+def _normalized(text):
+    return "".join(ch for ch in (text or "").lower() if ch.isalnum())
+
+
+def is_repetitive(text):
+    """A unit of 1-40 letters/digits repeated 4+ times in a row covers half the transcript."""
+    norm = _normalized(text)
+    if len(norm) < REPEAT_MIN_CHARS:
+        return False
+    longest = max((m.end() - m.start() for m in _REPEATED_UNIT.finditer(norm)), default=0)
+    return longest >= REPEAT_COVERAGE * len(norm)
+
+
+def degeneration(text, heard=()):
+    """Why a window transcript looks degenerate, or None.
+
+    `heard` are probe transcripts of clips inside the window in the same language; the full
+    window must contain at least that speech. Silence or music-only probes hear nothing, so
+    windows like that are never flagged for being short.
+    """
+    if is_repetitive(text):
+        return "the same phrase repeats over most of the transcript"
+    reference = sum(len(_normalized(t)) for t in heard)
+    length = len(_normalized(text))
+    if reference >= PROBE_MIN_CHARS and length < PROBE_COVERAGE * reference:
+        return f"only {length} letters/digits, while shorter probe clips of it had {reference}"
+    return None
+
+
+def _vote(probes):
+    """Most frequent probe language; ties go to the language with more recognized text."""
+    if not probes:
+        return None
+    counts, amount = Counter(), Counter()
+    for name, text in probes:
+        counts[name] += 1
+        amount[name] += len(_normalized(text))
+    return max(counts, key=lambda name: (counts[name], amount[name]))
+
+
+def plan_languages(run, raw, windows):
+    """auto: [(language or None, [(language, probe text)])] per window from probe votes."""
+    per_window = []
+    for a, b in windows:
+        probes = []
+        for pa, pb in probe_ranges(b - a):
+            lang, text = run(raw[a + pa:a + pb], None)
+            name = primary_language(lang)
+            # A looping probe says nothing reliable about the language.
+            if text and name and not is_repetitive(text):
+                probes.append((name, text))
+        per_window.append(probes)
+    overall = _vote([probe for probes in per_window for probe in probes])
+    plan = []
+    for (a, b), probes in zip(windows, per_window):
+        # A window whose probes heard nothing (e.g. music) follows the rest of the segment.
+        language = _vote(probes) or overall
+        votes = ", ".join(f"{name}×{n}" for name, n in Counter(name for name, _ in probes).items()) or "none"
+        rprint(f"[cyan]🌐 {a / SAMPLE_RATE:.1f}-{b / SAMPLE_RATE:.1f}s language: {language or 'auto'} (probes: {votes})[/cyan]")
+        plan.append((language, probes))
+    return plan
+
+
+def transcribe_window(run, raw, a, b, language, probes=(), offset=0.0):
+    """[(start, end, language, text)] for one window; retries shorter windows if degenerate."""
+    heard = [text for name, text in probes if name == language]
+    lang, text = run(raw[a:b], language)
+    reason = degeneration(text, heard)
+    if not reason:
+        return [(a, b, lang, text)]
+    span = f"{offset + a / SAMPLE_RATE:.1f}-{offset + b / SAMPLE_RATE:.1f}s"
+    rprint(f"[yellow]⚠️ Qwen3-ASR output for {span} looks degenerate ({reason}); "
+           f"retrying in {RETRY_WINDOW_SECONDS} s windows...[/yellow]")
+    pieces = []
+    parts = split_windows(raw[a:b], window_seconds=RETRY_WINDOW_SECONDS, search_seconds=RETRY_SEARCH_SECONDS)
+    for sa, sb in parts:
+        if sb - sa >= int(MIN_WINDOW_SECONDS * SAMPLE_RATE):
+            sub_lang, sub_text = run(raw[a + sa:a + sb], language)
+            pieces.append((a + sa, a + sb, sub_lang, sub_text))
+    reason = next((degeneration(t) for *_, t in pieces if degeneration(t)), None) \
+        or degeneration(" ".join(t for *_, t in pieces), heard)
+    if reason:
+        raise ValueError(
+            f"Qwen3-ASR output for {span} is still degenerate after retrying ({reason}). "
+            "Set the recognition language explicitly instead of auto, try the other Qwen3-ASR "
+            "model size, or check the audio.")
+    return pieces
 
 
 # ------------------------------------------------------------------
@@ -246,35 +380,44 @@ def _torch_device():
     return "cpu", torch.float32
 
 
-def _transcribe(engine, repo_id, clips, language):
-    """Return [(qwen_language_name, text)] per clip."""
+@contextmanager
+def asr_session(engine, repo_id):
+    """Load Qwen3-ASR once and yield run(clip, qwen_language or None) -> (language, text)."""
     source = _model_source(repo_id)
-    model, outputs = None, []
+    model = None
     try:
         if engine == "mlx":
             from mlx_audio.stt.utils import load_model
             model = load_model(source)
-            for clip in clips:
+
+            def run(clip, language):
                 check_cancel()
                 out = model.generate(clip, language=language, max_tokens=MAX_NEW_TOKENS,
                                      chunk_duration=WINDOW_SECONDS + 1, min_chunk_duration=MIN_WINDOW_SECONDS)
                 detected = language or ",".join(dict.fromkeys(l for l in (out.language or []) if l))
-                outputs.append((detected, out.text.strip()))
+                return detected, out.text.strip()
         else:
             from qwen_asr import Qwen3ASRModel
             device, dtype = _torch_device()
             rprint(f"[cyan]🎮 Qwen3-ASR device:[/cyan] {device}, [cyan]dtype:[/cyan] {dtype}")
             model = Qwen3ASRModel.from_pretrained(source, dtype=dtype, device_map=device,
                                                   max_inference_batch_size=1, max_new_tokens=MAX_NEW_TOKENS)
-            for clip in clips:
+
+            def run(clip, language):
                 check_cancel()
                 out = model.transcribe(audio=(clip, SAMPLE_RATE), language=language)[0]
-                outputs.append((language or out.language, out.text.strip()))
+                return language or out.language, out.text.strip()
+        yield run
     finally:
         # Release the model even when a window fails, so a retry does not start out of memory.
         del model
         _free(engine)
-    return outputs
+
+
+def _transcribe(engine, repo_id, clips, language):
+    """Return [(qwen_language_name, text)] per clip."""
+    with asr_session(engine, repo_id) as run:
+        return [run(clip, language) for clip in clips]
 
 
 def _align(engine, repo_id, jobs):
@@ -324,31 +467,39 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     # Drop slivers (< 0.1 s) left by segment boundaries; they carry no speech.
     windows = [(a, b) for a, b in split_windows(raw) if b - a >= int(MIN_WINDOW_SECONDS * SAMPLE_RATE)]
 
-    # 1. transcribe raw audio
+    # 1. transcribe raw audio (auto: probe the language first, then force it per window)
     t0 = time.time()
-    texts = _transcribe(engine, models[size], [raw[a:b] for a, b in windows], forced)
+    pieces = []
+    with asr_session(engine, models[size]) as run:
+        plan = [(forced, [])] * len(windows) if forced else plan_languages(run, raw, windows)
+        for (a, b), (language, probes) in zip(windows, plan):
+            pieces.extend(transcribe_window(run, raw, a, b, language, probes, start))
     rprint(f"[cyan]⏱️ time transcribe:[/cyan] {time.time() - t0:.2f}s")
 
     if forced:
         detected = configured
     else:
-        votes = Counter(iso_language(lang) for lang, text in texts if text and iso_language(lang))
-        detected = votes.most_common(1)[0][0] if votes else None
-        if not detected and any(text for _, text in texts):
+        # Segment language for downstream steps: the language covering the most audio.
+        votes = Counter()
+        for a, b, lang, text in pieces:
+            if text and iso_language(lang):
+                votes[iso_language(lang)] += b - a
+        detected = max(votes, key=votes.get) if votes else None
+        if not detected and any(text for *_, text in pieces):
             raise ValueError("Qwen3-ASR could not detect the language; set the recognition language and retry.")
 
     # 2. align by vocal audio
     t0 = time.time()
-    todo = [(i, lang or ISO_TO_QWEN[detected]) for i, (lang, text) in enumerate(texts) if text]
-    jobs = [(vocal[windows[i][0]:windows[i][1]], texts[i][1], lang.split(",")[0]) for i, lang in todo]
+    todo = [(a, b, text, (primary_language(lang) or ISO_TO_QWEN[detected]))
+            for a, b, lang, text in pieces if text]
+    jobs = [(vocal[a:b], text, lang) for a, b, text, lang in todo]
     aligned = _align(engine, models["aligner"], jobs) if jobs else []
     rprint(f"[cyan]⏱️ time align:[/cyan] {time.time() - t0:.2f}s")
 
     segments = []
-    for (i, _), items in zip(todo, aligned):
-        offset = start + windows[i][0] / SAMPLE_RATE
-        words = attach_words(texts[i][1], items, offset)
+    for (a, _, text, _), items in zip(todo, aligned):
+        words = attach_words(text, items, start + a / SAMPLE_RATE)
         if words:
-            segments.append({"text": texts[i][1], "start": words[0]["start"],
+            segments.append({"text": text, "start": words[0]["start"],
                              "end": words[-1]["end"], "words": words})
     return {"language": detected, "segments": segments}

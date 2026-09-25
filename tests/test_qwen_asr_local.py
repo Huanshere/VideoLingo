@@ -2,6 +2,7 @@
 import subprocess
 import sys
 import types
+from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -192,84 +193,173 @@ def test_model_table():
 SR = qwen.SAMPLE_RATE
 
 
+RAW_BASE, VOCAL_BASE = 0.0, 1000.0  # sample value = seconds (+ base): fakes can tell where a clip starts
+
+
+def ramp(seconds, base):
+    return (base + np.arange(int(seconds * SR), dtype=np.float64) / SR).astype(np.float32)
+
+
 @pytest.fixture
 def pipeline(monkeypatch):
-    """Mock config, audio decoding and both engines; return the recorded calls."""
-    state = {"language": "en", "texts": None, "calls": {}}
-    audio = state["audio"] = {"raw.wav": np.full(200 * SR, 0.5, dtype=np.float32),
-             "vocal.mp3": np.full(200 * SR, 0.25, dtype=np.float32)}
-    audio["raw.wav"][150 * SR:151 * SR] = 0  # first window cut at 150-151 s
+    """Mock config, audio decoding and both engines.
+
+    state["asr"](start_s, end_s, language) plays the model for a clip of the raw ramp;
+    state["calls"]["asr"] records (start_s, seconds, language) for every ASR call.
+    """
+    state = {"language": "en", "asr": None, "calls": {"asr": []}}
+    # A rising ramp puts the lowest energy at the start of each cut search range: windows 0-150 s, 150-200 s.
+    audio = state["audio"] = {"raw.wav": ramp(200, RAW_BASE), "vocal.mp3": ramp(200, VOCAL_BASE)}
 
     monkeypatch.setattr(qwen, "resolve_engine", lambda requested=None: "transformers")
     monkeypatch.setattr(qwen, "model_size", lambda requested=None: "0.6b")
     monkeypatch.setattr(qwen, "load_key", lambda key: {"whisper.language": state["language"]}[key])
     monkeypatch.setattr(qwen, "load_audio_segment", lambda path, start, end: audio[path])
 
-    def transcribe(engine, repo_id, clips, language):
-        state["calls"]["transcribe"] = (engine, repo_id, [len(c) for c in clips], language)
-        return state["texts"](language)
+    @contextmanager
+    def session(engine, repo_id):
+        state["calls"]["session"] = (engine, repo_id)
+
+        def run(clip, language):
+            begin = round(float(clip[0]) - RAW_BASE, 2)
+            state["calls"]["asr"].append((begin, len(clip) / SR, language))
+            return state["asr"](begin, begin + len(clip) / SR, language)
+        yield run
 
     def align(engine, repo_id, jobs):
-        state["calls"]["align"] = (engine, repo_id, [(float(c[0]), text, lang) for c, text, lang in jobs])
+        state["calls"]["align"] = (engine, repo_id, [(round(float(c[0]), 2), text, lang) for c, text, lang in jobs])
         state["calls"]["align_lengths"] = [len(c) for c, _, _ in jobs]
         return [[(tok, 0.5 + i, 1.0 + i) for i, tok in enumerate(text.rstrip(".").replace(",", "").split())]
                 for _, text, _ in jobs]
 
-    monkeypatch.setattr(qwen, "_transcribe", transcribe)
+    monkeypatch.setattr(qwen, "asr_session", session)
     monkeypatch.setattr(qwen, "_align", align)
     return state
 
 
+def window_calls(state):
+    return [call for call in state["calls"]["asr"] if call[2] is not None]
+
+
+ZH = "我们今天开一个meeting，然后presentation要准备好，客户那边说要double check一下细节。"
+
+
 def test_transcribe_audio_structure_offsets_and_cache_validity(pipeline):
-    pipeline["texts"] = lambda language: [(language, "Hello, world."), (language, "Bye now.")]
+    pipeline["asr"] = lambda a, b, language: (language, "Hello, world." if a < 1 else "Bye now.")
     result = qwen.transcribe_audio("raw.wav", "vocal.mp3", 60, 260)
 
-    engine, repo, lengths, language = pipeline["calls"]["transcribe"]
-    assert (engine, repo, language) == ("transformers", "Qwen/Qwen3-ASR-0.6B", "English")
-    assert len(lengths) == 2 and sum(lengths) == 200 * SR and max(lengths) <= 180 * SR
+    assert pipeline["calls"]["session"] == ("transformers", "Qwen/Qwen3-ASR-0.6B")
+    calls = pipeline["calls"]["asr"]
+    # Forced language: no probes, one call per window.
+    assert [language for *_, language in calls] == ["English", "English"]
+    lengths = [seconds for _, seconds, _ in calls]
+    assert sum(lengths) == pytest.approx(200) and max(lengths) <= 180
     engine, repo, jobs = pipeline["calls"]["align"]
     assert repo == "Qwen/Qwen3-ForcedAligner-0.6B"
-    # Alignment runs on the vocal track with the forced language.
-    assert [(c, lang) for c, _, lang in jobs] == [(0.25, "English"), (0.25, "English")]
+    # Alignment runs on the vocal track (same sample indices) with the forced language.
+    assert [(c, lang) for c, _, lang in jobs] == [(VOCAL_BASE, "English"), (VOCAL_BASE + calls[1][0], "English")]
 
     assert result["language"] == "en"
     first, second = result["segments"]
     assert first["text"] == "Hello, world." and [w["word"] for w in first["words"]] == ["Hello,", "world."]
     assert first["words"][0] == {"word": "Hello,", "start": 60.5, "end": 61.0}
-    window_start = 60 + lengths[0] / SR
-    assert second["words"][0]["start"] == pytest.approx(window_start + 0.5, abs=1e-3)
+    assert second["words"][0]["start"] == pytest.approx(60 + calls[1][0] + 0.5, abs=1e-3)
     assert first["start"] == first["words"][0]["start"] and second["end"] == second["words"][-1]["end"]
     assert cache.valid_result(result)
 
 
-def test_auto_language_votes_and_skips_empty_windows(pipeline):
-    pipeline["language"] = "auto"
-    pipeline["texts"] = lambda language: [("Chinese,English", "你好。"), ("English", "")]
-    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
-    assert pipeline["calls"]["transcribe"][3] is None
-    # Only the non-empty window is aligned, with its primary language; raw doubles as vocal.
-    assert pipeline["calls"]["align"][2] == [(0.5, "你好。", "Chinese")]
-    assert result["language"] == "zh" and len(result["segments"]) == 1
+def code_switched(a, b, language):
+    """1.7B on the Mini: an opening clip is heard as English and loops; forcing Chinese works."""
+    if language is None:
+        return ("English", "Yeah, yeah, yeah.") if a < 30 else ("Chinese,English", ZH)
+    if language == "English":
+        return "English", "Yeah, yeah. " * 500
+    return language, ZH * max(1, int((b - a) // 10))
 
 
-def test_auto_language_falls_back_to_majority_for_unlabelled_windows(pipeline):
+def test_auto_probes_vote_then_force_the_language(pipeline):
     pipeline["language"] = "auto"
-    pipeline["texts"] = lambda language: [("English", "One."), ("", "Two.")]
+    pipeline["asr"] = code_switched
     result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
-    assert [lang for _, _, lang in pipeline["calls"]["align"][2]] == ["English", "English"]
-    assert result["language"] == "en"
+    probes = [call for call in pipeline["calls"]["asr"] if call[2] is None]
+    # 150 s window: 3 probes of 20 s spread over it; 50 s window: 2 probes.
+    assert [a for a, _, _ in probes[:3]] == pytest.approx([15, 65, 115], abs=0.1)
+    assert len(probes) == 5 and all(s == 20 for _, s, _ in probes)
+    # One misleading English probe is outvoted; each window is transcribed with Chinese forced.
+    assert [language for *_, language in window_calls(pipeline)] == ["Chinese", "Chinese"]
+    assert result["language"] == "zh"
+    assert [lang for *_, lang in pipeline["calls"]["align"][2]] == ["Chinese", "Chinese"]
+
+
+def test_degenerate_window_is_retried_in_shorter_windows(pipeline):
+    pipeline["language"] = "zh"
+
+    def asr(a, b, language):
+        if b - a > qwen.RETRY_WINDOW_SECONDS + 1:
+            return language, "谢谢大家。" * 300  # loops on the long window
+        return language, ZH
+    pipeline["asr"] = asr
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    first_window = [(a, s) for a, s, _ in window_calls(pipeline) if a < 150]
+    assert first_window[0][1] == pytest.approx(150, abs=0.1)  # the long attempt
+    retries = [s for _, s in first_window[1:]]
+    assert len(retries) >= 3 and max(retries) <= qwen.RETRY_WINDOW_SECONDS and sum(retries) == pytest.approx(150, abs=0.1)
+    assert all(segment["text"] == ZH for segment in result["segments"])
+    assert len(result["segments"]) == len(retries) + 1  # the 50 s window was fine on its own
+
+
+def test_still_degenerate_after_retry_fails_loudly(pipeline):
+    pipeline["language"] = "zh"
+    pipeline["asr"] = lambda a, b, language: (language, "谢谢大家。" * 300)
+    with pytest.raises(ValueError, match=r"0\.0-150\.\d+s is still degenerate.*recognition language"):
+        qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+
+
+def test_too_little_text_compared_with_probes_fails_loudly(pipeline):
+    # The Mini's 120 s result: 3 words although probes heard a lot of speech.
+    pipeline["language"] = "auto"
+    pipeline["asr"] = lambda a, b, language: (
+        ("Chinese", ZH) if language is None else ("Chinese", "对。"))
+    with pytest.raises(ValueError, match=r"still degenerate after retrying \(only \d+ letters/digits, while shorter probe clips"):
+        qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+
+
+def test_silence_and_music_intro_is_not_flagged(pipeline):
+    # 60 s of silence/music hears nothing: probes are empty there, the window text is normal.
+    pipeline["language"] = "auto"
+
+    def asr(a, b, language):
+        speech = b > 60
+        if language is None:
+            return ("Chinese", ZH) if a >= 60 else ("", "")
+        return language, ZH * 3 if speech else ""
+    pipeline["asr"] = asr
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert len(window_calls(pipeline)) == 2  # one call per window: no retry
+    assert result["language"] == "zh" and len(result["segments"]) == 2
+
+
+def test_music_only_window_follows_segment_language(pipeline):
+    pipeline["language"] = "auto"
+    pipeline["asr"] = lambda a, b, language: (
+        ("English", "One two three four five six seven.") if language is None and a < 150 else
+        ("", "") if language is None else (language, "One two three four five six seven. Then eight, nine and ten." if a < 150 else ""))
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    # The second window's probes heard nothing; it is still transcribed with the segment's language.
+    assert [language for *_, language in window_calls(pipeline)] == ["English", "English"]
+    assert result["language"] == "en" and len(result["segments"]) == 1
 
 
 def test_undetectable_language_asks_user_to_set_it(pipeline):
     pipeline["language"] = "auto"
-    pipeline["texts"] = lambda language: [("", "???"), ("", "")]
+    pipeline["asr"] = lambda a, b, language: ("", "???")
     with pytest.raises(ValueError, match="set the recognition language"):
         qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
 
 
 def test_silence_returns_empty_segments_without_loading_aligner(pipeline):
     pipeline["language"] = "auto"
-    pipeline["texts"] = lambda language: [("", ""), ("", "")]
+    pipeline["asr"] = lambda a, b, language: ("", "")
     result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
     assert result == {"language": None, "segments": []}
     assert "align" not in pipeline["calls"]
@@ -278,11 +368,58 @@ def test_silence_returns_empty_segments_without_loading_aligner(pipeline):
 @pytest.mark.parametrize("vocal_seconds", [150, 200.5])
 def test_vocal_track_is_matched_to_raw_length(pipeline, vocal_seconds):
     # Re-encoded Demucs vocals can decode shorter or longer than the raw track.
-    pipeline["audio"]["vocal.mp3"] = np.full(int(vocal_seconds * SR), 0.25, dtype=np.float32)
-    pipeline["texts"] = lambda language: [(language, "One."), (language, "Two.")]
+    pipeline["audio"]["vocal.mp3"] = ramp(vocal_seconds, VOCAL_BASE)
+    pipeline["asr"] = lambda a, b, language: (language, "One." if a < 1 else "Two.")
     result = qwen.transcribe_audio("raw.wav", "vocal.mp3", 0, 200)
-    assert pipeline["calls"]["align_lengths"] == pipeline["calls"]["transcribe"][2]
+    assert pipeline["calls"]["align_lengths"] == [round(s * SR) for _, s, _ in window_calls(pipeline)]
     assert len(result["segments"]) == 2
+
+
+# ------------------------------------------------------------------
+# Degenerate-output heuristics
+# ------------------------------------------------------------------
+
+@pytest.mark.parametrize("text,expected", [
+    ("Yeah, yeah. " * 500, True),                                    # Mini: 6138 chars of this
+    ("今天我们聊一聊怎么准备面试。" + "谢谢大家。" * 40, True),          # loops after a normal start
+    ("Yeah, yeah, yeah.", False),                                    # too short to judge by itself
+    ("if you if you if you if you want to know why they do what they do, ask them directly", False),
+    ("哈哈哈哈哈哈哈哈 这个太好笑了", False),
+    (ZH * 3, False),                                                 # the same sentence 3x is not a loop
+])
+def test_is_repetitive(text, expected):
+    assert qwen.is_repetitive(text) is expected
+
+
+def test_is_repetitive_ignores_real_documents():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    for name in ("README.md", "translations/README.zh.md", "translations/README.ja.md", "translations/README.ru.md"):
+        assert not qwen.is_repetitive((root / name).read_text(encoding="utf-8")), name
+
+
+def test_degeneration_uses_probe_text_as_reference():
+    heard = [ZH, ZH]
+    assert qwen.degeneration("Yeah, yeah, yeah.") is None
+    assert "letters/digits" in qwen.degeneration("对。", heard)
+    assert qwen.degeneration(ZH * 2, heard) is None
+    assert qwen.degeneration("对。", ["嗯。"]) is None   # probes heard too little to judge
+
+
+def test_vote_and_probe_ranges():
+    assert qwen._vote([]) is None
+    assert qwen._vote([("English", "Yeah."), ("Chinese", ZH), ("Chinese", ZH)]) == "Chinese"
+    assert qwen._vote([("English", "short"), ("Chinese", ZH)]) == "Chinese"  # tie -> more text
+    assert qwen.probe_ranges(25 * SR) == [(0, 25 * SR)]
+    assert qwen.probe_ranges(180 * SR) == [(20 * SR, 40 * SR), (80 * SR, 100 * SR), (140 * SR, 160 * SR)]
+    for a, b in qwen.probe_ranges(45 * SR):
+        assert 0 <= a < b <= 45 * SR and b - a == 20 * SR
+
+
+def test_primary_language():
+    assert qwen.primary_language("Chinese,English") == "Chinese"
+    assert qwen.primary_language("cantonese") == "Cantonese" and qwen.iso_language("Cantonese") == "zh"
+    assert qwen.primary_language("Klingon") is None and qwen.primary_language(None) is None
 
 
 def test_match_length():
