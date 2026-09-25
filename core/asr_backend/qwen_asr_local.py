@@ -59,6 +59,16 @@ PROBE_MIN_CHARS = 30
 PROBE_COVERAGE = 0.5
 RETRY_WINDOW_SECONDS = 60
 RETRY_SEARCH_SECONDS = 15
+# Without same-language probes (forced language, or a window voted into another language),
+# a transcript under SPARSE_CHARS_PER_SECOND triggers auto-language probes of the window;
+# it is degenerate if it has under CROSS_LANGUAGE_COVERAGE of what they heard in any
+# language. Normal speech is 4+ chars/s (Chinese) to 10+ letters/s (English), so this costs
+# nothing on normal windows; silence/music probes hear nothing and are never flagged.
+SPARSE_CHARS_PER_SECOND = 2.0
+CROSS_LANGUAGE_COVERAGE = 0.25
+# auto: if every probe of the segment looped, probe again with more, shorter clips.
+REPROBE_SECONDS = 10
+REPROBES_PER_WINDOW = 6
 _REPEATED_UNIT = re.compile(r"(.{1,40}?)\1{3,}", re.S)
 MAX_WORD_LENGTH = 30  # process_transcription drops longer words
 
@@ -267,19 +277,40 @@ def token_budget(seconds):
     return min(MAX_NEW_TOKENS, TOKEN_MARGIN + math.ceil(seconds * TOKENS_PER_SECOND))
 
 
+def probe_window(run, raw, a, b, seconds=PROBE_SECONDS, count=PROBES_PER_WINDOW):
+    """Auto-language probe clips of raw[a:b] -> ([(language, text)] usable for voting, rejected count)."""
+    probes, rejected = [], 0
+    for pa, pb in probe_ranges(b - a, probe_seconds=seconds, count=count):
+        lang, text = run(raw[a + pa:a + pb], None)
+        name = primary_language(lang)
+        if not text:
+            continue
+        # A looping probe says nothing reliable about the language.
+        if name and not is_repetitive(text):
+            probes.append((name, text))
+        else:
+            rejected += 1
+    return probes, rejected
+
+
 def plan_languages(run, raw, windows):
     """auto: [(language or None, [(language, probe text)])] per window from probe votes."""
-    per_window = []
+    per_window, rejected = [], 0
     for a, b in windows:
-        probes = []
-        for pa, pb in probe_ranges(b - a):
-            lang, text = run(raw[a + pa:a + pb], None)
-            name = primary_language(lang)
-            # A looping probe says nothing reliable about the language.
-            if text and name and not is_repetitive(text):
-                probes.append((name, text))
+        probes, bad = probe_window(run, raw, a, b)
         per_window.append(probes)
+        rejected += bad
     overall = _vote([probe for probes in per_window for probe in probes])
+    if overall is None and rejected:
+        # Speech was heard but every probe looped or had no supported language: listening
+        # without a language would repeat the failure, so try more, shorter clips first.
+        rprint(f"[yellow]⚠️ All {rejected} language probe(s) were unusable; probing again with "
+               f"{REPROBE_SECONDS} s clips...[/yellow]")
+        per_window = [probe_window(run, raw, a, b, REPROBE_SECONDS, REPROBES_PER_WINDOW)[0] for a, b in windows]
+        overall = _vote([probe for probes in per_window for probe in probes])
+        if overall is None:
+            raise ValueError("Qwen3-ASR could not determine the language: every probe clip looped or "
+                             "returned an unsupported language. Set the recognition language explicitly.")
     plan = []
     for (a, b), probes in zip(windows, per_window):
         # A window whose probes heard nothing (e.g. music) follows the rest of the segment.
@@ -290,11 +321,36 @@ def plan_languages(run, raw, windows):
     return plan
 
 
-def transcribe_window(run, raw, a, b, language, probes=(), offset=0.0):
-    """[(start, end, language, text)] for one window; retries shorter windows if degenerate."""
-    heard = [text for name, text in probes if name == language]
+def missed_speech(text, spoken):
+    """Transcript far shorter than what auto-language probes heard (any language), or None."""
+    reference = sum(len(_normalized(t)) for t in spoken)
+    length = len(_normalized(text))
+    if reference >= PROBE_MIN_CHARS and length < CROSS_LANGUAGE_COVERAGE * reference:
+        return f"only {length} letters/digits, while auto-detected probe clips of it had {reference}"
+    return None
+
+
+def transcribe_window(run, raw, a, b, language, probes=None, offset=0.0, forced=False):
+    """[(start, end, language, text)] for one window; retries shorter windows if degenerate.
+
+    probes: auto-mode probe results for this window, or None (forced language) to probe
+    lazily, only if the transcript is suspiciously sparse.
+    """
+    heard = [text for name, text in probes or () if name == language]
+    seconds = (b - a) / SAMPLE_RATE
+    spoken = None if probes is None else [text for _, text in probes]
+
+    def check(text):
+        nonlocal spoken
+        reason = degeneration(text, heard)
+        if reason or len(_normalized(text)) >= SPARSE_CHARS_PER_SECOND * seconds:
+            return reason
+        if spoken is None:
+            spoken = [t for _, t in probe_window(run, raw, a, b)[0]]
+        return missed_speech(text, spoken)
+
     lang, text = run(raw[a:b], language)
-    reason = degeneration(text, heard)
+    reason = check(text)
     if not reason:
         return [(a, b, lang, text)]
     span = f"{offset + a / SAMPLE_RATE:.1f}-{offset + b / SAMPLE_RATE:.1f}s"
@@ -307,12 +363,15 @@ def transcribe_window(run, raw, a, b, language, probes=(), offset=0.0):
             sub_lang, sub_text = run(raw[a + sa:a + sb], language)
             pieces.append((a + sa, a + sb, sub_lang, sub_text))
     reason = next((degeneration(t) for *_, t in pieces if degeneration(t)), None) \
-        or degeneration(" ".join(t for *_, t in pieces), heard)
+        or check(" ".join(t for *_, t in pieces))
     if reason:
-        raise ValueError(
-            f"Qwen3-ASR output for {span} is still degenerate after retrying ({reason}). "
-            "Set the recognition language explicitly instead of auto, try the other Qwen3-ASR "
-            "model size, or check the audio.")
+        if forced:
+            advice = (f"The selected recognition language ({language}) may not match the audio: "
+                      "try auto, or the other Qwen3-ASR model size.")
+        else:
+            advice = ("Set the recognition language explicitly instead of auto, try the other "
+                      "Qwen3-ASR model size, or check the audio.")
+        raise ValueError(f"Qwen3-ASR output for {span} is still degenerate after retrying ({reason}). {advice}")
     return pieces
 
 
@@ -484,9 +543,9 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     t0 = time.time()
     pieces = []
     with asr_session(engine, models[size]) as run:
-        plan = [(forced, [])] * len(windows) if forced else plan_languages(run, raw, windows)
+        plan = [(forced, None)] * len(windows) if forced else plan_languages(run, raw, windows)
         for (a, b), (language, probes) in zip(windows, plan):
-            pieces.extend(transcribe_window(run, raw, a, b, language, probes, start))
+            pieces.extend(transcribe_window(run, raw, a, b, language, probes, start, forced=bool(forced)))
     rprint(f"[cyan]⏱️ time transcribe:[/cyan] {time.time() - t0:.2f}s")
 
     if forced:

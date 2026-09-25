@@ -41,7 +41,7 @@ class LocalBackendTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "whisper.backend"):
             asr.local_backend({"backend": "funasr"})
 
-    def run_local(self, whisper, qwen_result=None):
+    def run_local(self, whisper, qwen_result=None, real_qwen=False):
         """Run transcribe() for runtime=local with fake Qwen and WhisperX backends; return what ran."""
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
@@ -62,7 +62,7 @@ class LocalBackendTests(unittest.TestCase):
             asr, "prepare_audio_for_asr"
         ), patch.object(asr, "split_audio", return_value=((0, 1),)), patch.object(
             asr.cache, "cache_key", key
-        ), patch.object(qwen_asr_local, "transcribe_audio", qwen), patch.object(
+        ), patch.object(qwen_asr_local, "transcribe_audio", qwen_asr_local.transcribe_audio if real_qwen else qwen), patch.object(
             qwen_asr_local, "resolve_engine", return_value="transformers"
         ) as engine, patch.object(qwen_asr_local, "load_key_or", lambda key, default: default), patch.dict(
             sys.modules, {"core.asr_backend.whisperX_local": fake_whisperx}
@@ -84,6 +84,27 @@ class LocalBackendTests(unittest.TestCase):
         qwen.assert_not_called()
         engine.assert_not_called()
         self.assertEqual(identity["backend"], "whisperx")
+
+    def test_forced_wrong_language_fails_through_the_real_qwen_backend(self):
+        # The "still degenerate" branch end to end: real qwen_asr_local.transcribe_audio with only
+        # the model session faked, reached from _2_asr.transcribe; nothing is written or cached.
+        import contextlib
+        import numpy as np
+        audio = np.linspace(0, 1, 120 * qwen_asr_local.SAMPLE_RATE, dtype=np.float32)
+
+        @contextlib.contextmanager
+        def session(engine, repo_id):
+            yield lambda clip, language: (("Chinese,English", "我们今天开一个meeting然后presentation要准备好客户那边说要double check一下细节" * 2)
+                                          if language is None else (language, "Yeah, yeah, yeah."))
+        keys = {"whisper.language": "en", "model_dir": "_model_cache"}
+        with patch.object(qwen_asr_local, "asr_session", session), patch.object(
+            qwen_asr_local, "load_audio_segment", return_value=audio
+        ), patch.object(qwen_asr_local, "load_key", side_effect=keys.__getitem__), patch.object(
+            qwen_asr_local, "model_size", return_value="1.7b"
+        ), patch.object(qwen_asr_local, "_align", side_effect=AssertionError("must not align")):
+            with self.assertRaisesRegex(ValueError, r"still degenerate after retrying.*\(English\) may not match the audio: try auto"):
+                self.run_local({"language": "en", "cache": False}, qwen_result=None, real_qwen=True)
+        self.assertFalse(Path(asr._2_CLEANED_CHUNKS).exists())
 
     def test_silent_audio_fails_clearly_without_writing_outputs(self):
         # All-silent audio gives no segments; save_results would otherwise hit KeyError('text').

@@ -249,8 +249,8 @@ def test_transcribe_audio_structure_offsets_and_cache_validity(pipeline):
     result = qwen.transcribe_audio("raw.wav", "vocal.mp3", 60, 260)
 
     assert pipeline["calls"]["session"] == ("transformers", "Qwen/Qwen3-ASR-0.6B")
-    calls = pipeline["calls"]["asr"]
-    # Forced language: no probes, one call per window.
+    calls = window_calls(pipeline)
+    # Forced language: one call per window with the language (no retry).
     assert [language for *_, language in calls] == ["English", "English"]
     lengths = [seconds for _, seconds, _ in calls]
     assert sum(lengths) == pytest.approx(200) and max(lengths) <= 180
@@ -353,7 +353,7 @@ def test_music_only_window_follows_segment_language(pipeline):
 def test_undetectable_language_asks_user_to_set_it(pipeline):
     pipeline["language"] = "auto"
     pipeline["asr"] = lambda a, b, language: ("", "???")
-    with pytest.raises(ValueError, match="set the recognition language"):
+    with pytest.raises(ValueError, match="(?i)set the recognition language"):
         qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
 
 
@@ -579,7 +579,7 @@ def test_torch_device_and_dtype(monkeypatch, cuda, bf16, expected):
 
 
 # ------------------------------------------------------------------
-# Token budget
+# Token budget, forced wrong language, all probes unusable
 # ------------------------------------------------------------------
 
 def test_token_budget_scales_with_clip_length():
@@ -589,3 +589,65 @@ def test_token_budget_scales_with_clip_length():
     # Enough for very fast speech: ~8 chars/s Chinese is ~6 tokens/s, plus the language prefix.
     for seconds in (0.1, 5, 20, 60, 180):
         assert qwen.token_budget(seconds) >= 8 * seconds + 20
+
+
+def test_forced_wrong_language_is_caught(pipeline):
+    """Mini fix2_cs_en_forced: code-switched zh audio forced to en gave "Yeah, yeah, yeah." (rc=0)."""
+    pipeline["language"] = "en"
+    pipeline["asr"] = lambda a, b, language: ("Chinese,English", ZH) if language is None \
+        else (language, "Yeah, yeah, yeah.")
+    with pytest.raises(ValueError, match=r"0\.0-150\.\d+s is still degenerate after retrying \(only \d+ letters/digits, "
+                                         r"while auto-detected probe clips.*\(English\) may not match the audio: try auto"):
+        qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    calls = pipeline["calls"]["asr"]
+    # Long window -> sparse -> lazy auto probes -> retry in <= 60 s windows -> error.
+    assert calls[0][2] == "English" and calls[1][2] is None
+    assert any(language == "English" and s <= qwen.RETRY_WINDOW_SECONDS for _, s, language in calls)
+
+
+def test_forced_language_normal_speech_is_not_probed(pipeline):
+    pipeline["language"] = "zh"
+    pipeline["asr"] = lambda a, b, language: (language, ZH * max(1, int((b - a) // 10)))
+    qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert all(language == "Chinese" for *_, language in pipeline["calls"]["asr"])  # no probes at all
+
+
+def test_forced_language_silence_and_music_is_not_flagged(pipeline):
+    # Sparse windows are probed, but probes of silence/music hear nothing, so nothing is flagged.
+    pipeline["language"] = "zh"
+    pipeline["asr"] = lambda a, b, language: ("", "") if language is None else (language, "" if b <= 60 else "我们。")
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert [segment["text"] for segment in result["segments"]] == ["我们。", "我们。"]
+
+
+def test_forced_language_sparse_but_real_speech_passes(pipeline):
+    # A few real words in a long window: probes hear about as much, so it is accepted.
+    pipeline["language"] = "zh"
+    pipeline["asr"] = lambda a, b, language: (("Chinese", "好的，谢谢大家。") if language is None
+                                              else (language, "好的，谢谢大家。今天就到这里。"))
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert len(result["segments"]) == 2
+
+
+def test_auto_all_probes_looping_reprobes_with_shorter_clips(pipeline):
+    pipeline["language"] = "auto"
+
+    def asr(a, b, language):
+        if language is None:
+            if b - a > qwen.REPROBE_SECONDS + 1:
+                return "English", "Yeah, yeah. " * 100      # every 20 s probe loops
+            return "Chinese", ZH                              # 10 s re-probes work
+        return language, ZH * max(1, int((b - a) // 10))
+    pipeline["asr"] = asr
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    reprobes = [s for _, s, language in pipeline["calls"]["asr"] if language is None and s <= qwen.REPROBE_SECONDS + 1]
+    assert len(reprobes) > 3 and result["language"] == "zh"
+    assert [language for *_, language in window_calls(pipeline)] == ["Chinese", "Chinese"]
+
+
+def test_auto_all_probes_unusable_fails_instead_of_guessing(pipeline):
+    pipeline["language"] = "auto"
+    pipeline["asr"] = lambda a, b, language: ("English", "Yeah, yeah. " * 100) if language is None \
+        else pytest.fail("must not transcribe without a language")
+    with pytest.raises(ValueError, match="could not determine the language: every probe clip looped"):
+        qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
