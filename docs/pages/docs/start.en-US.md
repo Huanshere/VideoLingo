@@ -145,7 +145,8 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 
 - On Apple Silicon the default requirements install mlx-audio, not qwen-asr; using `qwen_engine: transformers` there needs a separate environment. Below macOS 14 the installer stops with an error. If an older environment has WhisperX, rerunning `installer.py` first uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*), which conflicts with the MLX dependencies.
 - **Model downloads**: models are downloaded from Hugging Face on first use (several GB for 1.7B plus the aligner). Set `HF_ENDPOINT` to use a mirror. If `_model_cache/<last part of the repo id>/config.json` exists (for example `_model_cache/Qwen3-ASR-1.7B`), that local copy is used.
-- **Languages**: every recognition language in the sidebar is supported (Qwen3-ASR supports 30 languages). With `Auto`, the language is detected per window of about 3 minutes and the majority wins; for mixed speech the first language reported is treated as primary.
+- **Languages**: every recognition language in the sidebar is supported (Qwen3-ASR supports 30 languages). With `Auto`, each window of about 3 minutes is first probed with up to three 20 s clips, the clips vote on the language, and the window is then transcribed with that language forced (recognition takes about a third longer); for mixed speech the first language reported is treated as primary. If `Auto` detects a language outside the sidebar list (e.g. Korean, Vietnamese, Thai), sentence splitting picks a spaced or unspaced joiner automatically and uses the matching spaCy pipeline, or punctuation-only splitting when spaCy has none.
+- **Degenerate output**: if a window's transcript is one phrase looping, or much shorter than what its probe clips heard, it is retried in 60 s windows; if it is still degenerate, recognition stops with an error asking you to set the language, instead of passing a broken transcript on.
 - The transcription cache distinguishes backend, model size and engine; changing any of them re-runs recognition.
 - To keep using WhisperX (including the Belle model for Chinese), see [WhisperX (optional)](whisperx-optional.en-US.md). WhisperX is not installed by default.
 - The official `qwenllm/qwen3-asr` Docker image can host a standalone Qwen3-ASR service, but VideoLingo does not call it directly.
@@ -208,7 +209,7 @@ Note: This section is still in early development and may have limited functional
 
 3. **`Qwen ASR engine '...' needs the 'qwen-asr' package`** (or `mlx-audio`): the recognition package is missing from the environment. Run `python installer.py` with the same environment used to launch VideoLingo. On Apple Silicon, if you set `qwen_engine: transformers` manually, change it back to `auto`.
 
-4. **`Qwen3-ASR could not detect the language`**: `Auto` could not determine the language. Select the recognition language explicitly in the sidebar and retry.
+4. **`Qwen3-ASR could not detect the language`** or **`... is still degenerate after retrying`**: `Auto` could not determine the language, or the transcript degenerated (a looping phrase, far too little text). Select the recognition language explicitly in the sidebar and retry, or try the other model size.
 
 5. **CUDA out of memory**: switch the Qwen3-ASR model size to 0.6B in the sidebar, or close other programs using the GPU.
 
