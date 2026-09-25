@@ -479,13 +479,19 @@ def _is_token_char(ch):
     return ch == "'" or unicodedata.category(ch)[0] in "LN"
 
 
-def attach_words(text, items, offset=0.0):
+def attach_words(text, items, offset=0.0, limit=None):
     """Map aligner tokens back onto the ASR text so words keep punctuation.
 
     Aligner tokens are ordered subsequences of the text with punctuation removed
     ("U.S.," -> "US"); each word takes its token's span plus adjacent punctuation,
     e.g. "Hello, world." -> ["Hello,", "world."], "你好，世界。" -> ["你", "好，", "世", "界。"].
+    Times are clamped to [0, limit] (the clip length): text longer than the audio, e.g. a
+    window the model translated, made the aligner return times past the end of the audio.
     """
+    def clamp(value):
+        value = max(0.0, float(value))
+        return min(value, limit) if limit is not None else value
+
     words, pos, n = [], 0, len(text)
     for token, start, end in items:
         if not token:
@@ -504,12 +510,12 @@ def attach_words(text, items, offset=0.0):
             pos = j
             if len(surface) > MAX_WORD_LENGTH:
                 surface = token
-            start, end = max(0.0, float(start)), max(0.0, float(end))
+            start, end = clamp(start), clamp(end)
             words.append({"word": surface, "start": round(offset + start, 3),
                           "end": round(offset + max(start, end), 3)})
             continue
         # Token not found in order (should not happen); keep its bare text without consuming the transcript.
-        start, end = max(0.0, float(start)), max(0.0, float(end))
+        start, end = clamp(start), clamp(end)
         words.append({"word": token, "start": round(offset + start, 3), "end": round(offset + max(start, end), 3)})
     if words and pos < n:
         # Trailing punctuation left after the last token (e.g. closing quotes).
@@ -670,8 +676,9 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     rprint(f"[cyan]⏱️ time align:[/cyan] {time.time() - t0:.2f}s")
 
     segments = []
-    for (a, _, text, _), items in zip(todo, aligned):
-        words = attach_words(text, items, start + a / SAMPLE_RATE)
+    for (a, b, text, _), items in zip(todo, aligned):
+        # Windows lie inside the decoded segment, so start + b / SAMPLE_RATE never passes the audio end.
+        words = attach_words(text, items, start + a / SAMPLE_RATE, limit=(b - a) / SAMPLE_RATE)
         if words:
             segments.append({"text": text, "start": words[0]["start"],
                              "end": words[-1]["end"], "words": words})

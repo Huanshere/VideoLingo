@@ -740,3 +740,32 @@ def test_auto_all_probes_unusable_fails_instead_of_guessing(pipeline):
         else pytest.fail("must not transcribe without a language")
     with pytest.raises(ValueError, match="could not determine the language: every probe clip looped"):
         qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+
+
+# ------------------------------------------------------------------
+# Word times stay inside the audio
+# ------------------------------------------------------------------
+
+def test_attach_words_clamps_times_to_the_window():
+    items = [("uno", 0.5, 1.0), ("dos", 79.0, 81.5), ("tres", 90.0, 95.0), ("cuatro", -1.0, 0.2)]
+    words = qwen.attach_words("uno dos tres cuatro", items, offset=641.92, limit=78.06)
+    # 641.92 + 78.06 = 719.98: the window end is the latest possible time.
+    assert [(w["start"], w["end"]) for w in words] == [
+        (642.42, 642.92), (719.98, 719.98), (719.98, 719.98), (641.92, 642.12)]
+    assert all(641.92 <= w["start"] <= w["end"] <= round(641.92 + 78.06, 3) for w in words)
+    assert words[1] == {"word": "dos", "start": 719.98, "end": 719.98}
+    # Without a limit (callers that know no length) only the lower bound applies, as before.
+    assert qwen.attach_words("uno", [("uno", 90.0, 95.0)], offset=0)[0]["end"] == 95.0
+
+
+def test_words_never_pass_the_window_or_audio_end(pipeline):
+    """Mini: 720 s English forced to es, the last window was translated; 69 words ended past 719.98 s."""
+    pipeline["language"] = "es"
+    long_text = " ".join(f"palabra{i}" for i in range(300))  # the fake aligner gives token i the time 0.5 + i s
+    pipeline["asr"] = lambda a, b, language: (language, long_text)
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    window_ends = [a + s for a, s, _ in window_calls(pipeline)]
+    for segment, window_end in zip(result["segments"], window_ends):
+        assert all(0 <= w["start"] <= w["end"] <= window_end + 1e-3 for w in segment["words"])
+    assert max(w["end"] for seg in result["segments"] for w in seg["words"]) <= 200
+    assert cache.valid_result(result)
