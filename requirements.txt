@@ -21,8 +21,9 @@ edge-tts>=7.2.8,<8
 
 # Default local ASR: Qwen3-ASR + Qwen3-ForcedAligner (core/asr_backend/qwen_asr_local.py).
 # Apple Silicon uses MLX (mlx-audio); every mlx-audio release with Qwen3-ASR needs
-# Transformers 5 / huggingface-hub 1. Windows, Linux and Intel Macs use the official
-# qwen-asr package, which pins Transformers 4.57.6 (hub <1). WhisperX is an optional
+# Transformers 5 / huggingface-hub 1. Windows and Linux use the official qwen-asr
+# package, which pins Transformers 4.57.6 (hub <1); the marker also matches Intel
+# Macs, which installer.py rejects (no PyTorch 2.8 macOS x86_64 wheels). WhisperX is an optional
 # fallback and is not listed here; see docs/pages/docs/whisperx-optional.*.md.
 qwen-asr==0.0.6; sys_platform != 'darwin' or platform_machine != 'arm64'
 transformers>=4.57.6,<5; sys_platform != 'darwin' or platform_machine != 'arm64'

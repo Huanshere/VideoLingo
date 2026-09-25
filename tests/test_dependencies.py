@@ -78,6 +78,65 @@ def test_qwen_asr_requirements_follow_platform(monkeypatch, system, machine, eng
     assert installer.qwen_asr_package() == engine
 
 
+@pytest.mark.parametrize('system,machine,release,expected', [
+    ('Darwin', 'x86_64', '13.6', 'Intel Macs'),
+    ('Darwin', 'arm64', '13.6.1', 'macOS 14 or newer'),
+    ('Darwin', 'arm64', '14.5', None),
+    ('Darwin', 'arm64', '26.0', None),
+    ('Linux', 'x86_64', '', None),
+    ('Windows', 'AMD64', '', None),
+])
+def test_unsupported_platform(monkeypatch, system, machine, release, expected):
+    monkeypatch.setattr(installer.platform, 'system', lambda: system)
+    monkeypatch.setattr(installer.platform, 'machine', lambda: machine)
+    monkeypatch.setattr(installer.platform, 'mac_ver', lambda: (release, ('', '', ''), ''))
+    reason = installer.unsupported_platform()
+    assert (reason is None) if expected is None else (expected in reason)
+
+
+def test_install_all_stops_before_pip_on_unsupported_platform(monkeypatch, capsys):
+    monkeypatch.setattr(installer, 'unsupported_platform', lambda: 'Intel Macs are not supported')
+    monkeypatch.setattr(installer, 'install_bootstrap', lambda: pytest.fail('pip must not run'))
+    args = installer.build_parser().parse_args([])
+    assert installer.install_all(args) == 1
+    assert 'ERROR: Intel Macs are not supported' in capsys.readouterr().out
+
+
+def _apple_silicon(monkeypatch, apple=True):
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin' if apple else 'Linux')
+    monkeypatch.setattr(installer.platform, 'machine', lambda: 'arm64' if apple else 'x86_64')
+
+
+@pytest.mark.parametrize('apple,installed,removed', [
+    (True, {'whisperx': '3.8.6', 'torchcodec': '0.7.0'}, ['whisperx', 'torchcodec']),
+    (True, {'whisperx': '3.8.6'}, ['whisperx']),
+    (True, {}, None),
+    (False, {'whisperx': '3.8.6', 'torchcodec': '0.7.0'}, None),
+])
+def test_whisperx_removed_before_mlx_install(monkeypatch, apple, installed, removed):
+    _apple_silicon(monkeypatch, apple)
+    monkeypatch.setattr(installer, 'package_version', installed.get)
+    monkeypatch.setattr(installer, 'load_state', lambda: {})
+    monkeypatch.setattr(installer, 'health_check', lambda **kwargs: 1)
+    events = []
+    monkeypatch.setattr(installer, 'run', lambda cmd, **kwargs: events.append(('run', cmd)))
+    monkeypatch.setattr(installer, 'pip_install', lambda packages, **kwargs: events.append(('pip', packages)))
+    installer.install_base_requirements()
+    if removed:
+        assert events[0] == ('run', [installer.sys.executable, '-m', 'pip', 'uninstall', '-y', *removed])
+    assert events[-1][0] == 'pip' and all(kind == 'pip' for kind, _ in events[bool(removed):])
+
+
+def test_health_check_rejects_whisperx_next_to_mlx(monkeypatch, capsys):
+    versions = dict(_requirement_versions(('', '', '')), **{'mlx-audio': '0.5.5'})
+    _patch_health_environment(monkeypatch, versions, gpu=False)
+    monkeypatch.setattr(installer.platform, 'machine', lambda: 'arm64')
+    assert installer.health_check(check_state=False, torch_backend='cpu') == 0
+    versions['whisperx'] = '3.8.6'
+    assert installer.health_check(check_state=False, torch_backend='cpu') == 1
+    assert 'separate environment for WhisperX' in capsys.readouterr().out
+
+
 def test_installer_has_no_whisperx_stage():
     source = (ROOT / 'installer.py').read_text(encoding='utf-8')
     assert not hasattr(installer, 'install_whisperx')

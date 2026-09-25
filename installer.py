@@ -171,6 +171,42 @@ def qwen_asr_package() -> str:
     return "mlx-audio" if apple_silicon() else "qwen-asr"
 
 
+def unsupported_platform() -> str | None:
+    """Explain why the default stack cannot install here, before pip fails on missing wheels."""
+    if platform.system() != "Darwin":
+        return None
+    if platform.machine() != "arm64":
+        return ("Intel Macs (or an x86_64 Python under Rosetta) are not supported: "
+                "the pinned PyTorch 2.8 has no macOS x86_64 wheels.")
+    release = platform.mac_ver()[0]
+    try:
+        major = int(release.split(".")[0])
+    except ValueError:
+        return None
+    if major < 14:
+        return (f"Apple Silicon needs macOS 14 or newer: mlx (used by the default Qwen3-ASR engine) "
+                f"only ships macOS 14+ wheels, and this Mac runs macOS {release}.")
+    return None
+
+
+# WhisperX 3.8 pins huggingface-hub<1; mlx-audio needs hub>=1, so on Apple Silicon
+# the optional WhisperX stack cannot stay in the default environment.
+WHISPERX_ONLY_PACKAGES = ("whisperx", "torchcodec")
+
+
+def remove_whisperx_for_mlx() -> None:
+    if not apple_silicon():
+        return
+    installed = [name for name in WHISPERX_ONLY_PACKAGES if package_version(name) is not None]
+    if not installed:
+        return
+    print("  WhisperX cannot share an environment with the default MLX ASR on Apple Silicon "
+          "(huggingface-hub <1 vs >=1). Removing: " + ", ".join(installed))
+    print("  To keep using WhisperX on this Mac, create a separate environment; "
+          "see docs/pages/docs/whisperx-optional.en-US.md")
+    run([sys.executable, "-m", "pip", "uninstall", "-y", *installed])
+
+
 def detect_nvidia_gpu() -> bool:
     if platform.system() == "Darwin":
         return False
@@ -195,7 +231,7 @@ def detect_cuda_version_from_smi() -> tuple[int, int] | None:
 def detect_torch_index() -> str:
     cuda_version = detect_cuda_version_from_smi()
     tags = [
-        # CTranslate2 currently requires CUDA 12 cuBLAS, including on CUDA 13 drivers.
+        # PyTorch 2.8 wheels exist for CUDA 12.6/12.8; CUDA 13 drivers run them too.
         ((12, 8), "cu128"),
         ((12, 6), "cu126"),
     ]
@@ -249,6 +285,7 @@ def install_torch(force: bool = False, backend: str = "auto") -> None:
 
 def install_base_requirements(force: bool = False, upgrade: bool = False) -> None:
     print("\n[4/6] Install base requirements")
+    remove_whisperx_for_mlx()
     state = load_state()
     current_hash = requirements_hash()
     previous_hash = state.get("requirements_hash")
@@ -414,6 +451,9 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
                           f"detected builds: {', '.join(sorted(builds))}. Rerun installer.py")
     elif builds != {torch_backend}:
         errors.append(f"PyTorch build does not match requested {torch_backend}")
+    if apple_silicon() and package_version("whisperx") is not None:
+        errors.append("whisperx is installed next to the MLX ASR stack (huggingface-hub <1 vs >=1); "
+                      "rerun installer.py to remove it and use a separate environment for WhisperX")
     # TorchCodec is a WhisperX-only dependency; the default Qwen path decodes with the FFmpeg CLI.
     if check_state and not errors and package_version("whisperx") is not None:
         try:
@@ -447,6 +487,10 @@ def launch_streamlit() -> int:
 def install_all(args: argparse.Namespace) -> int:
     if not (3, 10) <= sys.version_info[:2] < (3, 14):
         print("ERROR: VideoLingo requires Python >=3.10,<3.14. Run setup_env.py first.")
+        return 1
+    reason = unsupported_platform()
+    if reason:
+        print(f"ERROR: {reason}")
         return 1
     install_bootstrap()
     maybe_configure_mirror(args.auto_mirror)

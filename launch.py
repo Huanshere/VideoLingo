@@ -34,18 +34,25 @@ def main():
             errors.append(f"{pkg} not installed. Run: python install.py")
 
     # torch + CUDA
+    import platform
+    apple_silicon = platform.system() == "Darwin" and platform.machine() == "arm64"
     torch_ver = check_package("torch")
     if torch_ver:
         import torch
         if torch.cuda.is_available():
             log(f"torch: {torch_ver}, cuda: {torch.version.cuda}, gpu: {torch.cuda.get_device_name(0)}")
+        elif apple_silicon:
+            # Local ASR runs on MLX here, not CUDA.
+            log(f"torch: {torch_ver} (Apple Silicon; local ASR uses MLX)")
+        elif shutil.which("nvidia-smi"):
+            warnings.append("NVIDIA GPU found but torch has no CUDA support. Reinstall: python installer.py")
+            log(f"torch: {torch_ver} (CPU only)")
         else:
-            warnings.append("torch has no CUDA support. GPU disabled. Reinstall: python install.py")
+            warnings.append("No NVIDIA GPU: local Qwen3-ASR runs on CPU and is slow (0.6B or ElevenLabs is faster).")
             log(f"torch: {torch_ver} (CPU only)")
 
     # Default local ASR is Qwen3-ASR (MLX on Apple Silicon); WhisperX is an optional fallback.
-    import platform
-    qwen = "mlx_audio" if platform.system() == "Darwin" and platform.machine() == "arm64" else "qwen_asr"
+    qwen = "mlx_audio" if apple_silicon else "qwen_asr"
     if not check_package(qwen):
         warnings.append(f"{qwen} not installed. Local Qwen ASR will fail. Run: python installer.py")
 
