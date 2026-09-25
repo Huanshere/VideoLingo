@@ -1,4 +1,10 @@
 """Offline checks for the Qwen3-ASR + ForcedAligner backend (no model downloads, no inference)."""
+import subprocess
+import sys
+import types
+from types import SimpleNamespace
+from unittest.mock import Mock
+
 import numpy as np
 import pytest
 
@@ -135,6 +141,8 @@ def test_resolve_engine(platform_env, apple, installed, requested, expected):
 
 @pytest.mark.parametrize("apple,installed,requested,package", [
     (False, set(), "auto", "qwen-asr"),
+    # Apple Silicon requirements install mlx-audio; never tell a Mac user to install qwen-asr.
+    (True, set(), "auto", "mlx-audio"),
     (True, {"mlx_audio"}, "transformers", "qwen-asr"),
     (False, {"qwen_asr"}, "mlx", "mlx-audio"),
 ])
@@ -188,7 +196,7 @@ SR = qwen.SAMPLE_RATE
 def pipeline(monkeypatch):
     """Mock config, audio decoding and both engines; return the recorded calls."""
     state = {"language": "en", "texts": None, "calls": {}}
-    audio = {"raw.wav": np.full(200 * SR, 0.5, dtype=np.float32),
+    audio = state["audio"] = {"raw.wav": np.full(200 * SR, 0.5, dtype=np.float32),
              "vocal.mp3": np.full(200 * SR, 0.25, dtype=np.float32)}
     audio["raw.wav"][150 * SR:151 * SR] = 0  # first window cut at 150-151 s
 
@@ -203,6 +211,7 @@ def pipeline(monkeypatch):
 
     def align(engine, repo_id, jobs):
         state["calls"]["align"] = (engine, repo_id, [(float(c[0]), text, lang) for c, text, lang in jobs])
+        state["calls"]["align_lengths"] = [len(c) for c, _, _ in jobs]
         return [[(tok, 0.5 + i, 1.0 + i) for i, tok in enumerate(text.rstrip(".").replace(",", "").split())]
                 for _, text, _ in jobs]
 
@@ -264,3 +273,166 @@ def test_silence_returns_empty_segments_without_loading_aligner(pipeline):
     result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
     assert result == {"language": None, "segments": []}
     assert "align" not in pipeline["calls"]
+
+
+@pytest.mark.parametrize("vocal_seconds", [150, 200.5])
+def test_vocal_track_is_matched_to_raw_length(pipeline, vocal_seconds):
+    # Re-encoded Demucs vocals can decode shorter or longer than the raw track.
+    pipeline["audio"]["vocal.mp3"] = np.full(int(vocal_seconds * SR), 0.25, dtype=np.float32)
+    pipeline["texts"] = lambda language: [(language, "One."), (language, "Two.")]
+    result = qwen.transcribe_audio("raw.wav", "vocal.mp3", 0, 200)
+    assert pipeline["calls"]["align_lengths"] == pipeline["calls"]["transcribe"][2]
+    assert len(result["segments"]) == 2
+
+
+def test_match_length():
+    wav = np.arange(5, dtype=np.float32)
+    assert qwen.match_length(wav, 3).tolist() == [0, 1, 2]
+    assert qwen.match_length(wav, 7).tolist() == [0, 1, 2, 3, 4, 0, 0]
+    assert qwen.match_length(wav, 7).dtype == np.float32
+
+
+# ------------------------------------------------------------------
+# FFmpeg decoding
+# ------------------------------------------------------------------
+
+def test_load_audio_segment_decodes_16k_mono(tmp_path):
+    path = tmp_path / "tone.wav"
+    subprocess.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=3",
+                    "-ac", "2", "-ar", "44100", str(path)], check=True)
+    wav = qwen.load_audio_segment(path, 1, 2)
+    assert wav.dtype == np.float32 and abs(len(wav) - SR) <= SR // 100
+
+
+def test_load_audio_segment_reports_ffmpeg_stderr(tmp_path):
+    with pytest.raises(RuntimeError, match="FFmpeg could not decode") as error:
+        qwen.load_audio_segment(tmp_path / "missing.wav", 0, 1)
+    assert "missing.wav" in str(error.value).split("):", 1)[1]
+
+
+# ------------------------------------------------------------------
+# Engine wiring against fake qwen-asr / mlx-audio / torch modules
+# ------------------------------------------------------------------
+
+@pytest.fixture
+def engines(monkeypatch):
+    """Install fake engine modules; record constructor and call arguments."""
+    calls = {"free": Mock()}
+    monkeypatch.setattr(qwen, "_model_source", lambda repo_id: "src:" + repo_id)
+    monkeypatch.setattr(qwen, "_torch_device", lambda: ("cuda:0", "bf16"))
+    monkeypatch.setattr(qwen, "_free", calls["free"])
+    monkeypatch.setattr(qwen, "check_cancel", lambda: None)
+    item = lambda text, a, b: SimpleNamespace(text=text, start_time=a, end_time=b)
+
+    class ASRModel:
+        @classmethod
+        def from_pretrained(cls, source, **kwargs):
+            calls["asr_load"] = (source, kwargs)
+            return cls()
+
+        def transcribe(self, audio, language=None):
+            calls.setdefault("asr", []).append((audio[1], len(audio[0]), language))
+            if calls.get("fail"):
+                raise RuntimeError("CUDA out of memory")
+            return [SimpleNamespace(language="English", text=" Hello, world. ")]
+
+    class Aligner:
+        @classmethod
+        def from_pretrained(cls, source, **kwargs):
+            calls["align_load"] = (source, kwargs)
+            return cls()
+
+        def align(self, audio, text, language):
+            calls.setdefault("align", []).append((audio[1], text, language))
+            if calls.get("fail"):
+                raise RuntimeError("alignment failed")
+            return [[item("Hello", 0.1, 0.4), item("world", 0.5, 0.9)]]
+
+    class MLXModel:
+        def __init__(self, source):
+            self.source = source
+
+        def generate(self, audio, **kwargs):
+            calls.setdefault("mlx", []).append((self.source, len(audio), kwargs))
+            if calls.get("fail"):
+                raise RuntimeError("metal out of memory")
+            if "text" in kwargs:  # forced aligner
+                return iter([item("你", 0.0, 0.2), item("好", 0.2, 0.4)])
+            return SimpleNamespace(text=" 你好。 ", language=["Chinese", "Chinese"])
+
+    qwen_asr = types.ModuleType("qwen_asr")
+    qwen_asr.Qwen3ASRModel, qwen_asr.Qwen3ForcedAligner = ASRModel, Aligner
+    utils = types.ModuleType("mlx_audio.stt.utils")
+    utils.load_model = MLXModel
+    monkeypatch.setitem(sys.modules, "qwen_asr", qwen_asr)
+    monkeypatch.setitem(sys.modules, "mlx_audio", types.ModuleType("mlx_audio"))
+    monkeypatch.setitem(sys.modules, "mlx_audio.stt", types.ModuleType("mlx_audio.stt"))
+    monkeypatch.setitem(sys.modules, "mlx_audio.stt.utils", utils)
+    return calls
+
+
+CLIPS = [np.zeros(SR, dtype=np.float32), np.zeros(SR // 10, dtype=np.float32)]
+
+
+def test_transformers_transcribe_call_convention(engines):
+    assert qwen._transcribe("transformers", "Qwen/Qwen3-ASR-1.7B", CLIPS, None) == \
+        [("English", "Hello, world."), ("English", "Hello, world.")]
+    source, kwargs = engines["asr_load"]
+    assert source == "src:Qwen/Qwen3-ASR-1.7B"
+    assert kwargs == {"dtype": "bf16", "device_map": "cuda:0", "max_inference_batch_size": 1,
+                      "max_new_tokens": qwen.MAX_NEW_TOKENS}
+    assert engines["asr"] == [(SR, SR, None), (SR, SR // 10, None)]
+    # A forced language is passed through and reported as-is.
+    assert qwen._transcribe("transformers", "r", CLIPS[:1], "Japanese") == [("Japanese", "Hello, world.")]
+    engines["free"].assert_called_with("transformers")
+
+
+def test_mlx_transcribe_call_convention(engines):
+    assert qwen._transcribe("mlx", "mlx-community/Qwen3-ASR-0.6B-8bit", CLIPS, None) == \
+        [("Chinese", "你好。"), ("Chinese", "你好。")]
+    source, length, kwargs = engines["mlx"][1]
+    assert source == "src:mlx-community/Qwen3-ASR-0.6B-8bit" and length == SR // 10
+    # Windows are <= 180 s and >= 0.1 s: one MLX chunk each, never zero-padded to 1 s.
+    assert kwargs == {"language": None, "max_tokens": qwen.MAX_NEW_TOKENS,
+                      "chunk_duration": qwen.WINDOW_SECONDS + 1, "min_chunk_duration": qwen.MIN_WINDOW_SECONDS}
+    assert qwen.MIN_WINDOW_SECONDS * SR <= SR // 10
+
+
+def test_align_call_conventions(engines):
+    jobs = [(CLIPS[0], "Hello, world.", "English")]
+    assert qwen._align("transformers", "Qwen/Qwen3-ForcedAligner-0.6B", jobs) == \
+        [[("Hello", 0.1, 0.4), ("world", 0.5, 0.9)]]
+    assert engines["align_load"] == ("src:Qwen/Qwen3-ForcedAligner-0.6B", {"dtype": "bf16", "device_map": "cuda:0"})
+    assert engines["align"] == [(SR, "Hello, world.", "English")]
+    assert qwen._align("mlx", "m", [(CLIPS[0], "你好。", "Chinese")]) == [[("你", 0.0, 0.2), ("好", 0.2, 0.4)]]
+    assert engines["mlx"][-1][2] == {"text": "你好。", "language": "Chinese"}
+
+
+@pytest.mark.parametrize("engine", ["transformers", "mlx"])
+def test_models_are_released_when_inference_fails(engines, engine):
+    engines["fail"] = True
+    with pytest.raises(RuntimeError):
+        qwen._transcribe(engine, "r", CLIPS, None)
+    engines["free"].assert_called_once_with(engine)
+    with pytest.raises(RuntimeError):
+        qwen._align(engine, "r", [(CLIPS[0], "Hi.", "English")])
+    assert engines["free"].call_count == 2
+
+
+def test_free_tolerates_missing_engine_library(monkeypatch):
+    monkeypatch.setitem(sys.modules, "mlx", None)  # import mlx.core -> ImportError
+    monkeypatch.setitem(sys.modules, "mlx.core", None)
+    qwen._free("mlx")
+
+
+@pytest.mark.parametrize("cuda,bf16,expected", [
+    (True, True, ("cuda:0", "bfloat16")),
+    (True, False, ("cuda:0", "float16")),
+    (False, False, ("cpu", "float32")),
+])
+def test_torch_device_and_dtype(monkeypatch, cuda, bf16, expected):
+    fake = types.ModuleType("torch")
+    fake.bfloat16, fake.float16, fake.float32 = "bfloat16", "float16", "float32"
+    fake.cuda = SimpleNamespace(is_available=lambda: cuda, is_bf16_supported=lambda: bf16)
+    monkeypatch.setitem(sys.modules, "torch", fake)
+    assert qwen._torch_device() == expected

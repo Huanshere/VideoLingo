@@ -31,6 +31,8 @@ WINDOW_SECONDS = 180
 # Cut each window at the quietest 100 ms inside its last 30 s.
 CUT_SEARCH_SECONDS = 30
 MAX_NEW_TOKENS = 2048
+# Shorter windows are dropped; MLX would otherwise zero-pad anything under its 1 s default.
+MIN_WINDOW_SECONDS = 0.1
 MAX_WORD_LENGTH = 30  # process_transcription drops longer words
 
 MODELS = {
@@ -80,12 +82,14 @@ def model_size(requested=None):
 
 
 def resolve_engine(requested=None):
-    """auto -> MLX on Apple Silicon when mlx-audio is installed, else the qwen-asr transformers backend."""
+    """auto -> MLX on Apple Silicon (qwen-asr only if it is what this environment has), else transformers."""
     engine = str(requested or load_key_or("whisper.qwen_engine", "auto")).lower()
     if engine not in ("auto", "mlx", "transformers"):
         raise ValueError(f"whisper.qwen_engine must be 'auto', 'mlx' or 'transformers', got {engine!r}")
     if engine == "auto":
-        engine = "mlx" if _apple_silicon() and _installed("mlx_audio") else "transformers"
+        # Apple Silicon requirements install mlx-audio, not qwen-asr; point a broken install back to it.
+        mlx = _apple_silicon() and (_installed("mlx_audio") or not _installed("qwen_asr"))
+        engine = "mlx" if mlx else "transformers"
     module = "mlx_audio" if engine == "mlx" else "qwen_asr"
     if not _installed(module):
         package = "mlx-audio" if engine == "mlx" else "qwen-asr"
@@ -133,8 +137,21 @@ def load_audio_segment(path, start, end):
     """
     cmd = ["ffmpeg", "-nostdin", "-v", "error", "-ss", str(start), "-i", str(path),
            "-t", str(end - start), "-ac", "1", "-ar", str(SAMPLE_RATE), "-f", "f32le", "pipe:1"]
-    data = subprocess.run(cmd, check=True, capture_output=True).stdout
-    return np.frombuffer(data, dtype=np.float32).copy()
+    proc = subprocess.run(cmd, capture_output=True)
+    if proc.returncode:
+        stderr = proc.stderr.decode("utf-8", "replace").strip()
+        raise RuntimeError(f"FFmpeg could not decode {path} ({start}-{end}s): {stderr or f'exit code {proc.returncode}'}")
+    return np.frombuffer(proc.stdout, dtype=np.float32).copy()
+
+
+def match_length(wav, length):
+    """Trim or zero-pad so the vocal track shares the raw track's sample indices.
+
+    Demucs vocals are re-encoded MP3; their decoded length can differ from the raw audio.
+    """
+    if len(wav) >= length:
+        return wav[:length]
+    return np.concatenate([wav, np.zeros(length - len(wav), dtype=wav.dtype)])
 
 
 def split_windows(wav, sr=SAMPLE_RATE, window_seconds=WINDOW_SECONDS, search_seconds=CUT_SEARCH_SECONDS):
@@ -208,13 +225,16 @@ def attach_words(text, items, offset=0.0):
 
 def _free(engine):
     gc.collect()
-    if engine == "mlx":
-        import mlx.core as mx
-        mx.clear_cache()
-    else:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+    try:
+        if engine == "mlx":
+            import mlx.core as mx
+            mx.clear_cache()
+        else:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+    except ImportError:
+        pass  # the engine never loaded; keep the original error visible
 
 
 def _torch_device():
@@ -228,51 +248,56 @@ def _torch_device():
 def _transcribe(engine, repo_id, clips, language):
     """Return [(qwen_language_name, text)] per clip."""
     source = _model_source(repo_id)
-    if engine == "mlx":
-        from mlx_audio.stt.utils import load_model
-        model = load_model(source)
-        outputs = []
-        for clip in clips:
-            check_cancel()
-            out = model.generate(clip, language=language, max_tokens=MAX_NEW_TOKENS,
-                                 chunk_duration=WINDOW_SECONDS + 1)
-            detected = language or ",".join(dict.fromkeys(l for l in (out.language or []) if l))
-            outputs.append((detected, out.text.strip()))
-    else:
-        from qwen_asr import Qwen3ASRModel
-        device, dtype = _torch_device()
-        rprint(f"[cyan]🎮 Qwen3-ASR device:[/cyan] {device}, [cyan]dtype:[/cyan] {dtype}")
-        model = Qwen3ASRModel.from_pretrained(source, dtype=dtype, device_map=device,
-                                              max_inference_batch_size=1, max_new_tokens=MAX_NEW_TOKENS)
-        outputs = []
-        for clip in clips:
-            check_cancel()
-            out = model.transcribe(audio=(clip, SAMPLE_RATE), language=language)[0]
-            outputs.append((language or out.language, out.text.strip()))
-    del model
-    _free(engine)
+    model, outputs = None, []
+    try:
+        if engine == "mlx":
+            from mlx_audio.stt.utils import load_model
+            model = load_model(source)
+            for clip in clips:
+                check_cancel()
+                out = model.generate(clip, language=language, max_tokens=MAX_NEW_TOKENS,
+                                     chunk_duration=WINDOW_SECONDS + 1, min_chunk_duration=MIN_WINDOW_SECONDS)
+                detected = language or ",".join(dict.fromkeys(l for l in (out.language or []) if l))
+                outputs.append((detected, out.text.strip()))
+        else:
+            from qwen_asr import Qwen3ASRModel
+            device, dtype = _torch_device()
+            rprint(f"[cyan]🎮 Qwen3-ASR device:[/cyan] {device}, [cyan]dtype:[/cyan] {dtype}")
+            model = Qwen3ASRModel.from_pretrained(source, dtype=dtype, device_map=device,
+                                                  max_inference_batch_size=1, max_new_tokens=MAX_NEW_TOKENS)
+            for clip in clips:
+                check_cancel()
+                out = model.transcribe(audio=(clip, SAMPLE_RATE), language=language)[0]
+                outputs.append((language or out.language, out.text.strip()))
+    finally:
+        # Release the model even when a window fails, so a retry does not start out of memory.
+        del model
+        _free(engine)
     return outputs
 
 
 def _align(engine, repo_id, jobs):
     """jobs: [(clip, text, qwen_language)] -> [[(token, start, end)]] relative to each clip."""
     source = _model_source(repo_id)
-    if engine == "mlx":
-        from mlx_audio.stt.utils import load_model
-        aligner = load_model(source)
-        align = lambda clip, text, lang: aligner.generate(clip, text=text, language=lang)
-    else:
-        from qwen_asr import Qwen3ForcedAligner
-        device, dtype = _torch_device()
-        aligner = Qwen3ForcedAligner.from_pretrained(source, dtype=dtype, device_map=device)
-        align = lambda clip, text, lang: aligner.align(audio=(clip, SAMPLE_RATE), text=text, language=lang)[0]
-    results = []
-    for clip, text, lang in jobs:
-        check_cancel()
-        result = align(clip, text, lang)
-        results.append([(item.text, item.start_time, item.end_time) for item in result])
-    del aligner, align
-    _free(engine)
+    aligner, results = None, []
+    try:
+        if engine == "mlx":
+            from mlx_audio.stt.utils import load_model
+            aligner = load_model(source)
+            align = lambda clip, text, lang: aligner.generate(clip, text=text, language=lang)
+        else:
+            from qwen_asr import Qwen3ForcedAligner
+            device, dtype = _torch_device()
+            aligner = Qwen3ForcedAligner.from_pretrained(source, dtype=dtype, device_map=device)
+            align = lambda clip, text, lang: aligner.align(audio=(clip, SAMPLE_RATE), text=text, language=lang)[0]
+        for clip, text, lang in jobs:
+            check_cancel()
+            result = align(clip, text, lang)
+            results.append([(item.text, item.start_time, item.end_time) for item in result])
+    finally:
+        align = None  # the lambda holds a reference to the aligner
+        del aligner
+        _free(engine)
     return results
 
 
@@ -290,9 +315,13 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     rprint(f"[green]▶️ Qwen3-ASR {size} + ForcedAligner ({engine}) for segment {start:.2f}s to {end:.2f}s...[/green]")
 
     raw = load_audio_segment(raw_audio_file, start, end)
-    vocal = raw if vocal_audio_file == raw_audio_file else load_audio_segment(vocal_audio_file, start, end)
+    if vocal_audio_file == raw_audio_file:
+        vocal = raw
+    else:
+        # Windows are cut on the raw track, so the vocal track must use the same sample indices.
+        vocal = match_length(load_audio_segment(vocal_audio_file, start, end), len(raw))
     # Drop slivers (< 0.1 s) left by segment boundaries; they carry no speech.
-    windows = [(a, b) for a, b in split_windows(raw) if b - a >= SAMPLE_RATE // 10]
+    windows = [(a, b) for a, b in split_windows(raw) if b - a >= int(MIN_WINDOW_SECONDS * SAMPLE_RATE)]
 
     # 1. transcribe raw audio
     t0 = time.time()

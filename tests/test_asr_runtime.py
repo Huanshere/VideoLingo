@@ -41,7 +41,7 @@ class LocalBackendTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "whisper.backend"):
             asr.local_backend({"backend": "funasr"})
 
-    def run_local(self, whisper):
+    def run_local(self, whisper, qwen_result=None):
         """Run transcribe() for runtime=local with fake Qwen and WhisperX backends; return what ran."""
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
@@ -51,7 +51,7 @@ class LocalBackendTests(unittest.TestCase):
         Path("input.wav").write_bytes(b"synthetic input")
         whisper = dict({"runtime": "local", "model": "large-v3", "language": "en"}, **whisper)
         config = {"whisper": whisper, "demucs": False, "whisper.runtime": "local"}
-        qwen = Mock(return_value=result())
+        qwen = Mock(return_value=qwen_result or result())
         whisperx = Mock(return_value=result())
         fake_whisperx = types.ModuleType("core.asr_backend.whisperX_local")
         fake_whisperx.transcribe_audio = whisperx
@@ -84,6 +84,12 @@ class LocalBackendTests(unittest.TestCase):
         qwen.assert_not_called()
         engine.assert_not_called()
         self.assertEqual(identity["backend"], "whisperx")
+
+    def test_silent_audio_fails_clearly_without_writing_outputs(self):
+        # All-silent audio gives no segments; save_results would otherwise hit KeyError('text').
+        with self.assertRaisesRegex(ValueError, "No speech was recognized"):
+            self.run_local({}, qwen_result={"language": None, "segments": []})
+        self.assertFalse(Path(asr._2_CLEANED_CHUNKS).exists())
 
 
 if __name__ == "__main__":

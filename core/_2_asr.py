@@ -92,6 +92,10 @@ def transcribe():
     # 6. Process df
     df = process_transcription(combined_result)
     check_cancel()
+    if df.empty:
+        # Silence (or a wrong recognition language) yields no words; later steps need at least one.
+        raise ValueError("No speech was recognized in the audio. Check the source audio, "
+                         "or set the recognition language explicitly and retry.")
     save_results(df)
     if key:
         cache.write_result(key, "complete", combined_result, language)
