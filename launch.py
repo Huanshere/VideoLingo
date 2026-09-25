@@ -43,8 +43,11 @@ def main():
             warnings.append("torch has no CUDA support. GPU disabled. Reinstall: python install.py")
             log(f"torch: {torch_ver} (CPU only)")
 
-    if not check_package("whisperx"):
-        warnings.append("whisperx not installed. ASR will fail.")
+    # Default local ASR is Qwen3-ASR (MLX on Apple Silicon); WhisperX is an optional fallback.
+    import platform
+    qwen = "mlx_audio" if platform.system() == "Darwin" and platform.machine() == "arm64" else "qwen_asr"
+    if not check_package(qwen):
+        warnings.append(f"{qwen} not installed. Local Qwen ASR will fail. Run: python installer.py")
 
     # ffmpeg
     if not shutil.which("ffmpeg"):

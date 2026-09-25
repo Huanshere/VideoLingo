@@ -8,6 +8,11 @@ This script is intentionally split from setup_env.py:
 The installer is stage-based and safe to rerun. Network-sensitive optional
 packages (Demucs, spaCy model downloads) warn instead of breaking the whole
 installation.
+
+The default local ASR is Qwen3-ASR + Qwen3-ForcedAligner, installed from
+requirements.txt (mlx-audio on Apple Silicon, qwen-asr elsewhere). WhisperX is an
+optional fallback that this installer does not install; see
+docs/pages/docs/whisperx-optional.*.md.
 """
 
 from __future__ import annotations
@@ -129,6 +134,8 @@ def save_state() -> None:
         "torch": package_version("torch"),
         "torchaudio": package_version("torchaudio"),
         "spacy": package_version("spacy"),
+        "qwen-asr": package_version("qwen-asr"),
+        "mlx-audio": package_version("mlx-audio"),
         "whisperx": package_version("whisperx"),
         "demucs": package_version("demucs"),
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -153,6 +160,15 @@ def read_base_requirements() -> list[str]:
             continue
         reqs.append(raw.strip())
     return reqs
+
+
+def apple_silicon() -> bool:
+    return platform.system() == "Darwin" and platform.machine() == "arm64"
+
+
+def qwen_asr_package() -> str:
+    """Package providing the default Qwen3-ASR backend on this platform."""
+    return "mlx-audio" if apple_silicon() else "qwen-asr"
 
 
 def detect_nvidia_gpu() -> bool:
@@ -191,7 +207,7 @@ def detect_torch_index() -> str:
 
 
 def install_bootstrap() -> None:
-    print("\n[1/7] Bootstrap installer packages")
+    print("\n[1/6] Bootstrap installer packages")
     missing = [pkg for pkg in BOOTSTRAP_PACKAGES if package_version(pkg) is None]
     if missing:
         pip_install(missing)
@@ -202,7 +218,7 @@ def install_bootstrap() -> None:
 def maybe_configure_mirror(auto_mirror: bool) -> None:
     if not auto_mirror:
         return
-    print("\n[2/7] Configure PyPI mirror")
+    print("\n[2/6] Configure PyPI mirror")
     try:
         from core.utils.pypi_autochoose import main as choose_mirror
 
@@ -212,7 +228,7 @@ def maybe_configure_mirror(auto_mirror: bool) -> None:
 
 
 def install_torch(force: bool = False, backend: str = "auto") -> None:
-    print("\n[3/7] Install PyTorch / torchaudio")
+    print("\n[3/6] Install PyTorch / torchaudio")
     gpu = detect_nvidia_gpu() if backend == "auto" else backend != "cpu"
     builds = {(package_version(name) or "").partition("+")[2] or "cpu" for name in ("torch", "torchaudio", "torchvision")}
     expected = {backend} if backend != "auto" else ({"cu126", "cu128"} if gpu else {"cpu"})
@@ -232,7 +248,7 @@ def install_torch(force: bool = False, backend: str = "auto") -> None:
 
 
 def install_base_requirements(force: bool = False, upgrade: bool = False) -> None:
-    print("\n[4/7] Install base requirements")
+    print("\n[4/6] Install base requirements")
     state = load_state()
     current_hash = requirements_hash()
     previous_hash = state.get("requirements_hash")
@@ -248,7 +264,7 @@ def install_base_requirements(force: bool = False, upgrade: bool = False) -> Non
 
 
 def install_spacy(force: bool = False) -> None:
-    print("\n[5/7] Install spaCy")
+    print("\n[5/6] Install spaCy")
     if not force and package_ok("spacy", "3.8."):
         print(f"  spacy {package_version('spacy')} already installed.")
         return
@@ -257,16 +273,8 @@ def install_spacy(force: bool = False) -> None:
     pip_install(["spacy>=3.8.7,<3.9"], retries=3)
 
 
-def install_whisperx(force: bool = False) -> None:
-    print("\n[6/7] Install WhisperX")
-    if not force and package_version("whisperx") is not None:
-        print(f"  whisperx {package_version('whisperx')} already installed.")
-        return
-    pip_install(["whisperx>=3.8.6,<3.9"], retries=3)
-
-
 def install_demucs(force: bool = False, require: bool = False) -> None:
-    print("\n[7/7] Install Demucs (optional)")
+    print("\n[6/6] Install Demucs (optional)")
     from packaging.version import Version
     if not force and package_version("demucs") is not None and Version("4.1.0") <= Version(package_version("demucs")) < Version("5") and import_ok("demucs.api"):
         print(f"  demucs {package_version('demucs')} already installed.")
@@ -354,7 +362,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
     errors: list[str] = []
     warnings: list[str] = []
     if not (3, 10) <= sys.version_info[:2] < (3, 14):
-        errors.append("WhisperX requires Python >=3.10,<3.14; use setup_env.py")
+        errors.append("VideoLingo requires Python >=3.10,<3.14; use setup_env.py")
     try:
         from packaging.requirements import Requirement
         for raw in REQUIREMENTS.read_text(encoding="utf-8").splitlines():
@@ -381,7 +389,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         "torch": TORCH_VERSION,
         "torchaudio": TORCH_VERSION,
         "spacy": "3.8.",
-        "whisperx": None,
+        qwen_asr_package(): None,
     }
     for package, prefix in required.items():
         version = package_version(package)
@@ -406,7 +414,8 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
                           f"detected builds: {', '.join(sorted(builds))}. Rerun installer.py")
     elif builds != {torch_backend}:
         errors.append(f"PyTorch build does not match requested {torch_backend}")
-    if check_state and not errors:
+    # TorchCodec is a WhisperX-only dependency; the default Qwen path decodes with the FFmpeg CLI.
+    if check_state and not errors and package_version("whisperx") is not None:
         try:
             probe = subprocess.run(
                 [sys.executable, "-c", "from runtime_libraries import configure_ffmpeg_dlls; "
@@ -420,7 +429,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
             errors.append(f"TorchCodec runtime check failed: {exc}")
     if not quiet:
         print("\nEnvironment check")
-        for package in ["streamlit", "torch", "torchaudio", "spacy", "whisperx", "demucs"]:
+        for package in ["streamlit", "torch", "torchaudio", "spacy", qwen_asr_package(), "whisperx", "demucs"]:
             print(f"  {package}: {package_version(package) or 'missing'}")
         for warning in warnings:
             print(f"  WARN: {warning}")
@@ -437,14 +446,13 @@ def launch_streamlit() -> int:
 
 def install_all(args: argparse.Namespace) -> int:
     if not (3, 10) <= sys.version_info[:2] < (3, 14):
-        print("ERROR: WhisperX requires Python >=3.10,<3.14. Run setup_env.py first.")
+        print("ERROR: VideoLingo requires Python >=3.10,<3.14. Run setup_env.py first.")
         return 1
     install_bootstrap()
     maybe_configure_mirror(args.auto_mirror)
     install_torch(force=args.force, backend=args.torch_backend)
     install_base_requirements(force=args.force, upgrade=args.upgrade)
     install_spacy(force=args.force)
-    install_whisperx(force=args.force)
     if not args.skip_demucs:
         install_demucs(force=args.force or args.upgrade, require=args.require_demucs)
     install_project_metadata()
