@@ -1,5 +1,6 @@
 from ruamel.yaml import YAML
 import threading
+import unicodedata
 
 CONFIG_PATH = 'config.yaml'
 lock = threading.Lock()
@@ -82,6 +83,42 @@ def get_joiner(language):
         raise ValueError(f"Unsupported language code: {language!r}")
     return "" if language.lower() in LANGUAGES_WITHOUT_SPACE else " "
 
+
+# Scripts that are written without spaces; their letters never get a space from join_words.
+_UNSPACED_SCRIPTS = ("CJK", "HIRAGANA", "KATAKANA", "HALFWIDTH KATAKANA", "IDEOGRAPHIC", "BOPOMOFO",
+                     "THAI", "LAO", "KHMER", "MYANMAR", "TIBETAN")
+
+
+def _spaced_word_char(char):
+    """A letter or digit of a script written with spaces (Latin, Cyrillic, Hangul, digits, ...)."""
+    if not char.isalnum():
+        return False
+    try:
+        return not unicodedata.name(char).startswith(_UNSPACED_SCRIPTS)
+    except ValueError:
+        return True
+
+
+def join_words(words, joiner):
+    """Join words/tokens with the language joiner, keeping code-switched words apart.
+
+    With the "" joiner (zh/ja/th...), a space is added only between two words of spaced
+    scripts: when the left part ends and the right part starts with such a letter/digit
+    ("Hello" + "Fiona" -> "Hello Fiona"), or the left ends with ASCII ,.!?;: and the right
+    starts with such a letter ("Hello," + "Fiona"). CJK next to CJK and CJK next to Latin stay
+    unspaced as before ("有个" + "meeting" + "啊" -> "有个meeting啊"). The " " joiner is unchanged.
+    """
+    words = [str(word) for word in words]
+    if joiner:
+        return joiner.join(words)
+    text = ""
+    for word in words:
+        if text and word:
+            left, right = text[-1], word[0]
+            if _spaced_word_char(right) and (_spaced_word_char(left) or (left in ",.!?;:" and right.isalpha())):
+                text += " "
+        text += word
+    return text
 
 if __name__ == "__main__":
     print(load_key('language_split_with_space'))

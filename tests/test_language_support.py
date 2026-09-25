@@ -9,7 +9,7 @@ import pytest
 from core.asr_backend.qwen_asr_local import ISO_TO_QWEN
 from core.spacy_utils import load_nlp_model as nlp_loader
 from core.utils import config_utils
-from core.utils.config_utils import get_joiner
+from core.utils.config_utils import get_joiner, join_words
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -42,6 +42,35 @@ def test_config_lists_override_built_in_rule():
 def test_unknown_language_still_raises(language):
     with pytest.raises(ValueError, match="Unsupported language code"):
         get_joiner(language)
+
+
+# ------------------------------------------------------------------
+# join_words: code-switched words keep their spaces in unspaced languages
+# ------------------------------------------------------------------
+
+@pytest.mark.parametrize("words,expected", [
+    (["Hello", "Fiona"], "Hello Fiona"),                       # Mini: HelloFiona
+    (["call", "me", "Lisa"], "call me Lisa"),                  # Mini: callmeLisa
+    (["See", "you", "See", "you"], "See you See you"),
+    (["Microsoft", "Global"], "Microsoft Global"),
+    (["Hello，", "Fiona", "呀"], "Hello，Fiona呀"),            # full-width punctuation: no space
+    (["Hello,", "Fiona"], "Hello, Fiona"),                     # ASCII punctuation before a word
+    (["有", "个", "meeting", "啊"], "有个meeting啊"),          # CJK next to Latin: unspaced as before
+    (["你", "好，", "世", "界。"], "你好，世界。"),              # CJK next to CJK
+    (["iPhone", "15"], "iPhone 15"), (["2025", "年"], "2025年"), (["第", "3", "章"], "第3章"),
+    (["don", "'t"], "don't"), (["3.", "5"], "3.5"),
+    (["今日", "は", "Zoom", "で", "ミーティング"], "今日はZoomでミーティング"),
+    (["コーヒー", "々"], "コーヒー々"),
+    (["สวัสดี", "ครับ"], "สวัสดีครับ"),
+    (["", "Hello", "", "world"], "Hello world"),
+])
+def test_join_words_without_space(words, expected):
+    assert join_words(words, "") == expected
+
+
+def test_join_words_with_space_is_plain_join():
+    assert join_words(["Hello,", "world", "你好"], " ") == "Hello, world 你好"
+    assert join_words([1, 2], " ") == "1 2"
 
 
 # ------------------------------------------------------------------
@@ -136,3 +165,19 @@ def test_korean_split_stage_runs_without_a_downloaded_model(project):
 def test_thai_uses_unspaced_joiner_in_split_stage(project):
     project("th", ["สวัสดี", "ครับ", "วันนี้", "อากาศ", "ดี"])
     assert run_split_stage(nlp_loader.punctuation_nlp()) == ["สวัสดีครับวันนี้อากาศดี"]
+
+
+def test_code_switched_chinese_keeps_english_spaces_in_split_stage(project):
+    project("zh", ["Hello，", "Fiona", "呀", "，", "有", "个", "meeting", "啊", "。",
+                   "call", "me", "Lisa", "就", "好", "。"])
+    lines = run_split_stage(nlp_loader.punctuation_nlp())
+    text = "".join(lines)
+    assert "Hello，Fiona呀" in text and "有个meeting啊" in text and "call me Lisa就好" in text
+
+
+def test_split_positions_use_the_same_join(project):
+    # _3_2_split_meaning compares the LLM split (spaces between words) with the joined original.
+    project("zh", ["x"])
+    from core._3_2_split_meaning import find_split_positions
+    original = "我们call me Lisa就好然后开会"
+    assert find_split_positions(original, "我们 call me Lisa 就好[br]然后 开会") == [len("我们call me Lisa就好")]

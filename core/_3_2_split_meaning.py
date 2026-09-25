@@ -27,7 +27,7 @@ def find_split_positions(original, modified):
 
         for j in range(start, len(original)):
             original_left = original[start:j]
-            modified_left = joiner.join(parts[i].split())
+            modified_left = join_words(parts[i].split(), joiner)
 
             left_similarity = SequenceMatcher(None, original_left, modified_left).ratio()
 
