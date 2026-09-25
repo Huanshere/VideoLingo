@@ -54,7 +54,7 @@ install/check time because package metadata can pass while decoding fails.
 The non-Apple-Silicon marker also matches Intel Macs, but PyTorch 2.8 has no macOS
 x86_64 wheels, so `installer.py` stops there before running pip. It also stops on
 Apple Silicon below macOS 14, where mlx has no wheels. On Apple Silicon the
-installer uninstalls an existing whisperx/torchcodec before syncing requirements,
+installer uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) before syncing requirements,
 because WhisperX 3.8's `huggingface-hub<1` conflicts with mlx-audio's `>=1`.
 
 Why the split: every mlx-audio release that includes Qwen3-ASR requires

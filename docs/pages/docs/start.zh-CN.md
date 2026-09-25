@@ -142,7 +142,7 @@ Windows 可选择 FFmpeg 官网列出的 Windows 构建，将 `bin` 目录加入
 | Windows / Linux 无 NVIDIA | 同上 | 同上 | CPU fp32，可以运行但**很慢**，建议选 0.6B 或改用 ElevenLabs |
 | Intel Mac | — | — | 仓库固定的 PyTorch 2.8 没有 macOS x86_64 安装包，目前无法安装；安装器会在安装依赖前直接报错退出 |
 
-- 在 Apple Silicon 上，默认依赖只安装 mlx-audio，不安装 qwen-asr；要用 `qwen_engine: transformers` 需要另建环境。macOS 低于 14 时安装器会直接报错退出。旧环境里如果装过 WhisperX，重跑 `installer.py` 时会先卸载 whisperx 和 torchcodec（与 MLX 依赖冲突）。
+- 在 Apple Silicon 上，默认依赖只安装 mlx-audio，不安装 qwen-asr；要用 `qwen_engine: transformers` 需要另建环境。macOS 低于 14 时安装器会直接报错退出。旧环境里如果装过 WhisperX，重跑 `installer.py` 时会先卸载WhisperX 整套依赖（whisperx、torchcodec、faster-whisper、ctranslate2、pyannote-*），它们与 MLX 依赖冲突。
 - **模型下载**：首次识别时从 Hugging Face 下载，1.7B 加对齐模型共数 GB。可用 `HF_ENDPOINT` 指定镜像。如果 `_model_cache/<仓库名末段>/config.json` 存在（例如 `_model_cache/Qwen3-ASR-1.7B`），会直接使用这份本地模型。
 - **语言**：侧栏「识别语言」中的语言都受支持（Qwen3-ASR 共支持 30 种语言）。选 `Auto` 时按每个约 3 分钟的窗口检测语言，取多数结果；中英混说时以第一语言为准。
 - 识别结果缓存区分后端、模型大小和引擎，切换任一项都会重新识别。

@@ -24,7 +24,7 @@ Run this inside the VideoLingo environment created by `setup_env.py` (the projec
 
 These are the same constraints `requirements.txt` used in 3.0.4. WhisperX 3.8 needs Torch/torchaudio 2.8, torchvision 0.23 and Transformers 4, which match the default environment, so the installed PyTorch build does not change.
 
-Then run `python installer.py --check`. When whisperx is installed, the check also probes whether TorchCodec can load the FFmpeg shared libraries; without whisperx this probe is skipped. On Windows/Linux, rerunning `installer.py` or `--upgrade` does not uninstall WhisperX; if the check reports a problem, rerun the install command above. On Apple Silicon, rerunning `installer.py` actively uninstalls whisperx and torchcodec from the default environment (see below).
+Then run `python installer.py --check`. When whisperx is installed, the check also probes whether TorchCodec can load the FFmpeg shared libraries; without whisperx this probe is skipped. On Windows/Linux, rerunning `installer.py` or `--upgrade` does not uninstall WhisperX; if the check reports a problem, rerun the install command above. On Apple Silicon, rerunning `installer.py` actively uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) from the default environment (see below).
 
 ## Enable
 
@@ -62,7 +62,7 @@ was downloaded and verified with real audio decoding. Extract it and put its `bi
 
 On Apple Silicon the default requirements install mlx-audio (Transformers 5, `huggingface-hub>=1`), while WhisperX 3.8.6 requires `huggingface-hub<1`, so they cannot share one environment. `uv` only resolves the combination by picking the pre-release whisperx 3.8.7rc1, which is unverified and not recommended.
 
-To use WhisperX on a Mac, create a separate virtual environment for it; do not run the install command above in the default environment. This repository does not ship an installer for that separate environment, and the combination has not been verified. If the default environment already has whisperx (for example after upgrading from an older version), rerunning `installer.py` first uninstalls whisperx and torchcodec, and `installer.py --check` reports the combination as an error.
+To use WhisperX on a Mac, create a separate virtual environment for it; do not run the install command above in the default environment. This repository does not ship an installer for that separate environment, and the combination has not been verified. If the default environment already has whisperx (for example after upgrading from an older version), rerunning `installer.py` first uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) (packages that another installed package still requires are kept), and `installer.py --check` reports the combination as an error.
 
 <a id="common-errors"></a>
 ## Common errors
