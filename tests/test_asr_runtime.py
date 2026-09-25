@@ -102,7 +102,7 @@ class LocalBackendTests(unittest.TestCase):
         ), patch.object(qwen_asr_local, "load_key", side_effect=keys.__getitem__), patch.object(
             qwen_asr_local, "model_size", return_value="1.7b"
         ), patch.object(qwen_asr_local, "_align", side_effect=AssertionError("must not align")):
-            with self.assertRaisesRegex(ValueError, r"still degenerate after retrying.*\(English\) may not match the audio: try auto"):
+            with self.assertRaisesRegex(ValueError, r"selected recognition language \(English\) may not match the audio.*probe clips of it are Chinese.*Use auto"):
                 self.run_local({"language": "en", "cache": False}, qwen_result=None, real_qwen=True)
         self.assertFalse(Path(asr._2_CLEANED_CHUNKS).exists())
 

@@ -340,6 +340,80 @@ def missed_speech(text, spoken):
     return None
 
 
+# Scripts a transcript in each language is written in. Other languages Qwen3-ASR knows use Latin.
+EXPECTED_SCRIPTS = {
+    "zh": {"Han"}, "yue": {"Han"}, "ja": {"Han", "Kana"}, "ko": {"Hangul"},
+    "ru": {"Cyrillic"}, "mk": {"Cyrillic"}, "el": {"Greek"}, "ar": {"Arabic"}, "fa": {"Arabic"},
+    "hi": {"Devanagari"}, "th": {"Thai"},
+}
+_SCRIPT_PREFIXES = (("CJK", "Han"), ("IDEOGRAPHIC", "Han"), ("HIRAGANA", "Kana"), ("KATAKANA", "Kana"),
+                    ("HALFWIDTH KATAKANA", "Kana"), ("HANGUL", "Hangul"), ("HALFWIDTH HANGUL", "Hangul"),
+                    ("LATIN", "Latin"), ("FULLWIDTH LATIN", "Latin"), ("CYRILLIC", "Cyrillic"), ("GREEK", "Greek"),
+                    ("ARABIC", "Arabic"), ("DEVANAGARI", "Devanagari"), ("THAI", "Thai"))
+# One CJK character is about a syllable, roughly three Latin letters.
+_SCRIPT_WEIGHT = {"Han": 3, "Kana": 3, "Hangul": 3}
+# Conservative: only near-total mismatches, on enough text. zh with plenty of English words,
+# en with a few CJK names, or ja written with many kanji stay well inside these limits.
+SCRIPT_MIN_WEIGHT = 100
+SCRIPT_MIN_SHARE = 0.2      # expected scripts must be at least 20% of the weighted letters
+JA_MIN_KANA_SHARE = 0.05    # Japanese without kana (<5% of CJK letters) is Chinese
+ZH_MAX_KANA_SHARE = 0.2     # "Chinese" with over 20% kana is Japanese
+
+
+def script_counts(text):
+    counts = Counter()
+    for char in text or "":
+        if not char.isalpha():
+            continue
+        try:
+            name = unicodedata.name(char)
+        except ValueError:
+            continue
+        for prefix, script in _SCRIPT_PREFIXES:
+            if name.startswith(prefix):
+                counts[script] += 1
+                break
+        else:
+            counts["Other"] += 1
+    return counts
+
+
+def script_mismatch(text, iso):
+    """Why a transcript's writing system does not fit the selected language, or None (text only)."""
+    counts = script_counts(text)
+    weighted = {script: n * _SCRIPT_WEIGHT.get(script, 1) for script, n in counts.items()}
+    total = sum(weighted.values())
+    if total < SCRIPT_MIN_WEIGHT:
+        return None
+    expected = EXPECTED_SCRIPTS.get(iso, {"Latin"})
+    share = sum(weighted.get(script, 0) for script in expected) / total
+    dominant = max(weighted, key=weighted.get)
+    if share < SCRIPT_MIN_SHARE:
+        return f"{1 - share:.0%} of the letters are not in the expected script ({dominant} text)"
+    cjk = counts["Han"] + counts["Kana"]
+    if cjk * 3 >= SCRIPT_MIN_WEIGHT:
+        kana = counts["Kana"] / cjk
+        if iso == "ja" and kana < JA_MIN_KANA_SHARE:
+            return f"only {kana:.0%} kana among the CJK characters (Chinese text)"
+        if iso in ("zh", "yue") and kana > ZH_MAX_KANA_SHARE:
+            return f"{kana:.0%} kana among the CJK characters (Japanese text)"
+    return None
+
+
+def probe_mismatch(probes, language):
+    """The language auto-detected probes heard instead of the selected one, or None."""
+    reference = sum(len(_normalized(text)) for _, text in probes)
+    if reference < PROBE_MIN_CHARS or any(iso_language(name) == iso_language(language) for name, _ in probes):
+        return None
+    return _vote(probes)
+
+
+def language_mismatch_error(span, language, reason):
+    return ValueError(
+        f"Qwen3-ASR output for {span}: the selected recognition language ({language}) may not match the audio "
+        f"({reason}). Use auto, or switch the Qwen3-ASR model size.")
+
+
 def transcribe_window(run, raw, a, b, language, probes=None, offset=0.0, forced=False):
     """[(start, end, language, text)] for one window; retries shorter windows if degenerate.
 
@@ -348,22 +422,33 @@ def transcribe_window(run, raw, a, b, language, probes=None, offset=0.0, forced=
     """
     heard = [text for name, text in probes or () if name == language]
     seconds = (b - a) / SAMPLE_RATE
-    spoken = None if probes is None else [text for _, text in probes]
+    listened = probes  # auto: the window's probes; forced: run lazily, only for suspicious output
+
+    def listen():
+        nonlocal listened
+        if listened is None:
+            listened = probe_window(run, raw, a, b)[0]
+        return listened
 
     def check(text):
-        nonlocal spoken
         reason = degeneration(text, heard)
         if reason or len(_normalized(text)) >= SPARSE_CHARS_PER_SECOND * seconds:
             return reason
-        if spoken is None:
-            spoken = [t for _, t in probe_window(run, raw, a, b)[0]]
-        return missed_speech(text, spoken)
+        return missed_speech(text, [t for _, t in listen()])
 
     lang, text = run(raw[a:b], language)
     reason = check(text)
     if not reason:
         return [(a, b, lang, text)]
     span = f"{offset + a / SAMPLE_RATE:.1f}-{offset + b / SAMPLE_RATE:.1f}s"
+    if forced:
+        # A shorter retry can "succeed" in another language (1.7B forced to English wrote correct
+        # Chinese in 60 s windows), which would then be aligned and split as the wrong language.
+        # The probes (already run for sparse output; run now for loops) say what the audio is.
+        heard_instead = probe_mismatch(listen(), language)
+        if heard_instead:
+            raise language_mismatch_error(
+                span, language, f"{reason}; auto-detected probe clips of it are {heard_instead}")
     rprint(f"[yellow]⚠️ Qwen3-ASR output for {span} looks degenerate ({reason}); "
            f"retrying in {RETRY_WINDOW_SECONDS} s windows...[/yellow]")
     pieces = []
@@ -560,6 +645,11 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     rprint(f"[cyan]⏱️ time transcribe:[/cyan] {time.time() - t0:.2f}s")
 
     if forced:
+        # A wrong forced language often transcribes fine in the audio's own language (Korean
+        # forced to English stays Korean). Checked on the text only, no extra inference.
+        mismatch = script_mismatch(" ".join(text for *_, text in pieces), configured)
+        if mismatch:
+            raise language_mismatch_error(f"{start:.1f}-{end:.1f}s", forced, mismatch)
         detected = configured
     else:
         # Segment language for downstream steps: the language covering the most audio.

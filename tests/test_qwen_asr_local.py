@@ -593,17 +593,105 @@ def test_token_budget_scales_with_clip_length():
 
 
 def test_forced_wrong_language_is_caught(pipeline):
-    """Mini fix2_cs_en_forced: code-switched zh audio forced to en gave "Yeah, yeah, yeah." (rc=0)."""
+    """Mini fix2/fix3 cs_en_forced: code-switched zh audio forced to en.
+
+    The full window gave "Yeah, yeah, yeah."; the 60 s retry then "succeeded" with Chinese text,
+    which went downstream as English. The probes heard Chinese, so it must fail before retrying.
+    """
     pipeline["language"] = "en"
     pipeline["asr"] = lambda a, b, language: ("Chinese,English", ZH) if language is None \
-        else (language, "Yeah, yeah, yeah.")
-    with pytest.raises(ValueError, match=r"0\.0-150\.\d+s is still degenerate after retrying \(only \d+ letters/digits, "
-                                         r"while auto-detected probe clips.*\(English\) may not match the audio: try auto"):
+        else (language, "Yeah, yeah, yeah." if b - a > qwen.RETRY_WINDOW_SECONDS + 1 else ZH * 6)
+    with pytest.raises(ValueError, match=r"0\.0-150\.\d+s: the selected recognition language \(English\) may not match "
+                                         r"the audio \(only \d+ letters/digits, .*probe clips of it are Chinese\)\. "
+                                         r"Use auto, or switch the Qwen3-ASR model size"):
         qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
     calls = pipeline["calls"]["asr"]
-    # Long window -> sparse -> lazy auto probes -> retry in <= 60 s windows -> error.
-    assert calls[0][2] == "English" and calls[1][2] is None
-    assert any(language == "English" and s <= qwen.RETRY_WINDOW_SECONDS for _, s, language in calls)
+    # Long window -> sparse -> lazy auto probes -> mismatch: no retry is attempted.
+    assert calls[0][2] == "English" and all(language is None for *_, language in calls[1:])
+
+
+def test_forced_loop_with_matching_probes_retries_normally(pipeline):
+    # A real glitch in the selected language: probes agree, the shorter retry is accepted.
+    pipeline["language"] = "zh"
+    pipeline["asr"] = lambda a, b, language: ("Chinese", ZH) if language is None else \
+        (language, "谢谢大家。" * 300 if b - a > qwen.RETRY_WINDOW_SECONDS + 1 else ZH * 6)
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert result["language"] == "zh" and all(segment["text"] == ZH * 6 for segment in result["segments"])
+    assert any(language is None for *_, language in pipeline["calls"]["asr"])  # probes ran only for the loop
+
+
+def test_forced_cantonese_probes_match_chinese():
+    assert qwen.probe_mismatch([("Cantonese", ZH)], "Chinese") is None
+    assert qwen.probe_mismatch([("English", "Hi."), ("Chinese", ZH)], "Chinese") is None  # one agreeing probe is enough
+    assert qwen.probe_mismatch([("Chinese", ZH), ("Chinese", ZH)], "English") == "Chinese"
+    assert qwen.probe_mismatch([("Chinese", "好。")], "English") is None                  # heard too little to judge
+    assert qwen.probe_mismatch([], "English") is None
+
+
+KO = "처음에는 버스카드도 없어서 당황했지만 결국 해냈습니다. 언어도 그리고 유머 코드도 그리고 모든 시스템이 달라져 있었어요."
+
+
+@pytest.mark.parametrize("configured,text", [("en", KO), ("zh", KO), ("ja", ZH * 4)])
+def test_forced_language_in_the_wrong_script_fails_without_extra_inference(pipeline, configured, text):
+    # Mini: ko forced to en/zh kept writing Korean, cs forced to ja wrote Chinese; nothing degenerate.
+    pipeline["language"] = configured
+    # Normal speech density (not sparse), so only the text check can catch it.
+    pipeline["asr"] = lambda a, b, language: (language, " ".join(f"{text}{i}" for i in range(max(1, int((b - a) // 10)))))
+    with pytest.raises(ValueError, match=r"may not match the audio \(.*\((Hangul|Chinese) text\)\)\. Use auto"):
+        qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert all(language is not None for *_, language in pipeline["calls"]["asr"])  # no probes were run
+    assert "align" not in pipeline["calls"]
+
+
+@pytest.mark.parametrize("configured,text", [
+    ("zh", ZH), ("yue", ZH), ("ko", KO),
+    ("ja", "今日はZoomでミーティングがあります。東京本社の田中さんと打ち合わせをしました。"),
+    ("en", "Today we met 田中 and 佐藤 at the 東京 office, then flew to 北京 for the launch with the whole team."),
+])
+def test_forced_language_in_the_right_script_passes(pipeline, configured, text):
+    pipeline["language"] = configured
+    # Numbered so the sentences are not an exact back-to-back loop.
+    pipeline["asr"] = lambda a, b, language: (language, " ".join(f"{text}{i}" for i in range(max(1, int((b - a) // 10)))))
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert result["language"] == configured and len(result["segments"]) == 2
+
+
+@pytest.mark.parametrize("name,iso", [
+    ("README.md", "en"), ("translations/README.zh.md", "zh"), ("translations/README.zh-TW.md", "zh"),
+    ("translations/README.ja.md", "ja"), ("translations/README.ru.md", "ru"), ("translations/README.es.md", "es"),
+])
+def test_script_check_accepts_real_documents(name, iso):
+    # Code-switched real text: Chinese/Japanese READMEs are full of English, links and code.
+    from pathlib import Path
+    text = (Path(__file__).resolve().parents[1] / name).read_text(encoding="utf-8")
+    assert qwen.script_mismatch(text, iso) is None
+
+
+@pytest.mark.parametrize("text,iso,expected", [
+    (KO, "en", "Hangul text"), (KO, "zh", "Hangul text"), (KO, "ja", "Hangul text"),
+    (ZH * 3, "ja", "Chinese text"), ("今日はいい天気ですね。散歩に行きましょう。" * 4, "zh", "Japanese text"),
+    ("Hello everyone, welcome to the meeting today. " * 4, "ru", "Latin text"),
+    ("Привет всем, добро пожаловать на встречу. " * 4, "en", "Cyrillic text"),
+    ("Yeah, yeah, yeah.", "zh", None),                             # too little text to judge
+    ("我明天有个meeting，要做presentation给client，然后double check一下budget。", "zh", None),
+    ("本日は晴天なり。東京都知事選挙結果発表会場より中継致します。" * 4, "ja", None),  # kanji-heavy Japanese
+    ("Bonjour à tous, merci d'être venus aujourd'hui." * 4, "en", None),  # Latin vs Latin: not detectable
+])
+def test_script_mismatch(text, iso, expected):
+    reason = qwen.script_mismatch(text, iso)
+    assert (reason is None) if expected is None else (expected in reason)
+
+
+def test_probe_budget_is_tighter_but_does_not_cut_normal_probes(pipeline):
+    assert qwen.probe_token_budget(20) <= 128 < qwen.token_budget(20)
+    # A normal 20 s Chinese probe (~190 chars on the Mini) needs ~100-140 tokens; English ~70 words ~90.
+    assert qwen.probe_token_budget(20) >= 100
+    pipeline["language"] = "auto"
+    pipeline["asr"] = code_switched
+    qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    budgets = pipeline["calls"]["tokens"]
+    assert {tokens for language, _, tokens in budgets if language is None} == {qwen.probe_token_budget(20)}
+    assert all(tokens is None for language, _, tokens in budgets if language is not None)  # windows: default budget
 
 
 def test_forced_language_normal_speech_is_not_probed(pipeline):
@@ -652,15 +740,3 @@ def test_auto_all_probes_unusable_fails_instead_of_guessing(pipeline):
         else pytest.fail("must not transcribe without a language")
     with pytest.raises(ValueError, match="could not determine the language: every probe clip looped"):
         qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
-
-
-def test_probe_budget_is_tighter_but_does_not_cut_normal_probes(pipeline):
-    assert qwen.probe_token_budget(20) <= 128 < qwen.token_budget(20)
-    # A normal 20 s Chinese probe (~190 chars on the Mini) needs ~100-140 tokens; English ~70 words ~90.
-    assert qwen.probe_token_budget(20) >= 100
-    pipeline["language"] = "auto"
-    pipeline["asr"] = code_switched
-    qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
-    budgets = pipeline["calls"]["tokens"]
-    assert {tokens for language, _, tokens in budgets if language is None} == {qwen.probe_token_budget(20)}
-    assert all(tokens is None for language, _, tokens in budgets if language is not None)  # windows: default budget
