@@ -602,7 +602,7 @@ def test_forced_wrong_language_is_caught(pipeline):
     pipeline["asr"] = lambda a, b, language: ("Chinese,English", ZH) if language is None \
         else (language, "Yeah, yeah, yeah." if b - a > qwen.RETRY_WINDOW_SECONDS + 1 else ZH * 6)
     with pytest.raises(ValueError, match=r"0\.0-150\.\d+s: the selected recognition language \(English\) may not match "
-                                         r"the audio \(only \d+ letters/digits, .*probe clips of it are Chinese\)\. "
+                                         r"the audio \(only \d+ letters/digits, .*the probe clips sound like Chinese\)\. "
                                          r"Use auto, or switch the Qwen3-ASR model size"):
         qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
     calls = pipeline["calls"]["asr"]
@@ -743,7 +743,7 @@ def test_auto_all_probes_unusable_fails_instead_of_guessing(pipeline):
 
 
 # ------------------------------------------------------------------
-# Word times stay inside the audio
+# Round 4 follow-ups: word times inside the audio, per-window script check, message
 # ------------------------------------------------------------------
 
 def test_attach_words_clamps_times_to_the_window():
@@ -769,3 +769,38 @@ def test_words_never_pass_the_window_or_audio_end(pipeline):
         assert all(0 <= w["start"] <= w["end"] <= window_end + 1e-3 for w in segment["words"])
     assert max(w["end"] for seg in result["segments"] for w in seg["words"]) <= 200
     assert cache.valid_result(result)
+
+
+def test_forced_wrong_script_fails_on_the_first_window(pipeline):
+    pipeline["language"] = "en"
+    pipeline["asr"] = lambda a, b, language: (language, " ".join(f"{KO}{i}" for i in range(max(1, int((b - a) // 10)))))
+    with pytest.raises(ValueError, match=r"output for 0\.0-150\.\d+s: the selected recognition language \(English\).*Hangul text"):
+        qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert len(window_calls(pipeline)) == 1  # the second window was never transcribed
+
+
+def test_per_window_check_tolerates_an_english_heavy_window_in_chinese(pipeline):
+    # A mostly-English clip inside a Chinese video: that window alone is ~90% Latin letters.
+    english = "Hello everyone, today we talk about the product launch plan and the marketing budget, 然后"
+    pipeline["language"] = "zh"
+    pipeline["asr"] = lambda a, b, language: (language, " ".join(
+        f"{ZH if a < 150 else english}{i}" for i in range(max(1, int((b - a) // 10)))))
+    result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    assert result["language"] == "zh" and len(result["segments"]) == 2
+    assert qwen.script_mismatch(" ".join(f"{english}{i}" for i in range(5)), "zh")  # the looser whole-text limit alone would fail it
+
+
+@pytest.mark.parametrize("text", ["네.", "好。", KO[:20]])
+def test_per_window_check_ignores_short_text(text):
+    assert qwen.script_mismatch(text, "en", **qwen.WINDOW_SCRIPT_LIMITS) is None
+
+
+def test_probe_mismatch_message_is_not_repetitive(pipeline):
+    pipeline["language"] = "en"
+    pipeline["asr"] = lambda a, b, language: ("Chinese,English", ZH) if language is None \
+        else (language, "Yeah, yeah, yeah.")
+    with pytest.raises(ValueError) as error:
+        qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    message = str(error.value)
+    assert message.count("probe clips") == 2 and message.count("auto-detected probe clips of it") == 1
+    assert "; the probe clips sound like Chinese). Use auto" in message

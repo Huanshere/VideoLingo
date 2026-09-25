@@ -358,6 +358,10 @@ SCRIPT_MIN_WEIGHT = 100
 SCRIPT_MIN_SHARE = 0.2      # expected scripts must be at least 20% of the weighted letters
 JA_MIN_KANA_SHARE = 0.05    # Japanese without kana (<5% of CJK letters) is Chinese
 ZH_MAX_KANA_SHARE = 0.2     # "Chinese" with over 20% kana is Japanese
+# Per-window check right after each forced window (fail on the first window instead of after
+# the whole segment). A single window can legitimately be mostly another script (an English
+# clip inside a Chinese video), so it only fails on near-total mismatches with plenty of text.
+WINDOW_SCRIPT_LIMITS = {"min_weight": 300, "min_share": 0.05, "ja_min_kana": 0.02, "zh_max_kana": 0.5}
 
 
 def script_counts(text):
@@ -378,24 +382,25 @@ def script_counts(text):
     return counts
 
 
-def script_mismatch(text, iso):
+def script_mismatch(text, iso, min_weight=SCRIPT_MIN_WEIGHT, min_share=SCRIPT_MIN_SHARE,
+                    ja_min_kana=JA_MIN_KANA_SHARE, zh_max_kana=ZH_MAX_KANA_SHARE):
     """Why a transcript's writing system does not fit the selected language, or None (text only)."""
     counts = script_counts(text)
     weighted = {script: n * _SCRIPT_WEIGHT.get(script, 1) for script, n in counts.items()}
     total = sum(weighted.values())
-    if total < SCRIPT_MIN_WEIGHT:
+    if total < min_weight:
         return None
     expected = EXPECTED_SCRIPTS.get(iso, {"Latin"})
     share = sum(weighted.get(script, 0) for script in expected) / total
     dominant = max(weighted, key=weighted.get)
-    if share < SCRIPT_MIN_SHARE:
+    if share < min_share:
         return f"{1 - share:.0%} of the letters are not in the expected script ({dominant} text)"
     cjk = counts["Han"] + counts["Kana"]
-    if cjk * 3 >= SCRIPT_MIN_WEIGHT:
+    if cjk * 3 >= min_weight:
         kana = counts["Kana"] / cjk
-        if iso == "ja" and kana < JA_MIN_KANA_SHARE:
+        if iso == "ja" and kana < ja_min_kana:
             return f"only {kana:.0%} kana among the CJK characters (Chinese text)"
-        if iso in ("zh", "yue") and kana > ZH_MAX_KANA_SHARE:
+        if iso in ("zh", "yue") and kana > zh_max_kana:
             return f"{kana:.0%} kana among the CJK characters (Japanese text)"
     return None
 
@@ -448,7 +453,7 @@ def transcribe_window(run, raw, a, b, language, probes=None, offset=0.0, forced=
         heard_instead = probe_mismatch(listen(), language)
         if heard_instead:
             raise language_mismatch_error(
-                span, language, f"{reason}; auto-detected probe clips of it are {heard_instead}")
+                span, language, f"{reason}; the probe clips sound like {heard_instead}")
     rprint(f"[yellow]⚠️ Qwen3-ASR output for {span} looks degenerate ({reason}); "
            f"retrying in {RETRY_WINDOW_SECONDS} s windows...[/yellow]")
     pieces = []
@@ -647,12 +652,20 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     with asr_session(engine, models[size]) as run:
         plan = [(forced, None)] * len(windows) if forced else plan_languages(run, raw, windows)
         for (a, b), (language, probes) in zip(windows, plan):
-            pieces.extend(transcribe_window(run, raw, a, b, language, probes, start, forced=bool(forced)))
+            window = transcribe_window(run, raw, a, b, language, probes, start, forced=bool(forced))
+            if forced:
+                # Text only, no inference: a clearly wrong language fails on its first window.
+                mismatch = script_mismatch(" ".join(text for *_, text in window), configured, **WINDOW_SCRIPT_LIMITS)
+                if mismatch:
+                    raise language_mismatch_error(
+                        f"{start + a / SAMPLE_RATE:.1f}-{start + b / SAMPLE_RATE:.1f}s", forced, mismatch)
+            pieces.extend(window)
     rprint(f"[cyan]⏱️ time transcribe:[/cyan] {time.time() - t0:.2f}s")
 
     if forced:
         # A wrong forced language often transcribes fine in the audio's own language (Korean
-        # forced to English stays Korean). Checked on the text only, no extra inference.
+        # forced to English stays Korean). Checked on the text only, no extra inference; the
+        # whole segment is checked with the looser limits after the per-window checks above.
         mismatch = script_mismatch(" ".join(text for *_, text in pieces), configured)
         if mismatch:
             raise language_mismatch_error(f"{start:.1f}-{end:.1f}s", forced, mismatch)
