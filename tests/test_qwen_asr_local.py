@@ -220,9 +220,10 @@ def pipeline(monkeypatch):
     def session(engine, repo_id):
         state["calls"]["session"] = (engine, repo_id)
 
-        def run(clip, language):
+        def run(clip, language, max_tokens=None):
             begin = round(float(clip[0]) - RAW_BASE, 2)
             state["calls"]["asr"].append((begin, len(clip) / SR, language))
+            state["calls"].setdefault("tokens", []).append((language, len(clip) / SR, max_tokens))
             return state["asr"](begin, begin + len(clip) / SR, language)
         yield run
 
@@ -583,8 +584,8 @@ def test_torch_device_and_dtype(monkeypatch, cuda, bf16, expected):
 # ------------------------------------------------------------------
 
 def test_token_budget_scales_with_clip_length():
-    assert qwen.token_budget(20) <= 256                            # a looping 20 s probe stops early
-    assert qwen.token_budget(180) <= qwen.MAX_NEW_TOKENS == 2048   # full windows keep the old cap
+    assert qwen.probe_token_budget(20) <= 256                      # a looping 20 s probe stops early
+    assert 2048 < qwen.token_budget(180) <= qwen.MAX_NEW_TOKENS   # at least the old flat cap for a full window
     assert qwen.token_budget(3000) == qwen.MAX_NEW_TOKENS
     # Enough for very fast speech: ~8 chars/s Chinese is ~6 tokens/s, plus the language prefix.
     for seconds in (0.1, 5, 20, 60, 180):
@@ -651,3 +652,15 @@ def test_auto_all_probes_unusable_fails_instead_of_guessing(pipeline):
         else pytest.fail("must not transcribe without a language")
     with pytest.raises(ValueError, match="could not determine the language: every probe clip looped"):
         qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+
+
+def test_probe_budget_is_tighter_but_does_not_cut_normal_probes(pipeline):
+    assert qwen.probe_token_budget(20) <= 128 < qwen.token_budget(20)
+    # A normal 20 s Chinese probe (~190 chars on the Mini) needs ~100-140 tokens; English ~70 words ~90.
+    assert qwen.probe_token_budget(20) >= 100
+    pipeline["language"] = "auto"
+    pipeline["asr"] = code_switched
+    qwen.transcribe_audio("raw.wav", "raw.wav", 0, 200)
+    budgets = pipeline["calls"]["tokens"]
+    assert {tokens for language, _, tokens in budgets if language is None} == {qwen.probe_token_budget(20)}
+    assert all(tokens is None for language, _, tokens in budgets if language is not None)  # windows: default budget

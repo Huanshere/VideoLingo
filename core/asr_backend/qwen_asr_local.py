@@ -33,13 +33,19 @@ SAMPLE_RATE = 16000
 WINDOW_SECONDS = 180
 # Cut each window at the quietest 100 ms inside its last 30 s.
 CUT_SEARCH_SECONDS = 30
-MAX_NEW_TOKENS = 2048
-# Token budget by clip length, so a looping clip stops early instead of generating up to
-# MAX_NEW_TOKENS (a 20 s probe that looped took 11 s instead of ~3 s on an M4). Qwen's
-# tokenizer needs ~5-8 tokens per second even for fast Chinese/Japanese speech; 11/s plus
-# a margin for the language prefix leaves room without truncating real speech.
-TOKENS_PER_SECOND = 11
+MAX_NEW_TOKENS = 2400
+# Token budget by clip length, so a looping clip stops early instead of generating a fixed
+# maximum. Transcripts: the fastest Chinese/Japanese speech (~8 chars/s, most common
+# characters one token, plus punctuation) needs ~6-8 tokens/s, English far less; 13/s is
+# 1.6x that, and a 180 s window gets 2372 tokens (the old flat cap was 2048).
+TOKENS_PER_SECOND = 13
 TOKEN_MARGIN = 32
+# Probes only decide the language and give a size reference, so they get a tighter budget:
+# 20 s -> 116 tokens (~100-150 CJK chars or ~90 English words). A cut probe only lowers the
+# reference used by the checks below, which makes them more lenient, never stricter.
+# A looping 20 s probe took 11.1 s at 2048 tokens and 5.7 s at 252 on an M4 (~2.8 s normal).
+PROBE_TOKENS_PER_SECOND = 5
+PROBE_TOKEN_MARGIN = 16
 # Shorter windows are dropped; MLX would otherwise zero-pad anything under its 1 s default.
 MIN_WINDOW_SECONDS = 0.1
 
@@ -277,11 +283,15 @@ def token_budget(seconds):
     return min(MAX_NEW_TOKENS, TOKEN_MARGIN + math.ceil(seconds * TOKENS_PER_SECOND))
 
 
+def probe_token_budget(seconds):
+    return min(token_budget(seconds), PROBE_TOKEN_MARGIN + math.ceil(seconds * PROBE_TOKENS_PER_SECOND))
+
+
 def probe_window(run, raw, a, b, seconds=PROBE_SECONDS, count=PROBES_PER_WINDOW):
     """Auto-language probe clips of raw[a:b] -> ([(language, text)] usable for voting, rejected count)."""
     probes, rejected = [], 0
     for pa, pb in probe_ranges(b - a, probe_seconds=seconds, count=count):
-        lang, text = run(raw[a + pa:a + pb], None)
+        lang, text = run(raw[a + pa:a + pb], None, probe_token_budget((pb - pa) / SAMPLE_RATE))
         name = primary_language(lang)
         if not text:
             continue
@@ -452,7 +462,7 @@ def _torch_device():
 
 @contextmanager
 def asr_session(engine, repo_id):
-    """Load Qwen3-ASR once and yield run(clip, qwen_language or None) -> (language, text)."""
+    """Load Qwen3-ASR once and yield run(clip, qwen_language or None, max_tokens=None) -> (language, text)."""
     source = _model_source(repo_id)
     model = None
     try:
@@ -460,9 +470,10 @@ def asr_session(engine, repo_id):
             from mlx_audio.stt.utils import load_model
             model = load_model(source)
 
-            def run(clip, language):
+            def run(clip, language, max_tokens=None):
                 check_cancel()
-                out = model.generate(clip, language=language, max_tokens=token_budget(len(clip) / SAMPLE_RATE),
+                out = model.generate(clip, language=language,
+                                     max_tokens=max_tokens or token_budget(len(clip) / SAMPLE_RATE),
                                      chunk_duration=WINDOW_SECONDS + 1, min_chunk_duration=MIN_WINDOW_SECONDS)
                 detected = language or ",".join(dict.fromkeys(l for l in (out.language or []) if l))
                 return detected, out.text.strip()
@@ -473,10 +484,10 @@ def asr_session(engine, repo_id):
             model = Qwen3ASRModel.from_pretrained(source, dtype=dtype, device_map=device,
                                                   max_inference_batch_size=1, max_new_tokens=MAX_NEW_TOKENS)
 
-            def run(clip, language):
+            def run(clip, language, max_tokens=None):
                 check_cancel()
                 # qwen-asr reads this attribute for every generate() call.
-                model.max_new_tokens = token_budget(len(clip) / SAMPLE_RATE)
+                model.max_new_tokens = max_tokens or token_budget(len(clip) / SAMPLE_RATE)
                 out = model.transcribe(audio=(clip, SAMPLE_RATE), language=language)[0]
                 return language or out.language, out.text.strip()
         yield run

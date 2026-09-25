@@ -94,7 +94,7 @@ class LocalBackendTests(unittest.TestCase):
 
         @contextlib.contextmanager
         def session(engine, repo_id):
-            yield lambda clip, language: (("Chinese,English", "我们今天开一个meeting然后presentation要准备好客户那边说要double check一下细节" * 2)
+            yield lambda clip, language, max_tokens=None: (("Chinese,English", "我们今天开一个meeting然后presentation要准备好客户那边说要double check一下细节" * 2)
                                           if language is None else (language, "Yeah, yeah, yeah."))
         keys = {"whisper.language": "en", "model_dir": "_model_cache"}
         with patch.object(qwen_asr_local, "asr_session", session), patch.object(
