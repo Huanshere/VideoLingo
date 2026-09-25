@@ -28,8 +28,10 @@ docker build --build-arg CUDA_VERSION=12.6.3 -t videolingo:cu126 .
 其他 CUDA_VERSION 值会被拒绝。
 
 两个方案均采用 Torch/torchaudio 2.8.0、torchvision 0.23.0 和相同的
-`requirements.txt` 约束，包括 WhisperX 3.8、TorchCodec 0.7、Transformers 4、
-Hub <1。Demucs 4.1 使用正常依赖解析。Ubuntu 提供 FFmpeg 及共享库、Noto CJK
+`requirements.txt` 约束。镜像是 Linux，本地识别默认使用 Qwen3-ASR + ForcedAligner，
+通过官方 qwen-asr 包（Transformers 4.57、Hub <1）在 CUDA 上运行。镜像内不安装
+WhisperX；如需使用，按 [WhisperX（可选）](whisperx-optional.zh-CN.md) 追加安装
+（例如在派生镜像中）。Demucs 4.1 使用正常依赖解析。Ubuntu 提供 FFmpeg 及共享库、Noto CJK
 字体和图像运行库。
 
 ## 启动并保留数据
@@ -43,7 +45,8 @@ docker run -d --name videolingo --gpus all -p 127.0.0.1:8501:8501 -v videolingo-
 挂载前文件必须存在，侧栏修改配置需要写权限。使用 cu126 时，将镜像名替换为
 `videolingo:cu126`。
 
-模型在处理时按需下载，不包含在构建镜像内。执行 `docker stop videolingo` 停止。
+模型（Qwen3-ASR 1.7B/0.6B 与 ForcedAligner，共数 GB）在首次识别时下载到
+Hugging Face 缓存卷，不包含在构建镜像内。执行 `docker stop videolingo` 停止。
 上述端口仅监听本机，远程访问需要明确配置监听地址及访问控制。
 
 ## 验证范围

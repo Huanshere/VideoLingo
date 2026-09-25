@@ -17,7 +17,7 @@ VideoLingo réunit reconnaissance vocale, traduction, segmentation des sous-titr
 Fonctionnalités principales :
 - 🎥 Téléchargement de vidéos YouTube via yt-dlp
 
-- Reconnaissance vocale et alignement au niveau des mots avec WhisperX
+- Reconnaissance vocale et alignement au niveau des mots avec Qwen3-ASR + Qwen3-ForcedAligner (WhisperX en option)
 
 - **📝 Segmentation des sous-titres basée sur le NLP et l'IA**
 
@@ -75,7 +75,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 Anglais 🤩 | 🇷🇺 Russe 😊 | 🇫🇷 Français 🤩 | 🇩🇪 Allemand 🤩 | 🇮🇹 Italien 🤩 | 🇪🇸 Espagnol 🤩 | 🇯🇵 Japonais 😐 | 🇨🇳 Chinois* 😊
 
-> *Pour la reconnaissance locale du chinois, sélectionnez explicitement le chinois afin d'utiliser le modèle Belle Whisper avec ponctuation améliorée.
+> *La reconnaissance locale utilise Qwen3-ASR (1.7B par défaut, 0.6B au choix). La solution de repli optionnelle WhisperX utilise le modèle Belle Whisper avec ponctuation améliorée lorsque le chinois est sélectionné.
 
 Les langues de traduction dépendent du LLM choisi ; celles du doublage dépendent du service TTS.
 
@@ -85,7 +85,7 @@ Vous rencontrez un problème ? Discutez avec notre agent IA gratuit en ligne [**
 
 Installez [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) et [FFmpeg](https://ffmpeg.org/download.html). Rouvrez le terminal, puis vérifiez `git --version`, `uv --version` et `ffmpeg -version`.
 
-Pour NVIDIA, installez un pilote compatible avec votre GPU. L'installateur choisit PyTorch `cu128` si `nvidia-smi` indique CUDA >=12.8, sinon `cu126`; sans NVIDIA, il choisit les paquets CPU. Il sélectionne des paquets Python, pas le CUDA Toolkit système. WhisperX sur GPU nécessite aussi les bibliothèques CUDA 12 cuBLAS et cuDNN 9 accessibles au processus : voir les [prérequis GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
+Pour NVIDIA, installez un pilote compatible avec votre GPU. L'installateur choisit PyTorch `cu128` si `nvidia-smi` indique CUDA >=12.8, sinon `cu126`; sans NVIDIA, il choisit les paquets CPU. Il sélectionne des paquets Python, pas le CUDA Toolkit système. Sur Apple Silicon (macOS 14+), la reconnaissance locale utilise MLX. Voir les [prérequis GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Note :** FFmpeg est requis. Veuillez l'installer via les gestionnaires de paquets :
 > - Windows : choisissez une version avec **bibliothèques partagées** parmi les compilations Windows de la [page FFmpeg](https://ffmpeg.org/download.html), puis ajoutez son dossier `bin` au PATH.
@@ -94,7 +94,7 @@ Pour NVIDIA, installez un pilote compatible avec votre GPU. L'installateur chois
 
 ### Installation avec uv
 
-uv télécharge Python 3.13 et crée un environnement `.venv` isolé, sans Python préinstallé. L'application prend en charge Python 3.10–3.13. Utilisez les **bibliothèques partagées FFmpeg 7** avec TorchCodec 0.7 ; FFmpeg 8/9 seul est incompatible. Voir la [compilation Windows vérifiée](../docs/pages/docs/start.en-US.md#ffmpeg-runtime).
+uv télécharge Python 3.13 et crée un environnement `.venv` isolé, sans Python préinstallé. L'application prend en charge Python 3.10–3.13. La reconnaissance Qwen3-ASR par défaut n'utilise que l'outil en ligne de commande FFmpeg. La solution de repli optionnelle WhisperX n'est pas installée par défaut et nécessite les bibliothèques partagées FFmpeg 7 ; voir [WhisperX (optionnel)](../docs/pages/docs/whisperx-optional.en-US.md).
 
 1. Clonez le depot
 
@@ -129,7 +129,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo prend en charge le format d'API OpenAI et diverses interfaces TTS :
 - LLM : choisissez un fournisseur compatible avec OpenAI Chat Completions et un modèle capable de produire le JSON structuré requis. Configurez l'URL API, la clé et le modèle dans la barre latérale.
-- Reconnaissance vocale : WhisperX en local ou l'API ElevenLabs.
+- Reconnaissance vocale : Qwen3-ASR + ForcedAligner en local (par défaut), la [solution de repli optionnelle WhisperX](../docs/pages/docs/whisperx-optional.en-US.md) ou l'API ElevenLabs.
 - TTS : Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS et adaptateur personnalisé dans `core/tts_backend/custom_tts.py`.
 
 Pour des instructions détaillées sur l'installation, la configuration de l'API et le mode batch, veuillez consulter la documentation : [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
@@ -142,7 +142,7 @@ Pour des instructions détaillées sur l'installation, la configuration de l'API
 
 3. La qualité et le timing du doublage dépendent de la traduction, du service TTS et du débit. L'ajustement de vitesse ne garantit ni naturel ni synchronisation parfaite.
 
-4. WhisperX local utilise une langue de reconnaissance et d'alignement par segment. Pour un discours multilingue, le texte et les horodatages ne sont pas garantis dans toutes les langues.
+4. La reconnaissance locale utilise une langue principale de reconnaissance et d'alignement par segment audio. Pour un discours multilingue, le texte et les horodatages ne sont pas garantis dans toutes les langues.
 
 5. Le doublage n'attribue pas automatiquement une voix différente à chaque locuteur.
 
@@ -150,7 +150,7 @@ Pour des instructions détaillées sur l'installation, la configuration de l'API
 
 Ce projet est sous licence Apache 2.0. Remerciements spéciaux aux projets open source suivants pour leurs contributions :
 
-[whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
+[Qwen3-ASR](https://github.com/Qwen/Qwen3-ASR), [MLX Audio](https://github.com/Blaizzy/mlx-audio), [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
 
 ## 📬 Contactez-moi
 

@@ -5,6 +5,9 @@
     "start": {
       "title": "Start"
     },
+    "whisperx-optional": {
+      "title": "WhisperX (optional)"
+    },
     "tech": {
       "title": "Tech"
     },

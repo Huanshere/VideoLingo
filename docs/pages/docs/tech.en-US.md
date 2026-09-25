@@ -21,9 +21,10 @@ The following outlines the core technical modules and workflows:
 
 *   `core/asr_backend/demucs_vl.py`: Employs the Demucs model (`htdemucs`) to separate audio into vocal and background tracks, improving the quality of subsequent ASR.
 *   `core/asr_backend/audio_preprocess.py`: Contains fundamental functions for preparing audio: volume normalization (`pydub`), video-to-audio conversion (`ffmpeg`), silence detection (`ffmpeg`), audio duration calculation (`ffmpeg`), splitting long audio files into manageable segments, processing ASR results into DataFrames, saving results, and storing detected languages.
-*   `core/asr_backend/whisperX_local.py`: Implements local audio transcription using the WhisperX library. Optimizes performance based on available hardware (GPU/CPU), handles model downloads (with mirror checking), performs transcription and alignment, adjusts timestamps, and manages GPU memory.
+*   `core/asr_backend/qwen_asr_local.py`: Default local ASR. Transcribes the raw audio with Qwen3-ASR (1.7B/0.6B) and aligns the text against the vocal track with Qwen3-ForcedAligner-0.6B, in windows of at most 180 s cut at low-energy points. Picks MLX (mlx-audio, 8-bit) on Apple Silicon and the official qwen-asr transformers backend elsewhere, re-attaches punctuation that the aligner strips, and returns the same segment/word structure as WhisperX.
+*   `core/asr_backend/whisperX_local.py`: Optional fallback (`whisper.backend: whisperx`, not installed by default). Implements local audio transcription using the WhisperX library. Optimizes performance based on available hardware (GPU/CPU), handles model downloads (with mirror checking), performs transcription and alignment, adjusts timestamps, and manages GPU memory.
 *   `core/asr_backend/elevenlabs_asr.py`: Implements audio transcription using the ElevenLabs Speech to Text API, handling audio slicing, API interaction, format conversion (ElevenLabs to Whisper-like format), and temporary file management.
-*   `core/_2_asr.py`: Orchestrates audio preparation, optional vocal separation, recognition with local WhisperX or ElevenLabs, and result export.
+*   `core/_2_asr.py`: Orchestrates audio preparation, optional vocal separation, recognition with local Qwen3-ASR (default), the optional local WhisperX fallback or ElevenLabs, content-addressed result caching, and result export.
 
 **4. Text Processing and Translation Module (`core`, `core/spacy_utils`):**
 

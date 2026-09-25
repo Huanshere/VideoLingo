@@ -7,7 +7,7 @@ VideoLingo is an all-in-one video translation, localization, and dubbing tool ai
 Key features:
 - 🎥 YouTube video download via yt-dlp
 
-- **🎙️ Word-level subtitle recognition with WhisperX**
+- **🎙️ Word-level subtitle recognition with Qwen3-ASR + ForcedAligner (WhisperX optional)**
 
 - **📝 NLP and GPT-based subtitle segmentation**
 
@@ -52,13 +52,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 English 🤩 | 🇷🇺 Russian 😊 | 🇫🇷 French 🤩 | 🇩🇪 German 🤩 | 🇮🇹 Italian 🤩 | 🇪🇸 Spanish 🤩 | 🇯🇵 Japanese 😐 | 🇨🇳 Chinese* 😊
 
-> *Chinese uses a separate punctuation-enhanced whisper model, for now...
+> *Local recognition uses Qwen3-ASR (1.7B by default, 0.6B selectable). The optional WhisperX fallback uses a punctuation-enhanced Belle Whisper model for Chinese.
 
 **Translation supports all languages, while dubbing language depends on the chosen TTS method.**
 
 ## Installation
 
-Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html) first. Reopen your terminal and verify they are on PATH. For FFmpeg shared libraries and NVIDIA runtime requirements, follow the [installation guide](start.en-US.md#gpu-runtime).
+Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html) first. Reopen your terminal and verify they are on PATH. For NVIDIA runtime requirements, follow the [installation guide](start.en-US.md#gpu-runtime). WhisperX is optional and not installed by default; see [WhisperX (optional)](whisperx-optional.en-US.md).
 
 1. Clone the repository
 
@@ -97,21 +97,21 @@ For detailed installation, API configuration, and batch mode instructions, pleas
 
 ## Current Limitations
 
-1. WhisperX transcription performance may be affected by video background noise, as it uses wav2vac model for alignment. For videos with loud background music, please enable Voice Separation Enhancement. Additionally, subtitles ending with numbers or special characters may be truncated early due to wav2vac's inability to map numeric characters (e.g., "1") to their spoken form ("one").
+1. Transcription and word timestamps may be affected by background noise. For videos with loud background music, enable Voice Separation Enhancement: Qwen3-ASR still transcribes the original audio, while the ForcedAligner aligns against the separated vocals. Punctuation is re-attached to aligned words heuristically; in rare cases a word may lose its punctuation.
 
 2. Using weaker models can lead to errors during intermediate processes due to strict JSON format requirements for responses. If this error occurs, please delete the `output` folder and retry with a different LLM, otherwise repeated execution will read the previous erroneous response causing the same error.
 
 3. The dubbing feature may not be 100% perfect due to differences in speech rates and intonation between languages, as well as the impact of the translation step. However, this project has implemented extensive engineering processing for speech rates to ensure the best possible dubbing results.
 
-4. **Multilingual video transcription recognition will only retain the main language**. This is because whisperX uses a specialized model for a single language when forcibly aligning word-level subtitles, and will delete unrecognized languages.
+4. **Multilingual video transcription recognition is only reliable for the main language**. Alignment runs with one language per audio window, so text and timing in other languages are not guaranteed.
 
-5. **Cannot dub multiple characters separately**, as whisperX's speaker distinction capability is not sufficiently reliable.
+5. **Cannot dub multiple characters separately**; recognition does not distinguish speakers.
 
 ## 📄 License
 
 This project is licensed under the Apache 2.0 License. Special thanks to the following open source projects for their contributions:
 
-[whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
+[Qwen3-ASR](https://github.com/Qwen/Qwen3-ASR), [MLX Audio](https://github.com/Blaizzy/mlx-audio), [whisperX](https://github.com/m-bain/whisperX), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [json_repair](https://github.com/mangiucugna/json_repair), [BELLE](https://github.com/LianjiaTech/BELLE)
 
 ## 📬 Contact Us
 
