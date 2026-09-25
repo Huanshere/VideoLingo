@@ -90,7 +90,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 使用 NVIDIA 加速时，需要安装与显卡兼容的驱动。主机安装器根据 `nvidia-smi` 报告的 CUDA 支持版本选择 PyTorch：>=12.8 使用 `cu128`，否则使用 `cu126`；没有 NVIDIA 时使用 CPU 包。这是在选择 Python 包，不会自动安装系统 CUDA Toolkit。在 Apple Silicon（macOS 14+）上，本地识别改用 MLX。详见 [GPU 运行库要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
 > **注意:** FFmpeg 是必需的，请通过包管理器安装：
-> - Windows：从 [FFmpeg 下载页](https://ffmpeg.org/download.html)列出的 Windows 构建中选择**共享库版**，将其 `bin` 目录加入 PATH。
+> - Windows：从 [FFmpeg 下载页](https://ffmpeg.org/download.html)列出的 Windows 构建中任选一个，将其 `bin` 目录加入 PATH。只有可选的 WhisperX 备选方案才需要共享库版。
 > - macOS：```brew install ffmpeg```（通过 [Homebrew](https://brew.sh/)）
 > - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 

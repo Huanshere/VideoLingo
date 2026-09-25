@@ -88,7 +88,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 NVIDIA を使用する場合は、GPU に対応するドライバーが必要です。インストーラーは `nvidia-smi` が CUDA >=12.8 を示す場合に PyTorch `cu128`、それ以外は `cu126` を選択し、NVIDIA がなければ CPU パッケージを選択します。これは Python パッケージの選択であり、システムの CUDA Toolkit は自動インストールしません。Apple Silicon（macOS 14+）では、ローカル認識に MLX を使用します。[GPU 要件](../docs/pages/docs/start.en-US.md#gpu-runtime)を参照してください。
 
 > **注意：** FFmpegが必要です。パッケージマネージャーを使用してインストールしてください：
-> - Windows: [FFmpeg ダウンロードページ](https://ffmpeg.org/download.html)の Windows ビルドから**共有ライブラリ版**を選び、`bin` ディレクトリを PATH に追加します。
+> - Windows: [FFmpeg ダウンロードページ](https://ffmpeg.org/download.html)の Windows ビルドからいずれかを選び、`bin` ディレクトリを PATH に追加します。共有ライブラリ版はオプションの WhisperX フォールバックを使う場合のみ必要です。
 > - macOS: ```brew install ffmpeg``` ([Homebrew](https://brew.sh/)経由)
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 

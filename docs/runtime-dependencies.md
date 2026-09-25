@@ -21,7 +21,11 @@ Use `python installer.py --upgrade` (inside the environment) or
 ranges. Normal startup checks do not unconditionally upgrade dependencies.
 `OneKeyStart.bat --check-only` reports health without repairing or launching the app.
 
-### Why the GPU stack remains matched
+### Why the GPU stack remains matched (#599; WhisperX only)
+
+This section records the #599 policy for the WhisperX stack. Since BUILDER-305 it
+applies only when the optional WhisperX fallback is installed on Windows/Linux; the
+default Qwen3-ASR stack uses Transformers 5 on Apple Silicon (see below).
 
 WhisperX 3.8.6 requires Torch/torchaudio 2.8, torchvision 0.23, TorchCodec 0.6-0.7
 and huggingface-hub below 1. Transformers 5 requires hub 1 or newer. Consequently,
@@ -29,8 +33,8 @@ this refresh retains Transformers 4 and the matched Torch stack rather than
 forcing incompatible latest releases.
 
 The installer selects CUDA 12.8 wheels on drivers supporting CUDA 12.8 or newer,
-including CUDA 13-capable drivers, and CUDA 12.6 otherwise. CTranslate2's Windows
-build needs CUDA 12 cuBLAS. Drivers can be newer than the runtime used by the app.
+including CUDA 13-capable drivers, and CUDA 12.6 otherwise. With WhisperX installed,
+CTranslate2's Windows build also needs CUDA 12 cuBLAS. Drivers can be newer than the runtime used by the app.
 CPU wheels are explicitly selected on non-NVIDIA Windows/Linux systems.
 FFmpeg must be installed separately. The pinned TorchCodec 0.7 build needs
 FFmpeg 4–7 shared libraries; FFmpeg 8/9 are not supported. On Windows use the
@@ -45,7 +49,13 @@ install/check time because package metadata can pass while decoding fails.
 | Platform | Packages | Transformers / Hub |
 | --- | --- | --- |
 | Apple Silicon (`darwin` + `arm64`) | `mlx-audio>=0.5.5,<0.6`, plus `nagisa==0.2.11` and `soynlp==0.0.493` | `transformers>=5.14,<6`, `huggingface-hub>=1,<2` |
-| Everything else (Windows, Linux, Intel Mac) | `qwen-asr==0.0.6` | `transformers>=4.57.6,<5`, `huggingface-hub>=0.36.2,<1` |
+| Windows and Linux | `qwen-asr==0.0.6` | `transformers>=4.57.6,<5`, `huggingface-hub>=0.36.2,<1` |
+
+The non-Apple-Silicon marker also matches Intel Macs, but PyTorch 2.8 has no macOS
+x86_64 wheels, so `installer.py` stops there before running pip. It also stops on
+Apple Silicon below macOS 14, where mlx has no wheels. On Apple Silicon the
+installer uninstalls an existing whisperx/torchcodec before syncing requirements,
+because WhisperX 3.8's `huggingface-hub<1` conflicts with mlx-audio's `>=1`.
 
 Why the split: every mlx-audio release that includes Qwen3-ASR requires
 Transformers 5, and 0.4.2+ also requires huggingface-hub 1. qwen-asr 0.0.6 pins

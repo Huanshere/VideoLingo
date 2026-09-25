@@ -88,7 +88,7 @@ Instala [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/get
 Para NVIDIA, instala un controlador compatible con tu GPU. El instalador selecciona PyTorch `cu128` si `nvidia-smi` indica CUDA >=12.8, y `cu126` en caso contrario; sin NVIDIA, selecciona paquetes CPU. Selecciona paquetes Python, no instala el CUDA Toolkit del sistema. En Apple Silicon (macOS 14+), el reconocimiento local usa MLX. Consulta los [requisitos GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Nota:** Se requiere FFmpeg. Por favor, instálalo a través de gestores de paquetes:
-> - Windows: elige una compilación con **bibliotecas compartidas** desde la [página de FFmpeg](https://ffmpeg.org/download.html) y añade su directorio `bin` al PATH.
+> - Windows: elige cualquier compilación de Windows de la [página de FFmpeg](https://ffmpeg.org/download.html) y añade su directorio `bin` al PATH. Las bibliotecas compartidas solo son necesarias para la alternativa opcional WhisperX.
 > - macOS: ```brew install ffmpeg``` (vía [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 

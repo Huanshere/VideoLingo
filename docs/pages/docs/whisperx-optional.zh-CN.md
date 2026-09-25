@@ -24,7 +24,7 @@ VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，
 
 这 4 个包的版本约束与 3.0.4 版本中 `requirements.txt` 的约束相同。WhisperX 3.8 需要 Torch/torchaudio 2.8、torchvision 0.23 和 Transformers 4，与默认环境一致，因此不需要改动已装的 PyTorch。
 
-安装后执行 `python installer.py --check`。只要环境里装了 whisperx，检查就会额外探测 TorchCodec 能否加载 FFmpeg 共享库；没有装 whisperx 时跳过这一项。以后重跑 `installer.py` 或 `--upgrade` 不会卸载 WhisperX，但如果检查报错，重新执行上面的安装命令即可。
+安装后执行 `python installer.py --check`。只要环境里装了 whisperx，检查就会额外探测 TorchCodec 能否加载 FFmpeg 共享库；没有装 whisperx 时跳过这一项。在 Windows / Linux 上，以后重跑 `installer.py` 或 `--upgrade` 不会卸载 WhisperX，如果检查报错，重新执行上面的安装命令即可。在 Apple Silicon 上，重跑 `installer.py` 会主动卸载默认环境里的 whisperx 和 torchcodec，见下文。
 
 ## 启用
 
@@ -63,7 +63,7 @@ Windows 上已实际下载并完成音频解码验证的构建为
 
 在 Apple Silicon 上，默认依赖会安装 mlx-audio（要求 Transformers 5、`huggingface-hub>=1`），而 WhisperX 3.8.6 要求 `huggingface-hub<1`，两者不能装在同一个环境里。`uv` 只有选中预发布版 whisperx 3.8.7rc1 才能解出依赖，该组合未经验证，不建议使用。
 
-如需在 Mac 上使用 WhisperX，请为它另建一个独立的虚拟环境，不要在默认环境里执行上面的安装命令。本仓库不提供这个独立环境的安装脚本，相关组合也没有经过验证。
+如需在 Mac 上使用 WhisperX，请为它另建一个独立的虚拟环境，不要在默认环境里执行上面的安装命令。本仓库不提供这个独立环境的安装脚本，相关组合也没有经过验证。如果默认环境里已经装了 whisperx（例如从旧版本升级），重跑 `installer.py` 时会先卸载 whisperx 和 torchcodec，`installer.py --check` 也会把两者共存判为错误。
 
 <a id="common-errors"></a>
 ## 常见报错

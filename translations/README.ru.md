@@ -88,7 +88,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 Для NVIDIA нужен совместимый с GPU драйвер. Установщик выбирает PyTorch `cu128`, если `nvidia-smi` сообщает CUDA >=12.8, иначе `cu126`; без NVIDIA используются пакеты CPU. Это выбор пакетов Python, а не установка системного CUDA Toolkit. На Apple Silicon (macOS 14+) локальное распознавание использует MLX. См. [требования GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Примечание:** Требуется FFmpeg. Установите его через менеджеры пакетов:
-> - Windows: выберите сборку с **разделяемыми библиотеками** на [странице FFmpeg](https://ffmpeg.org/download.html) и добавьте её каталог `bin` в PATH.
+> - Windows: выберите любую сборку для Windows на [странице FFmpeg](https://ffmpeg.org/download.html) и добавьте её каталог `bin` в PATH. Разделяемые библиотеки нужны только для опционального резервного WhisperX.
 > - macOS: ```brew install ffmpeg``` (через [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
