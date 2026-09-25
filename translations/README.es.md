@@ -130,7 +130,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 VideoLingo admite formato de API similar a OpenAI y varias interfaces TTS:
 - LLM: elige un proveedor compatible con OpenAI Chat Completions y un modelo capaz de devolver el JSON estructurado requerido. Configura la URL API, la clave y el modelo en la barra lateral.
 - Reconocimiento de voz: WhisperX local o la API ElevenLabs.
-- TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS y un adaptador personalizado en `core/tts_backend/custom_tts.py`.
+- TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS, ModelBest VoxCPM y un adaptador personalizado en `core/tts_backend/custom_tts.py`.
 
 Para instrucciones detalladas de instalación, configuración de API y modo por lotes, consulta la documentación: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 

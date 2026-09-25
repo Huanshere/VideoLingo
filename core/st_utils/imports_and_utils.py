@@ -31,19 +31,21 @@ _GIVE_STAR_BUTTON_TEMPLATE = """
     .github-button {
         display: block;
         width: 100%;
-        padding: 0.5em 1em;
-        color: #144070;
-        background-color: #d0e0f2;
+        padding: 0.45rem 0.75rem;
+        color: var(--text-color);
+        background-color: transparent;
+        border: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
         border-radius: 6px;
         text-decoration: none;
-        font-weight: bold;
+        font-size: 0.875rem;
+        font-weight: 600;
         text-align: center;
-        transition: background-color 0.3s ease, color 0.3s ease;
+        transition: border-color 0.15s ease, background-color 0.15s ease;
         box-sizing: border-box;
     }
     .github-button:hover {
-        background-color: #ffffff;
-        color: #144070;
+        background-color: var(--secondary-background-color);
+        border-color: color-mix(in srgb, var(--text-color) 32%, transparent);
     }
 </style>
 <a href="https://github.com/Huanshere/VideoLingo" target="_blank" style="text-decoration: none;">

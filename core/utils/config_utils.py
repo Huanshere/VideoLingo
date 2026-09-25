@@ -55,6 +55,26 @@ def update_key(key, new_value):
             return True
         else:
             raise KeyError(f"Key '{keys[-1]}' not found in configuration")
+
+def set_key(key, new_value):
+    """Write a key, creating missing mapping nodes for upgraded configs."""
+    with lock:
+        with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
+            data = yaml.load(file) or {}
+
+        keys = key.split('.')
+        current = data
+        for part in keys[:-1]:
+            child = current.get(part)
+            if not isinstance(child, dict):
+                child = {}
+                current[part] = child
+            current = child
+        current[keys[-1]] = new_value
+
+        with open(CONFIG_PATH, 'w', encoding='utf-8') as file:
+            yaml.dump(data, file)
+    return True
         
 # basic utils
 def get_source_language():

@@ -41,7 +41,7 @@ def _ffmpeg_has_encoder(encoder_name: str) -> bool:
 # dropped this to 16 kHz / 32 kbps. Whisper resamples to 16 kHz anyway, but every
 # other consumer inherits the extraction bandwidth: Demucs vocals, the per-line
 # reference clips for voice cloning (sf_fish_tts / sf_cosyvoice2 / gpt_sovits /
-# f5tts) and the timing analysis. See docs/audio-extract-quality.md.
+# f5tts / voxcpm) and the timing analysis. See docs/audio-extract-quality.md.
 RAW_AUDIO_SAMPLE_RATE = 32000
 RAW_AUDIO_BITRATE = '128k'
 

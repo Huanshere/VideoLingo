@@ -13,6 +13,7 @@ from core.tts_backend.sf_cosyvoice2 import cosyvoice_tts_for_videolingo
 from core.tts_backend.custom_tts import custom_tts
 from core.prompts import get_correct_text_prompt
 from core.tts_backend._302_f5tts import f5_tts_for_videolingo
+from core.tts_backend.voxcpm_tts import VoxCPMFatalError, voxcpm_tts_for_videolingo
 from core.utils import *
 
 def clean_text_for_tts(text):
@@ -42,7 +43,7 @@ def tts_main(text, save_as, number, task_df):
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            if attempt >= max_retries - 1:
+            if attempt >= max_retries - 1 and TTS_METHOD != 'voxcpm':
                 print("Asking GPT to correct text...")
                 correct_text = ask_gpt(get_correct_text_prompt(text),resp_type="json", log_title='tts_correct_text')
                 text = correct_text['text']
@@ -64,6 +65,8 @@ def tts_main(text, save_as, number, task_df):
                 cosyvoice_tts_for_videolingo(text, save_as, number, task_df)
             elif TTS_METHOD == 'f5tts':
                 f5_tts_for_videolingo(text, save_as, number, task_df)
+            elif TTS_METHOD == 'voxcpm':
+                voxcpm_tts_for_videolingo(text, save_as, number, task_df)
                 
             # Check generated audio duration
             duration = get_audio_duration(save_as)
@@ -79,6 +82,8 @@ def tts_main(text, save_as, number, task_df):
                     silence.export(save_as, format="wav")
                     return
                 print(f"Attempt {attempt + 1} failed, retrying...")
+        except VoxCPMFatalError:
+            raise
         except Exception as e:
             if attempt == max_retries - 1:
                 raise Exception(f"Failed to generate audio after {max_retries} attempts: {str(e)}")

@@ -29,11 +29,13 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
 | 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Authentic native | Limited official models | 🤩 | 😂 |
 | 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
+| 🗣️ ModelBest VoxCPM | ModelBest | Multilingual, transcript-guided voice cloning | Requires a paid cloud API | 🤩 | 🤩 |
 | Edge TTS | Online service | No separate API key in this adapter | Requires network access | — | — |
 | 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
 - For OpenAI TTS, Azure TTS, and Fish TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to all three services
+- For ModelBest VoxCPM, set an API key in the sidebar. The model ID defaults to the verified `VoxCPM2` and remains editable for other models with the `speech_synthesis` capability. ModelBest does not currently expose a VoxCPM voice catalog, so the adapter uses the required `default` protocol value. Choose **Default Voice** for text-only synthesis, **Voice Clone** to send `ref_audio`, or **High-fidelity Clone** to additionally send `prompt_audio` and `prompt_text`. Clone modes let you upload one reference clip in the sidebar and use it for the whole video; High-fidelity Clone also reveals a field for the exact transcript of that clip. Without an upload, VideoLingo keeps using the matching source segment and its recognized transcript automatically.
 > For a custom TTS adapter, edit `core/tts_backend/custom_tts.py`.
 
 <details>

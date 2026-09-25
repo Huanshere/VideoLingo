@@ -7,7 +7,6 @@ from core.utils.models import *
 import pandas as pd
 import soundfile as sf
 console = Console()
-from core.asr_backend.demucs_vl import demucs_audio
 from core.utils.models import *
 
 def time_to_samples(time_str, sr):
@@ -23,18 +22,43 @@ def extract_audio(audio_data, sr, start_time, end_time, out_file):
     end = time_to_samples(end_time, sr)
     sf.write(out_file, audio_data[start:end], sr)
 
-def extract_refer_audio_main():
-    demucs_audio() #!!! in case demucs not run
-    if os.path.exists(os.path.join(_AUDIO_SEGS_DIR, '1.wav')):
-        rprint(Panel("Audio segments already exist, skipping extraction", title="Info", border_style="blue"))
-        return
 
+def _reference_source_audio():
+    """Return the configured source track for voice-cloning references."""
+    if not load_key("demucs"):
+        source = _RAW_AUDIO_FILE
+    else:
+        source = _VOCAL_AUDIO_FILE
+        if not os.path.exists(source):
+            try:
+                from core.asr_backend.demucs_vl import demucs_audio
+            except ImportError as exc:
+                raise RuntimeError(
+                    "Demucs is enabled but not installed. Install Demucs or disable vocal separation."
+                ) from exc
+            demucs_audio()
+
+    if not os.path.exists(source):
+        raise FileNotFoundError(f"Reference source audio was not created: {source}")
+    return source
+
+def extract_refer_audio_main():
     # Create output directory
     os.makedirs(_AUDIO_REFERS_DIR, exist_ok=True)
-    
-    # Read task file and audio data
+
+    # Read the task list first so interrupted runs only skip when every
+    # reference clip required by the current workbook is already present.
     df = pd.read_excel(_8_1_AUDIO_TASK)
-    data, sr = sf.read(_VOCAL_AUDIO_FILE)
+    expected_references = [
+        os.path.join(_AUDIO_REFERS_DIR, f"{number}.wav")
+        for number in df['number'].tolist()
+    ]
+    if expected_references and all(os.path.exists(path) for path in expected_references):
+        rprint(Panel("Reference audio already exists, skipping extraction", title="Info", border_style="blue"))
+        return
+
+    # Use the raw track when vocal separation is disabled; Demucs stays optional.
+    data, sr = sf.read(_reference_source_audio())
     
     with Progress(
         SpinnerColumn(),
