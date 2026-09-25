@@ -13,6 +13,7 @@ Heavy libraries are imported lazily so this module imports without them.
 
 import gc
 import importlib.util
+import math
 import platform
 import re
 import subprocess
@@ -33,6 +34,12 @@ WINDOW_SECONDS = 180
 # Cut each window at the quietest 100 ms inside its last 30 s.
 CUT_SEARCH_SECONDS = 30
 MAX_NEW_TOKENS = 2048
+# Token budget by clip length, so a looping clip stops early instead of generating up to
+# MAX_NEW_TOKENS (a 20 s probe that looped took 11 s instead of ~3 s on an M4). Qwen's
+# tokenizer needs ~5-8 tokens per second even for fast Chinese/Japanese speech; 11/s plus
+# a margin for the language prefix leaves room without truncating real speech.
+TOKENS_PER_SECOND = 11
+TOKEN_MARGIN = 32
 # Shorter windows are dropped; MLX would otherwise zero-pad anything under its 1 s default.
 MIN_WINDOW_SECONDS = 0.1
 
@@ -256,6 +263,10 @@ def _vote(probes):
     return max(counts, key=lambda name: (counts[name], amount[name]))
 
 
+def token_budget(seconds):
+    return min(MAX_NEW_TOKENS, TOKEN_MARGIN + math.ceil(seconds * TOKENS_PER_SECOND))
+
+
 def plan_languages(run, raw, windows):
     """auto: [(language or None, [(language, probe text)])] per window from probe votes."""
     per_window = []
@@ -392,7 +403,7 @@ def asr_session(engine, repo_id):
 
             def run(clip, language):
                 check_cancel()
-                out = model.generate(clip, language=language, max_tokens=MAX_NEW_TOKENS,
+                out = model.generate(clip, language=language, max_tokens=token_budget(len(clip) / SAMPLE_RATE),
                                      chunk_duration=WINDOW_SECONDS + 1, min_chunk_duration=MIN_WINDOW_SECONDS)
                 detected = language or ",".join(dict.fromkeys(l for l in (out.language or []) if l))
                 return detected, out.text.strip()
@@ -405,6 +416,8 @@ def asr_session(engine, repo_id):
 
             def run(clip, language):
                 check_cancel()
+                # qwen-asr reads this attribute for every generate() call.
+                model.max_new_tokens = token_budget(len(clip) / SAMPLE_RATE)
                 out = model.transcribe(audio=(clip, SAMPLE_RATE), language=language)[0]
                 return language or out.language, out.text.strip()
         yield run

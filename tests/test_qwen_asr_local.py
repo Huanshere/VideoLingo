@@ -469,6 +469,7 @@ def engines(monkeypatch):
 
         def transcribe(self, audio, language=None):
             calls.setdefault("asr", []).append((audio[1], len(audio[0]), language))
+            calls.setdefault("asr_tokens", []).append(self.max_new_tokens)
             if calls.get("fail"):
                 raise RuntimeError("CUDA out of memory")
             return [SimpleNamespace(language="English", text=" Hello, world. ")]
@@ -519,6 +520,8 @@ def test_transformers_transcribe_call_convention(engines):
     assert kwargs == {"dtype": "bf16", "device_map": "cuda:0", "max_inference_batch_size": 1,
                       "max_new_tokens": qwen.MAX_NEW_TOKENS}
     assert engines["asr"] == [(SR, SR, None), (SR, SR // 10, None)]
+    # Budget by clip length (qwen-asr reads model.max_new_tokens on every generate).
+    assert engines["asr_tokens"] == [qwen.token_budget(1), qwen.token_budget(0.1)]
     # A forced language is passed through and reported as-is.
     assert qwen._transcribe("transformers", "r", CLIPS[:1], "Japanese") == [("Japanese", "Hello, world.")]
     engines["free"].assert_called_with("transformers")
@@ -530,7 +533,7 @@ def test_mlx_transcribe_call_convention(engines):
     source, length, kwargs = engines["mlx"][1]
     assert source == "src:mlx-community/Qwen3-ASR-0.6B-8bit" and length == SR // 10
     # Windows are <= 180 s and >= 0.1 s: one MLX chunk each, never zero-padded to 1 s.
-    assert kwargs == {"language": None, "max_tokens": qwen.MAX_NEW_TOKENS,
+    assert kwargs == {"language": None, "max_tokens": qwen.token_budget(0.1),
                       "chunk_duration": qwen.WINDOW_SECONDS + 1, "min_chunk_duration": qwen.MIN_WINDOW_SECONDS}
     assert qwen.MIN_WINDOW_SECONDS * SR <= SR // 10
 
@@ -573,3 +576,16 @@ def test_torch_device_and_dtype(monkeypatch, cuda, bf16, expected):
     fake.cuda = SimpleNamespace(is_available=lambda: cuda, is_bf16_supported=lambda: bf16)
     monkeypatch.setitem(sys.modules, "torch", fake)
     assert qwen._torch_device() == expected
+
+
+# ------------------------------------------------------------------
+# Token budget
+# ------------------------------------------------------------------
+
+def test_token_budget_scales_with_clip_length():
+    assert qwen.token_budget(20) <= 256                            # a looping 20 s probe stops early
+    assert qwen.token_budget(180) <= qwen.MAX_NEW_TOKENS == 2048   # full windows keep the old cap
+    assert qwen.token_budget(3000) == qwen.MAX_NEW_TOKENS
+    # Enough for very fast speech: ~8 chars/s Chinese is ~6 tokens/s, plus the language prefix.
+    for seconds in (0.1, 5, 20, 60, 180):
+        assert qwen.token_budget(seconds) >= 8 * seconds + 20
