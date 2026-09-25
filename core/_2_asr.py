@@ -4,6 +4,13 @@ from core._1_ytdlp import find_media_file
 from core.utils.models import *
 from core.asr_backend import transcription_cache as cache
 
+def local_backend(whisper):
+    """Local ASR backend: "qwen" (default) or the optional "whisperx" fallback."""
+    backend = str(whisper.get("backend", "qwen")).lower()
+    if backend not in ("qwen", "whisperx"):
+        raise ValueError(f"whisper.backend must be 'qwen' or 'whisperx', got {backend!r}")
+    return backend
+
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
     runtime = load_key("whisper.runtime")
@@ -11,8 +18,14 @@ def transcribe():
         raise ValueError("Select local or elevenlabs for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
     # 1. prepare audio
     media_file, media_type = find_media_file()
-    whisper = load_key("whisper")
+    whisper = dict(load_key("whisper"))
     demucs = load_key("demucs")
+    if runtime == "local":
+        whisper["backend"] = local_backend(whisper)
+        if whisper["backend"] == "qwen":
+            from core.asr_backend import qwen_asr_local
+            whisper["qwen_model"] = qwen_asr_local.model_size(whisper.get("qwen_model"))
+            whisper["qwen_engine"] = qwen_asr_local.resolve_engine(whisper.get("qwen_engine"))
     key = cache.cache_key(media_file, whisper, demucs) if whisper.get("cache", True) else None
     cached = cache.read_result(key, "complete") if key else None
     if media_type == "video":
@@ -42,9 +55,12 @@ def transcribe():
     # 4. Transcribe audio by clips
     all_results = []
     language = None
-    if runtime == "local":
+    if runtime == "local" and whisper["backend"] == "qwen":
+        from core.asr_backend.qwen_asr_local import transcribe_audio as ts
+        rprint(f"[cyan]🎤 Transcribing audio with local Qwen3-ASR {whisper['qwen_model']} + ForcedAligner...[/cyan]")
+    elif runtime == "local":
         from core.asr_backend.whisperX_local import transcribe_audio as ts
-        rprint("[cyan]🎤 Transcribing audio with local model...[/cyan]")
+        rprint("[cyan]🎤 Transcribing audio with local WhisperX (optional fallback)...[/cyan]")
     elif runtime == "elevenlabs":
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")

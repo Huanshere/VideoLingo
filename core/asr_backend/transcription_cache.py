@@ -20,7 +20,7 @@ def cache_key(media_file, whisper, demucs):
             check_cancel()
             digest.update(block)
     packages = {}
-    for name in ("whisperx", "faster-whisper", "demucs"):
+    for name in ("whisperx", "faster-whisper", "qwen-asr", "mlx-audio", "transformers", "demucs"):
         try:
             packages[name] = version(name)
         except PackageNotFoundError:
@@ -30,6 +30,9 @@ def cache_key(media_file, whisper, demucs):
         "schema": SCHEMA, "media_md5": digest.hexdigest(), "packages": packages,
         "runtime": whisper["runtime"], "model": whisper["model"],
         "language": whisper["language"], "demucs": bool(demucs),
+        # Local backend + Qwen size/engine so WhisperX and Qwen results never collide.
+        "backend": whisper.get("backend"), "qwen_model": whisper.get("qwen_model"),
+        "qwen_engine": whisper.get("qwen_engine"),
     }
     return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
 

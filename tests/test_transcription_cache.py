@@ -38,6 +38,25 @@ class TranscriptionCacheTests(unittest.TestCase):
         self.media.write_bytes(b"synthetic input two")
         self.assertNotEqual(key, cache.cache_key(self.media, self.whisper, False))
 
+    def test_identity_separates_local_backends_and_qwen_options(self):
+        local = dict(self.whisper, runtime="local", backend="qwen", qwen_model="1.7b", qwen_engine="transformers")
+        key = cache.cache_key(self.media, local, False)
+        self.assertEqual(key, cache.cache_key(self.media, dict(local), False))
+        for change in ({"backend": "whisperx"}, {"qwen_model": "0.6b"}, {"qwen_engine": "mlx"}):
+            self.assertNotEqual(key, cache.cache_key(self.media, dict(local, **change), False))
+
+    def test_identity_tracks_asr_package_versions(self):
+        versions = {"qwen-asr": "0.0.6", "transformers": "4.57.6"}
+        def version(name):
+            if name not in versions:
+                raise cache.PackageNotFoundError(name)
+            return versions[name]
+        with patch.object(cache, "version", side_effect=version):
+            key = cache.cache_key(self.media, self.whisper, False)
+            for name in ("qwen-asr", "mlx-audio", "transformers"):
+                with patch.dict(versions, {name: "9.9.9"}):
+                    self.assertNotEqual(key, cache.cache_key(self.media, self.whisper, False))
+
     def test_corrupt_and_invalid_results_are_misses(self):
         cache.write_result("key", "complete", result(), "en")
         path = cache.CACHE_DIR / "key/complete.json"

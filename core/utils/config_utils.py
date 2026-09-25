@@ -32,7 +32,8 @@ def load_key_or(key, default):
     except KeyError:
         return default
 
-def update_key(key, new_value):
+def update_key(key, new_value, add_missing=False):
+    """Set an existing key; add_missing=True also creates a new leaf (settings added after the user's config.yaml)."""
     with lock:
         with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
             data = yaml.load(file)
@@ -45,7 +46,7 @@ def update_key(key, new_value):
             else:
                 return False
 
-        if isinstance(current, dict) and keys[-1] in current:
+        if isinstance(current, dict) and (keys[-1] in current or add_missing):
             current[keys[-1]] = new_value
             # Keep manual source-language changes atomic for UI and CLI callers.
             if key == "whisper.language" and new_value != "auto":
