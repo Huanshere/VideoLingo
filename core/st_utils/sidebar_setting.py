@@ -1,3 +1,4 @@
+import importlib.util
 import streamlit as st
 import requests
 from translations.translations import translate as t
@@ -217,8 +218,8 @@ def page_setting():
                 if size != configured_size:
                     update_key("whisper.qwen_model", size, add_missing=True)
                     st.rerun()
-            else:
-                st.caption(t("WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps."))
+            elif importlib.util.find_spec("whisperx") is None:
+                st.warning(t("WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps."))
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
 
