@@ -164,10 +164,10 @@
     "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key.": "本地 Qwen3-ASR 推荐 NVIDIA GPU 或 Apple Silicon（CPU 可用但较慢）；ElevenLabs 需要 ElevenLabs API Key。",
     "Local ASR Backend": "本地识别后端",
     "Qwen3-ASR + ForcedAligner (default)": "Qwen3-ASR + ForcedAligner（默认）",
-    "WhisperX (optional fallback)": "WhisperX（可选备选）",
+    "WhisperX (manual install)": "WhisperX（手动安装）",
     "Qwen3-ASR Model Size": "Qwen3-ASR 模型大小",
     "1.7B (more accurate)": "1.7B（更准确）",
     "0.6B (faster, less memory)": "0.6B（更快、更省显存）",
-    "WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps.": "WhisperX 默认不安装，安装步骤见文档「WhisperX（可选）」页。",
+    "WhisperX is not installed. VideoLingo's installer does not install it. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX 未安装。VideoLingo 的安装器不会安装它。请按手动文档（docs/pages/docs/whisperx-manual.zh-CN.md）自行安装额外依赖，或把 whisper.backend 改回 qwen。",
     "Word-level transcription and alignment": "词级语音识别与对齐"
 }

@@ -1,3 +1,4 @@
+import importlib.util
 import os
 import sys
 import tempfile
@@ -26,11 +27,35 @@ class RetiredRuntimeTests(unittest.TestCase):
 
     def test_supported_runtimes_reach_media_discovery(self):
         for runtime in ("local", "elevenlabs"):
-            with self.subTest(runtime=runtime), patch.object(asr, "load_key", return_value=runtime), patch.object(
+            def load_key(key, _runtime=runtime):
+                if key == "whisper":
+                    return {"runtime": _runtime, "language": "en", "model": "large-v3"}
+                return _runtime
+            with self.subTest(runtime=runtime), patch.object(asr, "load_key", side_effect=load_key), patch.object(
                 asr, "find_media_file", side_effect=FileNotFoundError("synthetic missing input")
             ):
                 with self.assertRaisesRegex(FileNotFoundError, "synthetic missing input"):
                     asr.transcribe.__wrapped__()
+
+    def test_missing_whisperx_fails_before_preparing_audio(self):
+        def load_key(key):
+            if key == "whisper.runtime":
+                return "local"
+            if key == "whisper":
+                return {"runtime": "local", "backend": "whisperx", "language": "en", "model": "large-v3"}
+            raise AssertionError(key)
+        with patch.object(asr, "load_key", side_effect=load_key), patch.object(
+            asr, "find_media_file"
+        ) as find, patch("importlib.util.find_spec", return_value=None):
+            with self.assertRaises(RuntimeError) as caught:
+                asr.transcribe.__wrapped__()
+        find.assert_not_called()
+        message = str(caught.exception)
+        self.assertIn("docs/pages/docs/whisperx-manual.en-US.md", message)
+        self.assertIn("whisper.backend to qwen", message)
+        self.assertNotIn("--local-whisperx", message)
+        self.assertNotIn("setup_env", message)
+        self.assertNotIn("optional install", message.lower())
 
 
 
@@ -56,7 +81,16 @@ class LocalBackendTests(unittest.TestCase):
         fake_whisperx = types.ModuleType("core.asr_backend.whisperX_local")
         fake_whisperx.transcribe_audio = whisperx
         key = Mock(return_value=None)
-        with patch.object(asr, "find_media_file", return_value=("input.wav", "audio")), patch.object(
+        real_find_spec = importlib.util.find_spec
+
+        def find_spec(name, package=None):
+            if name == "whisperx":
+                return object()
+            return real_find_spec(name, package)
+
+        with patch("importlib.util.find_spec", side_effect=find_spec), patch.object(
+            asr, "find_media_file", return_value=("input.wav", "audio")
+        ), patch.object(
             asr, "load_key", side_effect=config.__getitem__
         ), patch.object(asr, "update_key"), patch.object(asr, "check_cancel"), patch.object(
             asr, "prepare_audio_for_asr"

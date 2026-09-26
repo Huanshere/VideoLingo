@@ -17,7 +17,7 @@ VideoLingo 在 Streamlit 介面中整合語音辨識、字幕翻譯、分句和�
 主要功能：
 - 🎥 通過 yt-dlp 下載 YouTube 影片
 
-- 使用 Qwen3-ASR + Qwen3-ForcedAligner 進行詞級語音辨識與時間對齊（WhisperX 可選）
+- 使用 Qwen3-ASR + Qwen3-ForcedAligner 進行詞級語音辨識與時間對齊
 
 - **📝 基於 NLP 和 AI 的字幕分段**
 
@@ -75,7 +75,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 英語 🤩 | 🇷🇺 俄語 😊 | 🇫🇷 法語 🤩 | 🇩🇪 德語 🤩 | 🇮🇹 義大利語 🤩 | 🇪🇸 西班牙語 🤩 | 🇯🇵 日語 😐 | 🇨🇳 中文* 😊
 
-> *本地辨識使用 Qwen3-ASR（預設 1.7B，可選 0.6B）。可選的 WhisperX 備援方案在選擇中文時使用帶標點增強的 Belle Whisper 模型。
+> *本地辨識使用 Qwen3-ASR（預設 1.7B，可選 0.6B）。
 
 翻譯語言取決於所選 LLM，配音語言取決於所選 TTS。
 
@@ -88,13 +88,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 使用 NVIDIA 加速時，需要安裝與顯卡相容的驅動。主機安裝器依據 `nvidia-smi` 報告的 CUDA 支援版本選擇 PyTorch：>=12.8 使用 `cu128`，否則使用 `cu126`；沒有 NVIDIA 時使用 CPU 套件。這是在選擇 Python 套件，不會自動安裝系統 CUDA Toolkit。在 Apple Silicon（macOS 14+）上，本地辨識改用 MLX。詳見 [GPU 執行庫要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
 > **注意：** 需要安裝 FFmpeg。請通過包管理器安裝：
-> - Windows：從 [FFmpeg 下載頁](https://ffmpeg.org/download.html)列出的 Windows 建置中任選一個，將其 `bin` 目錄加入 PATH。只有可選的 WhisperX 備援方案才需要共享函式庫版。
+> - Windows：從 [FFmpeg 下載頁](https://ffmpeg.org/download.html)列出的 Windows 建置中任選一個，將其 `bin` 目錄加入 PATH。
 > - macOS：```brew install ffmpeg```（通過 [Homebrew](https://brew.sh/)）
 > - Linux：```sudo apt install ffmpeg```（Debian/Ubuntu）
 
 ### 使用 uv 安裝
 
-uv 自動下載 Python 3.13 並建立隔離的 `.venv`，以下命令不需要預裝 Python。應用程式支援 Python 3.10–3.13。預設的 Qwen3-ASR 辨識只會呼叫 FFmpeg 命令列工具。可選的 WhisperX 備援方案預設不安裝，需要 FFmpeg 7 共享函式庫，詳見 [WhisperX（可選）](../docs/pages/docs/whisperx-optional.zh-CN.md)。
+uv 自動下載 Python 3.13 並建立隔離的 `.venv`，以下命令不需要預裝 Python。應用程式支援 Python 3.10–3.13。預設的 Qwen3-ASR 辨識只會呼叫 FFmpeg 命令列工具。
 
 1. 複製倉庫
 
@@ -129,7 +129,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
 - LLM：自行選擇相容 OpenAI Chat Completions、能回傳流程所需結構化 JSON 的服務與模型。推薦 [OpenLux](https://www.openlux.ai/register?aff=wKYu) 中轉，API 網址填 `https://api.openlux.ai/v1`。預設性價比高用 GPT-6 Luna，模型 ID 填 `gpt-6-luna`；品質更好用 GPT-6 Sol，模型 ID 填 `gpt-6-sol`；品質最好用 Claude Opus 5.5，模型 ID 填 `claude-opus-5-5`。OpenLux 中轉約價見安裝文件。在側欄設定 API 網址、金鑰和模型。
-- 語音辨識：本地執行 Qwen3-ASR + ForcedAligner（預設）、可選的 [WhisperX 備援方案](../docs/pages/docs/whisperx-optional.zh-CN.md)，或使用 ElevenLabs API。
+- 語音辨識：本地執行 Qwen3-ASR + ForcedAligner（預設），或使用 ElevenLabs API。安裝器不會安裝 WhisperX；若要把它當作後端，見 [WhisperX（手動安裝）](../docs/pages/docs/whisperx-manual.zh-CN.md)。
 - TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自訂適配器。
 
 詳細安裝、API 配置和批處理模式說明，請參閱文檔：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

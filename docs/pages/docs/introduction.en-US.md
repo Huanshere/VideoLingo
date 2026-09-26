@@ -7,7 +7,7 @@ VideoLingo is an all-in-one video translation, localization, and dubbing tool ai
 Key features:
 - 🎥 YouTube video download via yt-dlp
 
-- **🎙️ Word-level subtitle recognition with Qwen3-ASR + ForcedAligner (WhisperX optional)**
+- **🎙️ Word-level subtitle recognition with Qwen3-ASR + ForcedAligner**
 
 - **📝 NLP and GPT-based subtitle segmentation**
 
@@ -52,13 +52,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 English 🤩 | 🇷🇺 Russian 😊 | 🇫🇷 French 🤩 | 🇩🇪 German 🤩 | 🇮🇹 Italian 🤩 | 🇪🇸 Spanish 🤩 | 🇯🇵 Japanese 😐 | 🇨🇳 Chinese* 😊
 
-> *Local recognition uses Qwen3-ASR (1.7B by default, 0.6B selectable). The optional WhisperX fallback uses a punctuation-enhanced Belle Whisper model for Chinese.
+> *Local recognition uses Qwen3-ASR (1.7B by default, 0.6B selectable).
 
 **Translation supports all languages, while dubbing language depends on the chosen TTS method.**
 
 ## Installation
 
-Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html) first. Reopen your terminal and verify they are on PATH. For NVIDIA runtime requirements, follow the [installation guide](start.en-US.md#gpu-runtime). WhisperX is optional and not installed by default; see [WhisperX (optional)](whisperx-optional.en-US.md).
+Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html) first. Reopen your terminal and verify they are on PATH. For NVIDIA runtime requirements, follow the [installation guide](start.en-US.md#gpu-runtime). WhisperX is not an installer option; see [WhisperX (manual install)](whisperx-manual.en-US.md).
 
 1. Clone the repository
 

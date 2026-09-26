@@ -17,7 +17,7 @@ VideoLingo は Streamlit 上で音声認識、字幕翻訳、分割、吹き替�
 主な機能：
 - 🎥 yt-dlpによるYouTube動画のダウンロード
 
-- Qwen3-ASR + Qwen3-ForcedAligner による単語単位の音声認識と時間整合（WhisperX はオプション）
+- Qwen3-ASR + Qwen3-ForcedAligner による単語単位の音声認識と時間整合
 
 - **📝 NLPとAIを活用した字幕セグメンテーション**
 
@@ -75,7 +75,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 英語 🤩 | 🇷🇺 ロシア語 😊 | 🇫🇷 フランス語 🤩 | 🇩🇪 ドイツ語 🤩 | 🇮🇹 イタリア語 🤩 | 🇪🇸 スペイン語 🤩 | 🇯🇵 日本語 😐 | 🇨🇳 中国語* 😊
 
-> *ローカル認識には Qwen3-ASR（既定は 1.7B、0.6B も選択可）を使用します。オプションの WhisperX フォールバックでは、中国語を選択すると句読点強化版 Belle Whisper を使用します。
+> *ローカル認識には Qwen3-ASR（既定は 1.7B、0.6B も選択可）を使用します。
 
 翻訳言語は選択した LLM、吹き替え言語は選択した TTS に依存します。
 
@@ -88,13 +88,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 NVIDIA を使用する場合は、GPU に対応するドライバーが必要です。インストーラーは `nvidia-smi` が CUDA >=12.8 を示す場合に PyTorch `cu128`、それ以外は `cu126` を選択し、NVIDIA がなければ CPU パッケージを選択します。これは Python パッケージの選択であり、システムの CUDA Toolkit は自動インストールしません。Apple Silicon（macOS 14+）では、ローカル認識に MLX を使用します。[GPU 要件](../docs/pages/docs/start.en-US.md#gpu-runtime)を参照してください。
 
 > **注意：** FFmpegが必要です。パッケージマネージャーを使用してインストールしてください：
-> - Windows: [FFmpeg ダウンロードページ](https://ffmpeg.org/download.html)の Windows ビルドからいずれかを選び、`bin` ディレクトリを PATH に追加します。共有ライブラリ版はオプションの WhisperX フォールバックを使う場合のみ必要です。
+> - Windows: [FFmpeg ダウンロードページ](https://ffmpeg.org/download.html)の Windows ビルドからいずれかを選び、`bin` ディレクトリを PATH に追加します。
 > - macOS: ```brew install ffmpeg``` ([Homebrew](https://brew.sh/)経由)
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
 ### uv でインストール
 
-uv が Python 3.13 を取得して `.venv` を作成するため、Python の事前インストールは不要です。アプリは Python 3.10–3.13 に対応します。既定の Qwen3-ASR 認識は FFmpeg コマンドラインツールのみを呼び出します。オプションの WhisperX フォールバックは既定ではインストールされず、FFmpeg 7 共有ライブラリが必要です。[WhisperX（オプション）](../docs/pages/docs/whisperx-optional.en-US.md)を参照してください。
+uv が Python 3.13 を取得して `.venv` を作成するため、Python の事前インストールは不要です。アプリは Python 3.10–3.13 に対応します。既定の Qwen3-ASR 認識は FFmpeg コマンドラインツールのみを呼び出します。
 
 1. リポジトリをクローン
 
@@ -129,7 +129,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## API
 VideoLingoはOpenAIライクなAPI形式と様々なTTSインターフェースをサポートしています：
 - LLM: OpenAI Chat Completions 互換で、処理に必要な構造化 JSON を返せるサービスとモデルを選びます。API URL、キー、モデルはサイドバーで設定します。
-- 音声認識：ローカル Qwen3-ASR + ForcedAligner（既定）、オプションの [WhisperX フォールバック](../docs/pages/docs/whisperx-optional.en-US.md)、または ElevenLabs API。
+- 音声認識：ローカル Qwen3-ASR + ForcedAligner（既定）、または ElevenLabs API。インストーラーは WhisperX を入れません。バックエンドとして使う場合は [WhisperX（手動インストール）](../docs/pages/docs/whisperx-manual.en-US.md) を参照してください。
 - TTS: Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS、および `core/tts_backend/custom_tts.py` のカスタムアダプター。
 
 詳細なインストール方法、API設定、バッチモードの説明については、ドキュメントを参照してください：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

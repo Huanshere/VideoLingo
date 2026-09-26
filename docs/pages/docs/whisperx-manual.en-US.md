@@ -1,6 +1,6 @@
-# WhisperX (optional)
+# WhisperX (manual install)
 
-VideoLingo's default local speech recognition is **Qwen3-ASR + Qwen3-ForcedAligner**; see the [Start guide](start.en-US.md#asr-runtime). WhisperX remains available as an optional fallback: its code path and behavior are unchanged (including the forced Belle model for Chinese), but **the default installation no longer includes WhisperX**, and `installer.py` neither installs nor requires it.
+VideoLingo's default local speech recognition is **Qwen3-ASR + Qwen3-ForcedAligner**; see the [Start guide](start.en-US.md#asr-runtime). WhisperX is still a local backend (`whisper.backend: whisperx`), including the forced Belle model for Chinese, but it is **not an installer option**. `setup_env.py` and `installer.py` do not install it, do not ask whether to install it, and have no flag for it. This page is the only install guide: you install the extra packages yourself.
 
 Consider WhisperX when you want to compare against Qwen, want the punctuation-enhanced Belle Whisper model for Chinese, or already rely on a WhisperX-based workflow.
 
@@ -13,7 +13,9 @@ Consider WhisperX when you want to compare against Qwen, want the punctuation-en
 
 ## Install
 
-Run this inside the VideoLingo environment created by `setup_env.py` (the project `.venv` is shown; for a `--shared` environment use `~/.venvs/videolingo`):
+These commands are for you to run. The installer will not run them and will not install WhisperX back later.
+
+On Windows or Linux, run this inside the VideoLingo environment created by `setup_env.py` (the project `.venv` is shown; for a `--shared` environment use `~/.venvs/videolingo`). Do not run them in the default Apple Silicon environment; use a separate environment, as described below.
 
 ```bash
 # Windows
@@ -24,20 +26,21 @@ Run this inside the VideoLingo environment created by `setup_env.py` (the projec
 
 These are the same constraints `requirements.txt` used in 3.0.4. WhisperX 3.8 needs Torch/torchaudio 2.8, torchvision 0.23 and Transformers 4, which match the default environment, so the installed PyTorch build does not change.
 
-Then run `python installer.py --check`. When whisperx is installed, the check also probes whether TorchCodec can load the FFmpeg shared libraries; without whisperx this probe is skipped. On Windows/Linux, rerunning `installer.py` or `--upgrade` does not uninstall WhisperX; if the check reports a problem, rerun the install command above. On Apple Silicon, rerunning `installer.py` actively uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) from the default environment (see below).
+Then run `python installer.py --check` in that same environment. When whisperx is installed, the check also probes whether TorchCodec can load the FFmpeg shared libraries; without whisperx this probe is skipped. On Windows/Linux, rerunning `installer.py` or `--upgrade` does not uninstall a WhisperX install you added yourself; if the check reports a problem, rerun the install command above. On Apple Silicon, rerunning `installer.py` in the default environment removes the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) and does not install it again (see below).
 
 ## Enable
 
-In the sidebar choose "ASR Runtime: Local" → "Local ASR Backend: WhisperX (optional fallback)", or set in `config.yaml`:
+In the sidebar choose "ASR Runtime: Local" → "Local ASR Backend: WhisperX (manual install)", or set in `config.yaml`:
 
 ```yaml
 whisper:
   runtime: 'local'
   backend: 'whisperx'
-  model: 'large-v3'   # or large-v3-turbo; WhisperX only
+  model: 'large-v3'   # WhisperX only. large-v3-turbo is rewritten to large-v3
   language: 'en'
 ```
 
+- `whisper.model` accepts `large-v3`. A name containing `turbo` (including `large-v3-turbo`) is rewritten to `large-v3` before loading, because turbo loops on repeated words in this pipeline. The cache key uses `large-v3` as well.
 - With recognition language `zh`, the WhisperX path forces `Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper` and ignores `whisper.model`.
 - If Chinese is detected while the recognition language is not `zh`, the WhisperX path stops and asks you to select Chinese explicitly.
 - The transcription cache key includes the backend, so WhisperX and Qwen results are never reused for each other.
@@ -62,7 +65,7 @@ was downloaded and verified with real audio decoding. Extract it and put its `bi
 
 On Apple Silicon the default requirements install mlx-audio (Transformers 5, `huggingface-hub>=1`), while WhisperX 3.8.6 requires `huggingface-hub<1`, so they cannot share one environment. `uv` only resolves the combination by picking the pre-release whisperx 3.8.7rc1, which is unverified and not recommended.
 
-To use WhisperX on a Mac, create a separate virtual environment for it; do not run the install command above in the default environment. This repository does not ship an installer for that separate environment, and the combination has not been verified. If the default environment already has whisperx (for example after upgrading from an older version), rerunning `installer.py` first uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) (packages that another installed package still requires are kept), and `installer.py --check` reports the combination as an error.
+To use WhisperX on a Mac, create a separate virtual environment for it; do not run the install command above in the default environment. This repository does not ship an installer for that separate environment, and the combination has not been verified. If the default environment already has whisperx (for example after upgrading from an older version), rerunning `installer.py` first uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) (packages that another installed package still requires are kept). The installer will not install WhisperX again. `installer.py --check` reports the combination as an error until that stack is gone.
 
 <a id="common-errors"></a>
 ## Common errors
@@ -73,4 +76,4 @@ To use WhisperX on a Mac, create a separate virtual environment for it; do not r
 4. **`RuntimeError: Weights only load failed`**: PyTorch ≥2.6 changed `torch.load` default behavior. Already fixed via monkey-patch in `whisperX_local.py`. If you see this, your code is not up to date.
 5. **WhisperX transcription hangs in Streamlit (CPU/GPU idle)**: `librosa.load()` deadlocks in Streamlit's non-main thread. Already fixed by replacing it with `whisperx.audio.load_audio()` (ffmpeg subprocess). If you see this, your code is not up to date.
 6. **TorchCodec could not load**: The TorchCodec probe in `installer.py --check` failed, usually because FFmpeg is 8/9 or only the CLI is installed without shared libraries. See [FFmpeg shared libraries](#ffmpeg-runtime).
-7. **`No module named 'whisperx'`**: The WhisperX backend is selected but not installed. Install it as above, or switch back to Qwen3-ASR in the sidebar.
+7. **`WhisperX is not installed`**: `whisper.backend` is `whisperx` but the package is not installed. Recognition stops before preparing audio. Install the packages yourself as above, or set `whisper.backend` back to `qwen`. The installer will not install WhisperX for you.

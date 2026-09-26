@@ -10,9 +10,13 @@ packages (Demucs, spaCy model downloads) warn instead of breaking the whole
 installation.
 
 The default local ASR is Qwen3-ASR + Qwen3-ForcedAligner, installed from
-requirements.txt (mlx-audio on Apple Silicon, qwen-asr elsewhere). WhisperX is an
-optional fallback that this installer does not install; see
-docs/pages/docs/whisperx-optional.*.md.
+requirements.txt (mlx-audio on Apple Silicon, qwen-asr elsewhere). This installer
+only installs Qwen. It does not install WhisperX, prompt for it, or accept a flag
+for it. To use WhisperX, follow docs/pages/docs/whisperx-manual.*.md and install
+the extra packages yourself. On Apple Silicon, a rerun removes a leftover WhisperX
+stack from the default environment (it cannot share huggingface-hub with MLX) and
+does not install WhisperX again. Windows and Linux leave a manual WhisperX install
+in place.
 """
 
 from __future__ import annotations
@@ -190,9 +194,10 @@ def unsupported_platform() -> str | None:
 
 
 # WhisperX 3.8 pins huggingface-hub<1; mlx-audio needs hub>=1, so on Apple Silicon
-# the optional WhisperX stack cannot stay in the default environment. These are the
+# a leftover WhisperX stack cannot stay in the default environment. These are the
 # packages that only the WhisperX stack brings in (none is in the resolved default
 # requirements); leaving pyannote-audio without torchcodec breaks `pip check`.
+# This is conflict cleanup, not an install option. Windows and Linux never uninstall them.
 # Generic libraries it also pulled in (matplotlib, lightning, ...) stay installed.
 WHISPERX_ONLY_PACKAGES = (
     "whisperx", "torchcodec", "faster-whisper", "ctranslate2",
@@ -239,8 +244,8 @@ def remove_whisperx_for_mlx() -> None:
           "(huggingface-hub <1 vs >=1). Removing the WhisperX stack: " + ", ".join(removable))
     if kept:
         print("  Keeping (required by other installed packages): " + ", ".join(sorted(kept)))
-    print("  To keep using WhisperX on this Mac, create a separate environment; "
-          "see docs/pages/docs/whisperx-optional.en-US.md")
+    print("  To keep using WhisperX on this Mac, create a separate environment and follow "
+          "docs/pages/docs/whisperx-manual.en-US.md. This installer will not install WhisperX again.")
     if removable:
         run([sys.executable, "-m", "pip", "uninstall", "-y", *removable])
 
@@ -500,7 +505,9 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         errors.append(f"PyTorch build does not match requested {torch_backend}")
     if apple_silicon() and package_version("whisperx") is not None:
         errors.append("whisperx is installed next to the MLX ASR stack (huggingface-hub <1 vs >=1); "
-                      "rerun installer.py to remove it and use a separate environment for WhisperX")
+                      "rerun installer.py to remove it and use a separate environment for WhisperX. "
+                      "The installer will not install WhisperX again; see "
+                      "docs/pages/docs/whisperx-manual.en-US.md")
     # TorchCodec is a WhisperX-only dependency; the default Qwen path decodes with the FFmpeg CLI.
     if check_state and not errors and package_version("whisperx") is not None:
         try:
@@ -516,8 +523,11 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
             errors.append(f"TorchCodec runtime check failed: {exc}")
     if not quiet:
         print("\nEnvironment check")
-        for package in ["streamlit", "torch", "torchaudio", "spacy", qwen_asr_package(), "whisperx", "demucs"]:
+        for package in ["streamlit", "torch", "torchaudio", "spacy", qwen_asr_package(), "demucs"]:
             print(f"  {package}: {package_version(package) or 'missing'}")
+        # WhisperX is not part of this install. Mention it only when a manual install is present.
+        if package_version("whisperx"):
+            print(f"  whisperx: {package_version('whisperx')} (not part of this install)")
         for warning in warnings:
             print(f"  WARN: {warning}")
         for error in errors:

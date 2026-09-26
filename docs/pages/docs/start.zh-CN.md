@@ -125,7 +125,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 先安装 [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 [FFmpeg](https://ffmpeg.org/download.html)。uv 链接提供不依赖 Python 的独立安装方式。重新打开终端，检查 `git --version`、`uv --version` 和 `ffmpeg -version`。
 
-Windows 可选择 FFmpeg 官网列出的 Windows 构建，将 `bin` 目录加入 PATH。macOS 使用 `brew install ffmpeg`，Debian/Ubuntu 使用 `sudo apt install ffmpeg`。默认的 Qwen3-ASR 识别只调用 FFmpeg 命令行程序；FFmpeg 共享库和「FFmpeg 4–7」的版本限制只针对可选的 WhisperX（见 [WhisperX（可选）](whisperx-optional.zh-CN.md#ffmpeg-runtime)）。字幕烧录需要 subtitles 滤镜和合适的字体，安装器会在 Linux 上检查并尝试安装 Noto CJK 字体。
+Windows 可选择 FFmpeg 官网列出的 Windows 构建，将 `bin` 目录加入 PATH。macOS 使用 `brew install ffmpeg`，Debian/Ubuntu 使用 `sudo apt install ffmpeg`。默认的 Qwen3-ASR 识别只调用 FFmpeg 命令行程序。FFmpeg 共享库和「FFmpeg 4–7」的版本限制只在你自行安装 WhisperX 时才适用，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md#ffmpeg-runtime)。字幕烧录需要 subtitles 滤镜和合适的字体，安装器会在 Linux 上检查并尝试安装 Noto CJK 字体。
 
 <a id="asr-runtime"></a>
 ### 语音识别（Qwen3-ASR + ForcedAligner）
@@ -148,7 +148,7 @@ Windows 可选择 FFmpeg 官网列出的 Windows 构建，将 `bin` 目录加入
 - **异常输出检测**：如果某个窗口的结果是同一短语循环重复，或明显少于检测片段听到的内容，会先切成 60 秒的小窗重试；仍然异常时直接报错，提示明确选择识别语言，而不会把残缺的结果交给后续步骤。手动指定语言时，如果某个窗口的文字异常稀少（每秒不到 2 个字母/数字），会额外用 auto 检测几段片段；片段听到的内容远多于转写结果时同样会报错；如果检测片段听出的是另一种语言，会直接报错提示「所选识别语言可能与音频不符，请改用 auto 或切换模型大小」，不会把换了语言的重试结果交给后续步骤。转写文字的书写系统与所选语言明显不符时（例如选了英文或中文却输出韩文，选了日文却几乎没有假名）也会报同样的错误，这个检查只看文字，不增加识别时间，每个窗口转写完就会检查，第一个窗口不符就会停止。静音和纯音乐不会触发报错。
 - **已知限制**：同为拉丁字母的语言之间选错（例如英文视频选了西班牙语）无法自动检测。模型可能把部分窗口直接**翻译**成所选语言，而不是按原话转写，结果会半是原文半是译文。请优先使用 `Auto`，或在处理前确认识别语言设置正确。
 - 识别结果缓存区分后端、模型大小和引擎，切换任一项都会重新识别。
-- 想继续使用 WhisperX（包括中文 Belle 模型），见 [WhisperX（可选）](whisperx-optional.zh-CN.md)。WhisperX 默认不安装。
+- WhisperX 不是安装器选项。若要使用（包括中文 Belle 模型），请自行安装依赖，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md)。
 - 也可以使用官方 Docker 镜像 `qwenllm/qwen3-asr` 单独部署 Qwen3-ASR 服务，但 VideoLingo 目前不直接调用它。
 
 <a id="gpu-runtime"></a>
@@ -156,7 +156,7 @@ Windows 可选择 FFmpeg 官网列出的 Windows 构建，将 `bin` 目录加入
 
 - 安装与 NVIDIA 显卡兼容的驱动。`nvidia-smi` 显示的是驱动支持的 CUDA 版本，不是已安装的 Toolkit 版本。
 - 主机安装器在驱动报告 >=12.8 时选择 PyTorch `cu128`，否则在检测到 NVIDIA 时选择 `cu126`。无法读取支持版本时也回退到 cu126，但这不保证旧驱动一定兼容。没有 NVIDIA 则选择 CPU 包，已有兼容包可能直接复用。
-- 默认的 Qwen3-ASR 通过 PyTorch 运行，使用 PyTorch 安装包自带的 CUDA 运行库，不需要另外安装 cuBLAS/cuDNN。可选的 WhisperX 需要 CUDA 12 cuBLAS 和 cuDNN 9，见 [WhisperX（可选）](whisperx-optional.zh-CN.md#cuda-runtime)。
+- 默认的 Qwen3-ASR 通过 PyTorch 运行，使用 PyTorch 安装包自带的 CUDA 运行库，不需要另外安装 cuBLAS/cuDNN。自行安装的 WhisperX 需要 CUDA 12 cuBLAS 和 cuDNN 9，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md#cuda-runtime)。
 
 安装器选择的是 Python 包，不会安装系统 CUDA Toolkit。支持 CUDA 13 的新驱动不代表本项目需要 CUDA 13 的 Python 包。
 
@@ -216,7 +216,7 @@ uv 创建使用 Python 3.13 的 `.venv`，已有应用环境支持 Python 3.10�
 
 6. **macOS 安装时报 mlx 无法解析 / 没有可用的安装包**：mlx 只提供 macOS 14 及以上的 Apple Silicon 安装包，请先升级系统。
 
-7. **WhisperX 相关报错**（`cublas64_12.dll not found`、段错误、`Weights only load failed`、TorchCodec 等）：只在选择了 WhisperX 后端时出现，见 [WhisperX（可选）](whisperx-optional.zh-CN.md#common-errors)。
+7. **WhisperX 相关报错**（`cublas64_12.dll not found`、段错误、`Weights only load failed`、TorchCodec 等）：只在选择了 WhisperX 后端时出现，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md#common-errors)。
 
 8. **spaCy 模型缺失**：检查模型是否安装在启动 VideoLingo 的同一个环境内。例如，用该环境的 Python 安装英语模型：
    ```bash

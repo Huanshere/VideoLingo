@@ -126,7 +126,7 @@ VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 
 Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html). The linked uv page provides standalone installers that do not require Python. Reopen your terminal and check `git --version`, `uv --version` and `ffmpeg -version`.
 
-On Windows, pick one of the Windows builds linked from the FFmpeg download page and add its `bin` directory to PATH. On macOS use `brew install ffmpeg`; on Debian/Ubuntu use `sudo apt install ffmpeg`. The default Qwen3-ASR recognition only calls the FFmpeg command-line tool; FFmpeg shared libraries and the FFmpeg 4–7 limit apply only to the optional WhisperX fallback (see [WhisperX (optional)](whisperx-optional.en-US.md#ffmpeg-runtime)). Subtitle rendering needs the subtitles filter and suitable fonts; the installer checks/installs Noto CJK fonts on Linux.
+On Windows, pick one of the Windows builds linked from the FFmpeg download page and add its `bin` directory to PATH. On macOS use `brew install ffmpeg`; on Debian/Ubuntu use `sudo apt install ffmpeg`. The default Qwen3-ASR recognition only calls the FFmpeg command-line tool. FFmpeg shared libraries and the FFmpeg 4–7 limit apply only if you manually install WhisperX; see [WhisperX (manual install)](whisperx-manual.en-US.md#ffmpeg-runtime). Subtitle rendering needs the subtitles filter and suitable fonts; the installer checks/installs Noto CJK fonts on Linux.
 
 <a id="asr-runtime"></a>
 ### Speech recognition (Qwen3-ASR + ForcedAligner)
@@ -149,7 +149,7 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 - **Degenerate output**: if a window's transcript is one phrase looping, or much shorter than what its probe clips heard, it is retried in 60 s windows; if it is still degenerate, recognition stops with an error asking you to set the language, instead of passing a broken transcript on. With a manually selected language, a window whose transcript is unusually sparse (under 2 letters/digits per second) is checked against a few auto-language probe clips; if they heard far more it fails, and if the probes heard a different language it fails right away with a hint that the selected language may not match the audio (use auto or switch the model size), instead of passing a retry in another language downstream. A transcript whose writing system clearly does not fit the selected language (e.g. Korean text with English or Chinese selected, Japanese with almost no kana) fails the same way; that check reads the text only, adds no recognition time and runs after each window, so it stops at the first mismatching window. Silence and music never trigger this.
 - **Known limitation**: choosing the wrong language among languages written in Latin letters (e.g. Spanish selected for an English video) cannot be detected. The model may **translate** some windows into the selected language instead of transcribing what was said, leaving part original and part translation. Prefer `Auto`, or double-check the recognition language before processing.
 - The transcription cache distinguishes backend, model size and engine; changing any of them re-runs recognition.
-- To keep using WhisperX (including the Belle model for Chinese), see [WhisperX (optional)](whisperx-optional.en-US.md). WhisperX is not installed by default.
+- WhisperX is not an installer option. To use it (including the Belle model for Chinese), install the packages yourself: [WhisperX (manual install)](whisperx-manual.en-US.md).
 - The official `qwenllm/qwen3-asr` Docker image can host a standalone Qwen3-ASR service, but VideoLingo does not call it directly.
 
 <a id="gpu-runtime"></a>
@@ -157,7 +157,7 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 
 - Install a driver compatible with your NVIDIA GPU. `nvidia-smi` reports the driver's CUDA capability, not an installed Toolkit version.
 - On hosts, the installer selects PyTorch `cu128` for a reported capability >=12.8, otherwise `cu126` when NVIDIA is detected. An unreadable capability falls back to cu126, which is not a guarantee of compatibility with an old driver. Without NVIDIA it selects CPU packages. Compatible existing packages may be reused.
-- The default Qwen3-ASR runs on PyTorch and uses the CUDA runtime bundled with the PyTorch wheels; no separate cuBLAS/cuDNN installation is needed. The optional WhisperX needs CUDA 12 cuBLAS and cuDNN 9; see [WhisperX (optional)](whisperx-optional.en-US.md#cuda-runtime).
+- The default Qwen3-ASR runs on PyTorch and uses the CUDA runtime bundled with the PyTorch wheels; no separate cuBLAS/cuDNN installation is needed. A manual WhisperX install needs CUDA 12 cuBLAS and cuDNN 9; see [WhisperX (manual install)](whisperx-manual.en-US.md#cuda-runtime).
 
 The installer selects Python wheels; it does not install a system CUDA Toolkit. Newer CUDA 13-capable drivers do not require CUDA 13 Python packages for this project.
 
@@ -216,7 +216,7 @@ Note: This section is still in early development and may have limited functional
 
 6. **mlx cannot be resolved / no matching distribution on macOS**: mlx only ships wheels for Apple Silicon on macOS 14 or newer. Upgrade macOS first.
 
-7. **WhisperX errors** (`cublas64_12.dll not found`, segfaults, `Weights only load failed`, TorchCodec, etc.): these only occur with the WhisperX backend selected; see [WhisperX (optional)](whisperx-optional.en-US.md#common-errors).
+7. **WhisperX errors** (`cublas64_12.dll not found`, segfaults, `Weights only load failed`, TorchCodec, etc.): these only occur with the WhisperX backend selected; see [WhisperX (manual install)](whisperx-manual.en-US.md#common-errors).
 
 8. **spaCy model missing**: Check that the model was installed into the same environment used to launch VideoLingo. For example, install the English model using that environment's Python:
    ```bash

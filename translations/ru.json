@@ -157,10 +157,10 @@
     "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key.": "Локальный Qwen3-ASR лучше всего работает на GPU NVIDIA или Apple Silicon (на CPU работает, но медленно); для ElevenLabs нужен API-ключ ElevenLabs.",
     "Local ASR Backend": "Локальный движок распознавания",
     "Qwen3-ASR + ForcedAligner (default)": "Qwen3-ASR + ForcedAligner (по умолчанию)",
-    "WhisperX (optional fallback)": "WhisperX (необязательная альтернатива)",
+    "WhisperX (manual install)": "WhisperX (ручная установка)",
     "Qwen3-ASR Model Size": "Размер модели Qwen3-ASR",
     "1.7B (more accurate)": "1.7B (точнее)",
     "0.6B (faster, less memory)": "0.6B (быстрее, меньше памяти)",
-    "WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps.": "WhisperX не устанавливается по умолчанию. Шаги установки — на странице документации «WhisperX (необязательно)».",
+    "WhisperX is not installed. VideoLingo's installer does not install it. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX не установлен. Установщик VideoLingo его не ставит. Установите дополнительные пакеты сами по странице docs/pages/docs/whisperx-manual.en-US.md или верните whisper.backend в значение qwen.",
     "Word-level transcription and alignment": "Пословная транскрипция и выравнивание"
 }

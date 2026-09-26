@@ -197,7 +197,7 @@ def page_setting():
                 index=backends.index(configured_backend) if configured_backend in backends else 0,
                 format_func=lambda x: {
                     "qwen": t("Qwen3-ASR + ForcedAligner (default)"),
-                    "whisperx": t("WhisperX (optional fallback)"),
+                    "whisperx": t("WhisperX (manual install)"),
                 }[x],
             )
             if backend != configured_backend:
@@ -219,7 +219,7 @@ def page_setting():
                     update_key("whisper.qwen_model", size, add_missing=True)
                     st.rerun()
             elif importlib.util.find_spec("whisperx") is None:
-                st.warning(t("WhisperX is not installed by default. See the \"WhisperX (optional)\" page in the docs for install steps."))
+                st.warning(t("WhisperX is not installed. VideoLingo's installer does not install it. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen."))
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
 

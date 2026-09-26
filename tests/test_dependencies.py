@@ -43,7 +43,7 @@ def test_requirements_exclude_staged_torch():
     names = {installer.requirement_name(r) for r in installer.read_base_requirements()}
     assert not names.intersection({'torch', 'torchaudio', 'torchvision'})
     assert {'qwen-asr', 'mlx-audio', 'spacy'} <= names
-    # WhisperX and its runtime stack are an optional fallback documented separately.
+    # WhisperX is a manual install, not an installer option, and is documented separately.
     assert not names.intersection({'whisperx', 'torchcodec', 'pyannote-audio', 'ctranslate2'})
     assert not names.intersection({'moviepy', 'replicate', 'resampy'})
 
@@ -196,8 +196,10 @@ def test_health_check_rejects_whisperx_next_to_mlx(monkeypatch, capsys):
 
 def test_installer_has_no_whisperx_stage():
     source = (ROOT / 'installer.py').read_text(encoding='utf-8')
+    setup = (ROOT / 'setup_env.py').read_text(encoding='utf-8')
     assert not hasattr(installer, 'install_whisperx')
     assert '--with-whisperx' not in source and '/7]' not in source
+    assert '--local-whisperx' not in source and '--local-whisperx' not in setup
     assert not (ROOT / 'requirements-whisperx.txt').exists()
 
 

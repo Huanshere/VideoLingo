@@ -17,7 +17,7 @@ VideoLingo объединяет распознавание речи, перев�
 Ключевые особенности:
 - 🎥 Загрузка видео с YouTube через yt-dlp
 
-- Пословное распознавание речи и временное выравнивание с Qwen3-ASR + Qwen3-ForcedAligner (WhisperX — опционально)
+- Пословное распознавание речи и временное выравнивание с Qwen3-ASR + Qwen3-ForcedAligner
 
 - **📝 Сегментация субтитров на основе NLP и ИИ**
 
@@ -75,7 +75,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 Английский 🤩 | 🇷🇺 Русский 😊 | 🇫🇷 Французский 🤩 | 🇩🇪 Немецкий 🤩 | 🇮🇹 Итальянский 🤩 | 🇪🇸 Испанский 🤩 | 🇯🇵 Японский 😐 | 🇨🇳 Китайский* 😊
 
-> *Локальное распознавание использует Qwen3-ASR (по умолчанию 1.7B, можно выбрать 0.6B). Опциональный резервный WhisperX при выборе китайского использует Belle Whisper с улучшенной пунктуацией.
+> *Локальное распознавание использует Qwen3-ASR (по умолчанию 1.7B, можно выбрать 0.6B).
 
 Языки перевода зависят от выбранной LLM, а языки озвучивания — от метода TTS.
 
@@ -88,13 +88,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 Для NVIDIA нужен совместимый с GPU драйвер. Установщик выбирает PyTorch `cu128`, если `nvidia-smi` сообщает CUDA >=12.8, иначе `cu126`; без NVIDIA используются пакеты CPU. Это выбор пакетов Python, а не установка системного CUDA Toolkit. На Apple Silicon (macOS 14+) локальное распознавание использует MLX. См. [требования GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Примечание:** Требуется FFmpeg. Установите его через менеджеры пакетов:
-> - Windows: выберите любую сборку для Windows на [странице FFmpeg](https://ffmpeg.org/download.html) и добавьте её каталог `bin` в PATH. Разделяемые библиотеки нужны только для опционального резервного WhisperX.
+> - Windows: выберите любую сборку для Windows на [странице FFmpeg](https://ffmpeg.org/download.html) и добавьте её каталог `bin` в PATH.
 > - macOS: ```brew install ffmpeg``` (через [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
 ### Установка через uv
 
-uv загружает Python 3.13 и создаёт `.venv` без предварительной установки Python. Приложение поддерживает Python 3.10–3.13. Распознавание Qwen3-ASR по умолчанию вызывает только утилиту командной строки FFmpeg. Опциональный резервный WhisperX не устанавливается по умолчанию и требует разделяемых библиотек FFmpeg 7; см. [WhisperX (опционально)](../docs/pages/docs/whisperx-optional.en-US.md).
+uv загружает Python 3.13 и создаёт `.venv` без предварительной установки Python. Приложение поддерживает Python 3.10–3.13. Распознавание Qwen3-ASR по умолчанию вызывает только утилиту командной строки FFmpeg.
 
 1. Клонируйте репозиторий
 
@@ -129,7 +129,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## API
 VideoLingo поддерживает формат API, подобный OpenAI, и различные интерфейсы TTS:
 - LLM: выберите провайдера OpenAI-совместимого Chat Completions и модель, способную возвращать нужный структурированный JSON. URL API, ключ и модель задаются на боковой панели.
-- Распознавание речи: локальный Qwen3-ASR + ForcedAligner (по умолчанию), опциональный [резервный WhisperX](../docs/pages/docs/whisperx-optional.en-US.md) или API ElevenLabs.
+- Распознавание речи: локальный Qwen3-ASR + ForcedAligner (по умолчанию) или API ElevenLabs. Установщик не ставит WhisperX; чтобы использовать его как бэкенд, см. [WhisperX (ручная установка)](../docs/pages/docs/whisperx-manual.en-US.md).
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS и собственный адаптер в `core/tts_backend/custom_tts.py`.
 
 Для подробных инструкций по установке, настройке API и пакетному режиму обратитесь к документации: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

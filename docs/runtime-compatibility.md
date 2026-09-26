@@ -5,7 +5,7 @@ hardcoded personal network settings or unrelated provider/translation changes.
 
 ## Whisper model cache
 
-This section applies to the optional WhisperX backend (`whisper.backend: whisperx`).
+This section applies to the manual WhisperX backend (`whisper.backend: whisperx`).
 The default Qwen3-ASR backend uses a complete local copy at
 `model_dir/<last part of the repo id>` (a directory containing `config.json`, e.g.
 `_model_cache/Qwen3-ASR-1.7B`) when present, and otherwise the standard Hugging Face

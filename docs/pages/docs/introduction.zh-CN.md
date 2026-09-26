@@ -9,7 +9,7 @@ VideoLingo 是一站式视频翻译本地化配音工具，能够一键生成 Ne
 主要特点和功能：
 - 🎥 使用 yt-dlp 从 Youtube 链接下载视频
 
-- **🎙️ 使用 Qwen3-ASR + ForcedAligner 进行单词级时间轴字幕识别（WhisperX 可选）**
+- **🎙️ 使用 Qwen3-ASR + ForcedAligner 进行单词级时间轴字幕识别**
 
 - **📝 使用 NLP 和 GPT 根据句意进行字幕分割**
 
@@ -54,13 +54,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 英语 🤩  |  🇷🇺 俄语 😊  |  🇫🇷 法语 🤩  |  🇩🇪 德语 🤩  |  🇮🇹 意大利语 🤩  |  🇪🇸 西班牙语 🤩  |  🇯🇵 日语 😐  |  🇨🇳 中文* 😊
 
-> *本地识别使用 Qwen3-ASR（默认 1.7B，可选 0.6B）。可选的 WhisperX 备选在中文时使用标点增强的 Belle Whisper 模型
+> *本地识别使用 Qwen3-ASR（默认 1.7B，可选 0.6B）。
 
 **翻译语言支持所有语言，配音语言取决于选取的TTS。**
 
 ## 安装
 
-先安装 [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 [FFmpeg](https://ffmpeg.org/download.html)，重开终端并确认可从 PATH 调用。NVIDIA 运行库要求见[安装指南](start.zh-CN.md#gpu-runtime)。WhisperX 为可选项，默认不安装，见 [WhisperX（可选）](whisperx-optional.zh-CN.md)。
+先安装 [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 [FFmpeg](https://ffmpeg.org/download.html)，重开终端并确认可从 PATH 调用。NVIDIA 运行库要求见[安装指南](start.zh-CN.md#gpu-runtime)。WhisperX 不是安装器选项，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md)。
 
 1. 克隆仓库
 

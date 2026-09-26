@@ -32,9 +32,9 @@ same `installer.py` used on hosts. Other CUDA_VERSION values are rejected.
 Both variants use Torch/torchaudio 2.8.0, torchvision 0.23.0 and the same
 `requirements.txt` bounds. The image is Linux, so local recognition uses the default
 Qwen3-ASR + ForcedAligner through the official qwen-asr package (Transformers 4.57,
-Hub <1) on CUDA. WhisperX is not installed in the image; to use it, add it as
-described in [WhisperX (optional)](whisperx-optional.en-US.md) (for example in a
-derived image). Demucs 4.1 uses normal dependency resolution. Ubuntu supplies FFmpeg
+Hub <1) on CUDA. WhisperX is not installed in the image and is not an installer option.
+To add it yourself (for example in a derived image), follow
+[WhisperX (manual install)](whisperx-manual.en-US.md). Demucs 4.1 uses normal dependency resolution. Ubuntu supplies FFmpeg
 and its shared libraries, Noto CJK fonts and image runtime libraries.
 
 ## Run and preserve data

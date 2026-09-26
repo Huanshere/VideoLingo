@@ -30,14 +30,16 @@ whisper:
   detected_language: 'en'
   # Recognition runtime: "local" or "elevenlabs".
   runtime: 'local'
-  # Local ASR backend: "qwen" (default: Qwen3-ASR + Qwen3-ForcedAligner-0.6B) or "whisperx" (optional fallback,
-  # not installed by default; install steps in docs/pages/docs/whisperx-optional.en-US.md)
+  # Local ASR backend: "qwen" (default: Qwen3-ASR + Qwen3-ForcedAligner-0.6B) or "whisperx".
+  # whisperx is not installed by the installer. Install its packages yourself from
+  # docs/pages/docs/whisperx-manual.en-US.md, then set backend to whisperx.
   backend: 'qwen'
   # Qwen3-ASR size: "1.7b" (more accurate) or "0.6b" (faster, less memory)
   qwen_model: '1.7b'
   # *Qwen engine: "auto" (MLX on Apple Silicon, qwen-asr/transformers elsewhere), "mlx" or "transformers"
   qwen_engine: 'auto'
-  # *WhisperX only: ["large-v3", "large-v3-turbo"]. Note: for zh WhisperX forces Belle/large-v3
+  # *WhisperX only: large-v3. A name containing "turbo" (including large-v3-turbo) is
+  # rewritten to large-v3 before loading. For zh, WhisperX forces Belle/large-v3 and ignores this.
   model: 'large-v3'
   # ElevenLabs API key (experimental)
   elevenlabs_api_key: 'your_elevenlabs_api_key'

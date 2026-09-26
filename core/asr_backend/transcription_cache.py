@@ -28,12 +28,19 @@ def cache_key(media_file, whisper, demucs):
         except PackageNotFoundError:
             packages[name] = None
     # Deliberately exclude credentials, filenames and translation/TTS settings.
+    # turbo loops under WhisperX, so that path shares the large-v3 cache entry.
+    # Qwen ignores whisper.model and must not collapse on the same string.
+    model = whisper["model"]
+    backend = whisper.get("backend")
+    if (whisper["runtime"] == "local" and str(backend).lower() == "whisperx"
+            and "turbo" in str(model).lower()):
+        model = "large-v3"
     identity = {
         "schema": SCHEMA, "media_md5": digest.hexdigest(), "packages": packages,
-        "runtime": whisper["runtime"], "model": whisper["model"],
+        "runtime": whisper["runtime"], "model": model,
         "language": whisper["language"], "demucs": bool(demucs),
         # Local backend + Qwen size/engine so WhisperX and Qwen results never collide.
-        "backend": whisper.get("backend"), "qwen_model": whisper.get("qwen_model"),
+        "backend": backend, "qwen_model": whisper.get("qwen_model"),
         "qwen_engine": whisper.get("qwen_engine"),
     }
     return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()

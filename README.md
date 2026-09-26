@@ -17,7 +17,7 @@ VideoLingo combines speech recognition, subtitle translation, segmentation and d
 Key features:
 - 🎥 YouTube video download via yt-dlp
 
-- Word-level speech recognition and alignment with Qwen3-ASR + Qwen3-ForcedAligner (WhisperX optional)
+- Word-level speech recognition and alignment with Qwen3-ASR + Qwen3-ForcedAligner
 
 - **📝 NLP and AI-powered subtitle segmentation**
 
@@ -75,7 +75,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 🇺🇸 English 🤩 | 🇷🇺 Russian 😊 | 🇫🇷 French 🤩 | 🇩🇪 German 🤩 | 🇮🇹 Italian 🤩 | 🇪🇸 Spanish 🤩 | 🇯🇵 Japanese 😐 | 🇨🇳 Chinese* 😊
 
-> *Local recognition uses Qwen3-ASR (1.7B by default, 0.6B selectable). The optional WhisperX fallback uses the punctuation-enhanced Belle Whisper model when Chinese is selected.
+> *Local recognition uses Qwen3-ASR (1.7B by default, 0.6B selectable).
 
 Translation languages depend on the selected LLM; dubbing languages depend on the selected TTS method.
 
@@ -88,13 +88,13 @@ Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/get
 For NVIDIA acceleration, install a driver compatible with your GPU. The host installer selects PyTorch `cu128` when `nvidia-smi` reports CUDA >=12.8, otherwise `cu126`; without NVIDIA it selects CPU packages. This selects Python packages, not a system CUDA Toolkit. On Apple Silicon (macOS 14+), local recognition uses MLX instead. See [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > **Note:** FFmpeg is required. Please install it via package managers:
-> - Windows: choose one of the Windows builds linked on the [FFmpeg download page](https://ffmpeg.org/download.html) and add its `bin` directory to PATH. A shared-library build is only needed for the optional WhisperX fallback.
+> - Windows: choose one of the Windows builds linked on the [FFmpeg download page](https://ffmpeg.org/download.html) and add its `bin` directory to PATH.
 > - macOS: ```brew install ffmpeg``` (via [Homebrew](https://brew.sh/))
 > - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
 
 ### Install with uv
 
-uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. The default Qwen3-ASR recognition only calls the FFmpeg command-line tool. The optional WhisperX fallback is not installed by default and needs FFmpeg 7 shared libraries; see [WhisperX (optional)](docs/pages/docs/whisperx-optional.en-US.md).
+uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. The default Qwen3-ASR recognition only calls the FFmpeg command-line tool.
 
 1. Clone the repository
 
@@ -129,7 +129,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
 - LLM: choose an OpenAI-compatible Chat Completions provider and model that can return the structured JSON required by the workflow. [OpenLux](https://www.openlux.ai/register?aff=wKYu) is recommended; set the API URL to `https://api.openlux.ai/v1`. Prefer GPT-6 Luna with model ID `gpt-6-luna` for best value, GPT-6 Sol with `gpt-6-sol` for better quality, or Claude Opus 5.5 with `claude-opus-5-5` for best quality. OpenLux relay rates are in the install docs. Configure the API URL, key and model in the sidebar.
-- Speech recognition: run Qwen3-ASR + ForcedAligner locally (default), the optional [WhisperX fallback](docs/pages/docs/whisperx-optional.en-US.md), or the ElevenLabs API.
+- Speech recognition: run Qwen3-ASR + ForcedAligner locally (default), or the ElevenLabs API. WhisperX is not installed by the installer; to use it as a backend, follow [WhisperX (manual install)](docs/pages/docs/whisperx-manual.en-US.md).
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS and a custom adapter in `core/tts_backend/custom_tts.py`.
 
 For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

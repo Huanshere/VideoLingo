@@ -1,9 +1,9 @@
 # Runtime dependency refresh
 
-> BUILDER-305 update: the default local ASR is now Qwen3-ASR + Qwen3-ForcedAligner
-> and WhisperX is optional (not in `requirements.txt`). See "Default ASR
+> BUILDER-305 update: the default local ASR is now Qwen3-ASR + Qwen3-ForcedAligner.
+> WhisperX is not an installer option and is not in `requirements.txt`. See "Default ASR
 > dependencies" below; the WhisperX notes in the rest of this page describe the
-> #599 refresh and now apply only when WhisperX is installed.
+> #599 refresh and apply only after you install WhisperX yourself.
 
 This change retains the existing WhisperX, Streamlit, subtitle and dubbing
 architecture. It updates application dependencies within compatible API ranges,
@@ -24,7 +24,7 @@ ranges. Normal startup checks do not unconditionally upgrade dependencies.
 ### Why the GPU stack remains matched (#599; WhisperX only)
 
 This section records the #599 policy for the WhisperX stack. Since BUILDER-305 it
-applies only when the optional WhisperX fallback is installed on Windows/Linux; the
+applies only when you have manually installed WhisperX on Windows/Linux; the
 default Qwen3-ASR stack uses Transformers 5 on Apple Silicon (see below).
 
 WhisperX 3.8.6 requires Torch/torchaudio 2.8, torchvision 0.23, TorchCodec 0.6-0.7
@@ -38,7 +38,7 @@ CTranslate2's Windows build also needs CUDA 12 cuBLAS. Drivers can be newer than
 CPU wheels are explicitly selected on non-NVIDIA Windows/Linux systems.
 FFmpeg must be installed separately. The pinned TorchCodec 0.7 build needs
 FFmpeg 4–7 shared libraries; FFmpeg 8/9 are not supported. On Windows use the
-[FFmpeg 7 shared build documented in the WhisperX guide](pages/docs/whisperx-optional.en-US.md#ffmpeg-runtime).
+[FFmpeg 7 shared build documented in the WhisperX guide](pages/docs/whisperx-manual.en-US.md#ffmpeg-runtime).
 The project invokes the FFmpeg CLI, and `installer.py` probes TorchCodec at
 install/check time because package metadata can pass while decoding fails.
 
@@ -69,8 +69,8 @@ WhisperX, pyannote-audio, CTranslate2 and TorchCodec are no longer default
 requirements. `huggingface-hub<1`, TorchCodec 0.7 and the FFmpeg 4–7 shared-library
 requirement only matter when WhisperX is installed; `installer.py --check` runs the
 TorchCodec probe only in that case. The default path decodes audio with the FFmpeg
-CLI. Install steps for WhisperX are in
-[WhisperX (optional)](pages/docs/whisperx-optional.en-US.md); on Apple Silicon
+CLI. WhisperX is not an installer option. Install steps are in
+[WhisperX (manual install)](pages/docs/whisperx-manual.en-US.md); on Apple Silicon
 stable WhisperX 3.8.6 (hub <1) cannot share the MLX environment (hub ≥1).
 
 Verified offline (`uv pip compile`, Python 3.13, 2026-09-24):

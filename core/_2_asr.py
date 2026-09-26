@@ -5,17 +5,27 @@ from core.utils.models import *
 from core.asr_backend import transcription_cache as cache
 
 def local_backend(whisper):
-    """Local ASR backend: "qwen" (default) or the optional "whisperx" fallback."""
+    """Local ASR backend: "qwen" (default) or "whisperx" (install the packages yourself)."""
     backend = str(whisper.get("backend", "qwen")).lower()
     if backend not in ("qwen", "whisperx"):
         raise ValueError(f"whisper.backend must be 'qwen' or 'whisperx', got {backend!r}")
     return backend
+
+WHISPERX_NOT_INSTALLED = (
+    "WhisperX is not installed. VideoLingo's installer does not install it. "
+    "Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) "
+    "and install the extra packages yourself, or set whisper.backend to qwen."
+)
 
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
     runtime = load_key("whisper.runtime")
     if runtime not in ("local", "elevenlabs"):
         raise ValueError("Select local or elevenlabs for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
+    if runtime == "local" and local_backend(load_key("whisper")) == "whisperx":
+        from importlib.util import find_spec
+        if find_spec("whisperx") is None:
+            raise RuntimeError(WHISPERX_NOT_INSTALLED)
     # 1. prepare audio
     media_file, media_type = find_media_file()
     whisper = dict(load_key("whisper"))
@@ -60,7 +70,7 @@ def transcribe():
         rprint(f"[cyan]🎤 Transcribing audio with local Qwen3-ASR {whisper['qwen_model']} + ForcedAligner...[/cyan]")
     elif runtime == "local":
         from core.asr_backend.whisperX_local import transcribe_audio as ts
-        rprint("[cyan]🎤 Transcribing audio with local WhisperX (optional fallback)...[/cyan]")
+        rprint("[cyan]🎤 Transcribing audio with local WhisperX...[/cyan]")
     elif runtime == "elevenlabs":
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")

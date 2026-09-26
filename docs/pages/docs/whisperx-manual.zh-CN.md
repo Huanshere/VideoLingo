@@ -1,6 +1,6 @@
-# WhisperX（可选备选）
+# WhisperX（手动安装）
 
-VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，见[使用文档](start.zh-CN.md#asr-runtime)。WhisperX 仍保留为可选备选：代码路径和行为不变（包括中文强制使用 Belle 模型），但**默认安装不再包含 WhisperX**，`installer.py` 也不会安装或要求它。
+VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，见[使用文档](start.zh-CN.md#asr-runtime)。WhisperX 仍然是一个本地后端（`whisper.backend: whisperx`，中文仍强制使用 Belle 模型），但**不是安装器里的选项**。`setup_env.py` 和 `installer.py` 都不会安装它，也不会询问要不要安装，也没有对应开关。本页是唯一的安装说明：额外依赖需要你自己安装。
 
 以下情况可以考虑改用 WhisperX：想和 Qwen 的结果做对比；希望中文使用带标点增强的 Belle Whisper 模型；已有基于 WhisperX 的使用习惯。
 
@@ -13,7 +13,9 @@ VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，
 
 ## 安装
 
-在已经用 `setup_env.py` 装好的 VideoLingo 环境里执行（以项目 `.venv` 为例；使用 `--shared` 共享环境时，把路径换成 `~/.venvs/videolingo`）：
+下面的命令由你自己执行。安装器不会代为执行，之后也不会把 WhisperX 装回去。
+
+在 Windows 或 Linux 上，在已经用 `setup_env.py` 装好的 VideoLingo 环境里执行（以项目 `.venv` 为例；使用 `--shared` 共享环境时，把路径换成 `~/.venvs/videolingo`）。不要在 Apple Silicon 的默认环境里执行；请按下文另建环境。
 
 ```bash
 # Windows
@@ -24,20 +26,21 @@ VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，
 
 这 4 个包的版本约束与 3.0.4 版本中 `requirements.txt` 的约束相同。WhisperX 3.8 需要 Torch/torchaudio 2.8、torchvision 0.23 和 Transformers 4，与默认环境一致，因此不需要改动已装的 PyTorch。
 
-安装后执行 `python installer.py --check`。只要环境里装了 whisperx，检查就会额外探测 TorchCodec 能否加载 FFmpeg 共享库；没有装 whisperx 时跳过这一项。在 Windows / Linux 上，以后重跑 `installer.py` 或 `--upgrade` 不会卸载 WhisperX，如果检查报错，重新执行上面的安装命令即可。在 Apple Silicon 上，重跑 `installer.py` 会主动卸载默认环境里的WhisperX 整套依赖（whisperx、torchcodec、faster-whisper、ctranslate2、pyannote-*），见下文。
+安装后在同一环境执行 `python installer.py --check`。只要环境里装了 whisperx，检查就会额外探测 TorchCodec 能否加载 FFmpeg 共享库；没有装 whisperx 时跳过这一项。在 Windows / Linux 上，以后重跑 `installer.py` 或 `--upgrade` 不会卸载你自己装上的 WhisperX；如果检查报错，重新执行上面的安装命令即可。在 Apple Silicon 上，在默认环境里重跑 `installer.py` 会卸掉 WhisperX 整套依赖（whisperx、torchcodec、faster-whisper、ctranslate2、pyannote-*），并且不会再装回去，见下文。
 
 ## 启用
 
-在侧栏选择「语音识别运行环境：本地」→「本地识别后端：WhisperX（可选备选）」，或在 `config.yaml` 中设置：
+在侧栏选择「语音识别运行环境：本地」→「本地识别后端：WhisperX（手动安装）」，或在 `config.yaml` 中设置：
 
 ```yaml
 whisper:
   runtime: 'local'
   backend: 'whisperx'
-  model: 'large-v3'   # 或 large-v3-turbo；仅 WhisperX 使用
+  model: 'large-v3'   # 仅 WhisperX 使用。large-v3-turbo 会被改写成 large-v3
   language: 'en'
 ```
 
+- `whisper.model` 只接受 `large-v3`。名字里含 `turbo`（包括 `large-v3-turbo`）会在加载前改成 `large-v3`，因为这条管线里 turbo 会循环复读。缓存键同样按 `large-v3` 计算。
 - 识别语言设为 `zh` 时，WhisperX 路径会强制使用 `Huan69/Belle-whisper-large-v3-zh-punct-fasterwhisper`，忽略 `whisper.model`。
 - 自动检测到中文但识别语言不是 `zh` 时，WhisperX 路径会报错，要求明确选择中文。
 - 识别结果缓存的键包含后端，WhisperX 和 Qwen 的结果不会互相复用。
@@ -63,7 +66,7 @@ Windows 上已实际下载并完成音频解码验证的构建为
 
 在 Apple Silicon 上，默认依赖会安装 mlx-audio（要求 Transformers 5、`huggingface-hub>=1`），而 WhisperX 3.8.6 要求 `huggingface-hub<1`，两者不能装在同一个环境里。`uv` 只有选中预发布版 whisperx 3.8.7rc1 才能解出依赖，该组合未经验证，不建议使用。
 
-如需在 Mac 上使用 WhisperX，请为它另建一个独立的虚拟环境，不要在默认环境里执行上面的安装命令。本仓库不提供这个独立环境的安装脚本，相关组合也没有经过验证。如果默认环境里已经装了 whisperx（例如从旧版本升级），重跑 `installer.py` 时会先卸载WhisperX 整套依赖（whisperx、torchcodec、faster-whisper、ctranslate2、pyannote-*）（仍被其他已装包依赖的会保留），`installer.py --check` 也会把两者共存判为错误。
+如需在 Mac 上使用 WhisperX，请为它另建一个独立的虚拟环境，不要在默认环境里执行上面的安装命令。本仓库不提供这个独立环境的安装脚本，相关组合也没有经过验证。如果默认环境里已经装了 whisperx（例如从旧版本升级），重跑 `installer.py` 时会先卸载 WhisperX 整套依赖（whisperx、torchcodec、faster-whisper、ctranslate2、pyannote-*）（仍被其他已装包依赖的会保留），并且不会再装回去。在这套依赖卸掉之前，`installer.py --check` 会把两者共存判为错误。
 
 <a id="common-errors"></a>
 ## 常见报错
@@ -74,4 +77,4 @@ Windows 上已实际下载并完成音频解码验证的构建为
 4. **`RuntimeError: Weights only load failed`**：PyTorch ≥2.6 更改了 `torch.load` 的默认行为。已在 `whisperX_local.py` 中通过猴补丁修复，如果遇到此问题说明代码未正确更新。
 5. **Streamlit 中 WhisperX 转录卡住不动（CPU/GPU 均空闲）**：`librosa.load()` 在 Streamlit 的非主线程中死锁。已用 `whisperx.audio.load_audio()`（基于 ffmpeg 子进程）替换。如果遇到此问题说明代码未正确更新。
 6. **TorchCodec could not load**：`installer.py --check` 的 TorchCodec 探测失败，通常是 FFmpeg 版本为 8/9 或只有命令行程序没有共享库。按上面的 [FFmpeg 共享库](#ffmpeg-runtime) 处理。
-7. **`No module named 'whisperx'`**：选择了 WhisperX 后端但没有安装，按上面的安装步骤安装，或在侧栏切回 Qwen3-ASR。
+7. **`WhisperX is not installed`**：`whisper.backend` 已设为 `whisperx`，但没有安装该包。识别会在准备音频之前停止。请按上面的步骤自行安装，或把 `whisper.backend` 改回 `qwen`。安装器不会替你安装 WhisperX。
