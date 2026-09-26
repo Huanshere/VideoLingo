@@ -16,7 +16,7 @@
 
 ## 为什么
 
-`raw.mp3` 不只是识别输入。WhisperX 内部固定 16 kHz，不受影响；但 Demucs 的人声、
+`raw.mp3` 不只是识别输入。本地识别（默认的 Qwen3-ASR，以及可选的 WhisperX）内部都固定解码到 16 kHz，不受影响；但 Demucs 的人声、
 `_9_refer_audio` 按字幕切出的 `refers/*.wav`、以及 `sf_fish_tts` custom/dynamic、`sf_cosyvoice2`、
 `gpt_sovits`、`f5tts` 的克隆参考，全部继承提取时的带宽。
 

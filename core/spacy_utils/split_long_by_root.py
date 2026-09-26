@@ -35,7 +35,7 @@ def split_long_sentence(doc):
     joiner = get_joiner(language)
     while i > 0:
         j = prev[i]
-        sentences.append(joiner.join(tokens[j:i]).strip())
+        sentences.append(join_words(tokens[j:i], joiner).strip())
         i = j
     
     return sentences[::-1]  # reverse list to keep original order
@@ -55,7 +55,7 @@ def split_extremely_long_sentence(doc):
     for i in range(num_parts):
         start = i * part_length
         end = start + part_length if i < num_parts - 1 else n
-        sentence = joiner.join(tokens[start:end])
+        sentence = join_words(tokens[start:end], joiner)
         sentences.append(sentence)
     
     return sentences

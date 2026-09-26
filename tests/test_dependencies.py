@@ -42,8 +42,165 @@ def test_noto_lookup_uses_font_family(monkeypatch):
 def test_requirements_exclude_staged_torch():
     names = {installer.requirement_name(r) for r in installer.read_base_requirements()}
     assert not names.intersection({'torch', 'torchaudio', 'torchvision'})
-    assert {'whisperx', 'spacy', 'torchcodec'} <= names
+    assert {'qwen-asr', 'mlx-audio', 'spacy'} <= names
+    # WhisperX is a manual install, not an installer option, and is documented separately.
+    assert not names.intersection({'whisperx', 'torchcodec', 'pyannote-audio', 'ctranslate2'})
     assert not names.intersection({'moviepy', 'replicate', 'resampy'})
+
+
+def _platform_requirements(system, machine):
+    from packaging.requirements import Requirement
+    env = {'sys_platform': {'Darwin': 'darwin', 'Linux': 'linux', 'Windows': 'win32'}[system],
+           'platform_machine': machine, 'python_version': '3.13'}
+    reqs = {}
+    for raw in installer.read_base_requirements():
+        req = Requirement(raw)
+        if not req.marker or req.marker.evaluate(env):
+            reqs.setdefault(req.name, []).append(req)
+    return reqs
+
+
+@pytest.mark.parametrize('system,machine,engine,transformers_major', [
+    ('Darwin', 'arm64', 'mlx-audio', '5'),
+    ('Darwin', 'x86_64', 'qwen-asr', '4'),
+    ('Linux', 'x86_64', 'qwen-asr', '4'),
+    ('Windows', 'AMD64', 'qwen-asr', '4'),
+])
+def test_qwen_asr_requirements_follow_platform(monkeypatch, system, machine, engine, transformers_major):
+    reqs = _platform_requirements(system, machine)
+    other = {'mlx-audio', 'qwen-asr'} - {engine}
+    assert engine in reqs and not other.intersection(reqs)
+    assert len(reqs['transformers']) == len(reqs['huggingface-hub']) == 1
+    assert reqs['transformers'][0].specifier.contains(transformers_major + '.99')
+    assert ('nagisa' in reqs) == (engine == 'mlx-audio')
+    monkeypatch.setattr(installer.platform, 'system', lambda: system)
+    monkeypatch.setattr(installer.platform, 'machine', lambda: machine)
+    assert installer.qwen_asr_package() == engine
+
+
+@pytest.mark.parametrize('system,machine,release,expected', [
+    ('Darwin', 'x86_64', '13.6', 'Intel Macs'),
+    ('Darwin', 'arm64', '13.6.1', 'macOS 14 or newer'),
+    ('Darwin', 'arm64', '14.5', None),
+    ('Darwin', 'arm64', '26.0', None),
+    ('Linux', 'x86_64', '', None),
+    ('Windows', 'AMD64', '', None),
+])
+def test_unsupported_platform(monkeypatch, system, machine, release, expected):
+    monkeypatch.setattr(installer.platform, 'system', lambda: system)
+    monkeypatch.setattr(installer.platform, 'machine', lambda: machine)
+    monkeypatch.setattr(installer.platform, 'mac_ver', lambda: (release, ('', '', ''), ''))
+    reason = installer.unsupported_platform()
+    assert (reason is None) if expected is None else (expected in reason)
+
+
+def test_install_all_stops_before_pip_on_unsupported_platform(monkeypatch, capsys):
+    monkeypatch.setattr(installer, 'unsupported_platform', lambda: 'Intel Macs are not supported')
+    monkeypatch.setattr(installer, 'install_bootstrap', lambda: pytest.fail('pip must not run'))
+    args = installer.build_parser().parse_args([])
+    assert installer.install_all(args) == 1
+    assert 'ERROR: Intel Macs are not supported' in capsys.readouterr().out
+
+
+def _apple_silicon(monkeypatch, apple=True):
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin' if apple else 'Linux')
+    monkeypatch.setattr(installer.platform, 'machine', lambda: 'arm64' if apple else 'x86_64')
+
+
+@pytest.mark.parametrize('apple,installed,removed', [
+    (True, {'whisperx': '3.8.6', 'torchcodec': '0.7.0'}, ['whisperx', 'torchcodec']),
+    (True, {'whisperx': '3.8.6'}, ['whisperx']),
+    (True, {}, None),
+    (False, {'whisperx': '3.8.6', 'torchcodec': '0.7.0'}, None),
+])
+def test_whisperx_removed_before_mlx_install(monkeypatch, apple, installed, removed):
+    _apple_silicon(monkeypatch, apple)
+    monkeypatch.setattr(installer, 'package_version', installed.get)
+    monkeypatch.setattr(installer, 'required_by_other_packages', lambda names: set())
+    monkeypatch.setattr(installer, 'load_state', lambda: {})
+    monkeypatch.setattr(installer, 'health_check', lambda **kwargs: 1)
+    events = []
+    monkeypatch.setattr(installer, 'run', lambda cmd, **kwargs: events.append(('run', cmd)))
+    monkeypatch.setattr(installer, 'pip_install', lambda packages, **kwargs: events.append(('pip', packages)))
+    installer.install_base_requirements()
+    if removed:
+        assert events[0] == ('run', [installer.sys.executable, '-m', 'pip', 'uninstall', '-y', *removed])
+    assert events[-1][0] == 'pip' and all(kind == 'pip' for kind, _ in events[bool(removed):])
+
+
+def _fake_distribution(name, *requires):
+    from types import SimpleNamespace
+    return SimpleNamespace(metadata={'Name': name}, requires=list(requires))
+
+
+def test_required_by_other_packages_ignores_stack_project_and_extras(monkeypatch):
+    dists = [
+        _fake_distribution('pyannote.audio', 'torchcodec>=0.7', 'pyannote-core'),  # inside the stack
+        _fake_distribution('VideoLingo', 'whisperx<3.9'),                           # stale project metadata
+        _fake_distribution('someapp', 'CTranslate2>=4', "faster_whisper; extra == 'asr'"),
+        _fake_distribution('other', 'numpy'),
+    ]
+    monkeypatch.setattr(installer.metadata, 'distributions', lambda: dists)
+    names = ['whisperx', 'torchcodec', 'ctranslate2', 'faster-whisper', 'pyannote-audio', 'pyannote-core']
+    assert installer.required_by_other_packages(names) == {'ctranslate2'}
+
+
+def test_apple_silicon_removes_whole_whisperx_stack_but_keeps_needed(monkeypatch):
+    _apple_silicon(monkeypatch)
+    installed = {name: '1.0' for name in installer.WHISPERX_ONLY_PACKAGES}
+    monkeypatch.setattr(installer, 'package_version', installed.get)
+    monkeypatch.setattr(installer, 'required_by_other_packages', lambda names: {'ctranslate2'})
+    calls = []
+    monkeypatch.setattr(installer, 'run', lambda cmd, **kwargs: calls.append(cmd))
+    installer.remove_whisperx_for_mlx()
+    removed = calls[0][calls[0].index('-y') + 1:]
+    assert 'ctranslate2' not in removed
+    assert set(removed) == set(installer.WHISPERX_ONLY_PACKAGES) - {'ctranslate2'}
+    assert {'pyannote-audio', 'faster-whisper', 'torchcodec', 'whisperx'} <= set(removed)
+
+
+def test_whisperx_only_packages_are_not_default_requirements():
+    names = {installer.requirement_name(r) for r in installer.read_base_requirements()}
+    assert not names.intersection(installer.WHISPERX_ONLY_PACKAGES)
+
+
+@pytest.mark.parametrize('previous,installed,upgrade,refreshed', [
+    ('old-hash', True, False, True),     # upgrade from an older checkout: refresh stale metadata first
+    ('old-hash', False, False, False),   # project not registered yet: nothing to refresh
+    ('same', True, True, False),         # --upgrade with unchanged requirements
+])
+def test_stale_project_metadata_refreshed_before_sync(monkeypatch, previous, installed, upgrade, refreshed):
+    _apple_silicon(monkeypatch, False)
+    monkeypatch.setattr(installer, 'package_version', lambda name: '3.0.4' if installed and name == 'videolingo' else None)
+    monkeypatch.setattr(installer, 'load_state', lambda: {'requirements_hash': previous})
+    monkeypatch.setattr(installer, 'requirements_hash', lambda: 'same')
+    monkeypatch.setattr(installer, 'health_check', lambda **kwargs: 1)
+    calls = []
+    monkeypatch.setattr(installer, 'pip_install', lambda packages, **kwargs: calls.append((packages, kwargs)))
+    installer.install_base_requirements(upgrade=upgrade)
+    if refreshed:
+        assert calls[0] == (['-e', str(installer.ROOT)], {'retries': 1, 'extra_args': ['--no-deps']})
+    assert len(calls) == 1 + refreshed
+    assert calls[-1][0] == installer.read_base_requirements()
+
+
+def test_health_check_rejects_whisperx_next_to_mlx(monkeypatch, capsys):
+    versions = dict(_requirement_versions(('', '', '')), **{'mlx-audio': '0.5.5'})
+    _patch_health_environment(monkeypatch, versions, gpu=False)
+    monkeypatch.setattr(installer.platform, 'machine', lambda: 'arm64')
+    assert installer.health_check(check_state=False, torch_backend='cpu') == 0
+    versions['whisperx'] = '3.8.6'
+    assert installer.health_check(check_state=False, torch_backend='cpu') == 1
+    assert 'separate environment for WhisperX' in capsys.readouterr().out
+
+
+def test_installer_has_no_whisperx_stage():
+    source = (ROOT / 'installer.py').read_text(encoding='utf-8')
+    setup = (ROOT / 'setup_env.py').read_text(encoding='utf-8')
+    assert not hasattr(installer, 'install_whisperx')
+    assert '--with-whisperx' not in source and '/7]' not in source
+    assert '--local-whisperx' not in source and '--local-whisperx' not in setup
+    assert not (ROOT / 'requirements-whisperx.txt').exists()
 
 
 def test_cpu_torch_repaired_on_gpu(monkeypatch):
@@ -86,12 +243,20 @@ def test_plain_macos_cpu_versions_are_reused(monkeypatch):
     installer.install_torch(backend='cpu')
 
 
+# Health-check tests run as an x86_64 macOS host whatever machine runs them: markers,
+# platform.system() and platform.machine() must agree, or an Apple Silicon or Linux host
+# would select a different Qwen engine than the test expects.
+HEALTH_HOST = {'sys_platform': 'darwin', 'platform_system': 'Darwin', 'platform_machine': 'x86_64'}
+
+
 def _requirement_versions(builds=('cpu', 'cpu', 'cpu')):
     from packaging.requirements import Requirement
     versions = {}
     for raw in installer.REQUIREMENTS.read_text(encoding='utf-8').splitlines():
         if installer.requirement_name(raw):
             req = Requirement(raw)
+            if req.marker and not req.marker.evaluate(HEALTH_HOST):
+                continue
             lower = [s.version for s in req.specifier if s.operator in ('==', '>=')]
             versions[req.name] = lower[0] if lower else '1.0'
     for name, version, build in zip(('torch', 'torchaudio', 'torchvision'), ('2.8.0', '2.8.0', '0.23.0'), builds):
@@ -103,7 +268,13 @@ def _patch_health_environment(monkeypatch, versions, gpu=False):
     monkeypatch.setattr(installer, 'package_version', versions.get)
     monkeypatch.setattr(installer, 'load_state', lambda: {'requirements_hash': installer.requirements_hash()})
     monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: gpu)
-    monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin')
+    # Pin OS, architecture and the marker environment together (see HEALTH_HOST). With only
+    # the OS mocked, an Apple Silicon host enabled the MLX-only "whisperx next to MLX" error.
+    import packaging.markers
+    host_environment = packaging.markers.default_environment
+    monkeypatch.setattr(packaging.markers, 'default_environment', lambda: {**host_environment(), **HEALTH_HOST})
+    monkeypatch.setattr(installer.platform, 'system', lambda: HEALTH_HOST['platform_system'])
+    monkeypatch.setattr(installer.platform, 'machine', lambda: HEALTH_HOST['platform_machine'])
     monkeypatch.setattr(installer.shutil, 'which', lambda _: '/example/ffmpeg')
 
 
@@ -135,9 +306,25 @@ def test_health_check_auto_gpu_accepts_only_cu126_cu128(monkeypatch, capsys, bui
         assert f"detected builds: {', '.join(sorted(set(builds)))}" in output
 
 
+def test_health_check_requires_platform_qwen_package(monkeypatch, capsys):
+    versions = _requirement_versions(('', '', ''))
+    _patch_health_environment(monkeypatch, versions, gpu=False)
+    assert installer.health_check(check_state=False, torch_backend='cpu') == 0
+    package = installer.qwen_asr_package()
+    del versions[package]
+    assert installer.health_check(check_state=False, torch_backend='cpu') == 1
+    assert f'missing package: {package}' in capsys.readouterr().out
+
+
+def test_torchcodec_probe_skipped_without_whisperx(monkeypatch):
+    _patch_health_environment(monkeypatch, _requirement_versions(('', '', '')), gpu=False)
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: pytest.fail('TorchCodec is WhisperX-only'))
+    assert installer.health_check(quiet=True, check_state=True, torch_backend='cpu') == 0
+
+
 @pytest.mark.parametrize('returncode', [0, 1])
 def test_torchcodec_probe_result(monkeypatch, capsys, returncode):
-    _patch_health_environment(monkeypatch, _requirement_versions(('', '', '')), gpu=False)
+    _patch_health_environment(monkeypatch, dict(_requirement_versions(('', '', '')), whisperx='3.8.6'), gpu=False)
     calls = []
     def probe(cmd, **kwargs):
         calls.append(cmd)
@@ -162,7 +349,7 @@ def test_torchcodec_probe_result(monkeypatch, capsys, returncode):
     subprocess.TimeoutExpired('torchcodec probe', 60),
 ])
 def test_torchcodec_probe_exception_is_an_error(monkeypatch, capsys, error):
-    _patch_health_environment(monkeypatch, _requirement_versions(), gpu=False)
+    _patch_health_environment(monkeypatch, dict(_requirement_versions(), whisperx='3.8.6'), gpu=False)
     def probe(*args, **kwargs):
         raise error
     monkeypatch.setattr(installer.subprocess, 'run', probe)

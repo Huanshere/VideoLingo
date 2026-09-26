@@ -8,7 +8,14 @@ earlier recognition. A complete hit skips recognition model loading. Audio prepa
 is retained because later alignment and dubbing stages still require those files.
 
 Identity includes the source file MD5, recognition language, runtime, model setting,
-vocal separation, installed ASR package versions and a cache schema version. The
+local backend (`qwen` or `whisperx`), Qwen3-ASR model size (`1.7b`/`0.6b`) and the
+resolved Qwen engine (`mlx` or `transformers`, never `auto`), vocal separation,
+installed ASR package versions (whisperx, faster-whisper, qwen-asr, mlx-audio,
+transformers, demucs) and a cache schema version. WhisperX and Qwen results, the two
+Qwen sizes and the two engines are therefore never reused for each other. Adding
+these fields changed every key once, so entries written before the Qwen migration
+are no longer hit and recognition runs again on first use. Schema 2 (Demucs stems
+no longer start ~60 ms late, see `docs/audio-timeline.md`) invalidates them again. The
 source bytes are hashed, not only the filename or duration. A re-encode is a miss,
 even if it sounds identical. Credentials and translation settings are not stored.
 Cached results contain transcript text and timestamps: keep this local directory

@@ -152,5 +152,15 @@
     "Media file detection failed: {error}": "Error al detectar el archivo multimedia: {error}",
     "Clear output and reselect": "Limpiar salida y volver a seleccionar",
     "Finalize subtitle outputs": "Finalizar resultados de subtítulos",
-    "Finalize dubbing outputs": "Finalizar resultados de doblaje"
+    "Finalize dubbing outputs": "Finalizar resultados de doblaje",
+    "ASR Runtime": "Entorno de reconocimiento de voz",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); ElevenLabs runtime requires an ElevenLabs API key.": "Qwen3-ASR local funciona mejor con una GPU NVIDIA o Apple Silicon (en CPU funciona, pero lento); ElevenLabs requiere una clave de API de ElevenLabs.",
+    "Local ASR Backend": "Motor de reconocimiento local",
+    "Qwen3-ASR + ForcedAligner (default)": "Qwen3-ASR + ForcedAligner (predeterminado)",
+    "WhisperX (manual install)": "WhisperX (instalación manual)",
+    "Qwen3-ASR Model Size": "Tamaño del modelo Qwen3-ASR",
+    "1.7B (more accurate)": "1.7B (más preciso)",
+    "0.6B (faster, less memory)": "0.6B (más rápido, menos memoria)",
+    "WhisperX is not installed. VideoLingo's installer does not install it. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX no está instalado. El instalador de VideoLingo no lo instala. Sigue la página manual (docs/pages/docs/whisperx-manual.en-US.md) e instala los paquetes adicionales tú mismo, o vuelve a poner whisper.backend en qwen.",
+    "Word-level transcription and alignment": "Transcripción y alineación a nivel de palabra"
 }

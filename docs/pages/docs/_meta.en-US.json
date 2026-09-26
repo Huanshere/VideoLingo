@@ -5,6 +5,9 @@
     "start": {
       "title": "Start"
     },
+    "whisperx-manual": {
+      "title": "WhisperX (manual install)"
+    },
     "tech": {
       "title": "Tech"
     },

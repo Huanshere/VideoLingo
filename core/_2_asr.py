@@ -4,15 +4,38 @@ from core._1_ytdlp import find_media_file
 from core.utils.models import *
 from core.asr_backend import transcription_cache as cache
 
+def local_backend(whisper):
+    """Local ASR backend: "qwen" (default) or "whisperx" (install the packages yourself)."""
+    backend = str(whisper.get("backend", "qwen")).lower()
+    if backend not in ("qwen", "whisperx"):
+        raise ValueError(f"whisper.backend must be 'qwen' or 'whisperx', got {backend!r}")
+    return backend
+
+WHISPERX_NOT_INSTALLED = (
+    "WhisperX is not installed. VideoLingo's installer does not install it. "
+    "Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) "
+    "and install the extra packages yourself, or set whisper.backend to qwen."
+)
+
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
     runtime = load_key("whisper.runtime")
     if runtime not in ("local", "elevenlabs"):
         raise ValueError("Select local or elevenlabs for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
+    if runtime == "local" and local_backend(load_key("whisper")) == "whisperx":
+        from importlib.util import find_spec
+        if find_spec("whisperx") is None:
+            raise RuntimeError(WHISPERX_NOT_INSTALLED)
     # 1. prepare audio
     media_file, media_type = find_media_file()
-    whisper = load_key("whisper")
+    whisper = dict(load_key("whisper"))
     demucs = load_key("demucs")
+    if runtime == "local":
+        whisper["backend"] = local_backend(whisper)
+        if whisper["backend"] == "qwen":
+            from core.asr_backend import qwen_asr_local
+            whisper["qwen_model"] = qwen_asr_local.model_size(whisper.get("qwen_model"))
+            whisper["qwen_engine"] = qwen_asr_local.resolve_engine(whisper.get("qwen_engine"))
     key = cache.cache_key(media_file, whisper, demucs) if whisper.get("cache", True) else None
     cached = cache.read_result(key, "complete") if key else None
     if media_type == "video":
@@ -42,9 +65,12 @@ def transcribe():
     # 4. Transcribe audio by clips
     all_results = []
     language = None
-    if runtime == "local":
+    if runtime == "local" and whisper["backend"] == "qwen":
+        from core.asr_backend.qwen_asr_local import transcribe_audio as ts
+        rprint(f"[cyan]🎤 Transcribing audio with local Qwen3-ASR {whisper['qwen_model']} + ForcedAligner...[/cyan]")
+    elif runtime == "local":
         from core.asr_backend.whisperX_local import transcribe_audio as ts
-        rprint("[cyan]🎤 Transcribing audio with local model...[/cyan]")
+        rprint("[cyan]🎤 Transcribing audio with local WhisperX...[/cyan]")
     elif runtime == "elevenlabs":
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")
@@ -76,6 +102,10 @@ def transcribe():
     # 6. Process df
     df = process_transcription(combined_result)
     check_cancel()
+    if df.empty:
+        # Silence (or a wrong recognition language) yields no words; later steps need at least one.
+        raise ValueError("No speech was recognized in the audio. Check the source audio, "
+                         "or set the recognition language explicitly and retry.")
     save_results(df)
     if key:
         cache.write_result(key, "complete", combined_result, language)

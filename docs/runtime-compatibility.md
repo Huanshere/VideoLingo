@@ -5,7 +5,13 @@ hardcoded personal network settings or unrelated provider/translation changes.
 
 ## Whisper model cache
 
-Resolve complete explicit local directories, then the configured project Hub
+This section applies to the manual WhisperX backend (`whisper.backend: whisperx`).
+The default Qwen3-ASR backend uses a complete local copy at
+`model_dir/<last part of the repo id>` (a directory containing `config.json`, e.g.
+`_model_cache/Qwen3-ASR-1.7B`) when present, and otherwise the standard Hugging Face
+cache/Hub resolution of qwen-asr or mlx-audio, which honors `HF_ENDPOINT`.
+
+For WhisperX: resolve complete explicit local directories, then the configured project Hub
 cache and the global Hub cache with `local_files_only=True`. Pass the resulting
 directory to WhisperX. If neither cache has a complete snapshot, fetch missing
 files with the installed loader's standard endpoint configuration. Preserve model

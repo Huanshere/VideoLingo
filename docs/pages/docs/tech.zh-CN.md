@@ -21,9 +21,10 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系
 
 *   `core/asr_backend/demucs_vl.py`: 使用 Demucs 模型 (`htdemucs`) 将音频分离为人声和背景音轨，从而提高后续 ASR 的质量。
 *   `core/asr_backend/audio_preprocess.py`: 包含准备音频的基本功能：音量标准化 (`pydub`)、视频到音频的转换 (`ffmpeg`)、静音检测 (`ffmpeg`)、音频时长计算 (`ffmpeg`)、将长音频文件拆分为可管理的片段、将 ASR 结果处理为 DataFrames、保存结果以及存储检测到的语言。
-*   `core/asr_backend/whisperX_local.py`: 使用 WhisperX 库实现本地音频转录。根据可用硬件（GPU/CPU）优化性能，处理模型下载（具有镜像检查），执行转录和对齐，调整时间戳，并管理 GPU 内存。
+*   `core/asr_backend/qwen_asr_local.py`: 默认的本地 ASR。用 Qwen3-ASR（1.7B/0.6B）转写原始音频，再用 Qwen3-ForcedAligner-0.6B 把文本对齐到人声音轨；音频按不超过 180 秒、在低能量处切分的窗口处理。Apple Silicon 上使用 MLX（mlx-audio，8bit），其他平台使用官方 qwen-asr 的 transformers 后端；把对齐时去掉的标点贴回词上，输出与 WhisperX 相同的 segment/word 结构。
+*   `core/asr_backend/whisperX_local.py`: 手动安装的后端（`whisper.backend: whisperx`）。安装器不会安装它，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md)。使用 WhisperX 库实现本地音频转录。根据可用硬件（GPU/CPU）优化性能，处理模型下载（具有镜像检查），执行转录和对齐，调整时间戳，并管理 GPU 内存。
 *   `core/asr_backend/elevenlabs_asr.py`: 使用 ElevenLabs 语音转文本 API 实现音频转录，处理音频切片、API 交互、格式转换（ElevenLabs 到类似 Whisper 的格式）和临时文件管理。
-*   `core/_2_asr.py`: Orchestrates audio preparation, optional vocal separation, recognition with local WhisperX or ElevenLabs, and result export.
+*   `core/_2_asr.py`: 统筹音频准备、可选的人声分离、识别（本地 Qwen3-ASR（默认）、自行安装的 WhisperX 或 ElevenLabs）、按内容寻址的识别结果缓存以及结果导出。
 
 **4. 文本处理和翻译模块 (`core`, `core/spacy_utils`):**
 
