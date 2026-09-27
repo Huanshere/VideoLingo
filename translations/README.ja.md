@@ -79,11 +79,20 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## インストール
 
+### Windows：ダブルクリックでインストール 🎉
+
+1. [最新リリース](https://github.com/Huanshere/VideoLingo/releases/latest)を開き、**Source code (zip)** をダウンロードします。
+2. ZIP をデスクトップなどに展開し、展開したフォルダーを開きます。
+3. `OneKeyInstall.bat` をダブルクリックします。必要なものをダウンロードしてインストールする間、ウィンドウを閉じないでください。初回はインターネット接続が必要で、時間がかかる場合があります。
+4. VideoLingo が開いたら、サイドバーに API URL、キー、モデルを入力します。次回からは `OneKeyStart.bat` をダブルクリックします。
+
+この Windows 向け手順では、Git、uv、Python を自分でインストールする必要はありません。
+
+### macOS・Linux、または手動インストール
+
 先に [Git](https://git-scm.com/downloads) と [uv](https://docs.astral.sh/uv/getting-started/installation/) をインストールし、ターミナルを開き直して `git --version` と `uv --version` を確認してください。
 
-NVIDIA を使用する場合は、GPU に対応するドライバーが必要です。インストーラーは `nvidia-smi` が CUDA >=12.8 を示す場合に PyTorch `cu128`、それ以外は `cu126` を選択し、NVIDIA がなければ CPU パッケージを選択します。これは Python パッケージの選択であり、システムの CUDA Toolkit は自動インストールしません。Apple Silicon（macOS 14+）では、ローカル認識に MLX を使用します。[GPU 要件](../docs/pages/docs/start.en-US.md#gpu-runtime)を参照してください。
-
-### uv でインストール
+NVIDIA GPU を使う場合は、対応するドライバーを先にインストールしてください。Apple Silicon Mac には macOS 14 以降が必要です。詳しくは [GPU 要件](../docs/pages/docs/start.en-US.md#gpu-runtime)をご覧ください。
 
 uv が Python 3.13 を取得して `.venv` を作成するため、Python の事前インストールは不要です。アプリは Python 3.10–3.13 に対応します。既定の Qwen3-ASR 認識は FFmpeg コマンドラインツールのみを呼び出します。
 

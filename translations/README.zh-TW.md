@@ -79,11 +79,20 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安裝
 
+### Windows：雙擊安裝 🎉
+
+1. 開啟[最新版本頁面](https://github.com/Huanshere/VideoLingo/releases/latest)，下載 **Source code (zip)**。
+2. 解壓縮到桌面等方便找到的位置，開啟解壓縮後的資料夾。
+3. 雙擊 `OneKeyInstall.bat`，保持視窗開啟，等待所需元件下載與安裝完成。首次安裝需要連網，可能需要一些時間。
+4. VideoLingo 開啟後，在側邊欄填入 API 網址、金鑰和模型。下次使用時雙擊 `OneKeyStart.bat`。
+
+使用這個 Windows 方法，不需要自行安裝 Git、uv 或 Python。
+
+### macOS、Linux 或手動安裝
+
 先安裝 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重新開啟終端，檢查 `git --version` 和 `uv --version`。
 
-使用 NVIDIA 加速時，需要安裝與顯卡相容的驅動。主機安裝器依據 `nvidia-smi` 報告的 CUDA 支援版本選擇 PyTorch：>=12.8 使用 `cu128`，否則使用 `cu126`；沒有 NVIDIA 時使用 CPU 套件。這是在選擇 Python 套件，不會自動安裝系統 CUDA Toolkit。在 Apple Silicon（macOS 14+）上，本地辨識改用 MLX。詳見 [GPU 執行庫要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
-
-### 使用 uv 安裝
+使用 NVIDIA 顯示卡時，請先安裝相容的驅動程式。Apple Silicon Mac 需要 macOS 14 或更新版本。詳見 [GPU 執行庫要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
 uv 自動下載 Python 3.13 並建立隔離的 `.venv`，以下命令不需要預裝 Python。應用程式支援 Python 3.10–3.13。預設的 Qwen3-ASR 辨識只會呼叫 FFmpeg 命令列工具。
 

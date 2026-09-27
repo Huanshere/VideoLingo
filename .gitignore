@@ -173,3 +173,4 @@ installer_files/
 # Streamlit runtime logs from OneKeyStart.bat
 logs/
 videolingo_*.log
+.tools/

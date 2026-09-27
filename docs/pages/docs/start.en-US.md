@@ -122,7 +122,15 @@ After configuration, select `Reference Audio Mode` in the sidebar (see Yuque doc
 
 VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 
-### Prerequisites
+### Windows: double-click to install 🎉
+
+1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest), then extract it to your Desktop or another folder.
+2. Open the extracted folder and double-click `OneKeyInstall.bat`. Keep the window open while the first install downloads what it needs. An internet connection is required, and this may take a while.
+3. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click `OneKeyStart.bat`.
+
+You do not need to install Git, uv or Python yourself for this Windows path. If you use an NVIDIA GPU, install a compatible driver first; see [GPU runtime](#gpu-runtime).
+
+### macOS, Linux, or manual setup
 
 Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
@@ -161,7 +169,7 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 
 The installer selects Python wheels; it does not install a system CUDA Toolkit. Newer CUDA 13-capable drivers do not require CUDA 13 Python packages for this project.
 
-### Install with uv
+### Install with uv (manual setup)
 
 uv provisions Python 3.13 in `.venv`. Existing application environments are supported on Python 3.10–3.13. The bootstrap command below does not require a preinstalled Python.
 

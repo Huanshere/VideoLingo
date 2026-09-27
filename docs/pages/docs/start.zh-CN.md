@@ -121,7 +121,15 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运行。
 
-### 安装前准备
+### Windows：双击安装 🎉
+
+1. 从[最新版本页面](https://github.com/Huanshere/VideoLingo/releases/latest)下载 **Source code (zip)**，解压到桌面等方便找到的位置。
+2. 打开解压后的文件夹，双击 `OneKeyInstall.bat`。保持窗口打开，等待首次下载和安装完成。需要联网，可能需要一些时间。
+3. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。下次使用时双击 `OneKeyStart.bat`。
+
+按这个 Windows 方法操作，不需要自己安装 Git、uv 或 Python。如果使用 NVIDIA 显卡，先安装兼容的驱动，详见[显卡运行环境](#gpu-runtime)。
+
+### macOS、Linux 或手动安装
 
 先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
 
@@ -160,7 +168,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 安装器选择的是 Python 包，不会安装系统 CUDA Toolkit。支持 CUDA 13 的新驱动不代表本项目需要 CUDA 13 的 Python 包。
 
-### 使用 uv 安装
+### 使用 uv 安装（手动安装）
 
 uv 创建使用 Python 3.13 的 `.venv`，已有应用环境支持 Python 3.10–3.13。下面的引导命令不需要预装 Python。
 

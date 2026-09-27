@@ -79,11 +79,20 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Установка
 
+### Windows: установка двойным щелчком 🎉
+
+1. Откройте [последний выпуск](https://github.com/Huanshere/VideoLingo/releases/latest) и скачайте **Source code (zip)**.
+2. Распакуйте ZIP в удобное место, например на рабочий стол, и откройте полученную папку.
+3. Дважды щёлкните `OneKeyInstall.bat`. Не закрывайте окно, пока загружаются и устанавливаются необходимые компоненты. Для первой установки нужен интернет; это может занять некоторое время.
+4. Когда откроется VideoLingo, укажите адрес API, ключ и модель на боковой панели. В следующий раз дважды щёлкните `OneKeyStart.bat`.
+
+Для этого способа в Windows не нужно самостоятельно устанавливать Git, uv или Python.
+
+### macOS, Linux или ручная установка
+
 Установите [Git](https://git-scm.com/downloads) и [uv](https://docs.astral.sh/uv/getting-started/installation/). Откройте терминал заново и проверьте `git --version` и `uv --version`.
 
-Для NVIDIA нужен совместимый с GPU драйвер. Установщик выбирает PyTorch `cu128`, если `nvidia-smi` сообщает CUDA >=12.8, иначе `cu126`; без NVIDIA используются пакеты CPU. Это выбор пакетов Python, а не установка системного CUDA Toolkit. На Apple Silicon (macOS 14+) локальное распознавание использует MLX. См. [требования GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
-
-### Установка через uv
+Если вы используете GPU NVIDIA, сначала установите совместимый драйвер. Для Mac с Apple Silicon нужна macOS 14 или новее. Подробнее см. [требования GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
 
 uv загружает Python 3.13 и создаёт `.venv` без предварительной установки Python. Приложение поддерживает Python 3.10–3.13. Распознавание Qwen3-ASR по умолчанию вызывает только утилиту командной строки FFmpeg.
 

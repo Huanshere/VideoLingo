@@ -79,11 +79,20 @@ Les langues de doublage dépendent du service TTS choisi.
 
 ## Installation
 
+### Windows : installez en double-cliquant 🎉
+
+1. Ouvrez la [dernière version](https://github.com/Huanshere/VideoLingo/releases/latest) et téléchargez **Source code (zip)**.
+2. Décompressez le ZIP à un endroit facile à retrouver, comme le Bureau, puis ouvrez le dossier extrait.
+3. Double-cliquez sur `OneKeyInstall.bat`. Gardez la fenêtre ouverte pendant le téléchargement et l’installation des éléments nécessaires. La première installation demande une connexion Internet et peut prendre du temps.
+4. Une fois VideoLingo ouvert, renseignez l’URL de l’API, la clé et le modèle dans la barre latérale. Les fois suivantes, double-cliquez sur `OneKeyStart.bat`.
+
+Avec cette méthode Windows, vous n’avez pas besoin d’installer vous-même Git, uv ou Python.
+
+### macOS, Linux ou installation manuelle
+
 Installez [Git](https://git-scm.com/downloads) et [uv](https://docs.astral.sh/uv/getting-started/installation/). Rouvrez le terminal et vérifiez `git --version` et `uv --version`.
 
-Pour NVIDIA, installez un pilote compatible avec votre GPU. L'installateur choisit PyTorch `cu128` si `nvidia-smi` indique CUDA >=12.8, sinon `cu126`; sans NVIDIA, il choisit les paquets CPU. Il sélectionne des paquets Python, pas le CUDA Toolkit système. Sur Apple Silicon (macOS 14+), la reconnaissance locale utilise MLX. Voir les [prérequis GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
-
-### Installation avec uv
+Si vous utilisez un GPU NVIDIA, installez d’abord un pilote compatible. Les Mac Apple Silicon nécessitent macOS 14 ou une version ultérieure. Consultez les [prérequis GPU](../docs/pages/docs/start.en-US.md#gpu-runtime) pour en savoir plus.
 
 uv télécharge Python 3.13 et crée un environnement `.venv` isolé, sans Python préinstallé. L'application prend en charge Python 3.10–3.13. La reconnaissance Qwen3-ASR par défaut n'utilise que l'outil en ligne de commande FFmpeg.
 

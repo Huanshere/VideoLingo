@@ -79,6 +79,17 @@ Dubbing languages depend on the selected TTS method.
 
 ## Installation
 
+### Windows: install by double-clicking 🎉
+
+1. Open the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest) and download **Source code (zip)**.
+2. Extract the ZIP to a folder, such as your Desktop. Open the extracted folder.
+3. Double-click `OneKeyInstall.bat`. Keep the window open while it downloads and installs what VideoLingo needs. The first install needs an internet connection and may take a while.
+4. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click `OneKeyStart.bat`.
+
+You do not need to install Git, uv or Python yourself for this Windows path.
+
+### macOS, Linux, or manual installation
+
 Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
 To use NVIDIA GPU acceleration, install or update your graphics driver. The installer will automatically select a compatible PyTorch version.

@@ -60,6 +60,16 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
+### Windows：双击安装 🎉
+
+1. 从[最新版本页面](https://github.com/Huanshere/VideoLingo/releases/latest)下载 **Source code (zip)**，解压到桌面等方便找到的位置。
+2. 打开解压后的文件夹，双击 `OneKeyInstall.bat`。保持窗口打开；首次安装需要联网，可能需要一些时间。
+3. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。下次使用时双击 `OneKeyStart.bat`。
+
+按这个 Windows 方法操作，不需要自己安装 Git、uv 或 Python。
+
+### macOS、Linux 或手动安装
+
 先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。NVIDIA 要求见[运行库说明](start.zh-CN.md#gpu-runtime)；选择可选的 WhisperX 后端时，另见 [WhisperX 安装指南](whisperx-manual.zh-CN.md)。
 
 1. 克隆仓库
