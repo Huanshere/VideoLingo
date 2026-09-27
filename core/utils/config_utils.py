@@ -99,6 +99,13 @@ def _spaced_word_char(char):
         return True
 
 
+def get_text_joiner(text):
+    """Joiner for text whose language code is unknown (translations): follow its script."""
+    letters = [char for char in str(text) if char.isalpha()]
+    unspaced = sum(1 for char in letters if not _spaced_word_char(char))
+    return "" if unspaced * 2 > len(letters) else " "
+
+
 def join_words(words, joiner):
     """Join words/tokens with the language joiner, keeping code-switched words apart.
 

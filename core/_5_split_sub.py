@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
 from core.utils import *
+from core.utils.config_utils import get_text_joiner
 from core.utils.models import *
 console = Console()
 
@@ -44,10 +45,8 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     src_parts = src_part.split('\n')
     tr_parts = [item[f'target_part_{i+1}'].strip() for i, item in enumerate(align_data)]
     
-    whisper_language = load_key("whisper.language")
-    language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language
-    joiner = get_joiner(language)
-    tr_remerged = join_words(tr_parts, joiner)
+    # The parts are in the target language, so the source-language joiner does not apply
+    tr_remerged = join_words(tr_parts, get_text_joiner(''.join(tr_parts)))
     
     table = Table(title="🔗 Aligned parts")
     table.add_column("Language", style="cyan")

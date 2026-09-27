@@ -35,3 +35,27 @@ def test_unmatched_sentence_still_raises():
 
     with pytest.raises(ValueError):
         get_sentence_timestamps(_words(), pd.DataFrame({"Source": ["Hello world.", "Something else"]}))
+
+
+# ------------------------------------------------------------------
+# _5_split_sub: re-merged translation follows the target script (#359)
+# ------------------------------------------------------------------
+
+@pytest.mark.parametrize("source_language,parts,expected", [
+    ("en", ["今天我们来聊一聊", "人工智能的未来"], "今天我们来聊一聊人工智能的未来"),
+    ("en", ["我们用 Python", "写了 3 个脚本"], "我们用 Python写了 3 个脚本"),
+    ("zh", ["Today we talk about", "the future of AI"], "Today we talk about the future of AI"),
+    ("ja", ["It shipped in 2024", "5 people built it"], "It shipped in 2024 5 people built it"),
+    ("en", ["오늘은 인공지능의", "미래를 이야기합니다"], "오늘은 인공지능의 미래를 이야기합니다"),
+])
+def test_remerged_translation_uses_target_script_joiner(monkeypatch, source_language, parts, expected):
+    import core._5_split_sub as split_sub
+
+    align = [{f"target_part_{i + 1}": part} for i, part in enumerate(parts)]
+    monkeypatch.setattr(split_sub, "ask_gpt", lambda *args, **kwargs: {"align": align})
+    monkeypatch.setattr(split_sub, "load_key", lambda key: source_language if key.startswith("whisper") else None)
+
+    _, tr_parts, remerged = split_sub.align_subs("src", "tr", "src part 1\nsrc part 2")
+
+    assert tr_parts == parts
+    assert remerged == expected
