@@ -1753,3 +1753,14 @@ def test_japanese_text_is_not_estimated_as_chinese():
 
     assert 4 < japanese < 5.5
     assert chinese == pytest.approx(11 * 0.21 + 0.1)
+
+
+@pytest.mark.parametrize("line,expected", [
+    ("What matters is getting hands-on quickly", "What matters is getting hands-on quickly"),
+    ("- Hello. - Hi (laughs)", "Hello.  Hi"),
+    ("这是一句台词（笑）", "这是一句台词"),
+])
+def test_hyphen_of_a_word_is_kept_in_the_dubbing_lines(line, expected):
+    from core._8_2_dub_chunks import clean_line
+
+    assert clean_line(line) == expected
