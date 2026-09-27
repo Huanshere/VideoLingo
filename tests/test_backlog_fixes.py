@@ -59,3 +59,48 @@ def test_remerged_translation_uses_target_script_joiner(monkeypatch, source_lang
 
     assert tr_parts == parts
     assert remerged == expected
+
+
+# ------------------------------------------------------------------
+# ask_gpt: a local LLM needs no API key (#415, #540)
+# ------------------------------------------------------------------
+
+def _ask_gpt_module():
+    import sys
+    import core.utils  # noqa: F401  (core.utils.ask_gpt the attribute is the function)
+    return sys.modules["core.utils.ask_gpt"]
+
+
+@pytest.mark.parametrize("base_url,local", [
+    ("http://localhost:11434/v1", True),
+    ("http://127.0.0.1:1234", True),
+    ("http://192.168.1.20:8000/v1", True),
+    ("http://host.docker.internal:11434/v1", True),
+    ("http://[::1]:8080/v1", True),
+    ("0.0.0.0:8000", True),
+    ("https://api.openai.com/v1", False),
+    ("https://localhost.example.com/v1", False),
+    ("https://8.8.8.8/v1", False),
+    ("", False),
+])
+def test_is_local_endpoint(base_url, local):
+    assert _ask_gpt_module().is_local_endpoint(base_url) is local
+
+
+@pytest.mark.parametrize("key,base_url,expected", [
+    ("sk-test", "https://api.openai.com/v1", "sk-test"),
+    ("sk-test", "http://localhost:11434/v1", "sk-test"),
+    ("", "http://localhost:11434/v1", "not-needed"),
+    (None, "http://127.0.0.1:1234/v1", "not-needed"),
+])
+def test_get_api_key(monkeypatch, key, base_url, expected):
+    module = _ask_gpt_module()
+    monkeypatch.setattr(module, "load_key", {"api.key": key, "api.base_url": base_url}.get)
+    assert module.get_api_key() == expected
+
+
+def test_empty_key_for_a_hosted_endpoint_is_still_an_error(monkeypatch):
+    module = _ask_gpt_module()
+    monkeypatch.setattr(module, "load_key", {"api.key": "", "api.base_url": "https://api.openai.com/v1"}.get)
+    with pytest.raises(ValueError, match="API key is not set"):
+        module.get_api_key()

@@ -1,6 +1,8 @@
 import os
 import json
+import ipaddress
 from threading import Lock
+from urllib.parse import urlparse
 import json_repair
 from openai import OpenAI
 from core.utils.config_utils import load_key
@@ -37,13 +39,37 @@ def _load_cache(prompt, resp_type, log_title):
         return False
 
 # ------------
+# api key
+# ------------
+
+LOCAL_API_KEY = "not-needed"  # the OpenAI client refuses an empty key; local servers ignore it
+
+def is_local_endpoint(base_url):
+    """Ollama, LM Studio, vLLM... on this machine or the private network need no API key."""
+    host = (urlparse(base_url if "//" in str(base_url) else f"//{base_url}").hostname or "").lower()
+    if host in ("localhost", "host.docker.internal") or host.endswith((".local", ".localhost")):
+        return True
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return address.is_loopback or address.is_private or address.is_unspecified
+
+def get_api_key():
+    key = load_key("api.key")
+    if key:
+        return key
+    if is_local_endpoint(load_key("api.base_url")):
+        return LOCAL_API_KEY
+    raise ValueError("API key is not set")
+
+# ------------
 # ask gpt once
 # ------------
 
 @except_handler("GPT request failed", retry=5)
 def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
-    if not load_key("api.key"):
-        raise ValueError("API key is not set")
+    api_key = get_api_key()
     # check cache
     cached = _load_cache(prompt, resp_type, log_title)
     if cached:
@@ -56,7 +82,7 @@ def ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
         base_url = "https://ark.cn-beijing.volces.com/api/v3" # huoshan base url
     elif 'v1' not in base_url:
         base_url = base_url.strip('/') + '/v1'
-    client = OpenAI(api_key=load_key("api.key"), base_url=base_url)
+    client = OpenAI(api_key=api_key, base_url=base_url)
     response_format = {"type": "json_object"} if resp_type == "json" and load_key("api.llm_support_json") else None
 
     messages = [{"role": "user", "content": prompt}]

@@ -3,6 +3,7 @@ import streamlit as st
 import requests
 from translations.translations import translate as t
 from core.utils import *
+from core.utils.ask_gpt import is_local_endpoint
 
 
 def config_input(label, key, help=None, placeholder=None):
@@ -15,7 +16,7 @@ def config_input(label, key, help=None, placeholder=None):
 
 def _fetch_model_list(base_url, api_key):
     """Fetch available models from OpenAI-compatible /v1/models endpoint."""
-    if not api_key or not base_url:
+    if not base_url or (not api_key and not is_local_endpoint(base_url)):
         return []
     url = base_url.rstrip("/")
     if not url.endswith("/v1"):
@@ -23,7 +24,7 @@ def _fetch_model_list(base_url, api_key):
     url += "/models"
     try:
         resp = requests.get(
-            url, headers={"Authorization": f"Bearer {api_key}"}, timeout=10
+            url, headers={"Authorization": f"Bearer {api_key}"} if api_key else {}, timeout=10
         )
         resp.raise_for_status()
         data = resp.json().get("data", [])
