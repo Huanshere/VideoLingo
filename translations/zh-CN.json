@@ -75,6 +75,7 @@
     "Merge final audio into video": "将最终音频合并到视频中",
     "Start Audio Processing": "开始音频处理",
     "Audio processing is complete! You can check the audio files in the `output` folder.": "音频处理完成！您可以在`output`文件夹中查看音频文件。",
+    "{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.": "有 {n} 句配音超出了可用时间，结尾被截断。具体句子见 `output/log/dub_truncated.json`。",
     "Delete dubbing files": "删除配音文件",
     "Generate audio tasks": "生成音频任务",
     "Extract refer audio": "提取参考音频",

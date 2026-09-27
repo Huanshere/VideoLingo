@@ -16,7 +16,7 @@ configure_ffmpeg(required=True)
 import streamlit as st
 from core.st_utils.imports_and_utils import *
 from core.task_runner import TaskRunner
-from core.pipeline import get_steps
+from core.pipeline import get_steps, truncated_dubbing_lines
 from core.utils import load_key, update_key
 from core.utils.onekeycleanup import cleanup
 from core.utils.delete_retry_dubbing import delete_dubbing_files
@@ -307,6 +307,9 @@ def audio_processing_section():
                     "Audio processing is complete! You can check the audio files in the `output` folder."
                 )
             )
+            truncated = truncated_dubbing_lines()
+            if truncated:
+                st.warning(t("{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.").replace("{n}", str(len(truncated))))
             if not audio_only and os.path.exists(DUB_VIDEO):
                 st.video(DUB_VIDEO)
             if st.button(t("Delete dubbing files"), key="delete_dubbing_files"):

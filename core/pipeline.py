@@ -6,7 +6,8 @@ from pathlib import Path
 
 from core.task_runner import TaskRunner
 from core.utils.config_utils import load_key, load_key_or
-from core.utils.models import _4_1_TERMINOLOGY, _4_2_TRANSLATION, _5_SPLIT_SUB, _TEXT_DONE_MARKER, _AUDIO_DONE_MARKER
+from core.utils.models import (_4_1_TERMINOLOGY, _4_2_TRANSLATION, _5_SPLIT_SUB, _10_DUB_TRUNCATED,
+                               _TEXT_DONE_MARKER, _AUDIO_DONE_MARKER)
 
 
 # Labels remain translation keys; only the UI translates them.
@@ -119,6 +120,14 @@ def check_tts_method():
     if not any(method in methods for methods in PROVIDERS.values()):
         raise ValueError(f"The dubbing method `{method}` is not available any more. "
                          "Select another one in the dubbing settings and retry.")
+
+
+def truncated_dubbing_lines():
+    """The lines whose dubbing was cut at the end, as the dubbing has listed them."""
+    try:
+        return json.loads(Path(_10_DUB_TRUNCATED).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
 
 
 def _execute(calls, clear_marker=None):

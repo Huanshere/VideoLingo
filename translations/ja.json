@@ -75,6 +75,7 @@
     "Merge final audio into video": "最終音声を動画に統合",
     "Start Audio Processing": "音声処理を開始",
     "Audio processing is complete! You can check the audio files in the `output` folder.": "音声処理が完了しました！`output`フォルダで音声ファイルを確認できます。",
+    "{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.": "{n} 行の吹き替えが時間内に収まらず、末尾が切り詰められました。該当する行は `output/log/dub_truncated.json` にあります。",
     "Delete dubbing files": "吹き替えファイルを削除",
     "Generate audio tasks": "音声タスクを生成",
     "Extract refer audio": "参照音声を抽出",

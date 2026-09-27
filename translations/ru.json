@@ -98,6 +98,7 @@
     "Merge final audio into video": "Объединение финального аудио с видео",
     "Start Audio Processing": "Начать обработку аудио",
     "Audio processing is complete! You can check the audio files in the `output` folder.": "Обработка аудио завершена! Вы можете проверить аудио файлы в папке `output`.",
+    "{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.": "Строк озвучивания, которые не уместились в своё время и были обрезаны в конце: {n}. Они перечислены в `output/log/dub_truncated.json`.",
     "Delete dubbing files": "Удалить файлы дубляжа",
     "Generate audio tasks": "Создать аудио задачи",
     "Extract refer audio": "Извлечь эталонное аудио",

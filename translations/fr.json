@@ -98,6 +98,7 @@
     "Merge final audio into video": "Fusionner l'audio final dans la vidéo",
     "Start Audio Processing": "Démarrer le traitement audio",
     "Audio processing is complete! You can check the audio files in the `output` folder.": "Le traitement audio est terminé ! Vous pouvez vérifier les fichiers audio dans le dossier `output`.",
+    "{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.": "{n} ligne(s) de doublage dépassaient leur durée et ont été coupées à la fin. Elles sont listées dans `output/log/dub_truncated.json`.",
     "Delete dubbing files": "Supprimer les fichiers de doublage",
     "Generate audio tasks": "Générer les tâches audio",
     "Extract refer audio": "Extraire l'audio de référence",

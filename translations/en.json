@@ -75,6 +75,7 @@
     "Merge final audio into video": "Merge final audio into video",
     "Start Audio Processing": "Start Audio Processing",
     "Audio processing is complete! You can check the audio files in the `output` folder.": "Audio processing is complete! You can check the audio files in the `output` folder.",
+    "{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.": "{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.",
     "Delete dubbing files": "Delete dubbing files",
     "Generate audio tasks": "Generate audio tasks",
     "Extract refer audio": "Extract refer audio",

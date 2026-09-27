@@ -21,7 +21,7 @@ console = Console()
 
 TEMP_FILE_TEMPLATE = f"{_AUDIO_TMP_DIR}/{{}}_temp.wav"
 OUTPUT_FILE_TEMPLATE = f"{_AUDIO_SEGS_DIR}/{{}}.wav"
-TRUNCATED_LOG = "output/log/dub_truncated.json"
+TRUNCATED_LOG = _10_DUB_TRUNCATED
 WARMUP_SIZE = 5
 
 def parse_df_srt_time(time_str: str) -> float:

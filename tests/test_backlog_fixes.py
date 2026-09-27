@@ -245,6 +245,20 @@ def test_removed_dubbing_method_of_an_old_config_is_a_clear_error(monkeypatch):
     pipeline.check_tts_method()
 
 
+def test_page_reads_the_truncated_lines_of_the_dubbing(monkeypatch, tmp_path):
+    from core import pipeline
+
+    log = tmp_path / "dub_truncated.json"
+    monkeypatch.setattr(pipeline, "_10_DUB_TRUNCATED", str(log))
+    assert pipeline.truncated_dubbing_lines() == []
+
+    log.write_text('[{"number": 3, "line": "Hello", "spoken_seconds": 3.5, "kept_seconds": 2.9}]', encoding="utf-8")
+    assert [item["number"] for item in pipeline.truncated_dubbing_lines()] == [3]
+
+    log.write_text("[{", encoding="utf-8")
+    assert pipeline.truncated_dubbing_lines() == []
+
+
 def test_dubbing_checks_the_method_before_anything_else():
     from core import pipeline
 
