@@ -66,7 +66,11 @@ def transcribe():
         return
 
     # 3. Extract audio
-    segments = split_audio(_RAW_AUDIO_FILE)
+    if runtime == "mai" and str(whisper.get("mai_provider", "azure")).lower() == "openrouter":
+        # OpenRouter's upstream has a roughly 60-second processing timeout.
+        segments = split_audio(_RAW_AUDIO_FILE, target_len=120, win=15)
+    else:
+        segments = split_audio(_RAW_AUDIO_FILE)
     
     # 4. Transcribe audio by clips
     all_results = []
@@ -81,8 +85,8 @@ def transcribe():
         from core.asr_backend.elevenlabs_asr import transcribe_audio_elevenlabs as ts
         rprint("[cyan]🎤 Transcribing audio with ElevenLabs API...[/cyan]")
     elif runtime == "mai":
-        from core.asr_backend.mai_asr import transcribe_audio_mai as ts
-        rprint("[cyan]🎤 Transcribing audio with Azure MAI-Transcribe-2...[/cyan]")
+        from core.asr_backend.mai_asr import transcribe_audio_mai as ts, selected_provider
+        rprint(f"[cyan]🎤 Transcribing audio with MAI-Transcribe-2 via {selected_provider()}...[/cyan]")
     else:
         raise ValueError(f"Unsupported ASR runtime: {runtime}")
 

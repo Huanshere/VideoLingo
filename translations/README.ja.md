@@ -114,7 +114,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## API
 VideoLingoはOpenAIライクなAPI形式と様々なTTSインターフェースをサポートしています：
 - LLM: OpenAI Chat Completions 互換で、処理に必要な構造化 JSON を返せるサービスとモデルを選びます。API URL、キー、モデルはサイドバーで設定します。
-- 音声認識：ローカル Qwen3-ASR + ForcedAligner（既定）、または ElevenLabs、Azure MAI-Transcribe-2 を選択できます。MAI には Azure Speech キーが必要で、音声は Azure に送信されます。現在パブリック プレビュー中です。インストーラーは WhisperX を入れません。バックエンドとして使う場合は [WhisperX（手動インストール）](../docs/pages/docs/whisperx-manual.en-US.md) を参照してください。
+- 音声認識：ローカル Qwen3-ASR + ForcedAligner（既定）、または ElevenLabs、MAI-Transcribe-2 を選択できます。MAI では Azure Speech または OpenRouter のキー（環境変数 OPENROUTER_API_KEY も可）を使用でき、音声は選択したプロバイダーに送信され、料金が発生する場合があります。インストーラーは WhisperX を入れません。バックエンドとして使う場合は [WhisperX（手動インストール）](../docs/pages/docs/whisperx-manual.en-US.md) を参照してください。
 - TTS: Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS、および `core/tts_backend/custom_tts.py` のカスタムアダプター。
 
 詳細なインストール方法、API設定、バッチモードの説明については、ドキュメントを参照してください：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)

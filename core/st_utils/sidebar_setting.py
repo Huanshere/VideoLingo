@@ -1,4 +1,5 @@
 import importlib.util
+import os
 import streamlit as st
 import requests
 from translations.translations import translate as t
@@ -180,7 +181,7 @@ def page_setting():
             format_func=lambda x: {
                 "local": t("Local"),
                 "elevenlabs": t("ElevenLabs"),
-                "mai": t("Azure MAI-Transcribe-2"),
+                "mai": t("MAI-Transcribe-2"),
             }[x],
             help=t(
                 "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key."
@@ -226,29 +227,51 @@ def page_setting():
         elif runtime == "mai":
             from core.asr_backend.mai_asr import detect_region
 
-            stored_key = str(load_key_or("whisper.mai_api_key", "") or "")
-            speech_key = st.text_input(
-                t("Azure Speech key"), value=stored_key, type="password",
-                help=t("Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available."),
+            configured_provider = str(load_key_or("whisper.mai_provider", "azure") or "azure").lower()
+            providers = ["azure", "openrouter"]
+            provider = st.selectbox(
+                t("MAI provider"), options=providers,
+                index=providers.index(configured_provider) if configured_provider in providers else 0,
+                format_func=lambda value: "Azure Speech" if value == "azure" else "OpenRouter",
             )
-            if speech_key != stored_key:
-                update_key("whisper.mai_api_key", speech_key, add_missing=True)
-            stored_region = str(load_key_or("whisper.mai_region", "") or "")
-            region = st.text_input(
-                t("Azure Speech region or resource endpoint"), value=stored_region,
-                help=t("Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key."),
-            )
-            if region != stored_region:
-                update_key("whisper.mai_region", region.strip(), add_missing=True)
-            if st.button(t("Detect Azure Speech region"), disabled=not speech_key.strip()):
-                with st.spinner(t("Detecting Azure Speech region...")):
-                    detected = detect_region(speech_key.strip())
-                if detected:
-                    update_key("whisper.mai_region", detected, add_missing=True)
-                    st.rerun()
-                else:
-                    st.warning(t("Region detection failed. Check the key or enter the resource region manually."))
-            st.caption(t("MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech."))
+            if provider != configured_provider:
+                update_key("whisper.mai_provider", provider, add_missing=True)
+                st.rerun()
+            if provider == "openrouter":
+                stored_key = str(load_key_or("whisper.mai_openrouter_api_key", "") or "")
+                router_key = st.text_input(
+                    t("OpenRouter API key"), value=stored_key, type="password",
+                    help=t("Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment."),
+                )
+                if router_key != stored_key:
+                    update_key("whisper.mai_openrouter_api_key", router_key, add_missing=True)
+                if not router_key and os.environ.get("OPENROUTER_API_KEY"):
+                    st.caption(t("Using OPENROUTER_API_KEY from the environment."))
+                st.caption(t("Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges."))
+            else:
+                stored_key = str(load_key_or("whisper.mai_api_key", "") or "")
+                speech_key = st.text_input(
+                    t("Azure Speech key"), value=stored_key, type="password",
+                    help=t("Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available."),
+                )
+                if speech_key != stored_key:
+                    update_key("whisper.mai_api_key", speech_key, add_missing=True)
+                stored_region = str(load_key_or("whisper.mai_region", "") or "")
+                region = st.text_input(
+                    t("Azure Speech region or resource endpoint"), value=stored_region,
+                    help=t("Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key."),
+                )
+                if region != stored_region:
+                    update_key("whisper.mai_region", region.strip(), add_missing=True)
+                if st.button(t("Detect Azure Speech region"), disabled=not speech_key.strip()):
+                    with st.spinner(t("Detecting Azure Speech region...")):
+                        detected = detect_region(speech_key.strip())
+                    if detected:
+                        update_key("whisper.mai_region", detected, add_missing=True)
+                        st.rerun()
+                    else:
+                        st.warning(t("Region detection failed. Check the key or enter the resource region manually."))
+                st.caption(t("MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech."))
 
         with c2:
             target_language = st.text_input(

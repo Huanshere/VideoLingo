@@ -181,5 +181,11 @@
     "Detect Azure Speech region": "Detect Azure Speech region",
     "Detecting Azure Speech region...": "Detecting Azure Speech region...",
     "Region detection failed. Check the key or enter the resource region manually.": "Region detection failed. Check the key or enter the resource region manually.",
-    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech."
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "MAI provider",
+    "OpenRouter API key": "OpenRouter API key",
+    "Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment.": "Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment.",
+    "Using OPENROUTER_API_KEY from the environment.": "Using OPENROUTER_API_KEY from the environment.",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges."
 }

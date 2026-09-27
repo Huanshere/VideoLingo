@@ -171,11 +171,11 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 - WhisperX is not an installer option. To use it (including the Belle model for Chinese), install the packages yourself: [WhisperX (manual install)](whisperx-manual.en-US.md).
 - The official `qwenllm/qwen3-asr` Docker image can host a standalone Qwen3-ASR service, but VideoLingo does not call it directly.
 
-#### Optional Azure MAI-Transcribe-2
+#### Optional MAI-Transcribe-2 (Azure Speech or OpenRouter)
 
-Choose **ASR Runtime → Azure MAI-Transcribe-2** in the sidebar, then enter an Azure Speech resource key. Enter its region (for example, `eastus`) or full HTTPS resource endpoint, or leave the region empty to detect it from the key. Existing `config.yaml` files can add `whisper.mai_api_key` and `whisper.mai_region`; the sidebar also adds these fields when missing. The default remains local Qwen3-ASR.
+Choose **ASR Runtime → MAI-Transcribe-2** in the sidebar, then select **Azure Speech** or **OpenRouter** as the MAI provider. Azure uses `whisper.mai_api_key` and `whisper.mai_region` (a region such as `eastus`, a resource endpoint, or blank for detection). OpenRouter uses `whisper.mai_openrouter_api_key` or the `OPENROUTER_API_KEY` environment variable; no Azure region is needed. Existing configurations without `whisper.mai_provider` continue to use Azure. The default ASR runtime remains local Qwen3-ASR.
 
-MAI uses the fast transcription API with clean text and word timestamps. Audio is sent to Azure Speech and may incur charges. MAI-Transcribe-2 is in public preview without an SLA; check that your resource region supports it. Azure credentials and resource region are excluded from the ASR cache identity. The [contributor's evaluation in #618](https://github.com/Huanshere/VideoLingo/pull/618) compared MAI with WhisperX, not the current Qwen3-ASR default.
+Azure MAI uses the fast transcription API; OpenRouter uses its [dedicated audio transcription API](https://openrouter.ai/docs/guides/overview/multimodal/stt) with model `microsoft/mai-transcribe-2`. Both request clean text and word timestamps. OpenRouter uploads are split into roughly two-minute clips to fit its processing timeout. Audio is sent to the selected cloud provider and may incur charges. Azure MAI-Transcribe-2 is in public preview without an SLA; check that your resource region supports it. Provider and API version distinguish cached transcripts; credentials and resource region are excluded from cache identity. The [contributor's evaluation in #618](https://github.com/Huanshere/VideoLingo/pull/618) compared MAI with WhisperX, not the current Qwen3-ASR default.
 
 <a id="gpu-runtime"></a>
 ### GPU runtime

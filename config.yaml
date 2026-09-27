@@ -28,7 +28,7 @@ whisper:
   # Recognition language ISO 639-1, or "auto"
   language: 'en'
   detected_language: 'en'
-  # Recognition runtime: "local" (default), "elevenlabs" or "mai" (Azure MAI-Transcribe-2 preview).
+  # Recognition runtime: "local" (default), "elevenlabs" or "mai" (MAI-Transcribe-2).
   runtime: 'local'
   # Local ASR backend: "qwen" (default: Qwen3-ASR + Qwen3-ForcedAligner-0.6B) or "whisperx".
   # whisperx is not installed by the installer. Install its packages yourself from
@@ -47,6 +47,10 @@ whisper:
   # empty to detect it from the key, or enter a region/resource endpoint in the UI.
   mai_api_key: ''
   mai_region: ''
+  # MAI provider: "azure" (default for existing MAI users) or "openrouter".
+  mai_provider: 'azure'
+  # Optional for OpenRouter MAI; OPENROUTER_API_KEY environment variable also works.
+  mai_openrouter_api_key: ''
 
 # Whether to burn subtitles into the video
 burn_subtitles: true

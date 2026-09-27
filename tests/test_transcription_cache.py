@@ -52,6 +52,11 @@ class TranscriptionCacheTests(unittest.TestCase):
         changed = dict(mai, backend="whisperx", qwen_model="0.6b", qwen_engine="transformers",
                        model="tiny", mai_api_key="other-secret", mai_region="westus")
         self.assertEqual(key, cache.cache_key(self.media, changed, False))
+        router = dict(mai, mai_provider="openrouter", mai_openrouter_api_key="router-secret")
+        router_key = cache.cache_key(self.media, router, False)
+        self.assertNotEqual(key, router_key)
+        self.assertEqual(router_key, cache.cache_key(
+            self.media, dict(router, mai_openrouter_api_key="another-router-secret"), False))
         self.assertNotEqual(key, cache.cache_key(self.media, dict(mai, runtime="local"), False))
         self.assertNotEqual(key, cache.cache_key(self.media, dict(mai, language="ja"), False))
 

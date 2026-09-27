@@ -1,4 +1,6 @@
+import base64
 import json
+import os
 import time
 from urllib.parse import urlsplit
 
@@ -11,6 +13,9 @@ from core.utils import check_cancel, load_key, load_key_or, update_key
 API_VERSION = "2025-10-15"
 MODEL = "MAI-Transcribe-2"
 CACHE_IDENTITY = f"{MODEL}:{API_VERSION}:clean:word:v1"
+OPENROUTER_MODEL = "microsoft/mai-transcribe-2"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/audio/transcriptions"
+OPENROUTER_CACHE_IDENTITY = f"{OPENROUTER_MODEL}:verbose_json:clean:word:v1"
 ATTEMPTS = 3
 RETRY_STATUS = {408, 429}
 # Regions supported when this integration was written. A resource endpoint or
@@ -64,6 +69,12 @@ def transcription_url(region):
 
 def configured_credentials():
     """Fail before preparing media when the cloud runtime is unconfigured."""
+    if selected_provider() == "openrouter":
+        api_key = str(load_key_or("whisper.mai_openrouter_api_key", "") or "").strip()
+        api_key = api_key or os.environ.get("OPENROUTER_API_KEY", "").strip()
+        if not api_key or api_key.lower().startswith(("your_", "your ")):
+            raise ValueError("Set whisper.mai_openrouter_api_key or OPENROUTER_API_KEY before using MAI-Transcribe via OpenRouter")
+        return api_key, ""
     api_key = str(load_key_or("whisper.mai_api_key", "") or "").strip()
     if not api_key or api_key.lower().startswith(("your_", "your ")):
         raise ValueError("Set whisper.mai_api_key to an Azure Speech resource key before using MAI-Transcribe")
@@ -71,6 +82,13 @@ def configured_credentials():
     if region:
         transcription_url(region)
     return api_key, region
+
+
+def selected_provider():
+    provider = str(load_key_or("whisper.mai_provider", "azure") or "azure").strip().lower()
+    if provider not in ("azure", "openrouter"):
+        raise ValueError("whisper.mai_provider must be 'azure' or 'openrouter'")
+    return provider
 
 
 def request_definition(language):
@@ -114,33 +132,62 @@ def mai2whisper(result, offset=0.0):
     return {"segments": segments, "language": language}
 
 
+def openrouter2whisper(result, offset=0.0):
+    """Keep OpenRouter's word timing in the shared ASR result format."""
+    words = [
+        {"word": word["word"], "start": offset + word["start"],
+         "end": offset + word["end"]}
+        for word in result.get("words") or [] if str(word.get("word", "")).strip()
+    ]
+    text = str(result.get("text") or "").strip()
+    if text and not words:
+        raise ValueError("OpenRouter MAI-Transcribe returned text without word timestamps")
+    segments = [{"text": text, "start": words[0]["start"],
+                 "end": words[-1]["end"], "words": words}] if words else []
+    language = result.get("language")
+    return {"segments": segments, "language": language.split("-")[0] if language else None}
+
+
 def transcribe_audio_mai(raw_audio_path, vocal_audio_path, start=None, end=None):
     rprint(f"[cyan]🎤 Transcribing with {MODEL}: {vocal_audio_path}[/cyan]")
+    provider = selected_provider()
     api_key, region = configured_credentials()
     language = load_key("whisper.language")
     started = time.time()
-    if not region:
+    if provider == "azure" and not region:
         region = detect_region(api_key)
         if not region:
             raise ValueError("The Azure Speech key was not accepted in any MAI-Transcribe region; check whisper.mai_api_key.")
         update_key("whisper.mai_region", region, add_missing=True)
-    url = transcription_url(region)
     check_cancel()
     audio = audio_slice_wav(vocal_audio_path, start, end)
-    headers = {"Ocp-Apim-Subscription-Key": api_key}
-    definition = json.dumps(request_definition(language))
+    if provider == "openrouter":
+        url = OPENROUTER_URL
+        payload = {
+            "model": OPENROUTER_MODEL,
+            "input_audio": {"data": base64.b64encode(audio).decode("ascii"), "format": "wav"},
+            "response_format": "verbose_json", "timestamp_granularities": ["word"],
+            "provider": {"options": {"azure": {"enhancedMode": {
+                "modelOptions": {"transcribeStyle": "clean"}}}}},
+        }
+        if language and language != "auto":
+            payload["language"] = language
+        request_options = {"headers": {"Authorization": f"Bearer {api_key}"},
+                           "json": payload, "timeout": 75}
+    else:
+        url = transcription_url(region)
+        request_options = {
+            "headers": {"Ocp-Apim-Subscription-Key": api_key},
+            "files": {
+                "audio": ("audio.wav", audio, "audio/wav"),
+                "definition": (None, json.dumps(request_definition(language)), "application/json"),
+            },
+            "timeout": 600,
+        }
     for attempt in range(1, ATTEMPTS + 1):
         check_cancel()
         try:
-            response = requests.post(
-                url,
-                headers=headers,
-                files={
-                    "audio": ("audio.wav", audio, "audio/wav"),
-                    "definition": (None, definition, "application/json"),
-                },
-                timeout=600,
-            )
+            response = requests.post(url, **request_options)
         except (requests.ConnectionError, requests.Timeout) as error:
             if attempt == ATTEMPTS:
                 raise
@@ -152,8 +199,10 @@ def transcribe_audio_mai(raw_audio_path, vocal_audio_path, start=None, end=None)
             rprint(f"[yellow]MAI-Transcribe HTTP {response.status_code}; retrying {attempt}/{ATTEMPTS - 1}[/yellow]")
         time.sleep(5 * attempt)
     if not response.ok:
-        raise RuntimeError(f"MAI-Transcribe request failed: HTTP {response.status_code} {response.text[:500]}")
+        detail = response.text[:500].replace(api_key, "[REDACTED]")
+        raise RuntimeError(f"MAI-Transcribe request failed: HTTP {response.status_code} {detail}")
 
-    parsed = mai2whisper(response.json(), start or 0.0)
+    parsed = (openrouter2whisper if provider == "openrouter" else mai2whisper)(
+        response.json(), start or 0.0)
     rprint(f"[green]✓ Transcription completed in {time.time() - started:.2f} seconds[/green]")
     return parsed

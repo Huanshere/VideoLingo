@@ -87,13 +87,21 @@ class RetiredRuntimeTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / "config.yaml"
-            config.write_text("whisper:\n  runtime: mai\n  language: en\n", encoding="utf-8")
-            with patch.object(config_utils, "CONFIG_PATH", str(config)), patch.object(
-                asr, "load_key", return_value="mai"
-            ), patch.object(asr, "find_media_file") as find:
-                with self.assertRaisesRegex(ValueError, "whisper.mai_api_key"):
-                    asr.transcribe.__wrapped__()
-            find.assert_not_called()
+            for provider, expected_key in (("azure", "whisper.mai_api_key"),
+                                           ("openrouter", "whisper.mai_openrouter_api_key")):
+                with self.subTest(provider=provider):
+                    config.write_text(
+                        f"whisper:\n  runtime: mai\n  language: en\n  mai_provider: {provider}\n",
+                        encoding="utf-8",
+                    )
+                    with patch.object(config_utils, "CONFIG_PATH", str(config)), patch.dict(
+                        os.environ, {"OPENROUTER_API_KEY": ""}
+                    ), patch.object(asr, "load_key", return_value="mai"), patch.object(
+                        asr, "find_media_file"
+                    ) as find:
+                        with self.assertRaisesRegex(ValueError, expected_key):
+                            asr.transcribe.__wrapped__()
+                    find.assert_not_called()
 
 
 

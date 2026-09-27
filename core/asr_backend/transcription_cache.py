@@ -24,12 +24,16 @@ def cache_key(media_file, whisper, demucs):
             check_cancel()
             digest.update(block)
     if whisper["runtime"] == "mai":
-        from core.asr_backend.mai_asr import CACHE_IDENTITY
-        # Azure credentials, resource region, and local model packages do not
-        # change MAI's output. Keep the API/model/options in its own identity.
+        from core.asr_backend.mai_asr import CACHE_IDENTITY, OPENROUTER_CACHE_IDENTITY
+        # Credentials, Azure region, and local model packages do not change
+        # MAI's output. Provider API/response contracts have separate identities.
+        provider = str(whisper.get("mai_provider", "azure") or "azure").lower()
+        if provider not in ("azure", "openrouter"):
+            raise ValueError("whisper.mai_provider must be 'azure' or 'openrouter'")
         identity = {
             "schema": SCHEMA, "media_md5": digest.hexdigest(),
-            "runtime": "mai", "mai": CACHE_IDENTITY,
+            "runtime": "mai", "mai": (CACHE_IDENTITY if provider == "azure"
+                                        else OPENROUTER_CACHE_IDENTITY),
             "language": whisper["language"], "demucs": bool(demucs),
         }
         return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()

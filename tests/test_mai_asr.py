@@ -1,6 +1,8 @@
 """Contracts at the Azure MAI transport and response boundary."""
 
+import base64
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -83,6 +85,46 @@ class MaiAsrTests(unittest.TestCase):
                                 for call in post.call_args_list))
             submitted = json.loads(post.call_args.kwargs["files"]["definition"][1])
             self.assertEqual(submitted["locales"], ["en"])
+
+    def test_openrouter_key_uses_its_endpoint_and_preserves_word_timing(self):
+        class Reply:
+            ok = True
+            status_code = 200
+
+            def json(self):
+                return {
+                    "text": "Hello world.", "language": "en", "words": [
+                        {"word": "Hello", "start": 0.2, "end": 0.5},
+                        {"word": "world.", "start": 0.6, "end": 1.0},
+                    ],
+                }
+
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "config.yaml"
+            config.write_text("whisper:\n  mai_provider: openrouter\n  language: auto\n", encoding="utf-8")
+            with patch.object(config_utils, "CONFIG_PATH", str(config)), patch.dict(
+                os.environ, {"OPENROUTER_API_KEY": "test-openrouter-key"}
+            ), patch.object(mai_asr, "audio_slice_wav", return_value=b"RIFF"), patch.object(
+                mai_asr, "check_cancel"
+            ), patch.object(mai_asr.requests, "post", return_value=Reply()) as post:
+                converted = mai_asr.transcribe_audio_mai("raw", "vocal", 30, 35)
+            saved_config = config.read_text()
+
+        self.assertEqual(post.call_args.args[0], mai_asr.OPENROUTER_URL)
+        options = post.call_args.kwargs
+        self.assertEqual(options["headers"]["Authorization"], "Bearer test-openrouter-key")
+        self.assertEqual(options["json"]["model"], "microsoft/mai-transcribe-2")
+        self.assertEqual(base64.b64decode(options["json"]["input_audio"]["data"]), b"RIFF")
+        self.assertEqual(options["json"]["timestamp_granularities"], ["word"])
+        self.assertEqual(options["json"]["response_format"], "verbose_json")
+        self.assertNotIn("language", options["json"])
+        self.assertEqual(converted["language"], "en")
+        self.assertEqual(converted["segments"][0]["words"][0]["start"], 30.2)
+        self.assertNotIn("test-openrouter-key", saved_config)
+
+    def test_openrouter_text_without_word_timing_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "without word timestamps"):
+            mai_asr.openrouter2whisper({"text": "Hello", "words": []})
 
 
 if __name__ == "__main__":

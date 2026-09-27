@@ -181,5 +181,11 @@
     "Detect Azure Speech region": "偵測 Azure Speech 區域",
     "Detecting Azure Speech region...": "正在偵測 Azure Speech 區域…",
     "Region detection failed. Check the key or enter the resource region manually.": "區域偵測失敗。請檢查金鑰，或手動填寫資源區域。",
-    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 處於公開預覽階段。音訊會傳送至 Azure Speech。"
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 處於公開預覽階段。音訊會傳送至 Azure Speech。",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "MAI 服務商",
+    "OpenRouter API key": "OpenRouter API 密鑰",
+    "Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment.": "填寫 OpenRouter 密鑰，或在環境變量中設置 OPENROUTER_API_KEY。",
+    "Using OPENROUTER_API_KEY from the environment.": "正在使用環境變量中的 OPENROUTER_API_KEY。",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音訊將傳送至 OpenRouter 進行 MAI-Transcribe-2 轉寫，可能產生費用。"
 }

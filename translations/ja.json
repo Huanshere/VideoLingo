@@ -174,5 +174,11 @@
     "Detect Azure Speech region": "Azure Speech リージョンを検出",
     "Detecting Azure Speech region...": "Azure Speech リージョンを検出中…",
     "Region detection failed. Check the key or enter the resource region manually.": "リージョンを検出できませんでした。キーを確認するか、リソースのリージョンを手動で入力してください。",
-    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 はパブリック プレビュー中です。音声は Azure Speech に送信されます。"
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 はパブリック プレビュー中です。音声は Azure Speech に送信されます。",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "MAI プロバイダー",
+    "OpenRouter API key": "OpenRouter API キー",
+    "Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment.": "OpenRouter キーを入力するか、環境変数 OPENROUTER_API_KEY を設定してください。",
+    "Using OPENROUTER_API_KEY from the environment.": "環境変数 OPENROUTER_API_KEY を使用しています。",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音声は MAI-Transcribe-2 のため OpenRouter に送信され、料金が発生する場合があります。"
 }
