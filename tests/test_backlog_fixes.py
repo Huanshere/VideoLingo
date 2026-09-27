@@ -348,3 +348,60 @@ def test_check_api_without_key(monkeypatch, tmp_path):
     assert result == (False, "ValueError: API key is not set")
     assert completions.calls == 0
 
+
+
+# ------------------------------------------------------------------
+# split_by_mark: long videos are tokenized in batches (#238)
+# ------------------------------------------------------------------
+
+def test_batch_words_stays_below_the_byte_limit_and_cuts_after_sentences():
+    from core.spacy_utils.split_by_mark import batch_words
+
+    words = [word for i in range(300) for word in ("これは", "とても", "長い", f"文{i}", "です。")]
+
+    batches = batch_words(words, max_bytes=1000)
+
+    assert [word for batch in batches for word in batch] == words
+    assert len(batches) > 1
+    assert all(sum(len(word.encode("utf-8")) + 1 for word in batch) <= 1000 for batch in batches)
+    assert all(batch[-1].endswith("。") for batch in batches)
+
+
+def test_batch_words_without_punctuation_and_short_input():
+    from core.spacy_utils.split_by_mark import batch_words
+
+    words = ["word"] * 1000
+
+    assert batch_words(["short", "text."]) == [["short", "text."]]
+    assert batch_words([]) == []
+    batches = batch_words(words, max_bytes=100)
+    assert [word for batch in batches for word in batch] == words
+    assert all(len(batch) == 20 for batch in batches)
+
+
+def test_split_by_mark_handles_text_longer_than_the_tokenizer_limit(tmp_path, monkeypatch):
+    import sys
+    import spacy
+    import core.spacy_utils.split_by_mark  # noqa: F401  (the package re-exports the function under this name)
+    module = sys.modules["core.spacy_utils.split_by_mark"]
+
+    nlp = spacy.blank("en")
+    nlp.add_pipe("sentencizer")
+    seen = []
+
+    def limited_nlp(text):
+        seen.append(len(text.encode("utf-8")))
+        assert seen[-1] <= 49149
+        return nlp(text)
+
+    words = [word for i in range(6000) for word in ("This", "is", "sentence", "number", f"{i}.")]
+    output = tmp_path / "split_by_mark.txt"
+    monkeypatch.setattr(module, "SPLIT_BY_MARK_FILE", str(output))
+    monkeypatch.setattr(module, "load_key", lambda key: "en")
+    monkeypatch.setattr(module.pd, "read_excel", lambda path: pd.DataFrame({"text": words}))
+
+    module.split_by_mark(limited_nlp)
+
+    lines = output.read_text(encoding="utf-8").splitlines()
+    assert len(seen) > 1
+    assert lines == [f"This is sentence number {i}." for i in range(6000)]

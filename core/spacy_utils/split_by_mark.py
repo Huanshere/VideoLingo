@@ -7,6 +7,26 @@ from rich import print as rprint
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+MAX_BATCH_BYTES = 40000  # the Japanese tokenizer (SudachiPy) refuses more than 49149 bytes
+SENTENCE_ENDS = ('.', '!', '?', '。', '！', '？', '…')
+
+def batch_words(words, max_bytes=MAX_BATCH_BYTES):
+    """Cut the word list into batches below max_bytes, after a sentence end when there is one."""
+    batches, start, size, sentence_end = [], 0, 0, None
+    for i, word in enumerate(words):
+        word_bytes = len(str(word).encode('utf-8')) + 1
+        if size + word_bytes > max_bytes and i > start:
+            cut = sentence_end if sentence_end else i
+            batches.append(words[start:cut])
+            size = sum(len(str(w).encode('utf-8')) + 1 for w in words[cut:i])
+            start, sentence_end = cut, None
+        size += word_bytes
+        if str(word).rstrip().endswith(SENTENCE_ENDS):
+            sentence_end = i + 1
+    if words[start:]:
+        batches.append(words[start:])
+    return batches
+
 def split_by_mark(nlp):
     whisper_language = load_key("whisper.language")
     language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language # consider force english case
@@ -15,19 +35,19 @@ def split_by_mark(nlp):
     chunks = pd.read_excel("output/log/cleaned_chunks.xlsx")
     chunks.text = chunks.text.apply(lambda x: x.strip('"').strip(""))
     
-    # join with joiner
-    input_text = join_words(chunks.text.to_list(), joiner)
-
-    doc = nlp(input_text)
-    assert doc.has_annotation("SENT_START")
+    # join with joiner, in batches the tokenizer accepts
+    sents = []
+    for batch in batch_words(chunks.text.to_list()):
+        doc = nlp(join_words(batch, joiner))
+        assert doc.has_annotation("SENT_START")
+        sents.extend(sent.text.strip() for sent in doc.sents)
 
     # skip - and ...
     sentences_by_mark = []
     current_sentence = []
     
     # iterate all sentences
-    for sent in doc.sents:
-        text = sent.text.strip()
+    for text in sents:
         
         # check if the current sentence ends with - or ...
         if current_sentence and (
