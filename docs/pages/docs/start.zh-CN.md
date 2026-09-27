@@ -170,6 +170,12 @@ uv run start.py
 - WhisperX 不是安装器选项。若要使用（包括中文 Belle 模型），请自行安装依赖，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md)。
 - 也可以使用官方 Docker 镜像 `qwenllm/qwen3-asr` 单独部署 Qwen3-ASR 服务，但 VideoLingo 目前不直接调用它。
 
+#### 可选的 MAI-Transcribe-2（Azure Speech 或 OpenRouter）
+
+在侧栏选择 **ASR Runtime → MAI-Transcribe-2**，再选择 **Azure Speech** 或 **OpenRouter**。Azure 使用 `whisper.mai_api_key` 和 `whisper.mai_region`（例如 `eastus`、资源终结点，或留空自动检测）；OpenRouter 使用单独的密钥输入框 `whisper.mai_openrouter_api_key`，不需要 Azure 区域。旧配置未设置 `whisper.mai_provider` 时仍使用 Azure。默认识别方式仍是本地 Qwen3-ASR。
+
+Azure MAI 使用快速转写 API；OpenRouter 使用[专用音频转写 API](https://openrouter.ai/docs/guides/overview/multimodal/stt) 和 `microsoft/mai-transcribe-2` 模型。两种方式都请求清理后的文本及词级时间戳。OpenRouter 会将音频拆为约两分钟的片段，以适应处理超时限制。音频会发送到选定的云服务商，可能产生费用。Azure MAI-Transcribe-2 目前为无 SLA 的公开预览；请确认资源区域支持该模型。缓存会区分服务商及 API 版本，但不包含密钥或 Azure 区域。[#618 的贡献者评测](https://github.com/Huanshere/VideoLingo/pull/618)比较的是 MAI 与 WhisperX，尚未比较当前默认的 Qwen3-ASR。
+
 <a id="gpu-runtime"></a>
 ### GPU 运行库
 

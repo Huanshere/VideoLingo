@@ -164,5 +164,19 @@
     "0.6B (faster, less memory)": "0.6B (быстрее, меньше памяти)",
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX не установлен. Установите дополнительные пакеты сами по странице docs/pages/docs/whisperx-manual.en-US.md или верните whisper.backend в значение qwen.",
     "Word-level transcription and alignment": "Пословная транскрипция и выравнивание",
-    "Stopping...": "Остановка..."
+    "Stopping...": "Остановка...",
+    "Azure MAI-Transcribe-2": "Azure MAI-Transcribe-2",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key.": "Локальный Qwen3-ASR лучше работает с GPU NVIDIA или Apple Silicon (на CPU медленно); для облачного распознавания нужен API-ключ провайдера.",
+    "Azure Speech key": "Ключ Azure Speech",
+    "Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available.": "Используйте ключ ресурса Azure Speech в регионе, где доступен MAI-Transcribe-2.",
+    "Azure Speech region or resource endpoint": "Регион или конечная точка Azure Speech",
+    "Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key.": "Введите регион, например eastus, или HTTPS-адрес ресурса Azure Speech. Оставьте поле пустым, чтобы определить регион по ключу.",
+    "Detect Azure Speech region": "Определить регион Azure Speech",
+    "Detecting Azure Speech region...": "Определение региона Azure Speech...",
+    "Region detection failed. Check the key or enter the resource region manually.": "Не удалось определить регион. Проверьте ключ или укажите регион ресурса вручную.",
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 находится на этапе публичной предварительной версии. Аудио отправляется в Azure Speech.",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "Провайдер MAI",
+    "OpenRouter API key": "Ключ API OpenRouter",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "Аудио отправляется в OpenRouter для MAI-Transcribe-2; возможна плата."
 }

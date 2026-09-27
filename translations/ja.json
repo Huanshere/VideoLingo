@@ -164,5 +164,19 @@
     "0.6B (faster, less memory)": "0.6B（高速・省メモリ）",
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX はインストールされていません。手動インストールの文書（docs/pages/docs/whisperx-manual.en-US.md）に従って追加パッケージを自分で入れるか、whisper.backend を qwen に戻してください。",
     "Word-level transcription and alignment": "単語レベルの文字起こしとアライメント",
-    "Stopping...": "停止中..."
+    "Stopping...": "停止中...",
+    "Azure MAI-Transcribe-2": "Azure MAI-Transcribe-2",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key.": "ローカル Qwen3-ASR には NVIDIA GPU または Apple Silicon を推奨します（CPU は低速です）。クラウド認識にはプロバイダーの API キーが必要です。",
+    "Azure Speech key": "Azure Speech キー",
+    "Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available.": "MAI-Transcribe-2 対応リージョンの Azure Speech リソースキーを使用してください。",
+    "Azure Speech region or resource endpoint": "Azure Speech のリージョンまたはリソース エンドポイント",
+    "Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key.": "eastus などのリージョン、または Azure Speech リソースの HTTPS エンドポイントを入力してください。空欄の場合はキーからリージョンを検出します。",
+    "Detect Azure Speech region": "Azure Speech リージョンを検出",
+    "Detecting Azure Speech region...": "Azure Speech リージョンを検出中…",
+    "Region detection failed. Check the key or enter the resource region manually.": "リージョンを検出できませんでした。キーを確認するか、リソースのリージョンを手動で入力してください。",
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 はパブリック プレビュー中です。音声は Azure Speech に送信されます。",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "MAI プロバイダー",
+    "OpenRouter API key": "OpenRouter API キー",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音声は MAI-Transcribe-2 のため OpenRouter に送信され、料金が発生する場合があります。"
 }

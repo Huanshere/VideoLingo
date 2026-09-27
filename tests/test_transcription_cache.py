@@ -45,6 +45,21 @@ class TranscriptionCacheTests(unittest.TestCase):
         for change in ({"backend": "whisperx"}, {"qwen_model": "0.6b"}, {"qwen_engine": "mlx"}):
             self.assertNotEqual(key, cache.cache_key(self.media, dict(local, **change), False))
 
+    def test_mai_cache_ignores_credentials_and_local_model_settings(self):
+        mai = dict(self.whisper, runtime="mai", backend="qwen", qwen_model="1.7b",
+                   qwen_engine="mlx", mai_api_key="secret", mai_region="eastus")
+        key = cache.cache_key(self.media, mai, False)
+        changed = dict(mai, backend="whisperx", qwen_model="0.6b", qwen_engine="transformers",
+                       model="tiny", mai_api_key="other-secret", mai_region="westus")
+        self.assertEqual(key, cache.cache_key(self.media, changed, False))
+        router = dict(mai, mai_provider="openrouter", mai_openrouter_api_key="router-secret")
+        router_key = cache.cache_key(self.media, router, False)
+        self.assertNotEqual(key, router_key)
+        self.assertEqual(router_key, cache.cache_key(
+            self.media, dict(router, mai_openrouter_api_key="another-router-secret"), False))
+        self.assertNotEqual(key, cache.cache_key(self.media, dict(mai, runtime="local"), False))
+        self.assertNotEqual(key, cache.cache_key(self.media, dict(mai, language="ja"), False))
+
     def test_whisperx_turbo_shares_large_v3_key_but_qwen_does_not(self):
         whisperx = dict(self.whisper, runtime="local", backend="whisperx", model="large-v3")
         turbo = dict(whisperx, model="large-v3-turbo")

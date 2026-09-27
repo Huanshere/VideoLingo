@@ -26,13 +26,14 @@ class RetiredRuntimeTests(unittest.TestCase):
             find.assert_not_called()
 
     def test_supported_runtimes_reach_media_discovery(self):
-        for runtime in ("local", "elevenlabs"):
+        for runtime in ("local", "elevenlabs", "mai"):
             def load_key(key, _runtime=runtime):
                 if key == "whisper":
                     return {"runtime": _runtime, "language": "en", "model": "large-v3"}
                 return _runtime
             with self.subTest(runtime=runtime), patch.object(asr, "load_key", side_effect=load_key), patch.object(
                 asr, "find_media_file", side_effect=FileNotFoundError("synthetic missing input")
+            ), patch("core.asr_backend.mai_asr.configured_credentials", return_value=("key", "eastus")
             ):
                 with self.assertRaisesRegex(FileNotFoundError, "synthetic missing input"):
                     asr.transcribe.__wrapped__()
@@ -57,6 +58,50 @@ class RetiredRuntimeTests(unittest.TestCase):
         self.assertNotIn("--local-whisperx", message)
         self.assertNotIn("setup_env", message)
         self.assertNotIn("optional install", message.lower())
+
+    def test_mai_runtime_delivers_word_timing_to_the_shared_pipeline(self):
+        from core.asr_backend import mai_asr
+
+        whisper = {"runtime": "mai", "language": "auto", "model": "large-v3", "cache": False}
+        config = {"whisper.runtime": "mai", "whisper": whisper, "demucs": False}
+        words = {"language": "en", "segments": [{
+            "text": "Hello", "start": 2.2, "end": 2.6,
+            "words": [{"word": "Hello", "start": 2.2, "end": 2.6}],
+        }]}
+        with patch.object(asr, "load_key", side_effect=config.__getitem__), patch.object(
+            asr, "find_media_file", return_value=("input.wav", "audio")
+        ), patch.object(asr, "prepare_audio_for_asr"), patch.object(
+            asr, "split_audio", return_value=[(2, 3)]
+        ), patch.object(asr, "check_cancel"), patch.object(
+            asr, "save_results"
+        ) as save, patch.object(asr, "update_key"), patch.object(
+            mai_asr, "transcribe_audio_mai", return_value=words
+        ) as transcribe, patch.object(mai_asr, "configured_credentials", return_value=("key", "eastus")):
+            asr.transcribe.__wrapped__()
+        transcribe.assert_called_once_with(asr._RAW_AUDIO_FILE, asr._RAW_AUDIO_FILE, 2, 3)
+        table = save.call_args.args[0]
+        self.assertEqual(table.loc[0, ["text", "start", "end"]].tolist(), ["Hello", 2.2, 2.6])
+
+    def test_missing_mai_key_fails_before_media_preparation(self):
+        from core.utils import config_utils
+
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "config.yaml"
+            for provider, expected_key in (("azure", "whisper.mai_api_key"),
+                                           ("openrouter", "whisper.mai_openrouter_api_key")):
+                with self.subTest(provider=provider):
+                    config.write_text(
+                        f"whisper:\n  runtime: mai\n  language: en\n  mai_provider: {provider}\n",
+                        encoding="utf-8",
+                    )
+                    with patch.object(config_utils, "CONFIG_PATH", str(config)), patch.dict(
+                        os.environ, {"OPENROUTER_API_KEY": "must-not-be-used"}
+                    ), patch.object(asr, "load_key", return_value="mai"), patch.object(
+                        asr, "find_media_file"
+                    ) as find:
+                        with self.assertRaisesRegex(ValueError, expected_key):
+                            asr.transcribe.__wrapped__()
+                    find.assert_not_called()
 
 
 

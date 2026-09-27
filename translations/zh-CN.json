@@ -171,5 +171,19 @@
     "0.6B (faster, less memory)": "0.6B（更快、更省显存）",
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX 未安装。请按手动文档（docs/pages/docs/whisperx-manual.zh-CN.md）自行安装额外依赖，或把 whisper.backend 改回 qwen。",
     "Word-level transcription and alignment": "词级语音识别与对齐",
-    "Stopping...": "正在停止..."
+    "Stopping...": "正在停止...",
+    "Azure Speech key": "Azure Speech 密钥",
+    "Azure MAI-Transcribe-2": "Azure MAI-Transcribe-2",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key.": "本地 Qwen3-ASR 推荐使用 NVIDIA GPU 或 Apple Silicon（CPU 可用但较慢）；云端识别需要服务商 API 密钥。",
+    "Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available.": "使用支持 MAI-Transcribe-2 的区域中创建的 Azure Speech 资源密钥。",
+    "Azure Speech region or resource endpoint": "Azure Speech 区域或资源终结点",
+    "Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key.": "填写 eastus 等区域，或 Azure Speech 资源的 HTTPS 终结点。留空则根据密钥检测区域。",
+    "Detect Azure Speech region": "检测 Azure Speech 区域",
+    "Detecting Azure Speech region...": "正在检测 Azure Speech 区域…",
+    "Region detection failed. Check the key or enter the resource region manually.": "区域检测失败。请检查密钥，或手动填写资源区域。",
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 处于公开预览阶段。音频会发送至 Azure Speech。",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "MAI 服务商",
+    "OpenRouter API key": "OpenRouter API 密钥",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音频将发送至 OpenRouter 进行 MAI-Transcribe-2 转写，可能产生费用。"
 }
