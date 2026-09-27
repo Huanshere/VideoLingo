@@ -122,8 +122,6 @@ Configure `config.yaml` and start it from the project root. The command also ins
 uv run start.py --api
 ```
 
-With the Windows one-click installation, run `.\OneKeyStart.bat --api` instead.
-
 See the **[HTTP API guide](docs/api.md)** for input, processing, progress, downloads,
 retries and serial batch processing. Interactive endpoint docs: [localhost:8000/docs](http://localhost:8000/docs).
 

@@ -16,11 +16,20 @@ for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss
 set "LOGFILE=logs\videolingo_%dt%.log"
 set "CHECK_ONLY="
 if /I "%~1"=="--check-only" set "CHECK_ONLY=1"
-set "API_MODE="
-if /I "%~1"=="--api" set "API_MODE=1"
 
 > "%LOGFILE%" echo [%DATE% %TIME%] VideoLingo starting...
 echo %C_CYAN%Log file:%C_RESET% %LOGFILE%
+
+rem Install uv into the user's executable directory so uv run works in new terminals.
+where uv >nul 2>nul
+if errorlevel 1 (
+    if defined CHECK_ONLY goto uv_ready
+    echo %C_YELLOW%Installing uv for this user...%C_RESET%
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; irm https://astral.sh/uv/install.ps1 | iex"
+    if errorlevel 1 goto install_failed
+)
+:uv_ready
+if exist "%USERPROFILE%\.local\bin\uv.exe" set "PATH=%USERPROFILE%\.local\bin;%PATH%"
 
 set "SHARED_VENV=%USERPROFILE%\.venvs\videolingo"
 if exist "%SHARED_VENV%\Scripts\python.exe" (
@@ -62,16 +71,6 @@ if defined CHECK_ONLY (
 
 echo %C_YELLOW%First run: installing VideoLingo. This needs an internet connection...%C_RESET%
 where uv >nul 2>nul
-if errorlevel 1 (
-    rem Keep uv beside this checkout so users do not need to set up PATH.
-    if not exist ".tools\uv.exe" (
-        set "UV_UNMANAGED_INSTALL=%CD%\.tools"
-        powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; irm https://astral.sh/uv/install.ps1 | iex"
-        if errorlevel 1 goto install_failed
-    )
-    set "PATH=%CD%\.tools;%PATH%"
-)
-where uv >nul 2>nul
 if errorlevel 1 goto install_failed
 uv run --no-project --python 3.12 setup_env.py --yes
 if errorlevel 1 goto install_failed
@@ -95,18 +94,6 @@ if errorlevel 1 (
     echo %C_YELLOW%Environment needs repair. Installing missing or changed components...%C_RESET%
     "%VENV_PY%" installer.py --yes
     if errorlevel 1 goto install_failed
-)
-
-if defined API_MODE (
-    echo %C_GREEN%Starting VideoLingo API with %VENV_LABEL%...%C_RESET%
-    "%VENV_PY%" api.py
-    if errorlevel 1 (
-        set "API_EXIT=!errorlevel!"
-        echo %C_RED%VideoLingo API stopped with an error.%C_RESET%
-        pause
-        exit /b !API_EXIT!
-    )
-    goto end
 )
 
 echo %C_GREEN%Starting VideoLingo with %VENV_LABEL%...%C_RESET%
