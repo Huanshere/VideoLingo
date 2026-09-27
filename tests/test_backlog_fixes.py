@@ -524,3 +524,80 @@ def test_abnormal_duration_after_speed_change_is_trimmed(monkeypatch, tmp_path):
     audio.adjust_audio_speed(str(source), str(output), 1.25)
 
     assert len(AudioSegment.from_wav(output)) == 3200
+
+
+# ------------------------------------------------------------------
+# _3_2_split_meaning: tolerant of the split reply, mechanical fallback (#340)
+# ------------------------------------------------------------------
+
+@pytest.mark.parametrize("response,expected", [
+    ({"split1": "a b[br]c d", "split2": "a[br]b c d", "choice": "2"}, "a[br]b c d"),
+    ({"split1": "a b[br]c d", "split2": "a[br]b c d", "choice": 1}, "a b[br]c d"),
+    ({"split1": "a b[br]c d", "split2": "a[br]b c d", "choice": "split2"}, "a[br]b c d"),
+    ({"split1": "a b[br]c d", "split2": "a[br]b c d", "choice": "1 or 2"}, "a b[br]c d"),
+    ({"split1": "a b[br]c d", "split2": "a[br]b c d"}, "a b[br]c d"),
+    ({"split1": "a b<br>c d", "choice": "1"}, "a b[br]c d"),
+    ({"split1": "a b <br/> c d", "choice": "1"}, "a b [br] c d"),
+    ({"split1": "a b[BR]c d", "choice": "1"}, "a b[br]c d"),
+    ({"split1": "a b c d", "split2": "a b<BR />c d", "choice": "1"}, "a b[br]c d"),
+    ({"split1": "a b c d[br]", "split2": "a b c d", "choice": "1"}, None),
+    ({"choice": "3"}, None),
+])
+def test_pick_split(response, expected):
+    from core._3_2_split_meaning import pick_split
+
+    assert pick_split(response) == expected
+
+
+def _split_meaning(monkeypatch, language, ask_gpt):
+    import core._3_2_split_meaning as module
+
+    monkeypatch.setattr(module, "get_split_prompt", lambda *args: "prompt")
+    monkeypatch.setattr(module, "get_source_language", lambda: language)
+    monkeypatch.setattr(module, "load_key", lambda key: language)
+    monkeypatch.setattr(module, "ask_gpt", ask_gpt)
+    return module
+
+
+def test_split_sentence_accepts_html_br_and_missing_choice(monkeypatch):
+    sentence = "This is the first half of the sentence, and this is the second half of it."
+    reply = {"split1": "This is the first half of the sentence,<br>and this is the second half of it."}
+    module = _split_meaning(monkeypatch, "en", lambda *args, valid_def, **kwargs: reply if valid_def(reply)["status"] == "success" else None)
+
+    assert module.split_sentence(sentence, 2) == \
+        "This is the first half of the sentence,\n and this is the second half of it."
+
+
+@pytest.mark.parametrize("language,sentence,num_parts,expected", [
+    ("en", "This is the first half of the sentence, and this is the second half of it.", 2,
+     ["This is the first half of the sentence,", "and this is the second half of it."]),
+    ("en", "one two three four five six seven eight nine ten eleven twelve", 3,
+     ["one two three four", "five six seven eight", "nine ten eleven twelve"]),
+    ("zh", "今天我们来聊一聊人工智能的未来，以及它会怎样改变每个人的生活", 2,
+     ["今天我们来聊一聊人工智能的未来，", "以及它会怎样改变每个人的生活"]),
+    ("zh", "今天我们来聊一聊人工智能的未来以及它会怎样改变每个人的生活", 2,
+     ["今天我们来聊一聊人工智能的未", "来以及它会怎样改变每个人的生活"]),
+    ("en", "Supercalifragilisticexpialidocious", 2, ["Supercalifragilisticexpialidocious"]),
+])
+def test_split_falls_back_to_a_mechanical_split(monkeypatch, language, sentence, num_parts, expected):
+    def failing_ask_gpt(*args, **kwargs):
+        raise ValueError("❎ API response error: Split failed, no [br] found")
+
+    module = _split_meaning(monkeypatch, language, failing_ask_gpt)
+
+    result = module.split_sentence(sentence, num_parts).split("\n")
+
+    assert result == expected
+    assert "".join(result).replace(" ", "") == sentence.replace(" ", "")
+
+
+def test_split_does_not_swallow_a_stop_request(monkeypatch):
+    from core.task_runner import StopTask
+
+    def stopped(*args, **kwargs):
+        raise StopTask()
+
+    module = _split_meaning(monkeypatch, "en", stopped)
+
+    with pytest.raises(StopTask):
+        module.split_sentence("some long sentence that was being split", 2)
