@@ -1,4 +1,11 @@
 {
+    "TTS Provider": "TTS Provider",
+    "Local service": "Local service",
+    "Custom provider": "Custom provider",
+    "Provider API Key": "Provider API Key",
+    "Shared by all TTS methods under this provider.": "Shared by all TTS methods under this provider.",
+    "Use this key for all methods": "Use this key for all methods",
+    "Existing methods use different keys. Editing this field replaces all keys for this provider.": "Existing methods use different keys. Editing this field replaces all keys for this provider.",
     "a. Download or Upload Video": "a. Download or Upload Video",
     "Delete and Reselect": "Delete and Reselect",
     "Enter YouTube link:": "Enter YouTube link:",

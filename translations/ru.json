@@ -1,4 +1,11 @@
 {
+    "TTS Provider": "Провайдер озвучивания",
+    "Local service": "Локальный сервис",
+    "Custom provider": "Свой провайдер",
+    "Provider API Key": "API-ключ провайдера",
+    "Shared by all TTS methods under this provider.": "Общий для всех методов озвучивания этого провайдера.",
+    "Use this key for all methods": "Использовать этот ключ для всех методов",
+    "Existing methods use different keys. Editing this field replaces all keys for this provider.": "В методах заданы разные ключи. Изменение поля заменит все ключи этого провайдера.",
     "a. Download or Upload Video": "a. Скачать или загрузить видео",
     "Delete and Reselect": "Удалить и выбрать заново",
     "Enter YouTube link:": "Введите ссылку YouTube:",
