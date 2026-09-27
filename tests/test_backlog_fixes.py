@@ -1,4 +1,6 @@
 """Regression tests for the backlog clean-up fixes (offline, no models, no network)."""
+import os
+
 import pandas as pd
 import pytest
 
@@ -405,3 +407,120 @@ def test_split_by_mark_handles_text_longer_than_the_tokenizer_limit(tmp_path, mo
     lines = output.read_text(encoding="utf-8").splitlines()
     assert len(seen) > 1
     assert lines == [f"This is sentence number {i}." for i in range(6000)]
+
+
+# ------------------------------------------------------------------
+# _10_gen_audio: dubbing that does not fit is sped up to the limit, then truncated
+# (#436, #453, #351, #536)
+# ------------------------------------------------------------------
+
+def _chunk(real_durs, tol_dur=2.0, tolerance=0.0, gap=0.0):
+    count = len(real_durs)
+    return pd.DataFrame({"real_dur": real_durs, "tol_dur": [tol_dur] * count,
+                         "tolerance": [tolerance] * count, "gap": [gap] * count})
+
+
+@pytest.mark.parametrize("chunk,expected", [
+    (_chunk([1.0, 1.0]), (1.0, True)),                       # fits as it is
+    (_chunk([2.2, 2.2]), (1.128, True)),                     # a little faster
+    (_chunk([5.0, 5.0]), (1.4, False)),                      # used to be 2.564
+    (_chunk([87.6], tol_dur=0.2), (1.4, False)),             # used to be atempo=876
+    (_chunk([1.0], tol_dur=0.1), (1.4, False)),              # used to divide by zero
+    (_chunk([1.0], tol_dur=0.05), (1.4, False)),             # used to be negative
+])
+def test_speed_factor_is_clamped(chunk, expected):
+    from core._10_gen_audio import process_chunk
+
+    assert process_chunk(chunk, accept=1.2, min_speed=1.0, max_speed=1.4) == expected
+
+
+def _dub_tasks(monkeypatch, tmp_path, durations, lines):
+    """Two rows that share one 4 second chunk; adjust_audio_speed writes real wav files."""
+    from pydub import AudioSegment
+    from pydub.generators import Sine
+    from core import _10_gen_audio as audio
+
+    durations = dict(zip(("1_0", "2_0", "2_1"), durations))
+    config = {"speed_factor.accept": 1.2, "speed_factor.min": 1.0, "speed_factor.max": 1.4}
+
+    def fake_speed(temp_file, output_file, speed_factor):
+        name = os.path.basename(output_file)[:-len(".wav")]
+        Sine(440).to_audio_segment(duration=int(durations[name] / speed_factor * 1000)).export(output_file, format="wav")
+
+    monkeypatch.setattr(audio, "load_key", config.get)
+    monkeypatch.setattr(audio, "adjust_audio_speed", fake_speed)
+    monkeypatch.setattr(audio, "get_audio_duration", lambda path: len(AudioSegment.from_wav(path)) / 1000)
+    monkeypatch.setattr(audio, "OUTPUT_FILE_TEMPLATE", str(tmp_path / "{}.wav"))
+    monkeypatch.setattr(audio, "TRUNCATED_LOG", str(tmp_path / "log" / "dub_truncated.json"))
+    tasks = pd.DataFrame({
+        "number": [1, 2], "cut_off": [0, 1], "tol_dur": [2.0, 2.0], "tolerance": [0.0, 0.0], "gap": [0.0, 0.0],
+        "real_dur": [durations["1_0"], durations["2_0"] + durations["2_1"]],
+        "start_time": ["00:00:10.000", "00:00:12.000"], "end_time": ["00:00:12.000", "00:00:14.000"],
+        "lines": [lines[:1], lines[1:]],
+    })
+    return audio, tasks
+
+
+def test_overlong_dubbing_is_truncated_and_logged(monkeypatch, tmp_path):
+    import json
+    from pydub import AudioSegment
+
+    audio, tasks = _dub_tasks(monkeypatch, tmp_path, (2.8, 2.1, 2.8), ["first", "second", "third"])
+
+    result = audio.merge_chunks(tasks)
+
+    # at the 1.4 limit: 2.0s + 1.5s + 2.0s in a 4 second chunk
+    assert result.at[0, "new_sub_times"] == [[10.0, 12.0]]
+    assert result.at[1, "new_sub_times"] == [[12.0, 13.5], [13.5, 14.0]]
+    assert len(AudioSegment.from_wav(tmp_path / "2_1.wav")) == 500
+    assert len(AudioSegment.from_wav(tmp_path / "2_0.wav")) == 1500
+    log = json.loads((tmp_path / "log" / "dub_truncated.json").read_text(encoding="utf-8"))
+    assert log == [{"number": 2, "line": "third", "spoken_seconds": 2.0, "kept_seconds": 0.5, "speed_factor": 1.4}]
+
+
+def test_line_that_starts_after_the_chunk_end_becomes_silence(monkeypatch, tmp_path):
+    import json
+    from pydub import AudioSegment
+
+    audio, tasks = _dub_tasks(monkeypatch, tmp_path, (4.2, 2.8, 1.4), ["first", "second", "third"])
+
+    result = audio.merge_chunks(tasks)
+
+    # 3.0s + 2.0s + 1.0s: the second line is cut to 1s, the third has no room at all
+    assert result.at[0, "new_sub_times"] == [[10.0, 13.0]]
+    assert result.at[1, "new_sub_times"] == [[13.0, 14.0], [14.0, 14.0]]
+    assert len(AudioSegment.from_wav(tmp_path / "2_1.wav")) == 10
+    assert AudioSegment.from_wav(tmp_path / "2_1.wav").rms == 0
+    log = json.loads((tmp_path / "log" / "dub_truncated.json").read_text(encoding="utf-8"))
+    assert [(item["line"], item["kept_seconds"]) for item in log] == [("second", 1.0), ("third", 0.0)]
+
+
+def test_dubbing_that_fits_leaves_no_truncation_log(monkeypatch, tmp_path):
+    audio, tasks = _dub_tasks(monkeypatch, tmp_path, (1.5, 1.0, 1.0), ["first", "second", "third"])
+    log = tmp_path / "log" / "dub_truncated.json"
+    log.parent.mkdir()
+    log.write_text("[]", encoding="utf-8")  # left by an earlier run
+
+    result = audio.merge_chunks(tasks)
+
+    assert result.at[1, "new_sub_times"][-1][1] <= 14.0
+    assert not log.exists()
+
+
+def test_abnormal_duration_after_speed_change_is_trimmed(monkeypatch, tmp_path):
+    from pydub import AudioSegment
+    from pydub.generators import Sine
+    from core import _10_gen_audio as audio
+
+    source, output = tmp_path / "in.wav", tmp_path / "out.wav"
+    Sine(440).to_audio_segment(duration=4000).export(source, format="wav")
+
+    def fake_ffmpeg(cmd, **kwargs):  # an ffmpeg that ignores atempo
+        Sine(440).to_audio_segment(duration=4000).export(cmd[-1], format="wav")
+
+    monkeypatch.setattr(audio.subprocess, "run", fake_ffmpeg)
+    monkeypatch.setattr(audio, "get_audio_duration", lambda path: len(AudioSegment.from_wav(path)) / 1000)
+
+    audio.adjust_audio_speed(str(source), str(output), 1.25)
+
+    assert len(AudioSegment.from_wav(output)) == 3200

@@ -1,4 +1,5 @@
 import os
+import json
 from core.utils.task_literals import parse_task_literal
 import time
 import shutil
@@ -20,6 +21,7 @@ console = Console()
 
 TEMP_FILE_TEMPLATE = f"{_AUDIO_TMP_DIR}/{{}}_temp.wav"
 OUTPUT_FILE_TEMPLATE = f"{_AUDIO_SEGS_DIR}/{{}}.wav"
+TRUNCATED_LOG = "output/log/dub_truncated.json"
 WARMUP_SIZE = 5
 
 def parse_df_srt_time(time_str: str) -> float:
@@ -53,7 +55,9 @@ def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float) -
                 print(f"✂️ Trimmed to expected duration: {expected_duration:.2f} seconds")
                 return
             elif output_duration >= expected_duration * 1.02:
-                raise Exception(f"Audio duration abnormal: input file={input_file}, output file={output_file}, speed factor={speed_factor}, input duration={input_duration:.2f}s, output duration={output_duration:.2f}s")
+                # Keep going with the expected length instead of failing the whole dubbing
+                truncate_audio(output_file, expected_duration)
+                rprint(f"[yellow]⚠️ Audio duration abnormal, trimmed {output_file} from {output_duration:.2f}s to {expected_duration:.2f}s (speed factor={speed_factor})[/yellow]")
             return
         except subprocess.CalledProcessError as e:
             if attempt < max_retries - 1:
@@ -62,6 +66,16 @@ def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float) -
             else:
                 rprint(f"[red]❌ Audio speed adjustment failed, max retries reached ({max_retries})[/red]")
                 raise e
+
+def truncate_audio(audio_file: str, keep_seconds: float) -> None:
+    """Cut a wav file to keep_seconds, with a short fade so the cut does not click"""
+    audio = AudioSegment.from_wav(audio_file)
+    keep_ms = int(max(0, keep_seconds) * 1000)
+    if keep_ms < 10:  # nothing left to hear; an empty file would break the merge step
+        audio = AudioSegment.silent(duration=10, frame_rate=audio.frame_rate)
+    else:
+        audio = audio[:keep_ms].fade_out(min(50, keep_ms))
+    audio.export(audio_file, format="wav")
 
 def process_row(row: pd.Series, tasks_df: pd.DataFrame) -> Tuple[int, float]:
     """Helper function for processing single row data"""
@@ -124,7 +138,7 @@ def generate_tts_audio(tasks_df: pd.DataFrame) -> pd.DataFrame:
     rprint("[bold green]✨ TTS audio generation completed![/bold green]")
     return tasks_df
 
-def process_chunk(chunk_df: pd.DataFrame, accept: float, min_speed: float) -> tuple[float, bool]:
+def process_chunk(chunk_df: pd.DataFrame, accept: float, min_speed: float, max_speed: float = None) -> tuple[float, bool]:
     """Process audio chunk and calculate speed factor"""
     chunk_durs = chunk_df['real_dur'].sum()
     tol_durs = chunk_df['tol_dur'].sum()
@@ -134,16 +148,25 @@ def process_chunk(chunk_df: pd.DataFrame, accept: float, min_speed: float) -> tu
     keep_gaps = True
     speed_var_error = 0.1
 
+    def speed_for(audio_dur, available):
+        # No usable room (a subtitle of a few milliseconds) counts as "as fast as allowed"
+        room = available - speed_var_error
+        return audio_dur / room if room > 0 else float('inf')
+
     if (chunk_durs + all_gaps) / accept < durations:
-        speed_factor = max(min_speed, (chunk_durs + all_gaps) / (durations-speed_var_error))
+        speed_factor = max(min_speed, speed_for(chunk_durs + all_gaps, durations))
     elif chunk_durs / accept < durations:
-        speed_factor = max(min_speed, chunk_durs / (durations-speed_var_error))
+        speed_factor = max(min_speed, speed_for(chunk_durs, durations))
         keep_gaps = False
     elif (chunk_durs + all_gaps) / accept < tol_durs:
-        speed_factor = max(min_speed, (chunk_durs + all_gaps) / (tol_durs-speed_var_error))
+        speed_factor = max(min_speed, speed_for(chunk_durs + all_gaps, tol_durs))
     else:
-        speed_factor = chunk_durs / (tol_durs-speed_var_error)
+        speed_factor = speed_for(chunk_durs, tol_durs)
         keep_gaps = False
+
+    # Faster than this is not intelligible; what does not fit is truncated in merge_chunks
+    if max_speed is not None:
+        speed_factor = min(speed_factor, max(max_speed, min_speed))
         
     return round(speed_factor, 3), keep_gaps
 
@@ -152,7 +175,9 @@ def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
     rprint("[bold blue]🔄 Starting audio chunks processing...[/bold blue]")
     accept = load_key("speed_factor.accept")
     min_speed = load_key("speed_factor.min")
+    max_speed = load_key("speed_factor.max")
     chunk_start = 0
+    truncated = []
     
     tasks_df['new_sub_times'] = None
     
@@ -160,7 +185,8 @@ def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
         if row['cut_off'] == 1:
             check_cancel()
             chunk_df = tasks_df.iloc[chunk_start:index+1].reset_index(drop=True)
-            speed_factor, keep_gaps = process_chunk(chunk_df, accept, min_speed)
+            speed_factor, keep_gaps = process_chunk(chunk_df, accept, min_speed, max_speed)
+            placed = []  # (main DataFrame index, line index, audio file, text) in timeline order
             
             # 🎯 Step1: Start processing new timeline
             chunk_start_time = parse_df_srt_time(chunk_df.iloc[0]['start_time'])
@@ -184,39 +210,50 @@ def merge_chunks(tasks_df: pd.DataFrame) -> pd.DataFrame:
                 # 🔄 Step3: Find corresponding main DataFrame index and update new_sub_times
                 main_df_idx = tasks_df[tasks_df['number'] == row['number']].index[0]
                 tasks_df.at[main_df_idx, 'new_sub_times'] = new_sub_times
+                placed += [(main_df_idx, line_index, OUTPUT_FILE_TEMPLATE.format(f"{number}_{line_index}"), line)
+                           for line_index, line in enumerate(lines)]
                 # 🎯 Step4: Choose emoji based on speed_factor and accept comparison
                 emoji = "⚡" if speed_factor <= accept else "⚠️"
                 rprint(f"[cyan]{emoji} Processed chunk {chunk_start} to {index} with speed factor {speed_factor}[/cyan]")
-            # 🔄 Step5: Check if the last row exceeds the range
+            # 🔄 Step5: What still exceeds the chunk at the highest speed is truncated, from the end
             if cur_time > chunk_end_time:
-                time_diff = cur_time - chunk_end_time
-                if time_diff <= 0.6:  # If exceeding time is within 0.6 seconds, truncate the last audio
-                    rprint(f"[yellow]⚠️ Chunk {chunk_start} to {index} exceeds by {time_diff:.3f}s, truncating last audio[/yellow]")
-                    # Get the last audio file
-                    last_number = tasks_df.iloc[index]['number']
-                    last_lines = parse_task_literal(tasks_df.iloc[index]['lines'])
-                    last_line_index = len(last_lines) - 1
-                    last_file = OUTPUT_FILE_TEMPLATE.format(f"{last_number}_{last_line_index}")
-                    
-                    # Calculate the duration to keep
-                    audio = AudioSegment.from_wav(last_file)
-                    original_duration = len(audio) / 1000  # Convert to seconds
-                    new_duration = original_duration - time_diff
-                    trimmed_audio = audio[:(new_duration * 1000)]  # pydub uses milliseconds
-                    trimmed_audio.export(last_file, format="wav")
-                    
-                    # Update the last timestamp
-                    last_times = tasks_df.at[index, 'new_sub_times']
+                rprint(f"[yellow]⚠️ Chunk {chunk_start} to {index} exceeds by {cur_time - chunk_end_time:.3f}s at speed factor {speed_factor}, truncating[/yellow]")
+                for main_df_idx, line_index, audio_file, line in reversed(placed):
+                    times = tasks_df.at[main_df_idx, 'new_sub_times']
+                    start, end = times[line_index]
+                    if end <= chunk_end_time:
+                        break
                     # NumPy 2 scalar repr includes np.float64(...), which is
                     # not a portable literal when Excel serializes this list.
-                    last_times[-1][1] = float(chunk_end_time)
-                    tasks_df.at[index, 'new_sub_times'] = last_times
-                else:
-                    raise Exception(f"Chunk {chunk_start} to {index} exceeds the chunk end time {chunk_end_time:.2f} seconds with current time {cur_time:.2f} seconds")
+                    new_start = float(min(start, chunk_end_time))
+                    truncate_audio(audio_file, chunk_end_time - new_start)
+                    times[line_index] = [new_start, float(chunk_end_time)]
+                    tasks_df.at[main_df_idx, 'new_sub_times'] = times
+                    truncated.append({
+                        "number": int(tasks_df.at[main_df_idx, 'number']), "line": str(line),
+                        "spoken_seconds": round(float(end - start), 3),
+                        "kept_seconds": round(float(chunk_end_time - new_start), 3),
+                        "speed_factor": float(speed_factor),
+                    })
             chunk_start = index+1
     
+    save_truncated_log(truncated)
     rprint("[bold green]✅ Audio chunks processing completed![/bold green]")
     return tasks_df
+
+def save_truncated_log(truncated: list) -> None:
+    """List the lines whose dubbing was cut so they can be shortened by hand"""
+    if os.path.exists(TRUNCATED_LOG):
+        os.remove(TRUNCATED_LOG)
+    if not truncated:
+        return
+    truncated = sorted(reversed(truncated), key=lambda item: item["number"])  # chunks were walked backwards
+    os.makedirs(os.path.dirname(TRUNCATED_LOG), exist_ok=True)
+    with open(TRUNCATED_LOG, 'w', encoding='utf-8') as f:
+        json.dump(truncated, f, ensure_ascii=False, indent=4)
+    rprint(f"[yellow]⚠️ {len(truncated)} dubbed line(s) did not fit their time slot and were truncated, see `{TRUNCATED_LOG}`:[/yellow]")
+    for item in truncated:
+        rprint(f"[yellow]   #{item['number']} kept {item['kept_seconds']}s of {item['spoken_seconds']}s: {item['line']}[/yellow]")
 
 def gen_audio() -> None:
     """Main function: Generate audio and process timeline"""
