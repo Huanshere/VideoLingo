@@ -181,3 +181,22 @@ def test_split_positions_use_the_same_join(project):
     from core._3_2_split_meaning import find_split_positions
     original = "我们call me Lisa就好然后开会"
     assert find_split_positions(original, "我们 call me Lisa 就好[br]然后 开会") == [len("我们call me Lisa就好")]
+
+
+@pytest.mark.parametrize("tokens,expected", [
+    (["2", "0", "2", "5", "年"], "2025年"),
+    (["２", "０", "２", "６", "年"], "２０２６年"),
+    (["1,", "2", "3", "4", ".", "5", "円"], "1,234.5円"),
+])
+def test_unspaced_numeric_tokens_stay_contiguous(tokens, expected):
+    assert join_words(tokens, "") == expected
+
+
+@pytest.mark.parametrize("text", ["2025年に行きます。", "今日は２０２６年です。", "①テストです。", "ｶﾞｯﾂです。"])
+def test_japanese_aligner_tokens_preserve_text(text):
+    pytest.importorskip("qwen_asr")
+    from qwen_asr.inference.qwen3_forced_aligner import Qwen3ForceAlignProcessor
+    from core.asr_backend.qwen_asr_local import attach_words
+    tokens, _ = Qwen3ForceAlignProcessor().encode_timestamp(text, "Japanese")
+    aligned = attach_words(text, [(token, i, i + 1) for i, token in enumerate(tokens)])
+    assert join_words([item["word"] for item in aligned], "") == text

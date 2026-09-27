@@ -106,7 +106,8 @@ def join_words(words, joiner):
     scripts: when the left part ends and the right part starts with such a letter/digit
     ("Hello" + "Fiona" -> "Hello Fiona"), or the left ends with ASCII ,.!?;: and the right
     starts with such a letter ("Hello," + "Fiona"). CJK next to CJK and CJK next to Latin stay
-    unspaced as before ("有个" + "meeting" + "啊" -> "有个meeting啊"). The " " joiner is unchanged.
+    unspaced as before ("有个" + "meeting" + "啊" -> "有个meeting啊"). Consecutive digits
+    stay together (Japanese tokenizers split years into single digits). The " " joiner is unchanged.
     """
     words = [str(word) for word in words]
     if joiner:
@@ -115,7 +116,9 @@ def join_words(words, joiner):
     for word in words:
         if text and word:
             left, right = text[-1], word[0]
-            if _spaced_word_char(right) and (_spaced_word_char(left) or (left in ",.!?;:" and right.isalpha())):
+            if (not (left.isdecimal() and right.isdecimal())
+                    and _spaced_word_char(right)
+                    and (_spaced_word_char(left) or (left in ",.!?;:" and right.isalpha()))):
                 text += " "
         text += word
     return text
