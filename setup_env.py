@@ -180,11 +180,10 @@ def main() -> None:
     print("\n" + "=" * 60)
     print("  Setup complete")
     print("=" * 60)
-    if platform.system() == "Windows":
-        print("  Start with: OneKeyStart.bat")
+    if target == LOCAL_VENV:
+        print("  Start with: uv run start.py")
     else:
-        streamlit = venv_bin(target) / "streamlit"
-        print(f"  Start with: {streamlit} run st.py")
+        print(f"  Start with: {python_exe} -m streamlit run st.py")
 
 
 if __name__ == "__main__":

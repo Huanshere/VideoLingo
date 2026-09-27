@@ -79,26 +79,30 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Установка
 
-VideoLingo работает в Windows и Linux, на Mac с Apple Silicon (macOS 14 или новее) и на Mac с Intel с распознаванием на CPU. Для установки используется Python 3.12.
+VideoLingo работает в Windows, macOS (Apple Silicon / Intel) и Linux.
 
-### Windows: установка одним двойным щелчком 🎉
+### Попросите локального ИИ-агента 🤖
+
+Если ваш ИИ-агент может управлять этим компьютером, отправьте ему запрос:
+
+> Установи и запусти Huanshere/VideoLingo с GitHub на моём компьютере.
+
+### Windows: установка двойным щелчком 🎉
 
 1. Откройте [последний выпуск](https://github.com/Huanshere/VideoLingo/releases/latest) и скачайте **Source code (zip)**.
-2. Распакуйте ZIP в удобное место, например на рабочий стол, и откройте полученную папку.
-3. Дважды щёлкните `OneKeyStart.bat`. Не закрывайте окно, пока загружаются и устанавливаются необходимые компоненты. Для первого запуска нужен интернет; это может занять некоторое время.
-4. Когда откроется VideoLingo, укажите адрес API, ключ и модель на боковой панели. В следующий раз используйте тот же `OneKeyStart.bat`: он проверит установку и запустит приложение.
-
-Для этого способа в Windows не нужно самостоятельно устанавливать Git, uv или Python.
+2. Распакуйте ZIP на рабочий стол или в другую папку и откройте её.
+3. Дважды щёлкните `OneKeyStart.bat` и не закрывайте окно. При первом запуске скрипт автоматически подготовит uv, Python 3.12, зависимости приложения и FFmpeg. Требуется интернет.
+4. Когда откроется VideoLingo, укажите адрес API, ключ и модель на боковой панели. Для следующего запуска снова дважды щёлкните тот же скрипт.
 
 ### Установка из исходного кода (Windows, macOS, Linux)
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
-uv run --no-project --python 3.12 setup_env.py --yes --launch
+uv run start.py
 ```
 
-Затем запускайте `OneKeyStart.bat` в Windows или `.venv/bin/python -m streamlit run st.py` в macOS/Linux. Apple Silicon автоматически использует MLX, Mac с Intel — CPU; дополнительное разделение вокала не устанавливается автоматически.
+Позже запускайте `uv run start.py` из папки VideoLingo. Apple Silicon использует MLX; Mac с Intel — CPU для распознавания. Дополнительное разделение вокала на Intel Mac автоматически не устанавливается.
 
 #### Docker (необязательно)
 

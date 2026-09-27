@@ -79,26 +79,30 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## インストール
 
-VideoLingo は Windows、Linux、macOS 14 以降の Apple Silicon Mac、および CPU で音声認識を行う Intel Mac に対応しています。セットアップには Python 3.12 を使用します。
+VideoLingo は Windows、macOS（Apple Silicon / Intel）、Linux に対応しています。
 
-### Windows：ワンクリックでインストール 🎉
+### ローカル AI エージェントに頼む 🤖
+
+AI エージェントがこのコンピューターを操作できる場合は、次のように伝えてください。
+
+> GitHub の Huanshere/VideoLingo をこのコンピューターにインストールして起動して。
+
+### Windows：ダブルクリックでインストール 🎉
 
 1. [最新リリース](https://github.com/Huanshere/VideoLingo/releases/latest)を開き、**Source code (zip)** をダウンロードします。
 2. ZIP をデスクトップなどに展開し、展開したフォルダーを開きます。
-3. `OneKeyStart.bat` をダブルクリックします。必要なものをダウンロードしてインストールする間、ウィンドウを閉じないでください。初回はインターネット接続が必要で、時間がかかる場合があります。
-4. VideoLingo が開いたら、サイドバーに API URL、キー、モデルを入力します。次回も同じ `OneKeyStart.bat` をダブルクリックすると、インストール状態を確認して起動します。
-
-この Windows 向け手順では、Git、uv、Python を自分でインストールする必要はありません。
+3. `OneKeyStart.bat` をダブルクリックし、ウィンドウを開いたままにします。初回は uv、Python 3.12、アプリの依存関係、FFmpeg を自動で準備します。インターネット接続が必要です。
+4. VideoLingo が開いたら、サイドバーに API URL、キー、モデルを入力します。次回も同じスクリプトをダブルクリックして起動します。
 
 ### ソースコードからインストール（Windows・macOS・Linux）
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
-uv run --no-project --python 3.12 setup_env.py --yes --launch
+uv run start.py
 ```
 
-次回からは Windows で `OneKeyStart.bat`、macOS/Linux で `.venv/bin/python -m streamlit run st.py` を使用します。Apple Silicon は MLX、Intel Mac は CPU で音声認識を行います。オプションのボーカル分離は自動インストールされません。
+次回からは VideoLingo フォルダーで `uv run start.py` を実行します。Apple Silicon は MLX、Intel Mac は CPU で音声認識を行います。Intel Mac ではオプションのボーカル分離は自動インストールされません。
 
 #### Docker（オプション）
 

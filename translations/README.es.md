@@ -79,26 +79,30 @@ Los idiomas de doblaje dependen del método TTS elegido.
 
 ## Instalación
 
-VideoLingo funciona en Windows y Linux, en Mac con Apple Silicon (macOS 14 o posterior) y en Mac Intel con reconocimiento por CPU. La instalación usa Python 3.12.
+VideoLingo funciona en Windows, macOS (Apple Silicon / Intel) y Linux.
+
+### Pídeselo a tu agente de IA local 🤖
+
+Si tu agente de IA puede usar tu ordenador, envíale este mensaje:
+
+> Instala y ejecuta Huanshere/VideoLingo desde GitHub en mi ordenador.
 
 ### Windows: instalación con un clic 🎉
 
 1. Abre la [última versión](https://github.com/Huanshere/VideoLingo/releases/latest) y descarga **Source code (zip)**.
-2. Descomprime el ZIP en un lugar fácil de encontrar, como el escritorio, y abre la carpeta extraída.
-3. Haz doble clic en `OneKeyStart.bat`. Deja la ventana abierta mientras descarga e instala lo necesario. La primera ejecución requiere Internet y puede tardar un poco.
-4. Cuando se abra VideoLingo, introduce la URL de la API, la clave y el modelo en la barra lateral. La próxima vez, usa el mismo `OneKeyStart.bat`: comprobará la instalación e iniciará la aplicación.
-
-Con este método para Windows no necesitas instalar Git, uv ni Python por tu cuenta.
+2. Descomprime el ZIP en el escritorio u otra carpeta y ábrela.
+3. Haz doble clic en `OneKeyStart.bat` y deja la ventana abierta. En la primera ejecución prepara automáticamente uv, Python 3.12, las dependencias y FFmpeg. Se necesita conexión a Internet.
+4. Cuando se abra VideoLingo, introduce la URL de la API, la clave y el modelo en la barra lateral. Después, haz doble clic en el mismo script para iniciarlo.
 
 ### Instalación desde el código fuente (Windows, macOS, Linux)
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
-uv run --no-project --python 3.12 setup_env.py --yes --launch
+uv run start.py
 ```
 
-Después, usa `OneKeyStart.bat` en Windows o `.venv/bin/python -m streamlit run st.py` en macOS/Linux. Apple Silicon usa MLX; los Mac Intel usan la CPU para el reconocimiento; la separación de voces opcional no se instala automáticamente allí.
+Para iniciarlo después, ejecuta `uv run start.py` en la carpeta VideoLingo. Apple Silicon usa MLX; los Mac Intel usan la CPU para el reconocimiento. La separación de voces opcional no se instala automáticamente en los Mac Intel.
 
 #### Docker (opcional)
 

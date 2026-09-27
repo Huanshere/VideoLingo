@@ -79,26 +79,30 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安裝
 
-VideoLingo 支援 Windows、Linux、macOS 14 或更新版本的 Apple Silicon Mac，以及使用 CPU 辨識的 Intel Mac。安裝統一使用 Python 3.12。
+VideoLingo 支援 Windows、macOS（Apple Silicon / Intel）和 Linux。
+
+### 讓本機 AI Agent 幫你安裝 🤖
+
+如果你的 AI Agent 可以操作這台電腦，直接告訴它：
+
+> `幫我安裝 GitHub 上的 Huanshere/VideoLingo，並啟動它。`
 
 ### Windows 一鍵安裝 🎉
 
 1. 開啟[最新版本頁面](https://github.com/Huanshere/VideoLingo/releases/latest)，下載 **Source code (zip)**。
 2. 解壓縮到桌面等方便找到的位置，開啟解壓縮後的資料夾。
-3. 雙擊 `OneKeyStart.bat`，保持視窗開啟，等待所需元件下載與安裝完成。首次執行需要連網，可能需要一些時間。
-4. VideoLingo 開啟後，在側邊欄填入 API 網址、金鑰和模型。下次仍雙擊同一個 `OneKeyStart.bat`，它會檢查安裝狀態並啟動程式。
-
-使用這個 Windows 方法，不需要自行安裝 Git、uv 或 Python。
+3. 雙擊 `OneKeyStart.bat`，保持視窗開啟。首次執行會自動準備 uv、Python 3.12、應用程式依賴和 FFmpeg，需要連網。
+4. VideoLingo 開啟後，在側邊欄填入 API 網址、金鑰和模型。之後仍雙擊同一個腳本即可啟動。
 
 ### 從原始碼安裝（Windows、macOS、Linux）
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
-uv run --no-project --python 3.12 setup_env.py --yes --launch
+uv run start.py
 ```
 
-之後啟動：Windows 雙擊 `OneKeyStart.bat`；macOS/Linux 執行 `.venv/bin/python -m streamlit run st.py`。Apple Silicon 自動使用 MLX，Intel Mac 自動使用 CPU 辨識；可選的人聲分離暫不自動安裝。
+之後在 VideoLingo 資料夾執行 `uv run start.py` 即可啟動。Apple Silicon 自動使用 MLX，Intel Mac 使用 CPU 辨識；可選的人聲分離暫不自動安裝。
 
 #### Docker（可選）
 

@@ -60,25 +60,29 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-VideoLingo 支持 Windows、Linux、macOS 14 及以上的 Apple Silicon Mac，以及使用 CPU 识别的 Intel Mac。安装统一使用 Python 3.12。
+VideoLingo 支持 Windows、macOS（Apple Silicon / Intel）和 Linux。
+
+### 让本地 AI Agent 帮你安装 🤖
+
+如果你的 AI Agent 可以操作这台电脑，直接告诉它：
+
+> `帮我安装 GitHub 上的 Huanshere/VideoLingo，并启动它。`
 
 ### Windows：双击安装 🎉
 
 1. 从[最新版本页面](https://github.com/Huanshere/VideoLingo/releases/latest)下载 **Source code (zip)**，解压到桌面等方便找到的位置。
-2. 打开解压后的文件夹，双击 `OneKeyStart.bat`。保持窗口打开；首次运行会安装所需组件，需要联网，可能需要一些时间。
-3. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。下次仍双击同一个 `OneKeyStart.bat`。
-
-按这个 Windows 方法操作，不需要自己安装 Git、uv 或 Python。
+2. 打开文件夹，双击 `OneKeyStart.bat`，保持窗口打开。首次运行会自动准备 uv、Python 3.12、应用依赖和 FFmpeg，需要联网。
+3. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。以后仍双击同一个脚本即可启动。
 
 ### 从源码安装（Windows、macOS、Linux）
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
-uv run --no-project --python 3.12 setup_env.py --yes --launch
+uv run start.py
 ```
 
-之后启动：Windows 双击 `OneKeyStart.bat`；macOS/Linux 运行 `.venv/bin/python -m streamlit run st.py`。
+以后在 VideoLingo 文件夹中运行 `uv run start.py` 即可启动。
 
 ### Docker
 Linux NVIDIA 容器使用 Docker、兼容驱动和 NVIDIA Container Toolkit。镜像采用相同的 Python 3.12 安装流程，详见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)：

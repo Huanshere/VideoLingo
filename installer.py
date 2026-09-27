@@ -651,7 +651,7 @@ def install_all(args: argparse.Namespace) -> int:
     print_asr_summary()
     if args.launch:
         return launch_streamlit()
-    print("\nInstall complete. Start with OneKeyStart.bat or: python -m streamlit run st.py")
+    print("\nInstall complete. Start with OneKeyStart.bat or: uv run start.py")
     return 0
 
 

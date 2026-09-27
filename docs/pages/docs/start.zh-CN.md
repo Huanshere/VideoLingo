@@ -119,25 +119,31 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 ## 🛠️ 快速上手
 
-VideoLingo 支持 Windows、Linux、macOS 14 及以上的 Apple Silicon Mac，以及使用 CPU 识别的 Intel Mac。安装统一使用 Python 3.12。
+VideoLingo 支持 Windows、macOS（Apple Silicon / Intel）和 Linux。
+
+### 让本地 AI Agent 帮你安装 🤖
+
+如果你的 AI Agent 可以操作这台电脑，直接告诉它：
+
+> `帮我安装 GitHub 上的 Huanshere/VideoLingo，并启动它。`
 
 ### Windows：双击安装 🎉
 
 1. 从[最新版本页面](https://github.com/Huanshere/VideoLingo/releases/latest)下载 **Source code (zip)**，解压到桌面等方便找到的位置。
-2. 打开解压后的文件夹，双击 `OneKeyStart.bat`。保持窗口打开，等待首次下载和安装完成。需要联网，可能需要一些时间。
-3. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。下次仍双击同一个 `OneKeyStart.bat`，它会先检查安装状态再启动。
+2. 打开文件夹，双击 `OneKeyStart.bat`，保持窗口打开。首次运行会自动准备 uv、Python 3.12、应用依赖和 FFmpeg，需要联网。
+3. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。以后仍双击同一个脚本即可启动。
 
-按这个 Windows 方法操作，不需要自己安装 Git、uv 或 Python。如果使用 NVIDIA 显卡，先安装兼容的驱动，详见[显卡运行环境](#gpu-runtime)。
+如果使用 NVIDIA 显卡，先安装兼容的驱动，详见[显卡运行环境](#gpu-runtime)。
 
 ### 从源码安装（Windows、macOS、Linux）
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
-uv run --no-project --python 3.12 setup_env.py --yes --launch
+uv run start.py
 ```
 
-之后启动：Windows 双击 `OneKeyStart.bat`；macOS/Linux 运行 `.venv/bin/python -m streamlit run st.py`。Apple Silicon 自动使用 MLX，Intel Mac 自动使用 CPU 识别；可选的人声分离暂不自动安装。
+以后在 VideoLingo 文件夹中运行 `uv run start.py` 即可启动。Apple Silicon 自动使用 MLX，Intel Mac 自动使用 CPU 识别；可选的人声分离暂不自动安装。
 
 ![tutorial](./zh_page.png)
 

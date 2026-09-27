@@ -79,26 +79,30 @@ Dubbing languages depend on the selected TTS method.
 
 ## Installation
 
-VideoLingo runs on Windows and Linux, Apple Silicon Macs (macOS 14+), and Intel Macs using CPU recognition. Setup uses Python 3.12.
+VideoLingo supports Windows, macOS (Apple Silicon / Intel), and Linux.
+
+### Ask your local AI agent 🤖
+
+If you use an AI agent that can operate your computer, send it this prompt:
+
+> Install and launch GitHub's Huanshere/VideoLingo on my computer.
 
 ### Windows: one-click install 🎉
 
 1. Open the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest) and download **Source code (zip)**.
-2. Extract the ZIP to a folder, such as your Desktop. Open the extracted folder.
-3. Double-click `OneKeyStart.bat`. Keep the window open while it installs what VideoLingo needs. The first run needs an internet connection and may take a while.
-4. When VideoLingo opens, enter your API URL, key and model in the sidebar. Use the same `OneKeyStart.bat` next time; it checks the installation and starts the app.
-
-You do not need to install Git, uv or Python yourself for this Windows path.
+2. Extract the ZIP to your Desktop or another folder, then open it.
+3. Double-click `OneKeyStart.bat` and keep the window open. On the first run, it automatically prepares uv, Python 3.12, the app dependencies, and FFmpeg. An internet connection is required.
+4. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click the same script to start it.
 
 ### Install from source (Windows, macOS, Linux)
 
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
-uv run --no-project --python 3.12 setup_env.py --yes --launch
+uv run start.py
 ```
 
-Later, use `OneKeyStart.bat` on Windows or `.venv/bin/python -m streamlit run st.py` on macOS/Linux. Apple Silicon uses MLX; Intel Macs use CPU recognition; optional vocal separation is not installed automatically there.
+To start it later, run `uv run start.py` again from the VideoLingo folder. Apple Silicon uses MLX; Intel Macs use CPU recognition. Optional vocal separation is not installed automatically on Intel Macs.
 
 #### Docker (optional)
 
