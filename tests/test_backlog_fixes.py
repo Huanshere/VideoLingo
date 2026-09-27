@@ -129,3 +129,36 @@ def test_hand_configured_language_does_not_break_the_dropdown(configured):
     langs = recognition_languages(configured)
 
     assert list(langs.values()).index(configured) == len(langs) - 1
+
+
+# ------------------------------------------------------------------
+# core.utils: a missing dependency is reported by name (#513)
+# ------------------------------------------------------------------
+
+def test_core_utils_reports_the_import_that_failed():
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    code = (
+        "import sys\n"
+        "sys.modules['json_repair'] = None\n"  # makes `import json_repair` raise ImportError
+        "import core.utils\n"                  # still importable, as the installer expects
+        "try:\n"
+        "    from core.utils import *\n"
+        "except ImportError as e:\n"
+        "    print('ImportError:', e)\n"
+    )
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                            cwd=Path(__file__).resolve().parents[1])
+
+    assert result.returncode == 0, result.stderr
+    assert "ImportError:" in result.stdout
+    assert "json_repair" in result.stdout
+
+
+def test_core_utils_unknown_attribute_is_still_an_attribute_error():
+    import core.utils
+
+    with pytest.raises(AttributeError):
+        core.utils.does_not_exist
