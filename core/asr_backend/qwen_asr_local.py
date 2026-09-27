@@ -26,6 +26,7 @@ from pathlib import Path
 import numpy as np
 from rich import print as rprint
 from core.utils import load_key, load_key_or, except_handler, check_cancel
+from core.asr_backend.speech_edges import trim_speech_windows
 
 SAMPLE_RATE = 16000
 # Qwen3-ForcedAligner accepts at most 180 s per call (qwen_asr MAX_FORCE_ALIGN_INPUT_SECONDS).
@@ -661,6 +662,9 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
         vocal = match_length(load_audio_segment(vocal_audio_file, start, end), len(raw))
     # Drop slivers (< 0.1 s) left by segment boundaries; they carry no speech.
     windows = [(a, b) for a, b in split_windows(raw) if b - a >= int(MIN_WINDOW_SECONDS * SAMPLE_RATE)]
+    # Aligners can attach opening words to intro music. Bound ASR and alignment
+    # to the same conservatively padded speech window, preserving all offsets.
+    windows = trim_speech_windows(raw, windows)
 
     # 1. transcribe raw audio (auto: probe the language first, then force it per window)
     t0 = time.time()

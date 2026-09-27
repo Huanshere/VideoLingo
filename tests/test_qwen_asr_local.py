@@ -219,6 +219,7 @@ def pipeline(monkeypatch):
     monkeypatch.setattr(qwen, "model_size", lambda requested=None: "0.6b")
     monkeypatch.setattr(qwen, "load_key", lambda key: {"whisper.language": state["language"]}[key])
     monkeypatch.setattr(qwen, "load_audio_segment", lambda path, start, end: audio[path])
+    monkeypatch.setattr(qwen, "trim_speech_windows", lambda raw, windows: windows)
 
     @contextmanager
     def session(engine, repo_id):
@@ -280,6 +281,16 @@ def code_switched(a, b, language):
     if language == "English":
         return "English", "Yeah, yeah. " * 500
     return language, ZH * max(1, int((b - a) // 10))
+
+
+def test_speech_trim_offsets_match_raw_and_vocal_tracks(pipeline, monkeypatch):
+    pipeline["asr"] = lambda a, b, language: (language, "Hello, world.")
+    monkeypatch.setattr(qwen, "trim_speech_windows", lambda *_: [(4 * SR, 100 * SR)])
+    result = qwen.transcribe_audio("raw.wav", "vocal.mp3", 60, 260)
+    assert window_calls(pipeline) == [(4.0, 96.0, "English")]
+    assert pipeline["calls"]["align"][2] == [(VOCAL_BASE + 4, "Hello, world.", "English")]
+    assert pipeline["calls"]["align_lengths"] == [96 * SR]
+    assert result["segments"][0]["words"][0] == {"word": "Hello,", "start": 64.5, "end": 65.0}
 
 
 def test_auto_probes_vote_then_force_the_language(pipeline):
