@@ -1,10 +1,12 @@
 """The single processing plan used by the UI and API."""
 from functools import partial
 from importlib import import_module
+import json
 from pathlib import Path
 
 from core.task_runner import TaskRunner
-from core.utils.models import _TEXT_DONE_MARKER, _AUDIO_DONE_MARKER
+from core.utils.config_utils import load_key
+from core.utils.models import _4_1_TERMINOLOGY, _4_2_TRANSLATION, _TEXT_DONE_MARKER, _AUDIO_DONE_MARKER
 
 
 # Labels remain translation keys; only the UI translates them.
@@ -13,10 +15,14 @@ SUBTITLE_STEPS = [
     ("Sentence segmentation using NLP and LLM", (
         "_3_1_split_nlp.split_by_spacy", "_3_2_split_meaning.split_sentences_by_meaning")),
     ("Summarization and multi-step translation", (
-        "_4_1_summarize.get_summary", "_4_2_translate.translate_all")),
+        "_4_1_summarize.get_summary", "pipeline.review_terminology", "_4_2_translate.translate_all")),
     ("Cutting and aligning long subtitles", (
         "_5_split_sub.split_for_sub_main", "_6_gen_sub.align_timestamp_main")),
     ("Merging subtitles into the video", ("_7_sub_into_vid.merge_subtitles_to_video",)),
+]
+# Only the source subtitles: no translation and no video
+TRANSCRIBE_STEPS = SUBTITLE_STEPS[:2] + [
+    ("Generate subtitle files", ("_6_gen_sub.gen_source_subtitles",)),
 ]
 DUBBING_STEPS = [
     ("Generate audio tasks and chunks", ("_8_1_audio_task.gen_audio_task_main", "_8_2_dub_chunks.gen_dub_chunks")),
@@ -25,6 +31,42 @@ DUBBING_STEPS = [
     ("Merge full audio", ("_11_merge_audio.merge_full_audio",)),
     ("Merge final audio into video", ("_12_dub_to_vid.merge_video_audio",)),
 ]
+
+
+# These messages are translation keys as well
+REVIEW_TERMINOLOGY = "Terminology is ready for review. Edit `output/log/terminology.json` if needed, then press Resume to start translating."
+INVALID_TERMINOLOGY = "`output/log/terminology.json` can not be read after your edit. Fix it, then press Resume."
+
+
+def terminology_error():
+    """What is wrong with the terminology file, or None when the translation can use it."""
+    try:
+        terminology = json.loads(Path(_4_1_TERMINOLOGY).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        return str(e)
+    terms = terminology.get("terms") if isinstance(terminology, dict) else None
+    if not isinstance(terms, list):
+        return "`terms` must be a list"
+    for term in terms:
+        if not isinstance(term, dict) or not all(isinstance(term.get(key), str) for key in ("src", "tgt", "note")):
+            return f"Each term needs the texts `src`, `tgt` and `note`: {term}"
+    return None
+
+
+def review_terminology():
+    """Optional checkpoint `pause_before_translate`: the task waits until the user resumes it."""
+    runner = TaskRunner._current
+    if runner is None or not load_key("pause_before_translate") or Path(_4_2_TRANSLATION).exists():
+        return
+    message = REVIEW_TERMINOLOGY
+    while True:
+        runner.pause(message)
+        TaskRunner.check_cancel()
+        error = terminology_error()
+        if error is None:
+            return
+        print(f"⚠️ {_4_1_TERMINOLOGY}: {error}")
+        message = INVALID_TERMINOLOGY
 
 
 def _execute(calls, clear_marker=None):
@@ -44,8 +86,10 @@ def _finish(marker):
 
 def get_steps(stage="subtitles", dubbing=False):
     """Build a fresh sequential plan. Existing intermediate files support retries."""
-    if stage not in {"subtitles", "dubbing", "all"}:
+    if stage not in {"transcribe", "subtitles", "dubbing", "all"}:
         raise ValueError(f"Unknown stage: {stage}")
+    if stage == "transcribe":
+        return [(label, partial(_execute, calls)) for label, calls in TRANSCRIBE_STEPS]
     stages = []
     if stage in {"subtitles", "all"}:
         stages.append((SUBTITLE_STEPS, _TEXT_DONE_MARKER, "Finalize subtitle outputs"))

@@ -36,8 +36,10 @@ POST /run
 {"stage": "all", "target_language": "zh", "dubbing": true}
 ```
 
-`stage` is `subtitles`, `dubbing`, or `all` (default). `dubbing` defaults to false and
+`stage` is `transcribe`, `subtitles`, `dubbing`, or `all` (default). `dubbing` defaults to false and
 only controls whether `all` includes dubbing. `stage: dubbing` requires existing subtitles.
+`stage: transcribe` stops after the source subtitles: it writes `src.srt` only, without
+translation or video. A later `subtitles` run reuses the transcription.
 On Intel Macs, dubbing uses the new voice without mixing in the original background sound.
 Audio-only input supports subtitles, matching the UI. Optional `source_language` and
 `target_language` are saved to `config.yaml`; other settings use that file directly.
@@ -46,7 +48,9 @@ Do not edit configuration while processing.
 Poll `GET /status` again. It returns `state`, `active`, `step`, `step_index` (zero-based),
 `total_steps`, `progress`, `error`, and top-level output `files`. Progress counts completed
 step groups, not elapsed time. States: `idle`, `running`, `paused`, `stopping`, `stopped`,
-`completed`, `error` (`paused` is used by the shared UI runner).
+`completed`, `error`. With `pause_before_translate: true` in `config.yaml` the task pauses
+after the terminology is extracted: `state` is `paused` and `pause_message` says why. Edit
+`output/log/terminology.json` if needed, then continue with `POST /resume`.
 
 ```http
 GET /files/trans.srt

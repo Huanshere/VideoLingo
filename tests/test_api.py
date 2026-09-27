@@ -216,3 +216,23 @@ def test_api_import_does_not_load_ui_or_models():
         "import api, sys; assert not {'streamlit', 'torch', 'spacy', 'qwen_asr'} & sys.modules.keys()",
     ], cwd=Path(__file__).resolve().parents[1], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+def test_transcribe_stage_and_resume(client, monkeypatch):
+    input_file(client)
+    assert client.post("/resume").status_code == 409
+    calls = []
+    def plan(stage, dubbing):
+        calls.append(stage)
+        return [("Checkpoint", lambda: (api.runner.pause("Review"), TaskRunner.check_cancel()))]
+    monkeypatch.setattr(api, "get_steps", plan)
+    assert client.post("/run", json={"stage": "transcribe"}).status_code == 202
+    for _ in range(300):
+        if client.get("/status").json()["state"] == "paused":
+            break
+        threading.Event().wait(0.01)
+    assert client.get("/status").json()["pause_message"] == "Review"
+    assert client.post("/resume").json()["state"] == "running"
+    state = finish(client)
+    assert calls == ["transcribe"]
+    assert state["state"] == "completed" and state["pause_message"] is None

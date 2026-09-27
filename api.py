@@ -39,7 +39,7 @@ class InputRequest(BaseModel):
 
 class RunRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    stage: Literal["subtitles", "dubbing", "all"] = "all"
+    stage: Literal["transcribe", "subtitles", "dubbing", "all"] = "all"
     dubbing: bool = False
     target_language: str | None = Field(default=None, min_length=1)
     source_language: str | None = Field(default=None, min_length=1)
@@ -140,8 +140,19 @@ def status():
         "total_steps": runner.total_steps,
         "progress": runner.progress,
         "error": runner.error_msg or None,
+        "pause_message": runner.pause_message or None,
         "files": files,
     }
+
+
+@app.post("/resume")
+def resume():
+    """Continue a paused task, such as the checkpoint of pause_before_translate."""
+    with operation_lock:
+        if runner.state != "paused":
+            raise HTTPException(409, "No task is paused.")
+        runner.resume()
+        return {"state": runner.state}
 
 
 @app.post("/stop")

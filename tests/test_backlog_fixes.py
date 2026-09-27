@@ -927,3 +927,183 @@ def test_video_that_cannot_be_copied_is_encoded_again(monkeypatch, tmp_path):
     assert streams['video']['codec_name'] != 'flv1'
     assert abs(float(streams['video']['duration']) - 6.0) < 0.1
     assert streams['audio']['codec_name'] == 'aac'
+
+
+# ------------------------------------------------------------------
+# D1: checkpoint before the translation and transcription only (#175, #255, #483)
+# ------------------------------------------------------------------
+
+def _wait_for(condition, timeout=3):
+    import time
+    end = time.time() + timeout
+    while time.time() < end:
+        if condition():
+            return True
+        time.sleep(0.01)
+    return False
+
+
+def _checkpoint(monkeypatch, tmp_path, enabled=True, terminology='{"theme": "t", "terms": []}'):
+    from core import pipeline
+    from core.task_runner import TaskRunner
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    with open("output/log/terminology.json", "w", encoding="utf-8") as f:
+        f.write(terminology)
+    monkeypatch.setattr(pipeline, "load_key", lambda key: {"pause_before_translate": enabled}[key])
+    calls = []
+    runner = TaskRunner()
+    runner.start([("Summarization and multi-step translation", pipeline.review_terminology),
+                  ("after", lambda: calls.append("translated"))])
+    return pipeline, runner, calls
+
+
+def _finish_runner(runner):
+    runner._thread.join(3)
+    assert not runner._thread.is_alive()
+
+
+def test_task_waits_at_the_checkpoint_until_it_is_resumed(monkeypatch, tmp_path):
+    pipeline, runner, calls = _checkpoint(monkeypatch, tmp_path)
+    try:
+        assert _wait_for(lambda: runner.state == "paused")
+        assert runner.pause_message == pipeline.REVIEW_TERMINOLOGY
+        assert calls == []
+        runner.resume()
+        assert runner.pause_message == ""
+    finally:
+        runner.resume()
+        _finish_runner(runner)
+    assert runner.state == "completed" and calls == ["translated"]
+
+
+def test_checkpoint_waits_again_when_the_edit_cannot_be_read(monkeypatch, tmp_path):
+    pipeline, runner, calls = _checkpoint(monkeypatch, tmp_path)
+    try:
+        assert _wait_for(lambda: runner.state == "paused")
+        with open("output/log/terminology.json", "w", encoding="utf-8") as f:
+            f.write('{"terms": [{"src": "a", "tgt": "b", "note": "c"},]}')
+        runner.resume()
+        assert _wait_for(lambda: runner.pause_message == pipeline.INVALID_TERMINOLOGY)
+        assert runner.state == "paused" and calls == []
+        with open("output/log/terminology.json", "w", encoding="utf-8") as f:
+            f.write('{"terms": [{"src": "a", "tgt": "b", "note": "c"}]}')
+        runner.resume()
+    finally:
+        runner.resume()
+        _finish_runner(runner)
+    assert runner.state == "completed" and calls == ["translated"]
+
+
+def test_checkpoint_can_be_stopped(monkeypatch, tmp_path):
+    _, runner, calls = _checkpoint(monkeypatch, tmp_path)
+    try:
+        assert _wait_for(lambda: runner.state == "paused")
+    finally:
+        runner.stop()
+        _finish_runner(runner)
+    assert runner.state == "stopped" and runner.pause_message == "" and calls == []
+
+
+def test_no_checkpoint_when_it_is_switched_off(monkeypatch, tmp_path):
+    _, runner, calls = _checkpoint(monkeypatch, tmp_path, enabled=False)
+    _finish_runner(runner)
+    assert runner.state == "completed" and calls == ["translated"]
+
+
+def test_no_checkpoint_when_the_translation_exists(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    open("output/log/translation_results.xlsx", "w").close()
+    from core.utils.models import _4_2_TRANSLATION
+    assert _4_2_TRANSLATION == "output/log/translation_results.xlsx"
+    from core import pipeline
+    from core.task_runner import TaskRunner
+    monkeypatch.setattr(pipeline, "load_key", lambda key: True)
+    runner = TaskRunner()
+    runner.start([("one", pipeline.review_terminology)])
+    _finish_runner(runner)
+    assert runner.state == "completed"
+
+
+def test_checkpoint_does_nothing_outside_a_task(monkeypatch, tmp_path):
+    from core import pipeline
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(pipeline, "load_key", lambda key: True)
+    pipeline.review_terminology()
+
+
+@pytest.mark.parametrize("content,valid", [
+    ('{"theme": "t", "terms": [{"src": "a", "tgt": "b", "note": "c"}]}', True),
+    ('{"terms": []}', True),
+    ('{"terms": [{"src": "a", "tgt": "b"}]}', False),
+    ('{"terms": {"src": "a"}}', False),
+    ('[]', False),
+    ('not json', False),
+])
+def test_terminology_error(monkeypatch, tmp_path, content, valid):
+    from core import pipeline
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    with open("output/log/terminology.json", "w", encoding="utf-8") as f:
+        f.write(content)
+    assert (pipeline.terminology_error() is None) == valid
+
+
+def test_edited_terminology_is_kept_on_a_retry(monkeypatch, tmp_path):
+    import core._4_1_summarize as module
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    with open("output/log/terminology.json", "w", encoding="utf-8") as f:
+        f.write('{"terms": [{"src": "edited", "tgt": "b", "note": "c"}]}')
+    monkeypatch.setattr(module, "ask_gpt", lambda *args, **kwargs: pytest.fail("summarized again"))
+
+    module.get_summary()
+
+    with open("output/log/terminology.json", encoding="utf-8") as f:
+        assert "edited" in f.read()
+
+
+def test_transcribe_stage_stops_before_the_translation(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from core import pipeline
+    monkeypatch.chdir(tmp_path)
+    calls = []
+    monkeypatch.setattr(pipeline, "import_module", lambda name: SimpleNamespace(**{
+        function: lambda call=f"{name}.{function}": calls.append(call)
+        for function in ("transcribe", "split_by_spacy", "split_sentences_by_meaning", "gen_source_subtitles")}))
+
+    steps = pipeline.get_steps("transcribe")
+    for _, step in steps:
+        step()
+
+    assert [label for label, _ in steps] == [
+        "Word-level transcription and alignment", "Sentence segmentation using NLP and LLM", "Generate subtitle files"]
+    assert calls == ["core._2_asr.transcribe", "core._3_1_split_nlp.split_by_spacy",
+                     "core._3_2_split_meaning.split_sentences_by_meaning", "core._6_gen_sub.gen_source_subtitles"]
+    assert not os.path.exists("output/.subtitle_done")
+
+
+def test_source_subtitles_without_a_translation(monkeypatch, tmp_path):
+    import core._5_split_sub as split_sub
+    import core._6_gen_sub as module
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    _words().to_excel("output/log/cleaned_chunks.xlsx", index=False)
+    with open("output/log/split_by_meaning.txt", "w", encoding="utf-8") as f:
+        f.write("Hello world.\nHow are you?\n")
+    settings = {"subtitle": {"max_length": 8, "target_multiplier": 1.2}, "max_workers": 2}
+    monkeypatch.setattr(split_sub, "load_key", lambda key: settings[key])
+    split = {"Hello world.": "Hello\nworld.", "How are you?": "How are\nyou?"}
+    monkeypatch.setattr(split_sub, "split_sentence", lambda sentence, num_parts: split.get(sentence, sentence))
+
+    module.gen_source_subtitles()
+
+    assert [name for name in os.listdir("output") if name != "log"] == ["src.srt"]
+    with open("output/src.srt", encoding="utf-8") as f:
+        assert f.read() == (
+            "1\n00:00:00,000 --> 00:00:00,500\nHello\n\n\n"
+            "2\n00:00:00,500 --> 00:00:01,000\nworld.\n\n\n"
+            "3\n00:00:02,000 --> 00:00:02,800\nHow are\n\n\n"
+            "4\n00:00:02,800 --> 00:00:03,200\nyou?"
+        )

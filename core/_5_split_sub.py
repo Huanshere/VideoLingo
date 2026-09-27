@@ -118,6 +118,24 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str]):
     
     return src_lines, tr_lines, remerged_tr_lines
 
+def split_source_lines(lines: List[str]) -> List[str]:
+    """Split the lines that are too long for a subtitle, for subtitles without a translation."""
+    max_length = load_key("subtitle")["max_length"]
+
+    def process(line):
+        if len(line) <= max_length:
+            return [line]
+        parts = [part.strip() for part in split_sentence(line, num_parts=2).split('\n') if part.strip()]
+        return parts if len(parts) > 1 else [line]
+
+    for _ in range(3):
+        if all(len(line) <= max_length for line in lines):
+            break
+        check_cancel()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
+            lines = [part for parts in executor.map(process, lines) for part in parts]
+    return lines
+
 def split_for_sub_main():
     console.print("[bold green]🚀 Start splitting subtitles...[/bold green]")
     

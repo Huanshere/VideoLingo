@@ -90,7 +90,6 @@
     "Summarizing and translating...": "Résumé et traduction en cours...",
     "Processing and aligning subtitles...": "Traitement et alignement des sous-titres...",
     "Merging subtitles to video...": "Fusion des sous-titres dans la vidéo...",
-    "⚠️ PAUSE_BEFORE_TRANSLATE. Go to `output/log/terminology.json` to edit terminology. Then press ENTER to continue...": "⚠️ PAUSE_AVANT_TRADUCTION. Allez dans `output/log/terminology.json` pour éditer la terminologie. Puis appuyez sur ENTRÉE pour continuer...",
     "Subtitle processing complete! 🎉": "Traitement des sous-titres terminé ! 🎉",
     "c. Dubbing": "c. Doublage",
     "Generate audio tasks and chunks": "Générer les tâches audio et les segments",
@@ -175,5 +174,12 @@
     "API check failed": "Échec de la vérification de l'API",
     "Path of a cookies.txt file exported from your browser, for videos that require sign-in": "Chemin d'un fichier cookies.txt exporté depuis votre navigateur, pour les vidéos qui exigent une connexion",
     "Download failed": "Échec du téléchargement",
-    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "Cette vidéo exige une connexion. Exportez cookies.txt depuis votre navigateur et indiquez son chemin dans les paramètres Youtube."
+    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "Cette vidéo exige une connexion. Exportez cookies.txt depuis votre navigateur et indiquez son chemin dans les paramètres Youtube.",
+    "Terminology is ready for review. Edit `output/log/terminology.json` if needed, then press Resume to start translating.": "La terminologie est prête à être relue. Modifiez `output/log/terminology.json` si nécessaire, puis appuyez sur Reprendre pour lancer la traduction.",
+    "`output/log/terminology.json` can not be read after your edit. Fix it, then press Resume.": "`output/log/terminology.json` est illisible après votre modification. Corrigez-le, puis appuyez sur Reprendre.",
+    "Transcribe Only": "Transcrire uniquement",
+    "Only generate the source subtitles `src.srt`, without translation": "Génère uniquement les sous-titres source `src.srt`, sans traduction",
+    "Source subtitles are ready. You can download them, or start processing subtitles to translate them.": "Les sous-titres source sont prêts. Vous pouvez les télécharger ou lancer le traitement des sous-titres pour les traduire.",
+    "Pause before translation": "Pause avant la traduction",
+    "Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts": "Pause après l'extraction de la terminologie, pour modifier `output/log/terminology.json` avant le début de la traduction"
 }

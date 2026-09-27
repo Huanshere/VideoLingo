@@ -67,7 +67,6 @@
     "Summarizing and translating...": "正在總結和翻譯...",
     "Processing and aligning subtitles...": "正在處理和對齊字幕...",
     "Merging subtitles to video...": "正在將字幕合併到影片中...",
-    "⚠️ PAUSE_BEFORE_TRANSLATE. Go to `output/log/terminology.json` to edit terminology. Then press ENTER to continue...": "⚠️ 翻譯前暫停。請前往`output/log/terminology.json`編輯術語。然後按Enter鍵繼續...",
     "Subtitle processing complete! 🎉": "字幕處理完成! 🎉",
     "c. Dubbing": "c. 配音",
     "Generate audio tasks and chunks": "生成音頻任務和分塊",
@@ -182,5 +181,12 @@
     "API check failed": "API 檢查失敗",
     "Path of a cookies.txt file exported from your browser, for videos that require sign-in": "從瀏覽器匯出的 cookies.txt 檔案路徑，用於下載需要登入才能觀看的影片",
     "Download failed": "下載失敗",
-    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "這部影片需要登入驗證。請從瀏覽器匯出 cookies.txt，並把檔案路徑填到上方的 Youtube設定 裡。"
+    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "這部影片需要登入驗證。請從瀏覽器匯出 cookies.txt，並把檔案路徑填到上方的 Youtube設定 裡。",
+    "Terminology is ready for review. Edit `output/log/terminology.json` if needed, then press Resume to start translating.": "術語表已生成，可以校對。如需修改請編輯 `output/log/terminology.json`，然後點擊「繼續」開始翻譯。",
+    "`output/log/terminology.json` can not be read after your edit. Fix it, then press Resume.": "修改後的 `output/log/terminology.json` 無法讀取。請修正後再點擊「繼續」。",
+    "Transcribe Only": "僅轉錄",
+    "Only generate the source subtitles `src.srt`, without translation": "只生成原文字幕 `src.srt`，不翻譯",
+    "Source subtitles are ready. You can download them, or start processing subtitles to translate them.": "原文字幕已生成。可以直接下載，也可以點擊「開始處理字幕」繼續翻譯。",
+    "Pause before translation": "翻譯前暫停",
+    "Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts": "提取術語後暫停，方便在翻譯開始前編輯 `output/log/terminology.json`"
 }

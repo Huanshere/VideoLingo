@@ -277,6 +277,15 @@ def page_setting():
             if burn_subtitles != load_key("burn_subtitles"):
                 update_key("burn_subtitles", burn_subtitles)
                 st.rerun()
+
+        pause_before_translate = st.toggle(
+            t("Pause before translation"),
+            value=load_key("pause_before_translate"),
+            help=t("Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts"),
+        )
+        if pause_before_translate != load_key("pause_before_translate"):
+            update_key("pause_before_translate", pause_before_translate)
+            st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
         tts_method_labels = {
             "azure_tts": t("Azure TTS"),

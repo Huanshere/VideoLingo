@@ -67,7 +67,6 @@
     "Summarizing and translating...": "要約と翻訳中...",
     "Processing and aligning subtitles...": "字幕の処理と整列中...",
     "Merging subtitles to video...": "字幕を動画に統合中...",
-    "⚠️ PAUSE_BEFORE_TRANSLATE. Go to `output/log/terminology.json` to edit terminology. Then press ENTER to continue...": "⚠️ 翻訳前に一時停止。`output/log/terminology.json`で用語を編集してください。その後、Enterキーを押して続行...",
     "Subtitle processing complete! 🎉": "字幕処理完了！🎉",
     "c. Dubbing": "c. 吹き替え",
     "Generate audio tasks and chunks": "音声タスクとチャンクの生成",
@@ -175,5 +174,12 @@
     "API check failed": "API チェックに失敗しました",
     "Path of a cookies.txt file exported from your browser, for videos that require sign-in": "ブラウザからエクスポートした cookies.txt のパス（ログインが必要な動画用）",
     "Download failed": "ダウンロードに失敗しました",
-    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "この動画はログインが必要です。ブラウザから cookies.txt をエクスポートし、そのパスを Youtube 設定に入力してください。"
+    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "この動画はログインが必要です。ブラウザから cookies.txt をエクスポートし、そのパスを Youtube 設定に入力してください。",
+    "Terminology is ready for review. Edit `output/log/terminology.json` if needed, then press Resume to start translating.": "用語集の確認ができます。必要に応じて `output/log/terminology.json` を編集し、「再開」を押して翻訳を開始してください。",
+    "`output/log/terminology.json` can not be read after your edit. Fix it, then press Resume.": "編集後の `output/log/terminology.json` を読み込めません。修正してから「再開」を押してください。",
+    "Transcribe Only": "文字起こしのみ",
+    "Only generate the source subtitles `src.srt`, without translation": "原文字幕 `src.srt` のみを生成し、翻訳は行いません",
+    "Source subtitles are ready. You can download them, or start processing subtitles to translate them.": "原文字幕ができました。ダウンロードするか、字幕処理を開始して翻訳できます。",
+    "Pause before translation": "翻訳前に一時停止",
+    "Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts": "用語の抽出後に一時停止し、翻訳開始前に `output/log/terminology.json` を編集できます"
 }

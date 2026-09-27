@@ -55,6 +55,8 @@ def _task_control_panel(runner_key: str):
     if runner.is_active:
         if runner.state == "paused":
             st.warning(f"⏸️ {t('Paused')} {step_text}")
+            if runner.pause_message:
+                st.info(t(runner.pause_message))
         else:
             st.info(f"⏳ {t('Running...')} {step_text}")
         st.progress(runner.progress)
@@ -238,6 +240,16 @@ def text_processing_section():
                     steps = get_steps("subtitles")
                     runner.start(steps)
                     st.rerun()
+                if st.button(
+                    t("Transcribe Only"),
+                    key="transcribe_only_button",
+                    help=t("Only generate the source subtitles `src.srt`, without translation"),
+                ):
+                    runner.start(get_steps("transcribe"))
+                    st.rerun()
+                if os.path.exists("output/src.srt"):
+                    st.success(t("Source subtitles are ready. You can download them, or start processing subtitles to translate them."))
+                    download_subtitle_zip_button(text=t("Download All Srt Files"))
         else:
             if not audio_only and load_key("burn_subtitles") and os.path.exists(SUB_VIDEO):
                 st.video(SUB_VIDEO)
