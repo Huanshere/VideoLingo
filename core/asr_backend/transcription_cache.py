@@ -23,6 +23,16 @@ def cache_key(media_file, whisper, demucs):
         for block in iter(lambda: source.read(1024 * 1024), b""):
             check_cancel()
             digest.update(block)
+    if whisper["runtime"] == "mai":
+        from core.asr_backend.mai_asr import CACHE_IDENTITY
+        # Azure credentials, resource region, and local model packages do not
+        # change MAI's output. Keep the API/model/options in its own identity.
+        identity = {
+            "schema": SCHEMA, "media_md5": digest.hexdigest(),
+            "runtime": "mai", "mai": CACHE_IDENTITY,
+            "language": whisper["language"], "demucs": bool(demucs),
+        }
+        return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     packages = {}
     for name in ("whisperx", "faster-whisper", "qwen-asr", "mlx-audio", "transformers", "demucs", "silero-vad"):
         try:

@@ -171,6 +171,12 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 - WhisperX is not an installer option. To use it (including the Belle model for Chinese), install the packages yourself: [WhisperX (manual install)](whisperx-manual.en-US.md).
 - The official `qwenllm/qwen3-asr` Docker image can host a standalone Qwen3-ASR service, but VideoLingo does not call it directly.
 
+#### Optional Azure MAI-Transcribe-2
+
+Choose **ASR Runtime → Azure MAI-Transcribe-2** in the sidebar, then enter an Azure Speech resource key. Enter its region (for example, `eastus`) or full HTTPS resource endpoint, or leave the region empty to detect it from the key. Existing `config.yaml` files can add `whisper.mai_api_key` and `whisper.mai_region`; the sidebar also adds these fields when missing. The default remains local Qwen3-ASR.
+
+MAI uses the fast transcription API with clean text and word timestamps. Audio is sent to Azure Speech and may incur charges. MAI-Transcribe-2 is in public preview without an SLA; check that your resource region supports it. Azure credentials and resource region are excluded from the ASR cache identity. The [contributor's evaluation in #618](https://github.com/Huanshere/VideoLingo/pull/618) compared MAI with WhisperX, not the current Qwen3-ASR default.
+
 <a id="gpu-runtime"></a>
 ### GPU runtime
 

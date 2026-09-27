@@ -571,6 +571,30 @@ def test_homepage():
     assert not app.exception
 
 
+def test_mai_sidebar_adds_credentials_to_an_older_config(monkeypatch, tmp_path):
+    from streamlit.testing.v1 import AppTest
+    from core.utils import config_utils
+
+    config = tmp_path / 'config.yaml'
+    data = config_utils.yaml.load((ROOT / 'config.yaml').read_text(encoding='utf-8'))
+    data['whisper'].pop('mai_api_key', None)
+    data['whisper'].pop('mai_region', None)
+    with config.open('w', encoding='utf-8') as output:
+        config_utils.yaml.dump(data, output)
+    monkeypatch.setattr(config_utils, 'CONFIG_PATH', str(config))
+
+    app = AppTest.from_file(ROOT / 'st.py', default_timeout=60).run()
+    runtime = next(item for item in app.selectbox if item.value == 'local')
+    app = runtime.set_value('mai').run()
+    assert not app.exception
+    speech_key = next(item for item in app.text_input if item.label in ('Azure Speech key', 'Azure Speech 密钥'))
+    app = speech_key.set_value('test-key').run()
+    assert not app.exception
+    saved = config_utils.yaml.load(config.read_text(encoding='utf-8'))['whisper']
+    assert saved['runtime'] == 'mai'
+    assert saved['mai_api_key'] == 'test-key'
+
+
 def test_fractional_tts_durations(monkeypatch):
     import pandas as pd
     from core import _10_gen_audio as audio
