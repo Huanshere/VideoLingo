@@ -102,6 +102,22 @@ def test_install_all_stops_before_pip_on_unsupported_platform(monkeypatch, capsy
     assert 'ERROR: Intel Macs are not supported' in capsys.readouterr().out
 
 
+@pytest.mark.parametrize('health_status,has_install_state', [(0, True), (1, False)])
+def test_install_state_records_only_successful_setup(tmp_path, monkeypatch, health_status, has_install_state):
+    monkeypatch.setattr(installer, 'STATE_FILE', tmp_path / '.videolingo-install.json')
+    monkeypatch.setattr(installer, 'unsupported_platform', lambda: None)
+    for name in ('install_bootstrap', 'maybe_configure_mirror', 'install_torch',
+                 'install_base_requirements', 'install_spacy', 'install_project_metadata',
+                 'install_linux_noto_fonts', 'print_asr_summary'):
+        monkeypatch.setattr(installer, name, lambda *args, **kwargs: None)
+    monkeypatch.setattr(installer, 'check_ffmpeg', lambda: True)
+    monkeypatch.setattr(installer, 'health_check', lambda **kwargs: health_status)
+
+    args = installer.build_parser().parse_args(['--skip-demucs'])
+    assert installer.install_all(args) == health_status
+    assert installer.STATE_FILE.exists() is has_install_state
+
+
 def _apple_silicon(monkeypatch, apple=True):
     monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin' if apple else 'Linux')
     monkeypatch.setattr(installer.platform, 'machine', lambda: 'arm64' if apple else 'x86_64')
@@ -317,6 +333,18 @@ def test_health_check_requires_platform_qwen_package(monkeypatch, capsys):
     del versions[package]
     assert installer.health_check(check_state=False, torch_backend='cpu') == 1
     assert f'missing package: {package}' in capsys.readouterr().out
+
+
+def test_quick_check_detects_missing_dependencies_without_runtime_probes(monkeypatch):
+    versions = _requirement_versions(('cpu', 'cpu', 'cpu'))
+    _patch_health_environment(monkeypatch, versions, gpu=False)
+    monkeypatch.setattr(installer, 'validate_ffmpeg', lambda: pytest.fail('slow FFmpeg probe'))
+    monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: pytest.fail('slow GPU probe'))
+    monkeypatch.setattr(installer, 'whisperx_selected', lambda: pytest.fail('slow WhisperX probe'))
+
+    assert installer.main(['--quick-check', '--quiet']) == 0
+    del versions['streamlit']
+    assert installer.main(['--quick-check', '--quiet']) == 1
 
 
 def test_whisperx_audio_probe_skipped_without_whisperx(monkeypatch):

@@ -79,22 +79,24 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## インストール
 
-### Windows：ダブルクリックでインストール 🎉
+VideoLingo は Windows、Linux、および macOS 14 以降の Apple Silicon Mac に対応しています。Intel Mac には現在対応していません。
+
+### Windows：ワンクリックでインストール 🎉
 
 1. [最新リリース](https://github.com/Huanshere/VideoLingo/releases/latest)を開き、**Source code (zip)** をダウンロードします。
 2. ZIP をデスクトップなどに展開し、展開したフォルダーを開きます。
-3. `OneKeyInstall.bat` をダブルクリックします。必要なものをダウンロードしてインストールする間、ウィンドウを閉じないでください。初回はインターネット接続が必要で、時間がかかる場合があります。
-4. VideoLingo が開いたら、サイドバーに API URL、キー、モデルを入力します。次回からは `OneKeyStart.bat` をダブルクリックします。
+3. `OneKeyStart.bat` をダブルクリックします。必要なものをダウンロードしてインストールする間、ウィンドウを閉じないでください。初回はインターネット接続が必要で、時間がかかる場合があります。
+4. VideoLingo が開いたら、サイドバーに API URL、キー、モデルを入力します。次回も同じ `OneKeyStart.bat` をダブルクリックすると、インストール状態を確認して起動します。
 
 この Windows 向け手順では、Git、uv、Python を自分でインストールする必要はありません。
 
-### macOS・Linux、または手動インストール
+### ソースコードからインストール（Windows・macOS・Linux）
 
 先に [Git](https://git-scm.com/downloads) と [uv](https://docs.astral.sh/uv/getting-started/installation/) をインストールし、ターミナルを開き直して `git --version` と `uv --version` を確認してください。
 
 NVIDIA GPU を使う場合は、対応するドライバーを先にインストールしてください。Apple Silicon Mac には macOS 14 以降が必要です。詳しくは [GPU 要件](../docs/pages/docs/start.en-US.md#gpu-runtime)をご覧ください。
 
-uv が Python 3.13 を取得して `.venv` を作成するため、Python の事前インストールは不要です。アプリは Python 3.10–3.13 に対応します。既定の Qwen3-ASR 認識は FFmpeg コマンドラインツールのみを呼び出します。
+uv が Python とアプリの環境を準備するため、Python の事前インストールは不要です。
 
 1. リポジトリをクローン
 
@@ -116,9 +118,10 @@ uv run --no-project --python 3.13 setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-Windows では `OneKeyStart.bat` をダブルクリックすることもできます。既存の `~/.venvs/videolingo` を優先し、次にプロジェクトの `.venv` を使用します。`http://localhost:8501` を開き、サイドバーで API URL、キー、モデルを設定してください。
+`http://localhost:8501` を開き、サイドバーで API URL、キー、モデルを設定してください。
 
-### Docker
+#### Docker（オプション）
+
 Linux の NVIDIA コンテナーには Docker、互換ドライバー、[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) が必要です。イメージは同じ Python 3.13 セットアップとアプリ依存関係を使用し、既定は CUDA 12.8.1/cu128 です。CUDA 12.6 の組み合わせとデータ永続化は [Docker ドキュメント](/docs/pages/docs/docker.en-US.md)を参照してください。
 
 ```bash

@@ -79,26 +79,26 @@ Dubbing languages depend on the selected TTS method.
 
 ## Installation
 
-### Windows: install by double-clicking 🎉
+VideoLingo runs on Windows and Linux, and on Apple Silicon Macs with macOS 14 or newer. Intel Macs are not currently supported.
+
+### Windows: one-click install 🎉
 
 1. Open the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest) and download **Source code (zip)**.
 2. Extract the ZIP to a folder, such as your Desktop. Open the extracted folder.
-3. Double-click `OneKeyInstall.bat`. Keep the window open while it downloads and installs what VideoLingo needs. The first install needs an internet connection and may take a while.
-4. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click `OneKeyStart.bat`.
+3. Double-click `OneKeyStart.bat`. Keep the window open while it installs what VideoLingo needs. The first run needs an internet connection and may take a while.
+4. When VideoLingo opens, enter your API URL, key and model in the sidebar. Use the same `OneKeyStart.bat` next time; it checks the installation and starts the app.
 
 You do not need to install Git, uv or Python yourself for this Windows path.
 
-### macOS, Linux, or manual installation
+### Install from source (Windows, macOS, Linux)
 
-Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
+For manual setup or development, install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
 To use NVIDIA GPU acceleration, install or update your graphics driver. The installer will automatically select a compatible PyTorch version.
 
 On Apple Silicon (macOS 14+), local recognition uses MLX. See [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
 
-### Install with uv
-
-uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. The default Qwen3-ASR recognition only calls the FFmpeg command-line tool.
+uv prepares Python and the application environment; you do not need to install Python first.
 
 1. Clone the repository
 
@@ -120,9 +120,10 @@ uv run --no-project --python 3.13 setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-Or double-click `OneKeyStart.bat` on Windows. It prefers `~/.venvs/videolingo` when present, then the project `.venv`. Open `http://localhost:8501` and enter your API URL, key and model in the sidebar.
+Open `http://localhost:8501` and enter your API URL, key and model in the sidebar.
 
-### Docker
+#### Docker (optional)
+
 For a Linux NVIDIA container deployment, install Docker, a compatible GPU driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). The image uses the same Python 3.13 setup and application dependencies, with CUDA 12.8.1/cu128 by default. See [Docker docs](/docs/pages/docs/docker.en-US.md) for the matched CUDA 12.6 alternative and persistence settings.
 
 ```bash

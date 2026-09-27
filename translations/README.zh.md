@@ -81,26 +81,26 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-### Windows：双击安装 🎉
+VideoLingo 支持 Windows、Linux，以及 macOS 14 或更新版本的 Apple Silicon Mac；暂不支持 Intel Mac。
+
+### Windows 一键安装 🎉
 
 1. 打开[最新版本页面](https://github.com/Huanshere/VideoLingo/releases/latest)，下载 **Source code (zip)**。
 2. 解压到桌面等方便找到的位置，打开解压后的文件夹。
-3. 双击 `OneKeyInstall.bat`，保持窗口打开，等待所需组件下载和安装完成。首次安装需要联网，可能需要一些时间。
-4. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。下次使用时双击 `OneKeyStart.bat`。
+3. 双击 `OneKeyStart.bat`，保持窗口打开，等待所需组件下载和安装完成。首次运行需要联网，可能需要一些时间。
+4. VideoLingo 打开后，在侧栏填写 API 地址、密钥和模型。下次仍双击同一个 `OneKeyStart.bat`，它会检查安装状态并启动应用。
 
 按这个 Windows 方法操作，不需要自己安装 Git、uv 或 Python。
 
-### macOS、Linux 或手动安装
+### 从源码安装（Windows、macOS、Linux）
 
-先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
+如果要手动安装或修改代码，先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
 
 使用 NVIDIA GPU 加速，请安装或更新显卡驱动。安装程序会自动选择适配的 PyTorch 版本。
 
 在 Apple Silicon（macOS 14+）上，本地识别使用 MLX。详见 [GPU 运行库要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
-### 使用 uv 安装
-
-uv 自动下载 Python 3.13 并创建隔离的 `.venv`，下面的命令不需要预装 Python。应用支持 Python 3.10–3.13。默认的 Qwen3-ASR 识别只调用 FFmpeg 命令行工具。
+uv 会准备 Python 和应用环境，不需要提前安装 Python。
 
 1. 克隆仓库
 
@@ -122,9 +122,10 @@ uv run --no-project --python 3.13 setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-或者在 Windows 上双击 `OneKeyStart.bat`。它优先使用已有的 `~/.venvs/videolingo`，其次使用项目 `.venv`。打开 `http://localhost:8501`，在侧栏填写 API 地址、密钥和模型。
+打开 `http://localhost:8501`，在侧栏填写 API 地址、密钥和模型。
 
-### Docker
+#### Docker（可选）
+
 在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、兼容的显卡驱动和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。镜像使用相同的 Python 3.13 安装流程和应用依赖，默认 CUDA 12.8.1/cu128。匹配的 CUDA 12.6 方案及数据持久化设置见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)。
 
 ```bash

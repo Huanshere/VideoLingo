@@ -120,17 +120,17 @@ After configuration, select `Reference Audio Mode` in the sidebar (see Yuque doc
 
 ## 🛠️ Quick Start
 
-VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
+VideoLingo supports Windows, Linux and Apple Silicon Macs running macOS 14 or newer, and can run on CPU or GPU. Intel Macs are not currently supported.
 
 ### Windows: double-click to install 🎉
 
 1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest), then extract it to your Desktop or another folder.
-2. Open the extracted folder and double-click `OneKeyInstall.bat`. Keep the window open while the first install downloads what it needs. An internet connection is required, and this may take a while.
-3. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click `OneKeyStart.bat`.
+2. Open the extracted folder and double-click `OneKeyStart.bat`. Keep the window open while the first run installs what it needs. An internet connection is required, and this may take a while.
+3. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click the same `OneKeyStart.bat`; it checks the installation before starting.
 
 You do not need to install Git, uv or Python yourself for this Windows path. If you use an NVIDIA GPU, install a compatible driver first; see [GPU runtime](#gpu-runtime).
 
-### macOS, Linux, or manual setup
+### Install from source (Windows, macOS, Linux)
 
 Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 

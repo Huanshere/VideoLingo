@@ -79,22 +79,24 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安裝
 
-### Windows：雙擊安裝 🎉
+VideoLingo 支援 Windows、Linux，以及 macOS 14 或更新版本的 Apple Silicon Mac；目前不支援 Intel Mac。
+
+### Windows 一鍵安裝 🎉
 
 1. 開啟[最新版本頁面](https://github.com/Huanshere/VideoLingo/releases/latest)，下載 **Source code (zip)**。
 2. 解壓縮到桌面等方便找到的位置，開啟解壓縮後的資料夾。
-3. 雙擊 `OneKeyInstall.bat`，保持視窗開啟，等待所需元件下載與安裝完成。首次安裝需要連網，可能需要一些時間。
-4. VideoLingo 開啟後，在側邊欄填入 API 網址、金鑰和模型。下次使用時雙擊 `OneKeyStart.bat`。
+3. 雙擊 `OneKeyStart.bat`，保持視窗開啟，等待所需元件下載與安裝完成。首次執行需要連網，可能需要一些時間。
+4. VideoLingo 開啟後，在側邊欄填入 API 網址、金鑰和模型。下次仍雙擊同一個 `OneKeyStart.bat`，它會檢查安裝狀態並啟動程式。
 
 使用這個 Windows 方法，不需要自行安裝 Git、uv 或 Python。
 
-### macOS、Linux 或手動安裝
+### 從原始碼安裝（Windows、macOS、Linux）
 
 先安裝 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重新開啟終端，檢查 `git --version` 和 `uv --version`。
 
 使用 NVIDIA 顯示卡時，請先安裝相容的驅動程式。Apple Silicon Mac 需要 macOS 14 或更新版本。詳見 [GPU 執行庫要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
-uv 自動下載 Python 3.13 並建立隔離的 `.venv`，以下命令不需要預裝 Python。應用程式支援 Python 3.10–3.13。預設的 Qwen3-ASR 辨識只會呼叫 FFmpeg 命令列工具。
+uv 會準備 Python 和應用程式環境，不需要預先安裝 Python。
 
 1. 複製倉庫
 
@@ -116,9 +118,10 @@ uv run --no-project --python 3.13 setup_env.py
 .venv/bin/streamlit run st.py            # macOS / Linux
 ```
 
-或在 Windows 上雙擊 `OneKeyStart.bat`。它優先使用既有的 `~/.venvs/videolingo`，其次使用專案 `.venv`。開啟 `http://localhost:8501`，在側欄填寫 API 網址、金鑰和模型。
+開啟 `http://localhost:8501`，在側欄填寫 API 網址、金鑰和模型。
 
-### Docker
+#### Docker（可選）
+
 在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、相容的顯卡驅動和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。映像檔使用相同的 Python 3.13 安裝流程和應用程式依賴，預設 CUDA 12.8.1/cu128。相容的 CUDA 12.6 方案及資料持久化設定見 [Docker 文件](/docs/pages/docs/docker.zh-CN.md)。
 
 ```bash

@@ -10,7 +10,6 @@ set "C_GREEN=%ESC%[32m"
 set "C_YELLOW=%ESC%[33m"
 set "C_RED=%ESC%[31m"
 set "C_CYAN=%ESC%[36m"
-set "C_BOLD=%ESC%[1m"
 
 if not exist "logs" mkdir "logs"
 for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "dt=%%I"
@@ -18,11 +17,8 @@ set "LOGFILE=logs\videolingo_%dt%.log"
 set "CHECK_ONLY="
 if /I "%~1"=="--check-only" set "CHECK_ONLY=1"
 
-powershell -NoProfile -Command "[IO.File]::WriteAllText($env:LOGFILE, ('[{0}] VideoLingo starting...{1}' -f (Get-Date -Format 'yyyy/MM/dd HH:mm:ss'), [Environment]::NewLine), [Text.UTF8Encoding]::new($false))"
+> "%LOGFILE%" echo [%DATE% %TIME%] VideoLingo starting...
 echo %C_CYAN%Log file:%C_RESET% %LOGFILE%
-
-set "VENV_LABEL="
-set "VENV_PY="
 
 set "SHARED_VENV=%USERPROFILE%\.venvs\videolingo"
 if exist "%SHARED_VENV%\Scripts\python.exe" (
@@ -37,54 +33,57 @@ if exist ".venv\Scripts\python.exe" (
     goto venv_found
 )
 
+rem Preserve an existing Conda installation before creating a new environment.
 where conda >nul 2>nul
-if %errorlevel%==0 (
-    echo %C_YELLOW%No uv venv found, falling back to Conda env "videolingo"...%C_RESET%
+if not errorlevel 1 (
     call conda activate videolingo
-    if errorlevel 1 (
-        echo %C_RED%ERROR: Failed to activate Conda env "videolingo".%C_RESET%
-        goto install_failed
+    if not errorlevel 1 if /I "!CONDA_DEFAULT_ENV!"=="videolingo" (
+        set "VENV_LABEL=Conda"
+        set "VENV_PY=python"
+        goto env_found
     )
-    if /I not "!CONDA_DEFAULT_ENV!"=="videolingo" (
-        echo %C_RED%ERROR: Conda env "videolingo" is not active. Current env: !CONDA_DEFAULT_ENV!%C_RESET%
-        goto install_failed
-    )
-    python installer.py --check --quiet
-    if defined CHECK_ONLY exit /b !errorlevel!
-    if errorlevel 1 (
-        echo %C_YELLOW%Conda env is incomplete or outdated. Repairing...%C_RESET%
-        python installer.py --yes
-        if errorlevel 1 goto install_failed
-    )
-    if defined CHECK_ONLY (
-        echo %C_GREEN%Environment check passed. --check-only set, not starting Streamlit.%C_RESET%
-        goto end
-    )
-    echo %C_GREEN%Starting VideoLingo with Conda...%C_RESET%
-    python -m streamlit run st.py 2>&1 | powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\streamlit-log.ps1"
-    goto end
-)
-
-echo %C_RED%ERROR: No usable VideoLingo environment found.%C_RESET%
-echo Run one of these first:
-echo   python setup_env.py --shared
-echo   python setup_env.py
-goto end
-
-:venv_found
-for %%I in ("%VENV_PY%") do set "PATH=%%~dpI;%PATH%"
-echo %C_GREEN%Detected %VENV_LABEL%:%C_RESET% %VENV_PY%
-"%VENV_PY%" installer.py --check --quiet
-if defined CHECK_ONLY exit /b %errorlevel%
-if errorlevel 1 (
-    echo %C_YELLOW%Environment is incomplete or outdated. Repairing with installer.py...%C_RESET%
-    "%VENV_PY%" installer.py --yes
-    if errorlevel 1 goto install_failed
 )
 
 if defined CHECK_ONLY (
-    echo %C_GREEN%Environment check passed. --check-only set, not starting Streamlit.%C_RESET%
-    goto end
+    echo %C_RED%ERROR: No usable VideoLingo environment found.%C_RESET%
+    exit /b 1
+)
+
+echo %C_YELLOW%First run: installing VideoLingo. This needs an internet connection...%C_RESET%
+where uv >nul 2>nul
+if errorlevel 1 (
+    rem Keep uv beside this checkout so users do not need to set up PATH.
+    if not exist ".tools\uv.exe" (
+        set "UV_UNMANAGED_INSTALL=%CD%\.tools"
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; irm https://astral.sh/uv/install.ps1 | iex"
+        if errorlevel 1 goto install_failed
+    )
+    set "PATH=%CD%\.tools;%PATH%"
+)
+where uv >nul 2>nul
+if errorlevel 1 goto install_failed
+uv run --no-project --python 3.13 setup_env.py
+if errorlevel 1 goto install_failed
+if not exist ".venv\Scripts\python.exe" goto install_failed
+set "VENV_LABEL=project .venv"
+set "VENV_PY=.venv\Scripts\python.exe"
+
+:venv_found
+for %%I in ("%VENV_PY%") do set "PATH=%%~dpI;%PATH%"
+
+:env_found
+echo %C_GREEN%Detected %VENV_LABEL%:%C_RESET% %VENV_PY%
+if defined CHECK_ONLY (
+    "%VENV_PY%" installer.py --check --quiet
+    exit /b !errorlevel!
+)
+
+rem Metadata and file checks stay fast; a failed check enters the full repair path.
+"%VENV_PY%" installer.py --quick-check --quiet
+if errorlevel 1 (
+    echo %C_YELLOW%Environment needs repair. Installing missing or changed components...%C_RESET%
+    "%VENV_PY%" installer.py --yes
+    if errorlevel 1 goto install_failed
 )
 
 echo %C_GREEN%Starting VideoLingo with %VENV_LABEL%...%C_RESET%
@@ -93,6 +92,9 @@ goto end
 
 :install_failed
 echo %C_RED%Install/repair failed. Check the messages above and the log file.%C_RESET%
+echo Double-click OneKeyStart.bat again to retry.
+pause
+exit /b 1
 
 :end
 pause

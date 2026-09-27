@@ -61,12 +61,12 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 ### Windows: double-click to install 🎉
 
 1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest) and extract it to your Desktop or another folder.
-2. Open the extracted folder and double-click `OneKeyInstall.bat`. Keep the window open; the first install needs an internet connection and may take a while.
-3. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click `OneKeyStart.bat`.
+2. Open the extracted folder and double-click `OneKeyStart.bat`. Keep the window open; the first run installs what VideoLingo needs and may take a while.
+3. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click the same `OneKeyStart.bat`.
 
 Git, uv and Python do not need to be installed manually for this Windows path.
 
-### macOS, Linux, or manual installation
+### Install from source (Windows, macOS, Linux)
 
 Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`. See the [GPU prerequisites](start.en-US.md#gpu-runtime) for NVIDIA requirements, and the separate [WhisperX guide](whisperx-manual.en-US.md) if you choose that optional backend.
 

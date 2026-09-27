@@ -3,7 +3,7 @@
 This script is intentionally split from setup_env.py:
 - setup_env.py creates/selects the venv.
 - installer.py installs packages inside the selected venv.
-- OneKeyStart.bat starts the app and can call ``installer.py --check``.
+- OneKeyStart.bat installs on first run, then uses ``--quick-check`` before launch.
 
 The installer is stage-based and safe to rerun. Network-sensitive optional
 packages (Demucs, spaCy model downloads) warn instead of breaking the whole
@@ -462,7 +462,8 @@ def install_linux_noto_fonts() -> None:
         print(f"  Warning: failed to install Noto CJK fonts automatically: {exc}")
 
 
-def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True, torch_backend: str = "auto") -> int:
+def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True,
+                 torch_backend: str = "auto", quick: bool = False) -> int:
     errors: list[str] = []
     warnings: list[str] = []
     if not (3, 10) <= sys.version_info[:2] < (3, 14):
@@ -509,7 +510,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         warnings.append("Noto CJK fonts are not installed; CJK subtitle burn-in may fail")
     try:
         configure_ffmpeg(required=True)
-        if check_state and not errors:
+        if not errors and not quick:
             validate_ffmpeg()
     except (RuntimeError, OSError, subprocess.SubprocessError) as exc:
         errors.append(f"FFmpeg runtime check failed: {exc}")
@@ -517,7 +518,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
     if len(builds) != 1:
         errors.append("torch, torchaudio and torchvision must use the same CPU/CUDA build")
     if torch_backend == "auto":
-        if detect_nvidia_gpu() and not builds <= {"cu126", "cu128"}:
+        if not quick and detect_nvidia_gpu() and not builds <= {"cu126", "cu128"}:
             errors.append("NVIDIA GPU detected: auto accepts only cu126/cu128 PyTorch builds; "
                           f"detected builds: {', '.join(sorted(builds))}. Rerun installer.py")
     elif builds != {torch_backend}:
@@ -529,7 +530,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
                       "docs/pages/docs/whisperx-manual.en-US.md")
     # Our WhisperX path uses CLI decoding and passes waveforms to pyannote.
     # TorchCodec's optional filename decoder need not load for this to work.
-    if check_state and not errors and whisperx_selected():
+    if not errors and not quick and whisperx_selected():
         try:
             probe = subprocess.run(
                 [sys.executable, "-c", "from runtime_libraries import check_whisperx_runtime; "
@@ -620,10 +621,11 @@ def install_all(args: argparse.Namespace) -> int:
     install_project_metadata()
     install_linux_noto_fonts()
     ffmpeg_ok = check_ffmpeg()
-    save_state()
-    status = health_check(require_demucs=args.require_demucs, torch_backend=args.torch_backend)
+    status = health_check(require_demucs=args.require_demucs, check_state=False,
+                          torch_backend=args.torch_backend)
     if not ffmpeg_ok or status != 0:
         return 1
+    save_state()
     print_asr_summary()
     if args.launch:
         return launch_streamlit()
@@ -634,6 +636,8 @@ def install_all(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Install or check VideoLingo dependencies")
     parser.add_argument("--check", action="store_true", help="check environment health only")
+    parser.add_argument("--quick-check", action="store_true",
+                        help="check installed package versions, install state and FFmpeg files without runtime probes")
     parser.add_argument("--torch-backend", choices=("auto", "cpu", "cu126", "cu128"), default="auto",
                         help="auto-detect on hosts; select explicitly for GPU-less image builds")
     parser.add_argument("--quiet", action="store_true", help="quiet check output")
@@ -653,6 +657,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.no_launch:
         args.launch = False
+    if args.quick_check:
+        return health_check(quiet=args.quiet, require_demucs=args.require_demucs,
+                            torch_backend=args.torch_backend, quick=True)
     if args.check:
         return health_check(quiet=args.quiet, require_demucs=args.require_demucs, torch_backend=args.torch_backend)
     return install_all(args)
