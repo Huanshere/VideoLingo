@@ -574,3 +574,46 @@ def test_live_server(tmp_path):
         finally:
             proc.terminate()
             proc.wait(timeout=20)
+
+@pytest.mark.parametrize('system,machine,gpu,memory,bf16,precision,note', [
+    ('Windows', 'AMD64', True, 8151, True, 'BF16', None),
+    ('Windows', 'AMD64', True, 6144, False, 'FP16', 'limited GPU memory'),
+    ('Linux', 'x86_64', True, 16384, True, 'BF16', None),
+    ('Linux', 'x86_64', False, 0, False, 'FP32', 'CPU recognition is slow'),
+    ('Darwin', 'arm64', False, 0, False, '8-bit', None),
+])
+def test_asr_install_summary_matches_device(monkeypatch, tmp_path, capsys,
+                                           system, machine, gpu, memory, bf16, precision, note):
+    import sys
+    from types import SimpleNamespace
+    config = tmp_path / 'config.yaml'
+    config.write_text('display_language: en\nwhisper:\n  qwen_model: 0.6b\n', encoding='utf-8')
+    before = config.read_bytes()
+    monkeypatch.setattr(installer, 'ROOT', tmp_path)
+    monkeypatch.setattr(installer.platform, 'system', lambda: system)
+    monkeypatch.setattr(installer.platform, 'machine', lambda: machine)
+    cuda = SimpleNamespace(is_available=lambda: gpu, is_bf16_supported=lambda: bf16,
+                           get_device_properties=lambda _: SimpleNamespace(name='Test GPU', total_memory=memory * 1024**2))
+    monkeypatch.setitem(sys.modules, 'torch', SimpleNamespace(cuda=cuda))
+    installer.print_asr_summary()
+    output = capsys.readouterr().out
+    assert f'Model: Qwen3-ASR-0.6B ({precision})' in output
+    assert 'Aligner: Qwen3-ForcedAligner-0.6B' in output
+    assert ('limited GPU memory' in output) == (note == 'limited GPU memory')
+    assert ('CPU recognition is slow' in output) == (note == 'CPU recognition is slow')
+    assert config.read_bytes() == before
+
+
+def test_asr_install_summary_probe_failure_is_nonfatal(monkeypatch, tmp_path, capsys):
+    import sys
+    from types import SimpleNamespace
+    (tmp_path / 'config.yaml').write_text('invalid: [', encoding='utf-8')
+    monkeypatch.setattr(installer, 'ROOT', tmp_path)
+    monkeypatch.setattr(installer, 'apple_silicon', lambda: False)
+    def unavailable():
+        raise RuntimeError('driver unavailable')
+    monkeypatch.setitem(sys.modules, 'torch', SimpleNamespace(cuda=SimpleNamespace(is_available=unavailable)))
+    installer.print_asr_summary()
+    output = capsys.readouterr().out
+    assert 'Device information unavailable' in output
+    assert 'Qwen3-ASR-1.7B' in output

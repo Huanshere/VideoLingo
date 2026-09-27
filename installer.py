@@ -535,6 +535,47 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
     return 1 if errors else 0
 
 
+def print_asr_summary() -> None:
+    """Describe local Qwen settings without loading models or changing configuration."""
+    from ruamel.yaml import YAML
+    from ruamel.yaml.error import YAMLError
+
+    try:
+        config = YAML(typ="safe").load((ROOT / "config.yaml").read_text(encoding="utf-8"))
+        config = config if isinstance(config, dict) else {}
+    except (OSError, ValueError, YAMLError):
+        config = {}
+    whisper = config.get("whisper") or {}
+    size = str(whisper.get("qwen_model", "1.7b")).lower() if isinstance(whisper, dict) else "1.7b"
+    model = f"Qwen3-ASR-{size.upper()}" if size in ("0.6b", "1.7b") else "Qwen3-ASR-1.7B"
+    device, precision, note = "Device information unavailable", None, None
+    try:
+        if apple_silicon():
+            device, precision = "Apple Silicon / MLX", "8-bit"
+        else:
+            import torch
+            if torch.cuda.is_available():
+                properties = torch.cuda.get_device_properties(0)
+                memory = properties.total_memory / (1024 ** 3)
+                device = f"{properties.name} ({memory:.1f} GiB)"
+                precision = "BF16" if torch.cuda.is_bf16_supported() else "FP16"
+                if round(memory) < 8:
+                    note = "For limited GPU memory, Qwen3-ASR-0.6B is available in the model settings."
+            else:
+                device, precision = "CPU", "FP32"
+                note = "CPU recognition is slow. Qwen3-ASR-0.6B is available in the model settings."
+    except (ImportError, RuntimeError, OSError):
+        pass  # An informational hardware probe must not fail an otherwise healthy install.
+
+    print("\nLocal ASR")
+    print(f"  Device: {device}")
+    print(f"  Model: {model}" + (f" ({precision})" if precision else ""))
+    print("  Aligner: Qwen3-ForcedAligner-0.6B")
+    if note:
+        print("  " + note)
+
+
+
 def launch_streamlit() -> int:
     env = os.environ.copy()
     env["PYTHONWARNINGS"] = "ignore"
@@ -563,6 +604,7 @@ def install_all(args: argparse.Namespace) -> int:
     status = health_check(require_demucs=args.require_demucs, torch_backend=args.torch_backend)
     if not ffmpeg_ok or status != 0:
         return 1
+    print_asr_summary()
     if args.launch:
         return launch_streamlit()
     print("\nInstall complete. Start with OneKeyStart.bat or: python -m streamlit run st.py")
