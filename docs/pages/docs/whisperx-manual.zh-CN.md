@@ -8,7 +8,7 @@ VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，
 
 | 平台 | 能否与默认环境共存 | 说明 |
 |:-----|:-------------------|:-----|
-| Windows / Linux | 可以 | 在 VideoLingo 环境中追加安装，见下文。依赖解析已用 `uv pip compile` 验证（Python 3.13），未在本仓库环境中实跑识别 |
+| Windows / Linux | 可以 | 在 VideoLingo 环境中追加安装，见下文。依赖解析已用 `uv pip compile` 验证（Python 3.13），Windows CPU 已实跑识别、pyannote 语音检测和对齐，无需系统 FFmpeg 或可用的 TorchCodec；Linux 推理未实跑 |
 | Apple Silicon Mac | **不可以** | 默认的 MLX 后端需要 `huggingface-hub>=1`，WhisperX 3.8.6 需要 `huggingface-hub<1`。请**另建一个独立环境**使用 WhisperX，不要装进默认环境 |
 
 ## 安装
@@ -26,7 +26,7 @@ VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，
 
 这 4 个包的版本约束与 3.0.4 版本中 `requirements.txt` 的约束相同。WhisperX 3.8 需要 Torch/torchaudio 2.8、torchvision 0.23 和 Transformers 4，与默认环境一致，因此不需要改动已装的 PyTorch。
 
-安装后在同一环境执行 `python installer.py --check`。只要环境里装了 whisperx，检查就会额外探测 TorchCodec 能否加载 FFmpeg 共享库；没有装 whisperx 时跳过这一项。在 Windows / Linux 上，以后重跑 `installer.py` 或 `--upgrade` 不会卸载你自己装上的 WhisperX；如果检查报错，重新执行上面的安装命令即可。在 Apple Silicon 上，在默认环境里重跑 `installer.py` 会卸掉 WhisperX 整套依赖（whisperx、torchcodec、faster-whisper、ctranslate2、pyannote-*），并且不会再装回去，见下文。
+启用本地 WhisperX 后，在同一环境运行 `python installer.py --check`。检查会验证 FFmpeg 解码和 pyannote 内存波形路径，不要求 TorchCodec 文件解码器可用。Windows/Linux 上重跑安装器不会卸载自行添加的 WhisperX；Apple Silicon 默认环境会移除与 MLX 不兼容的 WhisperX 依赖，详见下文。
 
 ## 启用
 
@@ -54,13 +54,13 @@ whisper:
 - Linux 按上述 faster-whisper 文档，在启动 Python 前通过 `LD_LIBRARY_PATH` 暴露已安装的 cuBLAS/cuDNN 库。Docker 镜像基于 `cudnn-runtime`，已包含这些运行库。
 
 <a id="ffmpeg-runtime"></a>
-## FFmpeg 共享库（TorchCodec 0.7）
+## FFmpeg：无需手动安装
 
-WhisperX 链路（pyannote）通过 TorchCodec 加载 FFmpeg **共享库**，只有 FFmpeg 命令行程序不够。固定的 TorchCodec 0.7 支持 FFmpeg 4–7，不支持 FFmpeg 8/9，请使用 FFmpeg 7 共享库版。
+VideoLingo 的 WhisperX 复用安装器自动提供的 FFmpeg 命令行程序。它先用 `whisperx.audio.load_audio` 解码，再把 NumPy 音频传给识别和对齐；WhisperX 传给 pyannote 的也是内存中的 `waveform` 和 `sample_rate`。pyannote 官方支持这条路径，即使 TorchCodec 加载失败也可以使用。因此本项目的 WhisperX 流程不需要额外下载共享库版 FFmpeg，也不需要配置 PATH。
 
-Windows 上已实际下载并完成音频解码验证的构建为
-[BtbN 7.1 共享库版](https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-07-31-14-15/ffmpeg-n7.1.1-56-gc2184b65d2-win64-gpl-shared-7.1.zip)。
-解压后将其 `bin` 目录放在 PATH 中其他 FFmpeg 版本之前。VideoLingo 会将该目录登记为 Windows DLL 搜索目录。包管理器可能提供更新但不兼容的版本，需要核对。
+Windows 本机已验证：WhisperX 3.8.6、pyannote-audio 4.0.7、TorchCodec 0.7.0，清空系统 PATH，只启用自动提供的 FFmpeg 8.0.1，并确认 TorchCodec 导入失败。实际调用本项目 WhisperX 后端，使用 tiny.en、CPU、pyannote 语音检测和逐词对齐，成功处理 15.05 秒英文音频并输出 35 个词。本次没有验证 large/Belle 模型及 Linux/macOS 推理。
+
+TorchCodec 仍随可选依赖安装，以满足 pyannote 的 Python 包依赖。只有自行扩展代码、让 TorchCodec 或 pyannote 直接读取文件名时，才需要兼容的 FFmpeg 共享库（TorchCodec 0.7 支持 FFmpeg 4–7）；自动提供的静态程序不包含这些库。Windows 的 `VIDEOLINGO_FFMPEG_DLL_DIR` 可选覆盖仍保留给这类自定义用法。参见 [pyannote 音频输入实现](https://github.com/pyannote/pyannote-audio/blob/4.0.4/src/pyannote/audio/core/io.py)。
 
 ## Apple Silicon：另建环境
 
@@ -76,5 +76,5 @@ Windows 上已实际下载并完成音频解码验证的构建为
 3. **Whisper 模型加载时无报错直接段错误 (Segfault)**：ctranslate2 版本与 cuDNN 版本不匹配。确保 `ctranslate2>=4.5.0`（支持 cuDNN 9，PyTorch 2.6+ 自带 cuDNN 9）。
 4. **`RuntimeError: Weights only load failed`**：PyTorch ≥2.6 更改了 `torch.load` 的默认行为。已在 `whisperX_local.py` 中通过猴补丁修复，如果遇到此问题说明代码未正确更新。
 5. **Streamlit 中 WhisperX 转录卡住不动（CPU/GPU 均空闲）**：`librosa.load()` 在 Streamlit 的非主线程中死锁。已用 `whisperx.audio.load_audio()`（基于 ffmpeg 子进程）替换。如果遇到此问题说明代码未正确更新。
-6. **TorchCodec could not load**：`installer.py --check` 的 TorchCodec 探测失败，通常是 FFmpeg 版本为 8/9 或只有命令行程序没有共享库。按上面的 [FFmpeg 共享库](#ffmpeg-runtime) 处理。
+6. **TorchCodec could not load 警告**：单独出现这条警告不影响本项目 WhisperX 流程，因为传给 pyannote 的是已解码的波形。运行 `python installer.py --check` 验证这条音频路径。自行扩展代码让 pyannote 直接读取文件名时，才需要[上述共享库解码器](#ffmpeg-runtime)。
 7. **`WhisperX is not installed`**：`whisper.backend` 已设为 `whisperx`，但没有安装该包。识别会在准备音频之前停止。请按上面的步骤自行安装，或把 `whisper.backend` 改回 `qwen`。安装器不会替你安装 WhisperX。

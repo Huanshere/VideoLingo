@@ -124,9 +124,9 @@ VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 
 ### Prerequisites
 
-Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html). The linked uv page provides standalone installers that do not require Python. Reopen your terminal and check `git --version`, `uv --version` and `ffmpeg -version`.
+Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
-On Windows, pick one of the Windows builds linked from the FFmpeg download page and add its `bin` directory to PATH. On macOS use `brew install ffmpeg`; on Debian/Ubuntu use `sudo apt install ffmpeg`. The default Qwen3-ASR recognition only calls the FFmpeg command-line tool. FFmpeg shared libraries and the FFmpeg 4–7 limit apply only if you manually install WhisperX; see [WhisperX (manual install)](whisperx-manual.en-US.md#ffmpeg-runtime). Subtitle rendering needs the subtitles filter and suitable fonts; the installer checks/installs Noto CJK fonts on Linux.
+FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools. Subtitle rendering still needs suitable fonts; setup checks/installs Noto CJK on Linux. Only the optional [WhisperX backend](whisperx-manual.en-US.md#ffmpeg-runtime) needs additional FFmpeg shared libraries.
 
 <a id="asr-runtime"></a>
 ### Speech recognition (Qwen3-ASR + ForcedAligner)

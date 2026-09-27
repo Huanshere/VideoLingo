@@ -1,6 +1,6 @@
-from runtime_libraries import configure_ffmpeg_dlls
+from runtime_libraries import configure_ffmpeg
 
-configure_ffmpeg_dlls()
+configure_ffmpeg()
 
 # use try-except to avoid error when installing
 try:

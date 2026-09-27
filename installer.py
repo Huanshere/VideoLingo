@@ -34,6 +34,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from runtime_libraries import configure_ffmpeg, validate_ffmpeg
 
 
 ROOT = Path(__file__).resolve().parent
@@ -389,16 +390,22 @@ def install_project_metadata() -> None:
 
 
 def check_ffmpeg() -> bool:
-    if not shutil.which("ffmpeg"):
-        print("  ERROR: ffmpeg not found in PATH.")
-        if platform.system() == "Windows":
-            print("  Install with: winget install Gyan.FFmpeg")
-        elif platform.system() == "Darwin":
-            print("  Install with: brew install ffmpeg")
-        else:
-            print("  Install with your distribution package manager, e.g. sudo apt install ffmpeg")
+    print("\n[post] Prepare FFmpeg and ffprobe automatically")
+    try:
+        configure_ffmpeg(download=True, required=True)
+        print("  " + validate_ffmpeg())
+    except Exception as exc:
+        print(f"  ERROR: Automatic FFmpeg setup failed: {exc}. Check your connection and rerun installer.py.")
         return False
     return True
+
+
+def whisperx_selected() -> bool:
+    """A leftover optional package must not block the default Qwen install."""
+    from ruamel.yaml import YAML
+    config = YAML(typ="safe").load((ROOT / "config.yaml").read_text(encoding="utf-8"))
+    whisper = config.get("whisper", {})
+    return whisper.get("runtime", "local") == "local" and whisper.get("backend", "qwen") == "whisperx"
 
 
 def noto_cjk_font_available() -> bool:
@@ -500,8 +507,12 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         warnings.append("demucs is not installed; vocal separation will be unavailable")
     if platform.system() == "Linux" and not noto_cjk_font_available():
         warnings.append("Noto CJK fonts are not installed; CJK subtitle burn-in may fail")
-    if not shutil.which("ffmpeg"):
-        errors.append("ffmpeg not found in PATH")
+    try:
+        configure_ffmpeg(required=True)
+        if check_state and not errors:
+            validate_ffmpeg()
+    except (RuntimeError, OSError, subprocess.SubprocessError) as exc:
+        errors.append(f"FFmpeg runtime check failed: {exc}")
     builds = {(package_version(name) or "").partition("+")[2] or "cpu" for name in ("torch", "torchaudio", "torchvision")}
     if len(builds) != 1:
         errors.append("torch, torchaudio and torchvision must use the same CPU/CUDA build")
@@ -516,19 +527,20 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
                       "rerun installer.py to remove it and use a separate environment for WhisperX. "
                       "The installer will not install WhisperX again; see "
                       "docs/pages/docs/whisperx-manual.en-US.md")
-    # TorchCodec is a WhisperX-only dependency; the default Qwen path decodes with the FFmpeg CLI.
-    if check_state and not errors and package_version("whisperx") is not None:
+    # Our WhisperX path uses CLI decoding and passes waveforms to pyannote.
+    # TorchCodec's optional filename decoder need not load for this to work.
+    if check_state and not errors and whisperx_selected():
         try:
             probe = subprocess.run(
-                [sys.executable, "-c", "from runtime_libraries import configure_ffmpeg_dlls; "
-                 "configure_ffmpeg_dlls(); import torchcodec.decoders"],
+                [sys.executable, "-c", "from runtime_libraries import check_whisperx_runtime; "
+                 "check_whisperx_runtime()"],
                 cwd=ROOT, capture_output=True, text=True, timeout=60,
             )
             if probe.returncode:
-                errors.append("TorchCodec could not load. Use FFmpeg 7 shared libraries on PATH; "
-                              "FFmpeg 8/9 are not supported by the pinned TorchCodec 0.7 build.\n" + probe.stderr)
+                errors.append("WhisperX audio runtime check failed. Check the optional packages and "
+                              "managed FFmpeg installation; see docs/pages/docs/whisperx-manual.en-US.md.\n" + probe.stderr)
         except (OSError, subprocess.TimeoutExpired) as exc:
-            errors.append(f"TorchCodec runtime check failed: {exc}")
+            errors.append(f"WhisperX audio runtime check failed: {exc}")
     if not quiet:
         print("\nEnvironment check")
         for package in ["streamlit", "torch", "torchaudio", "spacy", qwen_asr_package(), "demucs"]:

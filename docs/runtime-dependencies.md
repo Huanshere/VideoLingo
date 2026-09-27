@@ -36,11 +36,15 @@ The installer selects CUDA 12.8 wheels on drivers supporting CUDA 12.8 or newer,
 including CUDA 13-capable drivers, and CUDA 12.6 otherwise. With WhisperX installed,
 CTranslate2's Windows build also needs CUDA 12 cuBLAS. Drivers can be newer than the runtime used by the app.
 CPU wheels are explicitly selected on non-NVIDIA Windows/Linux systems.
-FFmpeg must be installed separately. The pinned TorchCodec 0.7 build needs
-FFmpeg 4–7 shared libraries; FFmpeg 8/9 are not supported. On Windows use the
-[FFmpeg 7 shared build documented in the WhisperX guide](pages/docs/whisperx-manual.en-US.md#ffmpeg-runtime).
-The project invokes the FFmpeg CLI, and `installer.py` probes TorchCodec at
-install/check time because package metadata can pass while decoding fails.
+FFmpeg and ffprobe are installed automatically by `installer.py` using
+`static-ffmpeg==3.0`. Setup downloads the platform's static binaries once and
+checks required filters and encoders. Startup and `--check` never download.
+The runtime prepends the managed directory to the current process PATH, so
+pydub, yt-dlp, Qwen, Demucs and child processes use the same tools.
+No system FFmpeg installation or permanent PATH change is needed.
+See [managed FFmpeg](ffmpeg-runtime.md) for troubleshooting and validation.
+WhisperX also uses managed CLI decoding and passes in-memory waveforms to pyannote;
+see the [WhisperX guide](pages/docs/whisperx-manual.en-US.md#ffmpeg-runtime).
 
 ### Default ASR dependencies (BUILDER-305)
 
@@ -66,10 +70,11 @@ forced aligner imports nagisa (Japanese) and soynlp (Korean) lazily without
 declaring them, so they are listed explicitly with qwen-asr's pins.
 
 WhisperX, pyannote-audio, CTranslate2 and TorchCodec are no longer default
-requirements. `huggingface-hub<1`, TorchCodec 0.7 and the FFmpeg 4–7 shared-library
-requirement only matter when WhisperX is installed; `installer.py --check` runs the
-TorchCodec probe only in that case. The default path decodes audio with the FFmpeg
-CLI. WhisperX is not an installer option. Install steps are in
+requirements. WhisperX retains `huggingface-hub<1` and TorchCodec 0.7 package
+constraints, but VideoLingo's waveform path does not need TorchCodec's native
+file decoder or FFmpeg shared libraries. `installer.py --check` probes CLI audio
+decoding and pyannote waveform handling when local WhisperX is selected.
+WhisperX is not an installer option. Install steps are in
 [WhisperX (manual install)](pages/docs/whisperx-manual.en-US.md); on Apple Silicon
 stable WhisperX 3.8.6 (hub <1) cannot share the MLX environment (hub ≥1).
 
@@ -120,8 +125,9 @@ configuration is removed at teardown.
 environment with FFmpeg 9.0.1 shared libraries and a complete translation/dubbing
 pipeline. That FFmpeg 9.0.1 note is superseded: later TorchCodec 0.7 runtime
 probing showed FFmpeg 9 can fail to load even when `pip check` is clean.
-Current requirement is TorchCodec 0.7 with FFmpeg 4–7 shared libraries
-(FFmpeg 7 on Windows). See `docs/deployment-versions.md` for that follow-up.
+Custom TorchCodec 0.7 file decoding requires FFmpeg 4–7 shared libraries.
+VideoLingo's WhisperX waveform pipeline does not need this decoder; the newer
+experiment is recorded in [managed FFmpeg validation](ffmpeg-runtime.md).
 The #599 resolved environment had no dependency conflicts (`uv pip check`).
 Representative versions: WhisperX 3.8.6, Torch 2.8.0+cu128, CTranslate2 4.8.2,
 pyannote-audio 4.0.7, TorchCodec 0.7.0, spaCy 3.8.16, Streamlit 1.63.0,
