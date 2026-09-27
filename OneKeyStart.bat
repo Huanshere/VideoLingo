@@ -31,9 +31,10 @@ if errorlevel 1 (
 :uv_ready
 if exist "%USERPROFILE%\.local\bin\uv.exe" set "PATH=%USERPROFILE%\.local\bin;%PATH%"
 
+rem Avoid ! in Python expressions: delayed expansion removes it inside batch blocks.
 set "SHARED_VENV=%USERPROFILE%\.venvs\videolingo"
 if exist "%SHARED_VENV%\Scripts\python.exe" (
-    "%SHARED_VENV%\Scripts\python.exe" -c "import sys; sys.exit(sys.version_info[:2] != (3, 12))" >nul 2>nul
+    "%SHARED_VENV%\Scripts\python.exe" -c "import sys; sys.exit(not (sys.version_info[:2] == (3, 12)))" >nul 2>nul
     if not errorlevel 1 (
         set "VENV_LABEL=shared venv"
         set "VENV_PY=%SHARED_VENV%\Scripts\python.exe"
@@ -42,7 +43,7 @@ if exist "%SHARED_VENV%\Scripts\python.exe" (
 )
 
 if exist ".venv\Scripts\python.exe" (
-    ".venv\Scripts\python.exe" -c "import sys; sys.exit(sys.version_info[:2] != (3, 12))" >nul 2>nul
+    ".venv\Scripts\python.exe" -c "import sys; sys.exit(not (sys.version_info[:2] == (3, 12)))" >nul 2>nul
     if not errorlevel 1 (
         set "VENV_LABEL=project .venv"
         set "VENV_PY=.venv\Scripts\python.exe"
@@ -55,7 +56,7 @@ where conda >nul 2>nul
 if not errorlevel 1 (
     call conda activate videolingo
     if not errorlevel 1 if /I "!CONDA_DEFAULT_ENV!"=="videolingo" (
-        python -c "import sys; sys.exit(sys.version_info[:2] != (3, 12))" >nul 2>nul
+        python -c "import sys; sys.exit(not (sys.version_info[:2] == (3, 12)))" >nul 2>nul
         if not errorlevel 1 (
             set "VENV_LABEL=Conda"
             set "VENV_PY=python"

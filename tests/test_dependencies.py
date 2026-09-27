@@ -320,6 +320,7 @@ def _patch_health_environment(monkeypatch, versions, gpu=False, host=HEALTH_HOST
     monkeypatch.setattr(installer.shutil, 'which', lambda _: '/example/ffmpeg')
     monkeypatch.setattr(installer, 'configure_ffmpeg', lambda **kwargs: Path('/example'))
     monkeypatch.setattr(installer, 'validate_ffmpeg', lambda: 'FFmpeg test runtime')
+    monkeypatch.setattr(installer, 'noto_cjk_font_available', lambda: True)
     monkeypatch.setattr(installer, 'whisperx_selected', lambda: False)
 
 
