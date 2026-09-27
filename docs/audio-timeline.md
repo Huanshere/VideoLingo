@@ -42,3 +42,30 @@ audio or regenerate subtitles. Existing outputs require explicit regeneration or
 an independently validated timestamp repair. Source recording/remuxing defects
 may also require correction in their producing tool; this change prevents those
 timestamp discontinuities from silently shifting VideoLingo's recognition clock.
+
+## Demucs stems start late (fixed in BUILDER-305)
+
+With vocal separation on, word timestamps came out about 60 ms late, because
+`vocal.mp3` started 953 samples (16 kHz) after `raw.mp3`. Two MP3 encoder delays
+were being counted as audio:
+
+- Demucs' `separate_audio_file()` reads with sphn first. sphn keeps the LAME
+  priming of `raw.mp3` (1,105 samples at 32 kHz, about 35 ms).
+- `demucs.audio.save_audio` encodes MP3 with lameenc, which writes no LAME/Xing
+  header, so decoders cannot trim its own priming (1,105 samples at 44.1 kHz,
+  about 25 ms).
+
+`demucs_vl` now decodes `raw.mp3` with FFmpeg (`demucs.audio.AudioFile`, which trims
+the delay) and writes each stem through FFmpeg's libmp3lame (its header lets
+FFmpeg, pydub and soundfile trim the delay). Both stems start sample-aligned with
+`raw.mp3`. This also applies to the WhisperX backend, `background.mp3` in the
+dubbing mix and the reference clips cut from `vocal.mp3`. `qwen_asr_local.match_length`
+still pads or trims the tail, whose decoded length can differ by a frame.
+
+`tests/test_demucs_vl.py` runs the real FFmpeg and Demucs I/O with the separation
+model faked. It checks a lag of at most one 16 kHz sample for both stems, after
+the pydub re-export in `_2_asr`, and through soundfile. The same checks against
+the previous code measure 953 samples. Stems already in `output/audio/` are reused
+as they are, so delete `vocal.mp3` and `background.mp3` (or start a new task) to
+regenerate them. The ASR cache schema was bumped to 2, so results transcribed
+from the old stems are not reused.

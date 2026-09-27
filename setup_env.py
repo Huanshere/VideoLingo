@@ -2,7 +2,7 @@
 
 Default behavior creates a project-local ``.venv``. Use ``--shared`` to create
 or reuse ``~/.venvs/videolingo`` so multiple VideoLingo checkouts share the same
-heavy dependencies (PyTorch, WhisperX, Demucs, etc.).
+heavy dependencies (PyTorch, Qwen3-ASR, Demucs, etc.).
 """
 
 from __future__ import annotations

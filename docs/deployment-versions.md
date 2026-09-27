@@ -15,6 +15,7 @@ or commit timestamps alone, determine the effective dependency versions.
 | #576/#577 | Shared/local environments, staged installer.py, legacy install.py wrapper, bounded spaCy 3.8, separate WhisperX/Demucs stages. Docker and Colab were not migrated. |
 | #599 | New uv environments use Python 3.13; existing environments supported on 3.10–3.13. Torch/torchaudio 2.8.0, torchvision 0.23.0, WhisperX >=3.8.6,<3.9, TorchCodec >=0.7,<0.8, Transformers <5, Hub <1. Normal PyPI Demucs >=4.1,<5 replaces Git/--no-deps. CUDA selection becomes cu128/cu126, CPU index explicit. Removes MoviePy, Replicate, direct resampy and duplicate Lightning pins. |
 | #602/#610/#611 | Runtime/cache/logging and audio-processing changes; no replacement of the #599 dependency family. Audio sample rates and bitrates are media settings, not CUDA dependency versions. |
+| BUILDER-305 (unreleased) | Default local ASR becomes Qwen3-ASR + Qwen3-ForcedAligner. Removes whisperx, pyannote-audio, ctranslate2 and torchcodec from `requirements.txt` and the installer's WhisperX stage (installer now has 6 stages). Adds marker-split engines: `qwen-asr==0.0.6` with Transformers 4.57/Hub <1 outside Apple Silicon; `mlx-audio>=0.5.5,<0.6` with Transformers 5/Hub 1 plus nagisa/soynlp on Apple Silicon (macOS ≥14). Torch 2.8 family unchanged. WhisperX is not an installer option; install it yourself from `docs/pages/docs/whisperx-manual.*.md`. On Apple Silicon the installer removes the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) (hub <1 conflict) unless another installed package still needs one, and does not install WhisperX again. It re-registers stale project metadata before syncing so pip reports no conflict against the old requirements. The installer stops early on Intel Macs and on Apple Silicon below macOS 14. |
 
 Full current application bounds are in `requirements.txt`; optional Demucs is in
 `installer.py`. Do not copy an older PR's intermediate version list into setup.
@@ -44,11 +45,18 @@ Full current application bounds are in `requirements.txt`; optional Demucs is in
 
 CUDA Toolkit, PyTorch build tags and the driver's CUDA capability are different
 layers. The installer selects Python wheels; it does not install a system Toolkit.
-CUDA 13-capable drivers may run CUDA 12 builds. CTranslate2 4.5's release explicitly
-migrates to cuDNN 9; its generic installation page still mentions cuDNN 8, so use
+CUDA 13-capable drivers may run CUDA 12 builds. The default Qwen3-ASR path uses the
+CUDA runtime bundled with the PyTorch wheels. For a manually installed WhisperX backend,
+CTranslate2 4.5's release explicitly migrates to cuDNN 9; its generic installation page still mentions cuDNN 8, so use
 the release-specific requirement and faster-whisper's current GPU instructions.
 
 ## Verification boundary
+
+BUILDER-305 (2026-09-24): only offline checks. `uv pip compile` resolved the new
+requirements for Linux x86_64, Windows x86_64 and macOS arm64 (target 14.0), and
+the offline test suite passed. No image was rebuilt and no Qwen3-ASR inference
+was run; the records below predate the migration and describe the WhisperX-based
+environment.
 
 Actual validation on 2026-09-15:
 

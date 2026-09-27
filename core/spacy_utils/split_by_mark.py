@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import warnings
 from core.spacy_utils.load_nlp_model import init_nlp, SPLIT_BY_MARK_FILE
-from core.utils.config_utils import load_key, get_joiner
+from core.utils.config_utils import load_key, get_joiner, join_words
 from rich import print as rprint
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -16,7 +16,7 @@ def split_by_mark(nlp):
     chunks.text = chunks.text.apply(lambda x: x.strip('"').strip(""))
     
     # join with joiner
-    input_text = joiner.join(chunks.text.to_list())
+    input_text = join_words(chunks.text.to_list(), joiner)
 
     doc = nlp(input_text)
     assert doc.has_annotation("SENT_START")

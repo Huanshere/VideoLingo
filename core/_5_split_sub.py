@@ -47,7 +47,7 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     whisper_language = load_key("whisper.language")
     language = load_key("whisper.detected_language") if whisper_language == 'auto' else whisper_language
     joiner = get_joiner(language)
-    tr_remerged = joiner.join(tr_parts)
+    tr_remerged = join_words(tr_parts, joiner)
     
     table = Table(title="🔗 Aligned parts")
     table.add_column("Language", style="cyan")
