@@ -46,8 +46,7 @@ def _f5_tts(text: str, refer_url: str, save_path: str) -> bool:
         print(f"Audio file saved to {save_path}")
         return True
     
-    print("Request failed:", data)
-    return False
+    raise ValueError(f"F5-TTS request failed: {str(data)[:200]}")
 
 def _merge_audio(files, output: str) -> bool:
     """Merge audio files, add a brief silence"""
@@ -126,12 +125,7 @@ def f5_tts_for_videolingo(text: str, save_as: str, number: int, task_df):
         UPLOADED_REFER_URL = upload_file_to_302(normalized_refer_path)
         rprint(f"[green]✅ Reference audio uploaded, URL cached for reuse")
     
-    try:
-        success = _f5_tts(text=text, refer_url=UPLOADED_REFER_URL, save_path=save_as)
-        return success
-    except Exception as e:
-        print(f"Error in f5_tts_for_videolingo: {str(e)}")
-        return False
+    return _f5_tts(text=text, refer_url=UPLOADED_REFER_URL, save_path=save_as)
 
 if __name__ == "__main__":
     test_refer_url = "https://file.302.ai/gpt/imgs/20250226/717e574dc8e440e3b6f8cb4b3acb40e0.mp3"

@@ -1680,3 +1680,60 @@ def test_subtitles_are_imported_before_the_recognition():
     from core import pipeline
     assert pipeline.SUBTITLE_STEPS[0][1] == ("_2_import_subtitles.import_subtitles", "_2_asr.transcribe")
     assert pipeline.TRANSCRIBE_STEPS[0] == pipeline.SUBTITLE_STEPS[0]
+
+
+# ------------------------------------------------------------------
+# Dubbing: a failed request is an error, not a silent line
+# ------------------------------------------------------------------
+
+class _Refused:
+    status_code = 401
+    text = '{"error": "invalid key"}'
+    content = b'{"error": "invalid key"}'
+
+    def json(self):
+        return {"error": "invalid key"}
+
+
+def test_refused_azure_request_is_not_saved_as_audio(monkeypatch, tmp_path):
+    from core.tts_backend import azure_tts
+
+    monkeypatch.setattr(azure_tts, "load_key", lambda key: "value")
+    monkeypatch.setattr(azure_tts.requests, "request", lambda *args, **kwargs: _Refused())
+    audio = tmp_path / "1.wav"
+
+    with pytest.raises(ValueError, match="401"):
+        azure_tts.azure_tts("Hello", str(audio))
+
+    assert not audio.exists()
+
+
+def test_refused_openai_request_is_an_error(monkeypatch, tmp_path):
+    from core.tts_backend import openai_tts
+
+    monkeypatch.setattr(openai_tts, "load_key", lambda key: "alloy" if key.endswith("voice") else "value")
+    monkeypatch.setattr(openai_tts.requests, "post", lambda *args, **kwargs: _Refused())
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
+    audio = tmp_path / "1.wav"
+
+    with pytest.raises(ValueError, match="401"):
+        openai_tts.openai_tts("Hello", str(audio))
+
+    assert not audio.exists()
+
+
+def test_dubbing_stops_when_the_service_refuses(monkeypatch, tmp_path):
+    from core.tts_backend import tts_main
+
+    def refuse(text, save_as):
+        raise ValueError("Azure TTS request failed: HTTP 401")
+
+    monkeypatch.setattr(tts_main, "load_key", lambda key: "azure_tts")
+    monkeypatch.setattr(tts_main, "azure_tts", refuse)
+    monkeypatch.setattr(tts_main, "ask_gpt", lambda *args, **kwargs: {"text": "Hello there"})
+    audio = tmp_path / "1.wav"
+
+    with pytest.raises(Exception, match="401"):
+        tts_main.tts_main("Hello there", str(audio), 1, None)
+
+    assert not audio.exists()

@@ -15,6 +15,9 @@ def azure_tts(text: str, save_path: str) -> None:
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
+    # The answer to a failed request is a message, not audio
+    if response.status_code != 200:
+        raise ValueError(f"Azure TTS request failed: HTTP {response.status_code} {response.text[:200]}")
 
     with open(save_path, 'wb') as f:
         f.write(response.content)

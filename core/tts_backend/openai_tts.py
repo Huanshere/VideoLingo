@@ -27,13 +27,11 @@ def openai_tts(text, save_path):
     
     response = requests.post(BASE_URL, headers=headers, data=payload)
     
-    if response.status_code == 200:
-        with open(speech_file_path, 'wb') as f:
-            f.write(response.content)
-        print(f"Audio saved to {speech_file_path}")
-    else:
-        print(f"Error: {response.status_code}")
-        print(response.text)
+    if response.status_code != 200:
+        raise ValueError(f"OpenAI TTS request failed: HTTP {response.status_code} {response.text[:200]}")
+    with open(speech_file_path, 'wb') as f:
+        f.write(response.content)
+    print(f"Audio saved to {speech_file_path}")
 
 if __name__ == "__main__":
     openai_tts("Hi! Welcome to VideoLingo!", "test.wav")
