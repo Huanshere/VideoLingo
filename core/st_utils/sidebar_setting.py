@@ -1,5 +1,4 @@
 import importlib.util
-import os
 import streamlit as st
 import requests
 from translations.translations import translate as t
@@ -241,12 +240,9 @@ def page_setting():
                 stored_key = str(load_key_or("whisper.mai_openrouter_api_key", "") or "")
                 router_key = st.text_input(
                     t("OpenRouter API key"), value=stored_key, type="password",
-                    help=t("Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment."),
                 )
                 if router_key != stored_key:
                     update_key("whisper.mai_openrouter_api_key", router_key, add_missing=True)
-                if not router_key and os.environ.get("OPENROUTER_API_KEY"):
-                    st.caption(t("Using OPENROUTER_API_KEY from the environment."))
                 st.caption(t("Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges."))
             else:
                 stored_key = str(load_key_or("whisper.mai_api_key", "") or "")

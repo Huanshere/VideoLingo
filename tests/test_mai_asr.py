@@ -2,7 +2,6 @@
 
 import base64
 import json
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -101,14 +100,16 @@ class MaiAsrTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / "config.yaml"
-            config.write_text("whisper:\n  mai_provider: openrouter\n  language: auto\n", encoding="utf-8")
-            with patch.object(config_utils, "CONFIG_PATH", str(config)), patch.dict(
-                os.environ, {"OPENROUTER_API_KEY": "test-openrouter-key"}
-            ), patch.object(mai_asr, "audio_slice_wav", return_value=b"RIFF"), patch.object(
+            config.write_text(
+                "whisper:\n  mai_provider: openrouter\n  mai_openrouter_api_key: test-openrouter-key\n  language: auto\n",
+                encoding="utf-8",
+            )
+            with patch.object(config_utils, "CONFIG_PATH", str(config)), patch.object(
+                mai_asr, "audio_slice_wav", return_value=b"RIFF"
+            ), patch.object(
                 mai_asr, "check_cancel"
             ), patch.object(mai_asr.requests, "post", return_value=Reply()) as post:
                 converted = mai_asr.transcribe_audio_mai("raw", "vocal", 30, 35)
-            saved_config = config.read_text()
 
         self.assertEqual(post.call_args.args[0], mai_asr.OPENROUTER_URL)
         options = post.call_args.kwargs
@@ -120,7 +121,6 @@ class MaiAsrTests(unittest.TestCase):
         self.assertNotIn("language", options["json"])
         self.assertEqual(converted["language"], "en")
         self.assertEqual(converted["segments"][0]["words"][0]["start"], 30.2)
-        self.assertNotIn("test-openrouter-key", saved_config)
 
     def test_openrouter_text_without_word_timing_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "without word timestamps"):

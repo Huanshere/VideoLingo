@@ -95,7 +95,7 @@ class RetiredRuntimeTests(unittest.TestCase):
                         encoding="utf-8",
                     )
                     with patch.object(config_utils, "CONFIG_PATH", str(config)), patch.dict(
-                        os.environ, {"OPENROUTER_API_KEY": ""}
+                        os.environ, {"OPENROUTER_API_KEY": "must-not-be-used"}
                     ), patch.object(asr, "load_key", return_value="mai"), patch.object(
                         asr, "find_media_file"
                     ) as find:

@@ -185,7 +185,5 @@
     "MAI-Transcribe-2": "MAI-Transcribe-2",
     "MAI provider": "MAI 服務商",
     "OpenRouter API key": "OpenRouter API 密鑰",
-    "Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment.": "填寫 OpenRouter 密鑰，或在環境變量中設置 OPENROUTER_API_KEY。",
-    "Using OPENROUTER_API_KEY from the environment.": "正在使用環境變量中的 OPENROUTER_API_KEY。",
     "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音訊將傳送至 OpenRouter 進行 MAI-Transcribe-2 轉寫，可能產生費用。"
 }

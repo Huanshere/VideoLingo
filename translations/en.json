@@ -185,7 +185,5 @@
     "MAI-Transcribe-2": "MAI-Transcribe-2",
     "MAI provider": "MAI provider",
     "OpenRouter API key": "OpenRouter API key",
-    "Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment.": "Use an OpenRouter key, or set OPENROUTER_API_KEY in the environment.",
-    "Using OPENROUTER_API_KEY from the environment.": "Using OPENROUTER_API_KEY from the environment.",
     "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges."
 }

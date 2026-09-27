@@ -1,6 +1,5 @@
 import base64
 import json
-import os
 import time
 from urllib.parse import urlsplit
 
@@ -71,9 +70,8 @@ def configured_credentials():
     """Fail before preparing media when the cloud runtime is unconfigured."""
     if selected_provider() == "openrouter":
         api_key = str(load_key_or("whisper.mai_openrouter_api_key", "") or "").strip()
-        api_key = api_key or os.environ.get("OPENROUTER_API_KEY", "").strip()
         if not api_key or api_key.lower().startswith(("your_", "your ")):
-            raise ValueError("Set whisper.mai_openrouter_api_key or OPENROUTER_API_KEY before using MAI-Transcribe via OpenRouter")
+            raise ValueError("Set whisper.mai_openrouter_api_key before using MAI-Transcribe via OpenRouter")
         return api_key, ""
     api_key = str(load_key_or("whisper.mai_api_key", "") or "").strip()
     if not api_key or api_key.lower().startswith(("your_", "your ")):

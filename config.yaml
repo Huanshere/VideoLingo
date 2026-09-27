@@ -49,7 +49,7 @@ whisper:
   mai_region: ''
   # MAI provider: "azure" (default for existing MAI users) or "openrouter".
   mai_provider: 'azure'
-  # Optional for OpenRouter MAI; OPENROUTER_API_KEY environment variable also works.
+  # OpenRouter API key for optional MAI-Transcribe-2 via OpenRouter.
   mai_openrouter_api_key: ''
 
 # Whether to burn subtitles into the video

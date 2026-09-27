@@ -114,7 +114,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 ## APIs
 VideoLingo 支持 OpenAI 格式的 API 和各種 TTS 接口：
 - LLM：自行選擇相容 OpenAI Chat Completions、能回傳流程所需結構化 JSON 的服務與模型。推薦 [OpenLux](https://www.openlux.ai/register?aff=wKYu) 中轉，API 網址填 `https://api.openlux.ai/v1`。預設性價比高用 GPT-6 Luna，模型 ID 填 `gpt-6-luna`；品質更好用 GPT-6 Sol，模型 ID 填 `gpt-6-sol`；品質最好用 Claude Opus 5.5，模型 ID 填 `claude-opus-5-5`。OpenLux 中轉約價見安裝文件。在側欄設定 API 網址、金鑰和模型。
-- 語音辨識：本地執行 Qwen3-ASR + ForcedAligner（預設），或在側欄選用 ElevenLabs、MAI-Transcribe-2。MAI 可使用 Azure Speech 金鑰或 OpenRouter 金鑰（亦支援環境變數 OPENROUTER_API_KEY）；音訊會傳送至選定的服務商，可能產生費用。安裝器不會安裝 WhisperX；若要把它當作後端，見 [WhisperX（手動安裝）](../docs/pages/docs/whisperx-manual.zh-CN.md)。
+- 語音辨識：本地執行 Qwen3-ASR + ForcedAligner（預設），或在側欄選用 ElevenLabs、MAI-Transcribe-2。MAI 可使用 Azure Speech 金鑰或 OpenRouter 金鑰（在側欄填寫）；音訊會傳送至選定的服務商，可能產生費用。安裝器不會安裝 WhisperX；若要把它當作後端，見 [WhisperX（手動安裝）](../docs/pages/docs/whisperx-manual.zh-CN.md)。
 - TTS：Azure、OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自訂適配器。
 
 詳細安裝、API 配置和批處理模式說明，請參閱文檔：[English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
