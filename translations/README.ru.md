@@ -79,42 +79,32 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Установка
 
-Возникли проблемы? Общайтесь с нашим бесплатным онлайн ИИ-агентом [**здесь**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh), который поможет вам.
+VideoLingo работает в Windows, macOS (Apple Silicon / Intel) и Linux.
 
-Установите [Git](https://git-scm.com/downloads) и [uv](https://docs.astral.sh/uv/getting-started/installation/). Откройте терминал заново и проверьте `git --version` и `uv --version`.
+### Попросите локального ИИ-агента 🤖
 
-Для NVIDIA нужен совместимый с GPU драйвер. Установщик выбирает PyTorch `cu128`, если `nvidia-smi` сообщает CUDA >=12.8, иначе `cu126`; без NVIDIA используются пакеты CPU. Это выбор пакетов Python, а не установка системного CUDA Toolkit. На Apple Silicon (macOS 14+) локальное распознавание использует MLX. См. [требования GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
+Если ваш ИИ-агент может управлять этим компьютером, отправьте ему запрос:
 
-> FFmpeg и ffprobe загружаются и настраиваются автоматически при установке. Ручная загрузка и настройка PATH не нужны. Для установки нужен интернет; при последующих запусках используются уже загруженные программы.
+> Установи и запусти Huanshere/VideoLingo с GitHub на моём компьютере.
 
-### Установка через uv
+### Windows: установка двойным щелчком 🎉
 
-uv загружает Python 3.13 и создаёт `.venv` без предварительной установки Python. Приложение поддерживает Python 3.10–3.13. Распознавание Qwen3-ASR по умолчанию вызывает только утилиту командной строки FFmpeg.
+1. Скачайте **Source code (zip)** из [последнего выпуска](https://github.com/Huanshere/VideoLingo/releases/latest), распакуйте архив на рабочий стол или в другую папку и откройте её.
+2. Дважды щёлкните `OneKeyStart.bat` и не закрывайте окно. При первом запуске скрипт автоматически установит uv, Python 3.12, зависимости приложения и FFmpeg. Требуется интернет.
+3. После установки VideoLingo автоматически откроется в браузере. Укажите адрес API, ключ и модель на боковой панели, чтобы начать работу.
 
-1. Клонируйте репозиторий
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. Создайте среду и установите зависимости
+### Установка из исходного кода (Windows, macOS, Linux)
 
 ```bash
-uv run --no-project --python 3.13 setup_env.py
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
+uv run start.py
 ```
 
-3. Запустите приложение
+Позже запускайте `uv run start.py` из папки VideoLingo. Apple Silicon использует MLX; Mac с Intel — CPU для распознавания. По умолчанию дубляж на Intel Mac использует новый голос без исходного фонового звука.
 
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
+#### Docker (необязательно)
 
-Или запустите `OneKeyStart.bat` в Windows. Он сначала выбирает существующую `~/.venvs/videolingo`, затем `.venv` проекта. Откройте `http://localhost:8501` и укажите URL API, ключ и модель на боковой панели.
-
-### Docker
-Для контейнера NVIDIA в Linux нужны Docker, совместимый драйвер и [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Образ использует ту же установку Python 3.13 и зависимости приложения, по умолчанию CUDA 12.8.1/cu128. Вариант CUDA 12.6 и сохранение данных описаны в [документации Docker](/docs/pages/docs/docker.en-US.md).
+Для контейнера NVIDIA в Linux нужны Docker, совместимый драйвер и [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Образ использует ту же установку Python 3.12 и зависимости приложения, по умолчанию CUDA 12.8.1/cu128. Вариант CUDA 12.6 и сохранение данных описаны в [документации Docker](/docs/pages/docs/docker.en-US.md).
 
 ```bash
 docker build -t videolingo .

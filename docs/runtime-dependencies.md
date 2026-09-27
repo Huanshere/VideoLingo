@@ -11,13 +11,12 @@ without vendored libraries, package-metadata overrides or a CUDA 13 requirement.
 
 ## Installation and updates
 
-`python setup_env.py --shared` creates/reuses the shared environment using Python
-3.13. Existing Python 3.10-3.13 environments can run `python installer.py` directly.
-Python 3.14 is outside the supported range and is rejected before installation. Recreating an environment with a different Python version requires
-confirmation unless `--yes` is supplied.
+`uv run setup_env.py --shared` creates/reuses the shared environment using Python
+3.12. The installer checks for Python 3.12. Recreating an environment with a
+different Python version requires confirmation unless `--yes` is supplied.
 
-Use `python installer.py --upgrade` (inside the environment) or
-`python setup_env.py --shared --upgrade` to refresh dependencies within the declared
+Use `uv run --python .venv installer.py --upgrade` for the project environment or
+`uv run setup_env.py --shared --upgrade` for a shared environment to refresh dependencies within the declared
 ranges. Normal startup checks do not unconditionally upgrade dependencies.
 `OneKeyStart.bat --check-only` reports health without repairing or launching the app.
 
@@ -53,10 +52,13 @@ see the [WhisperX guide](pages/docs/whisperx-manual.en-US.md#ffmpeg-runtime).
 | Platform | Packages | Transformers / Hub |
 | --- | --- | --- |
 | Apple Silicon (`darwin` + `arm64`) | `mlx-audio>=0.5.5,<0.6`, plus `nagisa==0.2.11` and `soynlp==0.0.493` | `transformers>=5.14,<6`, `huggingface-hub>=1,<2` |
-| Windows and Linux | `qwen-asr==0.0.6` | `transformers>=4.57.6,<5`, `huggingface-hub>=0.36.2,<1` |
+| Windows, Linux and Intel Mac | `qwen-asr==0.0.6` | `transformers>=4.57.6,<5`, `huggingface-hub>=0.36.2,<1` |
 
-The non-Apple-Silicon marker also matches Intel Macs, but PyTorch 2.8 has no macOS
-x86_64 wheels, so `installer.py` stops there before running pip. It also stops on
+Intel Macs use the last macOS x86_64 PyTorch wheel family: Torch/torchaudio 2.2.2,
+torchvision 0.17.2, NumPy 1.26 and Numba below 0.63, with Qwen3-ASR on CPU.
+The optional Demucs package is skipped on Intel Macs because its `sphn` dependency
+has no x86_64 macOS wheel. Dubbing still works with reference clips from the original audio, but the final video does not retain the original background sound unless separation is installed manually.
+Other platforms retain the PyTorch 2.8 family. Installation still stops on
 Apple Silicon below macOS 14, where mlx has no wheels. On Apple Silicon the
 installer uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) before syncing requirements,
 because WhisperX 3.8's `huggingface-hub<1` conflicts with mlx-audio's `>=1`.
@@ -89,9 +91,17 @@ Verified offline (`uv pip compile`, Python 3.13, 2026-09-24):
   torchcodec 0.7.0, pyannote-audio 4.0.7, transformers 4.57.6, hub 0.36.2). On
   macOS arm64, uv only resolves by selecting the pre-release whisperx 3.8.7rc1.
 
-Not verified: installing these environments and running Qwen3-ASR inference
+At the time of the BUILDER-305 review, not verified: installing these environments and running Qwen3-ASR inference
 (transformers on CUDA/CPU, MLX on Apple Silicon), GPU memory use and speed, and
 the Docker image build with the new requirements.
+
+Intel macOS x86_64 verification on 2026-09-27 used Python 3.12 under Rosetta:
+the complete requirements installed, the default installer completed with
+managed FFmpeg, `pip check` passed, and Qwen3-ASR/ForcedAligner, Streamlit and
+spaCy imported. Engine auto-selection chose transformers on CPU. The quick check
+took 0.14 seconds in this environment. This does not cover model-weight download,
+an actual transcription, or timing on Intel hardware. Demucs was skipped as
+described above.
 
 ### Reduced installation complexity
 

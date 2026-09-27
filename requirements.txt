@@ -1,7 +1,10 @@
 # Application dependencies. Upper bounds limit untested major/API changes;
 # install with installer.py so PyTorch uses the correct CPU/CUDA wheel index.
 librosa>=0.11,<2
-numpy>=2.1,<3
+numpy>=1.26,<2; sys_platform == 'darwin' and platform_machine == 'x86_64'
+numpy>=2.1,<3; sys_platform != 'darwin' or platform_machine != 'x86_64'
+# Recent Numba/llvmlite releases no longer ship Intel macOS wheels.
+numba>=0.61,<0.63; sys_platform == 'darwin' and platform_machine == 'x86_64'
 openai>=1.109.1,<4
 opencv-python>=4.11,<6
 openpyxl>=3.1.5,<4
@@ -26,8 +29,8 @@ edge-tts>=7.2.8,<8
 # Default local ASR: Qwen3-ASR + Qwen3-ForcedAligner (core/asr_backend/qwen_asr_local.py).
 # Apple Silicon uses MLX (mlx-audio); every mlx-audio release with Qwen3-ASR needs
 # Transformers 5 / huggingface-hub 1. Windows and Linux use the official qwen-asr
-# package, which pins Transformers 4.57.6 (hub <1); the marker also matches Intel
-# Macs, which installer.py rejects (no PyTorch 2.8 macOS x86_64 wheels). WhisperX is not an
+# package, which pins Transformers 4.57.6 (hub <1). Intel Macs use its CPU path
+# with the last available macOS x86_64 PyTorch wheels. WhisperX is not an
 # installer option and is not listed here; see docs/pages/docs/whisperx-manual.*.md.
 qwen-asr==0.0.6; sys_platform != 'darwin' or platform_machine != 'arm64'
 transformers>=4.57.6,<5; sys_platform != 'darwin' or platform_machine != 'arm64'
@@ -39,13 +42,14 @@ huggingface-hub>=1,<2; sys_platform == 'darwin' and platform_machine == 'arm64'
 # declare them; same pins as qwen-asr 0.0.6.
 nagisa==0.2.11; sys_platform == 'darwin' and platform_machine == 'arm64'
 soynlp==0.0.493; sys_platform == 'darwin' and platform_machine == 'arm64'
-torch==2.8.0
-torchaudio==2.8.0
-torchvision==0.23.0
-audioop-lts>=0.2.2; python_version >= '3.13'
+torch==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'
+torchaudio==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'
+torchvision==0.17.2; sys_platform == 'darwin' and platform_machine == 'x86_64'
+torch==2.8.0; sys_platform != 'darwin' or platform_machine != 'x86_64'
+torchaudio==2.8.0; sys_platform != 'darwin' or platform_machine != 'x86_64'
+torchvision==0.23.0; sys_platform != 'darwin' or platform_machine != 'x86_64'
 
 syllables>=1.1.5,<2
 pypinyin>=0.55,<1
 g2p-en>=2.1,<3
 xmltodict>=1.0.4,<2
-

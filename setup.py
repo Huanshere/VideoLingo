@@ -9,7 +9,7 @@ with open('requirements.txt', encoding='utf-8') as f:
 setup(
     name=NAME,
     version=VERSION,
-    python_requires='>=3.10,<3.14',
+    python_requires='>=3.12,<3.13',
     packages=find_packages(include=[NAME, f'{NAME}.*']),
     install_requires=requirements
 )

@@ -1,4 +1,5 @@
 import os
+from importlib.util import find_spec
 from rich.panel import Panel
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
@@ -7,7 +8,6 @@ from core.utils.models import *
 import pandas as pd
 import soundfile as sf
 console = Console()
-from core.asr_backend.demucs_vl import demucs_audio
 from core.utils.models import *
 
 def time_to_samples(time_str, sr):
@@ -24,7 +24,17 @@ def extract_audio(audio_data, sr, start_time, end_time, out_file):
     sf.write(out_file, audio_data[start:end], sr)
 
 def extract_refer_audio_main():
-    demucs_audio() #!!! in case demucs not run
+    if find_spec("demucs") is not None:
+        from core.asr_backend.demucs_vl import demucs_audio
+        demucs_audio()  # Dubbing normally keeps the original background track.
+        reference_audio = _VOCAL_AUDIO_FILE
+    else:
+        rprint(Panel(
+            "Vocal separation is unavailable; using the original audio for references. "
+            "The dubbed video will not keep the original background sound.",
+            title="Info", border_style="yellow",
+        ))
+        reference_audio = _RAW_AUDIO_FILE
     if os.path.exists(os.path.join(_AUDIO_SEGS_DIR, '1.wav')):
         rprint(Panel("Audio segments already exist, skipping extraction", title="Info", border_style="blue"))
         return
@@ -34,7 +44,7 @@ def extract_refer_audio_main():
     
     # Read task file and audio data
     df = pd.read_excel(_8_1_AUDIO_TASK)
-    data, sr = sf.read(_VOCAL_AUDIO_FILE)
+    data, sr = sf.read(reference_audio)
     
     with Progress(
         SpinnerColumn(),

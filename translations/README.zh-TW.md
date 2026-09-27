@@ -79,42 +79,32 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安裝
 
-遇到任何問題？在[**這裡**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh)與我們的免費在線 AI 助手聊天以獲取幫助。
+VideoLingo 支援 Windows、macOS（Apple Silicon / Intel）和 Linux。
 
-先安裝 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重新開啟終端，檢查 `git --version` 和 `uv --version`。
+### 讓本機 AI Agent 幫你安裝 🤖
 
-使用 NVIDIA 加速時，需要安裝與顯卡相容的驅動。主機安裝器依據 `nvidia-smi` 報告的 CUDA 支援版本選擇 PyTorch：>=12.8 使用 `cu128`，否則使用 `cu126`；沒有 NVIDIA 時使用 CPU 套件。這是在選擇 Python 套件，不會自動安裝系統 CUDA Toolkit。在 Apple Silicon（macOS 14+）上，本地辨識改用 MLX。詳見 [GPU 執行庫要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
+如果你的 AI Agent 可以操作這台電腦，直接告訴它：
 
-> 安裝程式會自動下載並設定 FFmpeg 和 ffprobe，無需手動下載或設定 PATH。首次安裝需要連網，之後啟動會重用已下載的程式。
+> `幫我安裝 GitHub 上的 Huanshere/VideoLingo，並啟動它。`
 
-### 使用 uv 安裝
+### Windows 一鍵安裝 🎉
 
-uv 自動下載 Python 3.13 並建立隔離的 `.venv`，以下命令不需要預裝 Python。應用程式支援 Python 3.10–3.13。預設的 Qwen3-ASR 辨識只會呼叫 FFmpeg 命令列工具。
+1. 從[最新版本頁面](https://github.com/Huanshere/VideoLingo/releases/latest)下載 **Source code (zip)**，解壓縮到桌面等方便找到的位置，並開啟資料夾。
+2. 雙擊 `OneKeyStart.bat`，保持視窗開啟。首次執行會自動安裝 uv、Python 3.12、應用程式依賴和 FFmpeg，需要連網。
+3. 安裝完成後，VideoLingo 會自動在瀏覽器中開啟。在側邊欄填入 API 網址、金鑰和模型，就可以開始使用了。
 
-1. 複製倉庫
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. 建立環境並安裝依賴
+### 從原始碼安裝（Windows、macOS、Linux）
 
 ```bash
-uv run --no-project --python 3.13 setup_env.py
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
+uv run start.py
 ```
 
-3. 啟動應用
+之後在 VideoLingo 資料夾執行 `uv run start.py` 即可啟動。Apple Silicon 自動使用 MLX，Intel Mac 使用 CPU 辨識。Intel Mac 預設配音只保留新產生的語音，不保留原影片的背景音。
 
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
+#### Docker（可選）
 
-或在 Windows 上雙擊 `OneKeyStart.bat`。它優先使用既有的 `~/.venvs/videolingo`，其次使用專案 `.venv`。開啟 `http://localhost:8501`，在側欄填寫 API 網址、金鑰和模型。
-
-### Docker
-在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、相容的顯卡驅動和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。映像檔使用相同的 Python 3.13 安裝流程和應用程式依賴，預設 CUDA 12.8.1/cu128。相容的 CUDA 12.6 方案及資料持久化設定見 [Docker 文件](/docs/pages/docs/docker.zh-CN.md)。
+在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、相容的顯卡驅動和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。映像檔使用相同的 Python 3.12 安裝流程和應用程式依賴，預設 CUDA 12.8.1/cu128。相容的 CUDA 12.6 方案及資料持久化設定見 [Docker 文件](/docs/pages/docs/docker.zh-CN.md)。
 
 ```bash
 docker build -t videolingo .

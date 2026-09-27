@@ -58,30 +58,31 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Installation
 
-Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`. FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools. See the [GPU prerequisites](start.en-US.md#gpu-runtime) for NVIDIA requirements, and the separate [WhisperX guide](whisperx-manual.en-US.md) if you choose that optional backend.
+VideoLingo supports Windows, macOS (Apple Silicon / Intel), and Linux.
 
-1. Clone the repository
+### Ask your local AI agent 🤖
+
+If your AI agent can operate your computer, tell it:
+
+> Install and launch GitHub's Huanshere/VideoLingo on my computer.
+
+### Windows: double-click to install 🎉
+
+1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest), extract it to your Desktop or another folder, and open the folder.
+2. Double-click `OneKeyStart.bat` and keep the window open. On the first run, it automatically installs uv, Python 3.12, app dependencies, and FFmpeg. An internet connection is required.
+3. After installation, VideoLingo opens automatically in your browser. Enter your API URL, key, and model in the sidebar to start using it.
+
+### Install from source (Windows, macOS, Linux)
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
+uv run start.py
 ```
 
-2. Create the Python 3.13 environment and install dependencies
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. Start the application
-
-```bash
-.venv\Scripts\python -m streamlit run st.py  # Windows
-.venv/bin/python -m streamlit run st.py     # macOS / Linux
-```
+To start it later, run `uv run start.py` again from the VideoLingo folder.
 
 ### Docker
-For Linux NVIDIA containers, use Docker with a compatible driver and NVIDIA Container Toolkit. The image uses the same Python 3.13 setup; see [Docker docs](/docs/pages/docs/docker.en-US.md):
+For Linux NVIDIA containers, use Docker with a compatible driver and NVIDIA Container Toolkit. The image uses the same Python 3.12 setup; see [Docker docs](/docs/pages/docs/docker.en-US.md):
 
 ```bash
 docker build -t videolingo .

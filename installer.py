@@ -3,7 +3,7 @@
 This script is intentionally split from setup_env.py:
 - setup_env.py creates/selects the venv.
 - installer.py installs packages inside the selected venv.
-- OneKeyStart.bat starts the app and can call ``installer.py --check``.
+- OneKeyStart.bat installs on first run, then uses ``--quick-check`` before launch.
 
 The installer is stage-based and safe to rerun. Network-sensitive optional
 packages (Demucs, spaCy model downloads) warn instead of breaking the whole
@@ -41,7 +41,6 @@ ROOT = Path(__file__).resolve().parent
 STATE_FILE = Path(sys.prefix) / ".videolingo-install.json"
 REQUIREMENTS = ROOT / "requirements.txt"
 
-TORCH_VERSION = "2.8.0"
 TORCH_INDEX = "https://download.pytorch.org/whl"
 BOOTSTRAP_PACKAGES = ["requests", "rich", "ruamel.yaml", "InquirerPy", "packaging"]
 FILTERED_REQUIREMENTS = {"torch", "torchaudio", "torchvision"}
@@ -118,7 +117,8 @@ def import_ok(module: str) -> bool:
 def requirements_hash() -> str:
     h = hashlib.sha256()
     h.update(REQUIREMENTS.read_bytes())
-    h.update(f"torch={TORCH_VERSION}\n".encode())
+    torch, torchvision = torch_versions()
+    h.update(f"torch={torch};torchvision={torchvision}\n".encode())
     h.update(DEMUCS_REQUIREMENT.encode())
     return h.hexdigest()
 
@@ -171,6 +171,15 @@ def apple_silicon() -> bool:
     return platform.system() == "Darwin" and platform.machine() == "arm64"
 
 
+def intel_mac() -> bool:
+    return platform.system() == "Darwin" and platform.machine() == "x86_64"
+
+
+def torch_versions() -> tuple[str, str]:
+    # PyTorch 2.2.x is the last wheel family published for Intel macOS.
+    return ("2.2.2", "0.17.2") if intel_mac() else ("2.8.0", "0.23.0")
+
+
 def qwen_asr_package() -> str:
     """Package providing the default Qwen3-ASR backend on this platform."""
     return "mlx-audio" if apple_silicon() else "qwen-asr"
@@ -180,9 +189,10 @@ def unsupported_platform() -> str | None:
     """Explain why the default stack cannot install here, before pip fails on missing wheels."""
     if platform.system() != "Darwin":
         return None
+    if intel_mac():
+        return None
     if platform.machine() != "arm64":
-        return ("Intel Macs (or an x86_64 Python under Rosetta) are not supported: "
-                "the pinned PyTorch 2.8 has no macOS x86_64 wheels.")
+        return f"Unsupported macOS CPU architecture: {platform.machine()}"
     release = platform.mac_ver()[0]
     try:
         major = int(release.split(".")[0])
@@ -317,14 +327,15 @@ def maybe_configure_mirror(auto_mirror: bool) -> None:
 
 def install_torch(force: bool = False, backend: str = "auto") -> None:
     print("\n[3/6] Install PyTorch / torchaudio")
-    gpu = detect_nvidia_gpu() if backend == "auto" else backend != "cpu"
+    torch_version, vision_version = torch_versions()
+    gpu = (platform.system() != "Darwin" and detect_nvidia_gpu()) if backend == "auto" else backend != "cpu"
     builds = {(package_version(name) or "").partition("+")[2] or "cpu" for name in ("torch", "torchaudio", "torchvision")}
     expected = {backend} if backend != "auto" else ({"cu126", "cu128"} if gpu else {"cpu"})
     gpu_build = len(builds) == 1 and builds <= expected
-    if not force and gpu_build and package_ok("torch", TORCH_VERSION) and package_ok("torchaudio", TORCH_VERSION) and package_ok("torchvision", "0.23.0"):
+    if not force and gpu_build and package_ok("torch", torch_version) and package_ok("torchaudio", torch_version) and package_ok("torchvision", vision_version):
         print(f"  torch {package_version('torch')} and torchaudio {package_version('torchaudio')} already installed.")
         return
-    packages = [f"torch=={TORCH_VERSION}", f"torchaudio=={TORCH_VERSION}", "torchvision==0.23.0"]
+    packages = [f"torch=={torch_version}", f"torchaudio=={torch_version}", f"torchvision=={vision_version}"]
     if gpu:
         index = detect_torch_index() if backend == "auto" else f"{TORCH_INDEX}/{backend}"
         print(f"  Using CUDA PyTorch index: {index}")
@@ -372,6 +383,12 @@ def install_demucs(force: bool = False, require: bool = False) -> None:
     from packaging.version import Version
     if not force and package_version("demucs") is not None and Version("4.1.0") <= Version(package_version("demucs")) < Version("5") and import_ok("demucs.api"):
         print(f"  demucs {package_version('demucs')} already installed.")
+        return
+    if intel_mac():
+        message = "Demucs is not installed automatically on Intel macOS: its sphn dependency has no x86_64 wheel. Vocal separation will be unavailable."
+        if require:
+            raise RuntimeError(message)
+        print(f"  Warning: {message}")
         return
     # Maintained Demucs separates inference and training dependencies. No git
     # snapshot, no-deps installation, or torchaudio<2.2 workaround is needed.
@@ -462,11 +479,13 @@ def install_linux_noto_fonts() -> None:
         print(f"  Warning: failed to install Noto CJK fonts automatically: {exc}")
 
 
-def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True, torch_backend: str = "auto") -> int:
+def health_check(quiet: bool = False, require_demucs: bool = False, check_state: bool = True,
+                 torch_backend: str = "auto", quick: bool = False) -> int:
     errors: list[str] = []
     warnings: list[str] = []
-    if not (3, 10) <= sys.version_info[:2] < (3, 14):
-        errors.append("VideoLingo requires Python >=3.10,<3.14; use setup_env.py")
+    if sys.version_info[:2] != (3, 12):
+        errors.append("VideoLingo uses Python 3.12; rerun setup_env.py")
+    torch_version, vision_version = torch_versions()
     try:
         from packaging.requirements import Requirement
         for raw in REQUIREMENTS.read_text(encoding="utf-8").splitlines():
@@ -490,8 +509,9 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         "streamlit": None,
         "openai": None,
         "pandas": None,
-        "torch": TORCH_VERSION,
-        "torchaudio": TORCH_VERSION,
+        "torch": torch_version,
+        "torchaudio": torch_version,
+        "torchvision": vision_version,
         "spacy": "3.8.",
         qwen_asr_package(): None,
     }
@@ -509,7 +529,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
         warnings.append("Noto CJK fonts are not installed; CJK subtitle burn-in may fail")
     try:
         configure_ffmpeg(required=True)
-        if check_state and not errors:
+        if not errors and not quick:
             validate_ffmpeg()
     except (RuntimeError, OSError, subprocess.SubprocessError) as exc:
         errors.append(f"FFmpeg runtime check failed: {exc}")
@@ -517,7 +537,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
     if len(builds) != 1:
         errors.append("torch, torchaudio and torchvision must use the same CPU/CUDA build")
     if torch_backend == "auto":
-        if detect_nvidia_gpu() and not builds <= {"cu126", "cu128"}:
+        if not quick and platform.system() != "Darwin" and detect_nvidia_gpu() and not builds <= {"cu126", "cu128"}:
             errors.append("NVIDIA GPU detected: auto accepts only cu126/cu128 PyTorch builds; "
                           f"detected builds: {', '.join(sorted(builds))}. Rerun installer.py")
     elif builds != {torch_backend}:
@@ -529,7 +549,7 @@ def health_check(quiet: bool = False, require_demucs: bool = False, check_state:
                       "docs/pages/docs/whisperx-manual.en-US.md")
     # Our WhisperX path uses CLI decoding and passes waveforms to pyannote.
     # TorchCodec's optional filename decoder need not load for this to work.
-    if check_state and not errors and whisperx_selected():
+    if not errors and not quick and whisperx_selected():
         try:
             probe = subprocess.run(
                 [sys.executable, "-c", "from runtime_libraries import check_whisperx_runtime; "
@@ -603,12 +623,15 @@ def launch_streamlit() -> int:
 
 
 def install_all(args: argparse.Namespace) -> int:
-    if not (3, 10) <= sys.version_info[:2] < (3, 14):
-        print("ERROR: VideoLingo requires Python >=3.10,<3.14. Run setup_env.py first.")
+    if sys.version_info[:2] != (3, 12):
+        print("ERROR: VideoLingo uses Python 3.12. Run setup_env.py first.")
         return 1
     reason = unsupported_platform()
     if reason:
         print(f"ERROR: {reason}")
+        return 1
+    if platform.system() == "Darwin" and args.torch_backend not in ("auto", "cpu"):
+        print("ERROR: macOS uses CPU or MLX; CUDA PyTorch builds are not available.")
         return 1
     install_bootstrap()
     maybe_configure_mirror(args.auto_mirror)
@@ -620,20 +643,23 @@ def install_all(args: argparse.Namespace) -> int:
     install_project_metadata()
     install_linux_noto_fonts()
     ffmpeg_ok = check_ffmpeg()
-    save_state()
-    status = health_check(require_demucs=args.require_demucs, torch_backend=args.torch_backend)
+    status = health_check(require_demucs=args.require_demucs, check_state=False,
+                          torch_backend=args.torch_backend)
     if not ffmpeg_ok or status != 0:
         return 1
+    save_state()
     print_asr_summary()
     if args.launch:
         return launch_streamlit()
-    print("\nInstall complete. Start with OneKeyStart.bat or: python -m streamlit run st.py")
+    print("\nInstall complete. Start with OneKeyStart.bat or: uv run start.py")
     return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Install or check VideoLingo dependencies")
     parser.add_argument("--check", action="store_true", help="check environment health only")
+    parser.add_argument("--quick-check", action="store_true",
+                        help="check installed package versions, install state and FFmpeg files without runtime probes")
     parser.add_argument("--torch-backend", choices=("auto", "cpu", "cu126", "cu128"), default="auto",
                         help="auto-detect on hosts; select explicitly for GPU-less image builds")
     parser.add_argument("--quiet", action="store_true", help="quiet check output")
@@ -653,6 +679,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.no_launch:
         args.launch = False
+    if args.quick_check:
+        return health_check(quiet=args.quiet, require_demucs=args.require_demucs,
+                            torch_backend=args.torch_backend, quick=True)
     if args.check:
         return health_check(quiet=args.quiet, require_demucs=args.require_demucs, torch_backend=args.torch_backend)
     return install_all(args)

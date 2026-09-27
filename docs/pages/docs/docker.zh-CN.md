@@ -16,7 +16,7 @@ Dockerfile 复制当前目录及配置，不会另行从 GitHub 克隆不同版�
 docker build -t videolingo .
 ```
 
-默认使用 `nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04`、Python 3.13 和 PyTorch
+默认使用 `nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04`、Python 3.12 和 PyTorch
 cu128。匹配的 CUDA 12.6 方案：
 
 ```bash

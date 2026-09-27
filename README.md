@@ -79,44 +79,32 @@ Dubbing languages depend on the selected TTS method.
 
 ## Installation
 
-Meet any problem? Chat with our free online AI agent [**here**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) to help you.
+VideoLingo supports Windows, macOS (Apple Silicon / Intel), and Linux.
 
-Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
+### Ask your local AI agent 🤖
 
-To use NVIDIA GPU acceleration, install or update your graphics driver. The installer will automatically select a compatible PyTorch version.
+If you use an AI agent that can operate your computer, send it this prompt:
 
-On Apple Silicon (macOS 14+), local recognition uses MLX. See [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
+> Install and launch GitHub's Huanshere/VideoLingo on my computer.
 
-> FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools.
+### Windows: one-click install 🎉
 
-### Install with uv
+1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest), extract it to your Desktop or another folder, and open the folder.
+2. Double-click `OneKeyStart.bat` and keep the window open. On the first run, it automatically installs uv, Python 3.12, the app dependencies, and FFmpeg. An internet connection is required.
+3. After installation, VideoLingo opens automatically in your browser. Enter your API URL, key, and model in the sidebar to start using it.
 
-uv downloads Python 3.13 and creates an isolated `.venv`. No preinstalled Python is needed for the command below. The application supports Python 3.10–3.13. The default Qwen3-ASR recognition only calls the FFmpeg command-line tool.
-
-1. Clone the repository
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. Create the environment and install dependencies
+### Install from source (Windows, macOS, Linux)
 
 ```bash
-uv run --no-project --python 3.13 setup_env.py
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
+uv run start.py
 ```
 
-3. Start the application
+To start it later, run `uv run start.py` again from the VideoLingo folder. Apple Silicon uses MLX; Intel Macs use CPU recognition. By default, Intel Mac dubbing uses the new voice without the original background sound.
 
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
+#### Docker (optional)
 
-Or double-click `OneKeyStart.bat` on Windows. It prefers `~/.venvs/videolingo` when present, then the project `.venv`. Open `http://localhost:8501` and enter your API URL, key and model in the sidebar.
-
-### Docker
-For a Linux NVIDIA container deployment, install Docker, a compatible GPU driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). The image uses the same Python 3.13 setup and application dependencies, with CUDA 12.8.1/cu128 by default. See [Docker docs](/docs/pages/docs/docker.en-US.md) for the matched CUDA 12.6 alternative and persistence settings.
+For a Linux NVIDIA container deployment, install Docker, a compatible GPU driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). The image uses the same Python 3.12 setup and application dependencies, with CUDA 12.8.1/cu128 by default. See [Docker docs](/docs/pages/docs/docker.en-US.md) for the matched CUDA 12.6 alternative and persistence settings.
 
 ```bash
 docker build -t videolingo .
@@ -127,10 +115,10 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 For agents and scripts, use the local HTTP API instead of the former Excel batch mode.
 It shares the Streamlit pipeline and processes one operation at a time using `output/`.
-After installation, configure `config.yaml` and start it from the project root with the project's Python environment:
+Configure `config.yaml` and start it from the project root. The command also installs missing dependencies on first use:
 
 ```bash
-python api.py
+uv run start.py --api
 ```
 
 See the **[HTTP API guide](docs/api.md)** for input, processing, progress, downloads,

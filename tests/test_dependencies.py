@@ -51,7 +51,7 @@ def test_requirements_exclude_staged_torch():
 def _platform_requirements(system, machine):
     from packaging.requirements import Requirement
     env = {'sys_platform': {'Darwin': 'darwin', 'Linux': 'linux', 'Windows': 'win32'}[system],
-           'platform_machine': machine, 'python_version': '3.13'}
+           'platform_machine': machine, 'python_version': '3.12'}
     reqs = {}
     for raw in installer.read_base_requirements():
         req = Requirement(raw)
@@ -79,7 +79,8 @@ def test_qwen_asr_requirements_follow_platform(monkeypatch, system, machine, eng
 
 
 @pytest.mark.parametrize('system,machine,release,expected', [
-    ('Darwin', 'x86_64', '13.6', 'Intel Macs'),
+    ('Darwin', 'x86_64', '13.6', None),
+    ('Darwin', 'ppc', '13.6', 'Unsupported macOS CPU architecture'),
     ('Darwin', 'arm64', '13.6.1', 'macOS 14 or newer'),
     ('Darwin', 'arm64', '14.5', None),
     ('Darwin', 'arm64', '26.0', None),
@@ -95,11 +96,27 @@ def test_unsupported_platform(monkeypatch, system, machine, release, expected):
 
 
 def test_install_all_stops_before_pip_on_unsupported_platform(monkeypatch, capsys):
-    monkeypatch.setattr(installer, 'unsupported_platform', lambda: 'Intel Macs are not supported')
+    monkeypatch.setattr(installer, 'unsupported_platform', lambda: 'Unsupported macOS CPU architecture')
     monkeypatch.setattr(installer, 'install_bootstrap', lambda: pytest.fail('pip must not run'))
     args = installer.build_parser().parse_args([])
     assert installer.install_all(args) == 1
-    assert 'ERROR: Intel Macs are not supported' in capsys.readouterr().out
+    assert 'ERROR: Unsupported macOS CPU architecture' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('health_status,has_install_state', [(0, True), (1, False)])
+def test_install_state_records_only_successful_setup(tmp_path, monkeypatch, health_status, has_install_state):
+    monkeypatch.setattr(installer, 'STATE_FILE', tmp_path / '.videolingo-install.json')
+    monkeypatch.setattr(installer, 'unsupported_platform', lambda: None)
+    for name in ('install_bootstrap', 'maybe_configure_mirror', 'install_torch',
+                 'install_base_requirements', 'install_spacy', 'install_project_metadata',
+                 'install_linux_noto_fonts', 'print_asr_summary'):
+        monkeypatch.setattr(installer, name, lambda *args, **kwargs: None)
+    monkeypatch.setattr(installer, 'check_ffmpeg', lambda: True)
+    monkeypatch.setattr(installer, 'health_check', lambda **kwargs: health_status)
+
+    args = installer.build_parser().parse_args(['--skip-demucs'])
+    assert installer.install_all(args) == health_status
+    assert installer.STATE_FILE.exists() is has_install_state
 
 
 def _apple_silicon(monkeypatch, apple=True):
@@ -185,9 +202,8 @@ def test_stale_project_metadata_refreshed_before_sync(monkeypatch, previous, ins
 
 
 def test_health_check_rejects_whisperx_next_to_mlx(monkeypatch, capsys):
-    versions = dict(_requirement_versions(('', '', '')), **{'mlx-audio': '0.5.5'})
-    _patch_health_environment(monkeypatch, versions, gpu=False)
-    monkeypatch.setattr(installer.platform, 'machine', lambda: 'arm64')
+    versions = _requirement_versions(('', '', ''), host=APPLE_HOST)
+    _patch_health_environment(monkeypatch, versions, gpu=False, host=APPLE_HOST)
     assert installer.health_check(check_state=False, torch_backend='cpu') == 0
     versions['whisperx'] = '3.8.6'
     assert installer.health_check(check_state=False, torch_backend='cpu') == 1
@@ -204,6 +220,8 @@ def test_installer_has_no_whisperx_stage():
 
 
 def test_cpu_torch_repaired_on_gpu(monkeypatch):
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Linux')
+    monkeypatch.setattr(installer.platform, 'machine', lambda: 'x86_64')
     versions = {'torch':'2.8.0+cpu', 'torchaudio':'2.8.0+cpu', 'torchvision':'0.23.0+cpu'}
     monkeypatch.setattr(installer, 'package_version', versions.get)
     monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: True)
@@ -236,35 +254,59 @@ def test_mixed_cuda_builds_are_repaired(monkeypatch):
     assert len(calls) == 1
 
 
-def test_plain_macos_cpu_versions_are_reused(monkeypatch):
-    versions = {'torch': '2.8.0', 'torchaudio': '2.8.0', 'torchvision': '0.23.0'}
+@pytest.mark.parametrize('machine,torch_version,vision_version', [
+    ('arm64', '2.8.0', '0.23.0'),
+    ('x86_64', '2.2.2', '0.17.2'),
+])
+def test_plain_macos_cpu_versions_are_reused(monkeypatch, machine, torch_version, vision_version):
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin')
+    monkeypatch.setattr(installer.platform, 'machine', lambda: machine)
+    monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: pytest.fail('macOS uses CPU/MLX, not CUDA'))
+    versions = {'torch': torch_version, 'torchaudio': torch_version, 'torchvision': vision_version}
     monkeypatch.setattr(installer, 'package_version', versions.get)
     monkeypatch.setattr(installer, 'pip_install', lambda *args, **kwargs: pytest.fail('Compatible packages should be reused'))
-    installer.install_torch(backend='cpu')
+    installer.install_torch()
+
+
+@pytest.mark.parametrize('required', [False, True])
+def test_intel_mac_skips_optional_demucs_without_building_sphn(monkeypatch, capsys, required):
+    monkeypatch.setattr(installer.platform, 'system', lambda: 'Darwin')
+    monkeypatch.setattr(installer.platform, 'machine', lambda: 'x86_64')
+    monkeypatch.setattr(installer, 'package_version', lambda _: None)
+    monkeypatch.setattr(installer, 'soft_pip_install', lambda *a, **k: pytest.fail('sphn would need a local build'))
+    if required:
+        with pytest.raises(RuntimeError, match='sphn'):
+            installer.install_demucs(require=True)
+    else:
+        installer.install_demucs()
+        assert 'Vocal separation will be unavailable' in capsys.readouterr().out
 
 
 # Health-check tests run as an x86_64 macOS host whatever machine runs them: markers,
 # platform.system() and platform.machine() must agree, or an Apple Silicon or Linux host
 # would select a different Qwen engine than the test expects.
-HEALTH_HOST = {'sys_platform': 'darwin', 'platform_system': 'Darwin', 'platform_machine': 'x86_64'}
+HEALTH_HOST = {'sys_platform': 'darwin', 'platform_system': 'Darwin', 'platform_machine': 'x86_64', 'python_version': '3.12'}
+APPLE_HOST = {**HEALTH_HOST, 'platform_machine': 'arm64'}
+LINUX_HOST = {**HEALTH_HOST, 'sys_platform': 'linux', 'platform_system': 'Linux'}
 
 
-def _requirement_versions(builds=('cpu', 'cpu', 'cpu')):
+def _requirement_versions(builds=('cpu', 'cpu', 'cpu'), host=HEALTH_HOST):
     from packaging.requirements import Requirement
     versions = {}
     for raw in installer.REQUIREMENTS.read_text(encoding='utf-8').splitlines():
         if installer.requirement_name(raw):
             req = Requirement(raw)
-            if req.marker and not req.marker.evaluate(HEALTH_HOST):
+            if req.marker and not req.marker.evaluate(host):
                 continue
             lower = [s.version for s in req.specifier if s.operator in ('==', '>=')]
             versions[req.name] = lower[0] if lower else '1.0'
-    for name, version, build in zip(('torch', 'torchaudio', 'torchvision'), ('2.8.0', '2.8.0', '0.23.0'), builds):
+    versions_for_host = ('2.2.2', '2.2.2', '0.17.2') if host['sys_platform'] == 'darwin' and host['platform_machine'] == 'x86_64' else ('2.8.0', '2.8.0', '0.23.0')
+    for name, version, build in zip(('torch', 'torchaudio', 'torchvision'), versions_for_host, builds):
         versions[name] = version + ('+' + build if build else '')
     return versions
 
 
-def _patch_health_environment(monkeypatch, versions, gpu=False):
+def _patch_health_environment(monkeypatch, versions, gpu=False, host=HEALTH_HOST):
     monkeypatch.setattr(installer, 'package_version', versions.get)
     monkeypatch.setattr(installer, 'load_state', lambda: {'requirements_hash': installer.requirements_hash()})
     monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: gpu)
@@ -272,12 +314,13 @@ def _patch_health_environment(monkeypatch, versions, gpu=False):
     # the OS mocked, an Apple Silicon host enabled the MLX-only "whisperx next to MLX" error.
     import packaging.markers
     host_environment = packaging.markers.default_environment
-    monkeypatch.setattr(packaging.markers, 'default_environment', lambda: {**host_environment(), **HEALTH_HOST})
-    monkeypatch.setattr(installer.platform, 'system', lambda: HEALTH_HOST['platform_system'])
-    monkeypatch.setattr(installer.platform, 'machine', lambda: HEALTH_HOST['platform_machine'])
+    monkeypatch.setattr(packaging.markers, 'default_environment', lambda: {**host_environment(), **host})
+    monkeypatch.setattr(installer.platform, 'system', lambda: host['platform_system'])
+    monkeypatch.setattr(installer.platform, 'machine', lambda: host['platform_machine'])
     monkeypatch.setattr(installer.shutil, 'which', lambda _: '/example/ffmpeg')
     monkeypatch.setattr(installer, 'configure_ffmpeg', lambda **kwargs: Path('/example'))
     monkeypatch.setattr(installer, 'validate_ffmpeg', lambda: 'FFmpeg test runtime')
+    monkeypatch.setattr(installer, 'noto_cjk_font_available', lambda: True)
     monkeypatch.setattr(installer, 'whisperx_selected', lambda: False)
 
 
@@ -301,7 +344,7 @@ def test_health_checks_build_family(monkeypatch, builds, backend, expected):
     (('cpu', 'cpu', 'cpu'), 1),
 ])
 def test_health_check_auto_gpu_accepts_only_cu126_cu128(monkeypatch, capsys, builds, expected):
-    _patch_health_environment(monkeypatch, _requirement_versions(builds), gpu=True)
+    _patch_health_environment(monkeypatch, _requirement_versions(builds, host=LINUX_HOST), gpu=True, host=LINUX_HOST)
     assert installer.health_check(check_state=False, torch_backend='auto') == expected
     output = capsys.readouterr().out
     if not set(builds) <= {'cu126', 'cu128'}:
@@ -317,6 +360,18 @@ def test_health_check_requires_platform_qwen_package(monkeypatch, capsys):
     del versions[package]
     assert installer.health_check(check_state=False, torch_backend='cpu') == 1
     assert f'missing package: {package}' in capsys.readouterr().out
+
+
+def test_quick_check_detects_missing_dependencies_without_runtime_probes(monkeypatch):
+    versions = _requirement_versions(('cpu', 'cpu', 'cpu'))
+    _patch_health_environment(monkeypatch, versions, gpu=False)
+    monkeypatch.setattr(installer, 'validate_ffmpeg', lambda: pytest.fail('slow FFmpeg probe'))
+    monkeypatch.setattr(installer, 'detect_nvidia_gpu', lambda: pytest.fail('slow GPU probe'))
+    monkeypatch.setattr(installer, 'whisperx_selected', lambda: pytest.fail('slow WhisperX probe'))
+
+    assert installer.main(['--quick-check', '--quiet']) == 0
+    del versions['streamlit']
+    assert installer.main(['--quick-check', '--quiet']) == 1
 
 
 def test_whisperx_audio_probe_skipped_without_whisperx(monkeypatch):
@@ -483,15 +538,16 @@ def test_setup_recreation_confirmation(monkeypatch, tmp_path, yes):
         assert not removed and not commands
 
 
-def test_setup_forwards_backend_without_installing(monkeypatch):
+def test_setup_forwards_launch_and_backend(monkeypatch):
     setup_spec = importlib.util.spec_from_file_location('setup_env', ROOT / 'setup_env.py')
     setup = importlib.util.module_from_spec(setup_spec)
     setup_spec.loader.exec_module(setup)
     calls = []
     monkeypatch.setattr(setup, 'run', lambda cmd, **kwargs: calls.append(cmd))
-    args = setup.build_parser().parse_args(['--torch-backend', 'cu126'])
+    args = setup.build_parser().parse_args(['--torch-backend', 'cu126', '--launch'])
     setup.run_installer(Path('/example/bin/python'), args)
     assert calls[0][calls[0].index('--torch-backend') + 1] == 'cu126'
+    assert '--launch' in calls[0]
     assert 'installer.py' == Path(calls[0][1]).name
 
 

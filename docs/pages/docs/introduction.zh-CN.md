@@ -60,30 +60,31 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。安装器会自动下载并配置 FFmpeg 和 ffprobe，无需手动下载或设置 PATH。首次安装需要联网，之后启动会复用已下载的程序。NVIDIA 要求见[运行库说明](start.zh-CN.md#gpu-runtime)；选择可选的 WhisperX 后端时，另见 [WhisperX 安装指南](whisperx-manual.zh-CN.md)。
+VideoLingo 支持 Windows、macOS（Apple Silicon / Intel）和 Linux。
 
-1. 克隆仓库
+### 让本地 AI Agent 帮你安装 🤖
+
+如果你的 AI Agent 可以操作这台电脑，直接告诉它：
+
+> `帮我安装 GitHub 上的 Huanshere/VideoLingo，并启动它。`
+
+### Windows：双击安装 🎉
+
+1. 从[最新版本页面](https://github.com/Huanshere/VideoLingo/releases/latest)下载 **Source code (zip)**，解压到桌面等方便找到的位置，并打开文件夹。
+2. 双击 `OneKeyStart.bat`，保持窗口打开。首次运行会自动安装 uv、Python 3.12、应用依赖和 FFmpeg，需要联网。
+3. 安装完成后，VideoLingo 会自动在浏览器中打开。在侧栏填写 API 地址、密钥和模型，就可以开始使用了。
+
+### 从源码安装（Windows、macOS、Linux）
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
+uv run start.py
 ```
 
-2. 创建 Python 3.13 环境并安装依赖
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. 启动应用
-
-```bash
-.venv\Scripts\python -m streamlit run st.py  # Windows
-.venv/bin/python -m streamlit run st.py     # macOS / Linux
-```
+以后在 VideoLingo 文件夹中运行 `uv run start.py` 即可启动。
 
 ### Docker
-Linux NVIDIA 容器使用 Docker、兼容驱动和 NVIDIA Container Toolkit。镜像采用相同的 Python 3.13 安装流程，详见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)：
+Linux NVIDIA 容器使用 Docker、兼容驱动和 NVIDIA Container Toolkit。镜像采用相同的 Python 3.12 安装流程，详见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)：
 
 ```bash
 docker build -t videolingo .

@@ -1,4 +1,4 @@
-"""Local, single-user API. Start from the repository root with python api.py."""
+"""Local, single-user API. Start from the repository root with uv run start.py --api."""
 from pathlib import Path
 import shutil
 from threading import Lock

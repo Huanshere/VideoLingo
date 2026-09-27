@@ -45,6 +45,9 @@ def transcribe():
 
     # 2. Demucs vocal separation:
     if demucs:
+        from importlib.util import find_spec
+        if find_spec("demucs") is None:
+            raise RuntimeError("Vocal separation is not installed. Turn it off in settings or install Demucs separately.")
         from core.asr_backend.demucs_vl import demucs_audio
         demucs_audio()
         vocal_audio = normalize_audio_volume(_VOCAL_AUDIO_FILE, _VOCAL_AUDIO_FILE, format="mp3")

@@ -79,42 +79,32 @@ Los idiomas de doblaje dependen del método TTS elegido.
 
 ## Instalación
 
-¿Tienes algún problema? Chatea con nuestro agente de IA en línea gratuito [**aquí**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) para ayudarte.
+VideoLingo funciona en Windows, macOS (Apple Silicon / Intel) y Linux.
 
-Instala [Git](https://git-scm.com/downloads) y [uv](https://docs.astral.sh/uv/getting-started/installation/). Abre de nuevo la terminal y comprueba `git --version` y `uv --version`.
+### Pídeselo a tu agente de IA local 🤖
 
-Para NVIDIA, instala un controlador compatible con tu GPU. El instalador selecciona PyTorch `cu128` si `nvidia-smi` indica CUDA >=12.8, y `cu126` en caso contrario; sin NVIDIA, selecciona paquetes CPU. Selecciona paquetes Python, no instala el CUDA Toolkit del sistema. En Apple Silicon (macOS 14+), el reconocimiento local usa MLX. Consulta los [requisitos GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
+Si tu agente de IA puede usar tu ordenador, envíale este mensaje:
 
-> FFmpeg y ffprobe se descargan y configuran automáticamente durante la instalación. No hace falta descargarlos manualmente ni configurar PATH. La instalación requiere conexión a Internet; los siguientes inicios reutilizan las herramientas descargadas.
+> Instala y ejecuta Huanshere/VideoLingo desde GitHub en mi ordenador.
 
-### Instalación con uv
+### Windows: instalación con un clic 🎉
 
-uv descarga Python 3.13 y crea un entorno `.venv` aislado, sin Python preinstalado. La aplicación admite Python 3.10–3.13. El reconocimiento predeterminado con Qwen3-ASR solo usa la herramienta de línea de comandos FFmpeg.
+1. Descarga **Source code (zip)** de la [última versión](https://github.com/Huanshere/VideoLingo/releases/latest), descomprímelo en el escritorio u otra carpeta y ábrela.
+2. Haz doble clic en `OneKeyStart.bat` y deja la ventana abierta. En la primera ejecución instala automáticamente uv, Python 3.12, las dependencias y FFmpeg. Se necesita conexión a Internet.
+3. Tras la instalación, VideoLingo se abrirá automáticamente en el navegador. Introduce la URL de la API, la clave y el modelo en la barra lateral para empezar a usarlo.
 
-1. Clona el repositorio
-
-```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
-```
-
-2. Crea el entorno e instala las dependencias
+### Instalación desde el código fuente (Windows, macOS, Linux)
 
 ```bash
-uv run --no-project --python 3.13 setup_env.py
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
+uv run start.py
 ```
 
-3. Inicia la aplicacion
+Para iniciarlo después, ejecuta `uv run start.py` en la carpeta VideoLingo. Apple Silicon usa MLX; los Mac Intel usan la CPU para el reconocimiento. Por defecto, el doblaje en Mac Intel usa la voz nueva sin conservar el sonido de fondo original.
 
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
+#### Docker (opcional)
 
-O haz doble clic en `OneKeyStart.bat` en Windows. Prefiere `~/.venvs/videolingo` si existe y después el `.venv` del proyecto. Abre `http://localhost:8501` y configura la URL API, la clave y el modelo en la barra lateral.
-
-### Docker
-Para un contenedor NVIDIA en Linux, instala Docker, un controlador compatible y [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). La imagen utiliza la misma instalación de Python 3.13 y las mismas dependencias, con CUDA 12.8.1/cu128 por defecto. Consulta la [documentación de Docker](/docs/pages/docs/docker.en-US.md) para la variante CUDA 12.6 y la persistencia de datos.
+Para un contenedor NVIDIA en Linux, instala Docker, un controlador compatible y [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). La imagen utiliza la misma instalación de Python 3.12 y las mismas dependencias, con CUDA 12.8.1/cu128 por defecto. Consulta la [documentación de Docker](/docs/pages/docs/docker.en-US.md) para la variante CUDA 12.6 y la persistencia de datos.
 
 ```bash
 docker build -t videolingo .
