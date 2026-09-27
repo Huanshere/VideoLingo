@@ -650,3 +650,24 @@ def test_asr_install_summary_probe_failure_is_nonfatal(monkeypatch, tmp_path, ca
     output = capsys.readouterr().out
     assert 'Device information unavailable' in output
     assert 'Qwen3-ASR-1.7B' in output
+
+
+@pytest.mark.parametrize("external", [True, False])
+def test_mlx_cleanup_keeps_transitive_dependencies_and_handles_cycles(monkeypatch, external):
+    _apple_silicon(monkeypatch)
+    dists = [
+        _fake_distribution('faster-whisper', 'ctranslate2'),
+        _fake_distribution('ctranslate2', 'faster-whisper'),  # a cycle must terminate
+        _fake_distribution('whisperx', 'faster-whisper', 'torchcodec'),
+        _fake_distribution('VideoLingo', 'whisperx'),
+    ]
+    if external:
+        dists.append(_fake_distribution('another-asr-app', 'faster_whisper'))
+    monkeypatch.setattr(installer.metadata, 'distributions', lambda: dists)
+    installed = {'faster-whisper': '1', 'ctranslate2': '1', 'whisperx': '1', 'torchcodec': '1'}
+    monkeypatch.setattr(installer, 'package_version', installed.get)
+    calls = []
+    monkeypatch.setattr(installer, 'run', lambda cmd, **kwargs: calls.append(cmd))
+    installer.remove_whisperx_for_mlx()
+    removed = set(calls[0][calls[0].index('-y') + 1:])
+    assert removed == ({'whisperx', 'torchcodec'} if external else set(installed))

@@ -212,15 +212,16 @@ def canonical_name(name: str) -> str:
 
 
 def required_by_other_packages(names: list[str]) -> set[str]:
-    """Names still required by an installed distribution outside `names` (the project excluded)."""
+    """Candidates reachable from other installed packages, including transitive dependencies."""
     from packaging.requirements import InvalidRequirement, Requirement
     candidates = {canonical_name(name) for name in names}
-    needed: set[str] = set()
+    dependencies: dict[str, set[str]] = {}
     for dist in metadata.distributions():
         owner = canonical_name(dist.metadata["Name"] or "")
         # The project's own (possibly stale) metadata is re-registered from requirements.txt.
-        if owner in candidates or owner == "videolingo":
+        if owner == "videolingo":
             continue
+        required = dependencies.setdefault(owner, set())
         for raw in dist.requires or []:
             try:
                 req = Requirement(raw)
@@ -228,9 +229,16 @@ def required_by_other_packages(names: list[str]) -> set[str]:
                 continue
             if req.marker and not req.marker.evaluate({"extra": ""}):
                 continue
-            if canonical_name(req.name) in candidates:
-                needed.add(canonical_name(req.name))
-    return needed
+            required.add(canonical_name(req.name))
+    pending = list(dependencies.keys() - candidates)
+    visited: set[str] = set()
+    while pending:
+        name = pending.pop()
+        if name in visited:
+            continue
+        visited.add(name)
+        pending.extend(dependencies.get(name, set()) - visited)
+    return candidates & visited
 
 
 def remove_whisperx_for_mlx() -> None:
