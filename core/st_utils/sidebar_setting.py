@@ -256,22 +256,7 @@ def page_setting():
             if backend != configured_backend:
                 update_key("whisper.backend", backend, add_missing=True)
                 st.rerun()
-            if backend == "qwen":
-                sizes = ["1.7b", "0.6b"]
-                configured_size = load_key_or("whisper.qwen_model", "1.7b")
-                size = st.selectbox(
-                    t("Qwen3-ASR Model Size"),
-                    options=sizes,
-                    index=sizes.index(configured_size) if configured_size in sizes else 0,
-                    format_func=lambda x: {
-                        "1.7b": t("1.7B (more accurate)"),
-                        "0.6b": t("0.6B (faster, less memory)"),
-                    }[x],
-                )
-                if size != configured_size:
-                    update_key("whisper.qwen_model", size, add_missing=True)
-                    st.rerun()
-            elif importlib.util.find_spec("whisperx") is None:
+            if backend == "whisperx" and importlib.util.find_spec("whisperx") is None:
                 st.warning(t("WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen."))
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")

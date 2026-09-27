@@ -152,7 +152,7 @@ To start it later, run `uv run start.py` again from the VideoLingo folder. Apple
 
 Local recognition transcribes with **Qwen3-ASR** and then produces word timestamps with **Qwen3-ForcedAligner-0.6B**. With vocal separation enabled, transcription uses the original audio and alignment uses the separated vocals.
 
-- **Model size**: sidebar "Qwen3-ASR Model Size" or `whisper.qwen_model` in `config.yaml`. `1.7b` (default) is more accurate; `0.6b` is faster and uses less memory. The aligner is always ForcedAligner-0.6B.
+- **Model size**: `whisper.qwen_model` in `config.yaml` (not in the sidebar). `1.7b` (default) is more accurate; `0.6b` is faster and uses less memory. The aligner is always ForcedAligner-0.6B.
 - **Engine**: `whisper.qwen_engine: auto` selects it automatically; you normally do not need to change it.
 
 | Platform | Engine | Models | Notes |
@@ -197,7 +197,7 @@ The local HTTP API replaces Excel batch mode and shares the Streamlit pipeline. 
 
 4. **`Qwen3-ASR could not detect the language`** or **`... is still degenerate after retrying`**: `Auto` could not determine the language, or the transcript degenerated (a looping phrase, far too little text). Select the recognition language explicitly in the sidebar and retry, or try the other model size.
 
-5. **CUDA out of memory**: switch the Qwen3-ASR model size to 0.6B in the sidebar, or close other programs using the GPU.
+5. **CUDA out of memory**: set `whisper.qwen_model` to `0.6b` in `config.yaml`, or close other programs using the GPU.
 
 6. **mlx cannot be resolved / no matching distribution on macOS**: mlx only ships wheels for Apple Silicon on macOS 14 or newer. Upgrade macOS first.
 

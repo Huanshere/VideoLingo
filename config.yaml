@@ -34,7 +34,7 @@ whisper:
   # whisperx is not installed by the installer. Install its packages yourself from
   # docs/pages/docs/whisperx-manual.en-US.md, then set backend to whisperx.
   backend: 'qwen'
-  # Qwen3-ASR size: "1.7b" (more accurate) or "0.6b" (faster, less memory)
+  # *Qwen3-ASR size: "1.7b" (more accurate) or "0.6b" (faster, less memory)
   qwen_model: '1.7b'
   # *Qwen engine: "auto" (MLX on Apple Silicon, qwen-asr/transformers elsewhere), "mlx" or "transformers"
   qwen_engine: 'auto'
