@@ -22,15 +22,21 @@ echo %C_CYAN%Log file:%C_RESET% %LOGFILE%
 
 set "SHARED_VENV=%USERPROFILE%\.venvs\videolingo"
 if exist "%SHARED_VENV%\Scripts\python.exe" (
-    set "VENV_LABEL=shared venv"
-    set "VENV_PY=%SHARED_VENV%\Scripts\python.exe"
-    goto venv_found
+    "%SHARED_VENV%\Scripts\python.exe" -c "import sys; sys.exit(sys.version_info[:2] != (3, 12))" >nul 2>nul
+    if not errorlevel 1 (
+        set "VENV_LABEL=shared venv"
+        set "VENV_PY=%SHARED_VENV%\Scripts\python.exe"
+        goto venv_found
+    )
 )
 
 if exist ".venv\Scripts\python.exe" (
-    set "VENV_LABEL=project .venv"
-    set "VENV_PY=.venv\Scripts\python.exe"
-    goto venv_found
+    ".venv\Scripts\python.exe" -c "import sys; sys.exit(sys.version_info[:2] != (3, 12))" >nul 2>nul
+    if not errorlevel 1 (
+        set "VENV_LABEL=project .venv"
+        set "VENV_PY=.venv\Scripts\python.exe"
+        goto venv_found
+    )
 )
 
 rem Preserve an existing Conda installation before creating a new environment.
@@ -38,9 +44,12 @@ where conda >nul 2>nul
 if not errorlevel 1 (
     call conda activate videolingo
     if not errorlevel 1 if /I "!CONDA_DEFAULT_ENV!"=="videolingo" (
-        set "VENV_LABEL=Conda"
-        set "VENV_PY=python"
-        goto env_found
+        python -c "import sys; sys.exit(sys.version_info[:2] != (3, 12))" >nul 2>nul
+        if not errorlevel 1 (
+            set "VENV_LABEL=Conda"
+            set "VENV_PY=python"
+            goto env_found
+        )
     )
 )
 
@@ -62,7 +71,7 @@ if errorlevel 1 (
 )
 where uv >nul 2>nul
 if errorlevel 1 goto install_failed
-uv run --no-project --python 3.13 setup_env.py
+uv run --no-project --python 3.12 setup_env.py --yes
 if errorlevel 1 goto install_failed
 if not exist ".venv\Scripts\python.exe" goto install_failed
 set "VENV_LABEL=project .venv"

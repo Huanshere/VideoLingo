@@ -79,7 +79,7 @@ Les langues de doublage dépendent du service TTS choisi.
 
 ## Installation
 
-VideoLingo fonctionne sous Windows, Linux et sur les Mac Apple Silicon avec macOS 14 ou une version ultérieure. Les Mac Intel ne sont pas pris en charge actuellement.
+VideoLingo fonctionne sous Windows et Linux, sur les Mac Apple Silicon (macOS 14 ou plus) et sur les Mac Intel avec reconnaissance sur CPU. L’installation utilise Python 3.12.
 
 ### Windows : installation en un clic 🎉
 
@@ -92,37 +92,17 @@ Avec cette méthode Windows, vous n’avez pas besoin d’installer vous-même G
 
 ### Installation depuis le code source (Windows, macOS, Linux)
 
-Installez [Git](https://git-scm.com/downloads) et [uv](https://docs.astral.sh/uv/getting-started/installation/). Rouvrez le terminal et vérifiez `git --version` et `uv --version`.
-
-Si vous utilisez un GPU NVIDIA, installez d’abord un pilote compatible. Les Mac Apple Silicon nécessitent macOS 14 ou une version ultérieure. Consultez les [prérequis GPU](../docs/pages/docs/start.en-US.md#gpu-runtime) pour en savoir plus.
-
-uv prépare Python et l’environnement de l’application ; vous n’avez pas besoin d’installer Python à l’avance.
-
-1. Clonez le depot
-
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
 ```
 
-2. Créez l'environnement et installez les dépendances
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. Demarrer l'application
-
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
-
-Ouvrez `http://localhost:8501` et renseignez l'URL API, la clé et le modèle dans la barre latérale.
+Ensuite, utilisez `OneKeyStart.bat` sous Windows ou `.venv/bin/python -m streamlit run st.py` sous macOS/Linux. Apple Silicon utilise MLX ; les Mac Intel exécutent la reconnaissance sur CPU ; la séparation vocale facultative n’y est pas installée automatiquement.
 
 #### Docker (facultatif)
 
-Pour un conteneur NVIDIA sous Linux, installez Docker, un pilote compatible et le [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). L'image utilise la même installation Python 3.13 et les mêmes dépendances, avec CUDA 12.8.1/cu128 par défaut. Voir la [documentation Docker](/docs/pages/docs/docker.en-US.md) pour la variante CUDA 12.6 et la persistance des données.
+Pour un conteneur NVIDIA sous Linux, installez Docker, un pilote compatible et le [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). L'image utilise la même installation Python 3.12 et les mêmes dépendances, avec CUDA 12.8.1/cu128 par défaut. Voir la [documentation Docker](/docs/pages/docs/docker.en-US.md) pour la variante CUDA 12.6 et la persistance des données.
 
 ```bash
 docker build -t videolingo .

@@ -81,7 +81,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-VideoLingo 支持 Windows、Linux，以及 macOS 14 或更新版本的 Apple Silicon Mac；暂不支持 Intel Mac。
+VideoLingo 支持 Windows、Linux、macOS 14 及以上的 Apple Silicon Mac，以及使用 CPU 识别的 Intel Mac。安装统一使用 Python 3.12。
 
 ### Windows 一键安装 🎉
 
@@ -94,39 +94,17 @@ VideoLingo 支持 Windows、Linux，以及 macOS 14 或更新版本的 Apple Sil
 
 ### 从源码安装（Windows、macOS、Linux）
 
-如果要手动安装或修改代码，先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
-
-使用 NVIDIA GPU 加速，请安装或更新显卡驱动。安装程序会自动选择适配的 PyTorch 版本。
-
-在 Apple Silicon（macOS 14+）上，本地识别使用 MLX。详见 [GPU 运行库要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
-
-uv 会准备 Python 和应用环境，不需要提前安装 Python。
-
-1. 克隆仓库
-
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
 ```
 
-2. 创建环境并安装依赖
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. 启动应用
-
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
-
-打开 `http://localhost:8501`，在侧栏填写 API 地址、密钥和模型。
+之后启动：Windows 双击 `OneKeyStart.bat`；macOS/Linux 运行 `.venv/bin/python -m streamlit run st.py`。Apple Silicon 自动使用 MLX，Intel Mac 自动使用 CPU 识别；可选的人声分离暂不自动安装。
 
 #### Docker（可选）
 
-在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、兼容的显卡驱动和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。镜像使用相同的 Python 3.13 安装流程和应用依赖，默认 CUDA 12.8.1/cu128。匹配的 CUDA 12.6 方案及数据持久化设置见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)。
+在 Linux 上部署 NVIDIA GPU 容器，需要 Docker、兼容的显卡驱动和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。镜像使用相同的 Python 3.12 安装流程和应用依赖，默认 CUDA 12.8.1/cu128。匹配的 CUDA 12.6 方案及数据持久化设置见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)。
 
 ```bash
 docker build -t videolingo .

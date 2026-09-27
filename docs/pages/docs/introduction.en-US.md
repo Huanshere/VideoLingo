@@ -58,6 +58,8 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Installation
 
+VideoLingo supports Windows, Linux, Apple Silicon Macs (macOS 14+), and Intel Macs using CPU recognition. Setup uses Python 3.12.
+
 ### Windows: double-click to install 🎉
 
 1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest) and extract it to your Desktop or another folder.
@@ -68,30 +70,16 @@ Git, uv and Python do not need to be installed manually for this Windows path.
 
 ### Install from source (Windows, macOS, Linux)
 
-Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`. See the [GPU prerequisites](start.en-US.md#gpu-runtime) for NVIDIA requirements, and the separate [WhisperX guide](whisperx-manual.en-US.md) if you choose that optional backend.
-
-1. Clone the repository
-
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
 ```
 
-2. Create the Python 3.13 environment and install dependencies
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. Start the application
-
-```bash
-.venv\Scripts\python -m streamlit run st.py  # Windows
-.venv/bin/python -m streamlit run st.py     # macOS / Linux
-```
+Later, use `OneKeyStart.bat` on Windows or `.venv/bin/python -m streamlit run st.py` on macOS/Linux.
 
 ### Docker
-For Linux NVIDIA containers, use Docker with a compatible driver and NVIDIA Container Toolkit. The image uses the same Python 3.13 setup; see [Docker docs](/docs/pages/docs/docker.en-US.md):
+For Linux NVIDIA containers, use Docker with a compatible driver and NVIDIA Container Toolkit. The image uses the same Python 3.12 setup; see [Docker docs](/docs/pages/docs/docker.en-US.md):
 
 ```bash
 docker build -t videolingo .

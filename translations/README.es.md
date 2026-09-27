@@ -79,7 +79,7 @@ Los idiomas de doblaje dependen del método TTS elegido.
 
 ## Instalación
 
-VideoLingo funciona en Windows, Linux y Mac con Apple Silicon y macOS 14 o posterior. Por ahora no admite Mac con Intel.
+VideoLingo funciona en Windows y Linux, en Mac con Apple Silicon (macOS 14 o posterior) y en Mac Intel con reconocimiento por CPU. La instalación usa Python 3.12.
 
 ### Windows: instalación con un clic 🎉
 
@@ -92,37 +92,17 @@ Con este método para Windows no necesitas instalar Git, uv ni Python por tu cue
 
 ### Instalación desde el código fuente (Windows, macOS, Linux)
 
-Instala [Git](https://git-scm.com/downloads) y [uv](https://docs.astral.sh/uv/getting-started/installation/). Abre de nuevo la terminal y comprueba `git --version` y `uv --version`.
-
-Si usas una GPU NVIDIA, instala primero un controlador compatible. Los Mac con Apple Silicon requieren macOS 14 o posterior. Consulta los [requisitos GPU](../docs/pages/docs/start.en-US.md#gpu-runtime) para más detalles.
-
-uv prepara Python y el entorno de la aplicación; no necesitas instalar Python antes.
-
-1. Clona el repositorio
-
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
 ```
 
-2. Crea el entorno e instala las dependencias
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. Inicia la aplicacion
-
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
-
-Abre `http://localhost:8501` y configura la URL API, la clave y el modelo en la barra lateral.
+Después, usa `OneKeyStart.bat` en Windows o `.venv/bin/python -m streamlit run st.py` en macOS/Linux. Apple Silicon usa MLX; los Mac Intel usan la CPU para el reconocimiento; la separación de voces opcional no se instala automáticamente allí.
 
 #### Docker (opcional)
 
-Para un contenedor NVIDIA en Linux, instala Docker, un controlador compatible y [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). La imagen utiliza la misma instalación de Python 3.13 y las mismas dependencias, con CUDA 12.8.1/cu128 por defecto. Consulta la [documentación de Docker](/docs/pages/docs/docker.en-US.md) para la variante CUDA 12.6 y la persistencia de datos.
+Para un contenedor NVIDIA en Linux, instala Docker, un controlador compatible y [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). La imagen utiliza la misma instalación de Python 3.12 y las mismas dependencias, con CUDA 12.8.1/cu128 por defecto. Consulta la [documentación de Docker](/docs/pages/docs/docker.en-US.md) para la variante CUDA 12.6 y la persistencia de datos.
 
 ```bash
 docker build -t videolingo .

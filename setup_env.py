@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 
-PYTHON_VERSION = "3.13"
+PYTHON_VERSION = "3.12"
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOCAL_VENV = SCRIPT_DIR / ".venv"
 SHARED_VENV = Path.home() / ".venvs" / "videolingo"
@@ -135,6 +135,8 @@ def run_installer(python_exe: Path, args: argparse.Namespace) -> None:
         cmd.append("--skip-demucs")
     if args.require_demucs:
         cmd.append("--require-demucs")
+    if args.launch:
+        cmd.append("--launch")
     run(cmd, cwd=SCRIPT_DIR, env=env)
 
 
@@ -148,6 +150,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--auto-mirror", action="store_true", help="auto-select a PyPI mirror before install")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")
+    parser.add_argument("--launch", action="store_true", help="start VideoLingo after installation")
     parser.add_argument("--force", action="store_true", help="force reinstall staged packages")
     parser.add_argument("--upgrade", action="store_true", help="refresh dependencies within compatibility bounds")
     parser.add_argument("--yes", action="store_true", help="non-interactive; recreate wrong-version venvs")

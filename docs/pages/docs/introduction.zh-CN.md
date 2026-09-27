@@ -60,6 +60,8 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
+VideoLingo 支持 Windows、Linux、macOS 14 及以上的 Apple Silicon Mac，以及使用 CPU 识别的 Intel Mac。安装统一使用 Python 3.12。
+
 ### Windows：双击安装 🎉
 
 1. 从[最新版本页面](https://github.com/Huanshere/VideoLingo/releases/latest)下载 **Source code (zip)**，解压到桌面等方便找到的位置。
@@ -70,30 +72,16 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### 从源码安装（Windows、macOS、Linux）
 
-先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。NVIDIA 要求见[运行库说明](start.zh-CN.md#gpu-runtime)；选择可选的 WhisperX 后端时，另见 [WhisperX 安装指南](whisperx-manual.zh-CN.md)。
-
-1. 克隆仓库
-
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
 ```
 
-2. 创建 Python 3.13 环境并安装依赖
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. 启动应用
-
-```bash
-.venv\Scripts\python -m streamlit run st.py  # Windows
-.venv/bin/python -m streamlit run st.py     # macOS / Linux
-```
+之后启动：Windows 双击 `OneKeyStart.bat`；macOS/Linux 运行 `.venv/bin/python -m streamlit run st.py`。
 
 ### Docker
-Linux NVIDIA 容器使用 Docker、兼容驱动和 NVIDIA Container Toolkit。镜像采用相同的 Python 3.13 安装流程，详见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)：
+Linux NVIDIA 容器使用 Docker、兼容驱动和 NVIDIA Container Toolkit。镜像采用相同的 Python 3.12 安装流程，详见 [Docker 文档](/docs/pages/docs/docker.zh-CN.md)：
 
 ```bash
 docker build -t videolingo .

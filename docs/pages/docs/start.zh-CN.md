@@ -119,7 +119,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 ## 🛠️ 快速上手
 
-VideoLingo 支持 Windows、Linux，以及 macOS 14 或更新版本的 Apple Silicon Mac，可使用 CPU 或 GPU 运行；暂不支持 Intel Mac。
+VideoLingo 支持 Windows、Linux、macOS 14 及以上的 Apple Silicon Mac，以及使用 CPU 识别的 Intel Mac。安装统一使用 Python 3.12。
 
 ### Windows：双击安装 🎉
 
@@ -131,9 +131,15 @@ VideoLingo 支持 Windows、Linux，以及 macOS 14 或更新版本的 Apple Sil
 
 ### 从源码安装（Windows、macOS、Linux）
 
-先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
+```
 
-字幕烧录需要合适的字体，安装器会在 Linux 上检查并尝试安装 Noto CJK。可选的 [WhisperX 后端](whisperx-manual.zh-CN.md#ffmpeg-runtime)需要另外配置 FFmpeg 共享库。
+之后启动：Windows 双击 `OneKeyStart.bat`；macOS/Linux 运行 `.venv/bin/python -m streamlit run st.py`。Apple Silicon 自动使用 MLX，Intel Mac 自动使用 CPU 识别；可选的人声分离暂不自动安装。
+
+![tutorial](./zh_page.png)
 
 <a id="asr-runtime"></a>
 ### 语音识别（Qwen3-ASR + ForcedAligner）
@@ -148,7 +154,7 @@ VideoLingo 支持 Windows、Linux，以及 macOS 14 或更新版本的 Apple Sil
 | Apple Silicon Mac | MLX（mlx-audio） | `mlx-community/Qwen3-ASR-{1.7B,0.6B}-8bit`、`mlx-community/Qwen3-ForcedAligner-0.6B-8bit` | 需要 **macOS 14 或更高**（mlx 只提供 macOS ≥14 的 arm64 包） |
 | Windows / Linux + NVIDIA | 官方 qwen-asr（transformers） | `Qwen/Qwen3-ASR-{1.7B,0.6B}`、`Qwen/Qwen3-ForcedAligner-0.6B` | `cuda:0`，显卡支持 bf16 时用 bf16，否则 fp16 |
 | Windows / Linux 无 NVIDIA | 同上 | 同上 | CPU fp32，可以运行但**很慢**，建议选 0.6B 或改用 ElevenLabs |
-| Intel Mac | — | — | 仓库固定的 PyTorch 2.8 没有 macOS x86_64 安装包，目前无法安装；安装器会在安装依赖前直接报错退出 |
+| Intel Mac | 官方 qwen-asr（transformers） | `Qwen/Qwen3-ASR-{1.7B,0.6B}`、`Qwen/Qwen3-ForcedAligner-0.6B` | CPU fp32，自动安装 PyTorch 2.2.2；识别较慢，建议选 0.6B。可选的人声分离暂不自动安装 |
 
 - 在 Apple Silicon 上，默认依赖只安装 mlx-audio，不安装 qwen-asr；要用 `qwen_engine: transformers` 需要另建环境。macOS 低于 14 时安装器会直接报错退出。旧环境里如果装过 WhisperX，重跑 `installer.py` 时会先卸载WhisperX 整套依赖（whisperx、torchcodec、faster-whisper、ctranslate2、pyannote-*），它们与 MLX 依赖冲突。
 - **模型下载**：首次识别时从 Hugging Face 下载，1.7B 加对齐模型共数 GB。可用 `HF_ENDPOINT` 指定镜像。如果 `_model_cache/<仓库名末段>/config.json` 存在（例如 `_model_cache/Qwen3-ASR-1.7B`），会直接使用这份本地模型。
@@ -167,37 +173,6 @@ VideoLingo 支持 Windows、Linux，以及 macOS 14 或更新版本的 Apple Sil
 - 默认的 Qwen3-ASR 通过 PyTorch 运行，使用 PyTorch 安装包自带的 CUDA 运行库，不需要另外安装 cuBLAS/cuDNN。自行安装的 WhisperX 需要 CUDA 12 cuBLAS 和 cuDNN 9，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md#cuda-runtime)。
 
 安装器选择的是 Python 包，不会安装系统 CUDA Toolkit。支持 CUDA 13 的新驱动不代表本项目需要 CUDA 13 的 Python 包。
-
-### 使用 uv 安装（手动安装）
-
-uv 创建使用 Python 3.13 的 `.venv`，已有应用环境支持 Python 3.10–3.13。下面的引导命令不需要预装 Python。
-
-1. 克隆项目：
-   ```bash
-   git clone https://github.com/Huanshere/VideoLingo.git
-   cd VideoLingo
-   ```
-
-2. 创建环境并安装依赖：
-   ```bash
-    uv run --no-project --python 3.13 setup_env.py
-   ```
-
-   `setup_env.py` 调用 `installer.py`：先安装基础工具和匹配的 Torch/torchaudio/torchvision，再安装应用依赖（含 Qwen3-ASR：Apple Silicon 为 mlx-audio，其余平台为 qwen-asr）、检查 spaCy、安装可选的 PyPI Demucs 4.1，最后登记项目、检查字体及环境。Demucs 使用正常依赖解析。`--shared` 选择 `~/.venvs/videolingo`，`--path` 可指定其他目录。
-
-3. 🎉 启动 Streamlit 应用：
-   ```bash
-   .venv\Scripts\streamlit run st.py        # Windows
-   .venv/bin/streamlit run st.py            # macOS / Linux
-   ```
-   或在 Windows 上双击 `OneKeyStart.bat`。
-
-4. 打开 `http://localhost:8501`，在侧栏配置兼容 OpenAI 的 API 地址、密钥和模型。`OneKeyStart.bat` 优先使用共享环境，其次使用项目 `.venv`；要明确使用当前项目环境，可执行上面的完整路径命令。
-
-   ![tutorial](./zh_page.png)
-
-5. （可选）更多设置可以在 `config.yaml` 中手动修改。自定义术语请在处理前写入 `custom_terms.xlsx`，三列分别为原文、译文、备注。
-
 
 ## HTTP API
 
@@ -227,4 +202,4 @@ Excel 批处理已由本地 HTTP API 替代，与 Streamlit 共用处理流程�
     .venv\Scripts\python -m spacy download en_core_web_md
    ```
 
-9. **Torch 组件版本不一致**：用所选环境执行 `python installer.py --check`，再执行 `python installer.py` 修复。当前配套为 Torch/torchaudio 2.8.0、torchvision 0.23.0，三者采用同一 CPU/CUDA 构建。当前使用 PyPI Demucs 4.1，不再是需要 `--no-deps` 绕过依赖的旧 Git 包。
+9. **Torch 组件版本不一致**：用所选环境执行 `python installer.py --check`，再执行 `python installer.py` 修复。Intel Mac 使用 Torch/torchaudio 2.2.2、torchvision 0.17.2；其他平台使用 2.8.0、0.23.0。三者需要匹配。当前使用 PyPI Demucs 4.1，不再是需要 `--no-deps` 绕过依赖的旧 Git 包。

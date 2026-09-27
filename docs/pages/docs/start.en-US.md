@@ -120,7 +120,7 @@ After configuration, select `Reference Audio Mode` in the sidebar (see Yuque doc
 
 ## 🛠️ Quick Start
 
-VideoLingo supports Windows, Linux and Apple Silicon Macs running macOS 14 or newer, and can run on CPU or GPU. Intel Macs are not currently supported.
+VideoLingo supports Windows, Linux, Apple Silicon Macs (macOS 14+), and Intel Macs using CPU recognition. Setup uses Python 3.12.
 
 ### Windows: double-click to install 🎉
 
@@ -132,9 +132,15 @@ You do not need to install Git, uv or Python yourself for this Windows path. If 
 
 ### Install from source (Windows, macOS, Linux)
 
-Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
+```bash
+git clone https://github.com/Huanshere/VideoLingo.git
+cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
+```
 
-Subtitle rendering needs suitable fonts; setup checks/installs Noto CJK on Linux. The optional [WhisperX backend](whisperx-manual.en-US.md#ffmpeg-runtime) needs additional FFmpeg shared libraries.
+Later, use `OneKeyStart.bat` on Windows or `.venv/bin/python -m streamlit run st.py` on macOS/Linux. Apple Silicon uses MLX; Intel Macs use CPU recognition; optional vocal separation is not installed automatically there.
+
+![tutorial](./en_page.png)
 
 <a id="asr-runtime"></a>
 ### Speech recognition (Qwen3-ASR + ForcedAligner)
@@ -149,7 +155,7 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 | Apple Silicon Mac | MLX (mlx-audio) | `mlx-community/Qwen3-ASR-{1.7B,0.6B}-8bit`, `mlx-community/Qwen3-ForcedAligner-0.6B-8bit` | Requires **macOS 14 or newer** (mlx only ships macOS ≥14 arm64 wheels) |
 | Windows / Linux + NVIDIA | Official qwen-asr (transformers) | `Qwen/Qwen3-ASR-{1.7B,0.6B}`, `Qwen/Qwen3-ForcedAligner-0.6B` | `cuda:0`, bf16 when the GPU supports it, otherwise fp16 |
 | Windows / Linux without NVIDIA | Same | Same | CPU fp32 works but is **slow**; prefer 0.6B or the ElevenLabs runtime |
-| Intel Mac | — | — | The pinned PyTorch 2.8 has no macOS x86_64 wheels, so installation is currently not possible; the installer stops with an error before installing dependencies |
+| Intel Mac | Official qwen-asr (transformers) | `Qwen/Qwen3-ASR-{1.7B,0.6B}`, `Qwen/Qwen3-ForcedAligner-0.6B` | CPU fp32 with PyTorch 2.2.2 installed automatically; recognition is slow, so prefer 0.6B. Optional vocal separation is not installed automatically |
 
 - On Apple Silicon the default requirements install mlx-audio, not qwen-asr; using `qwen_engine: transformers` there needs a separate environment. Below macOS 14 the installer stops with an error. If an older environment has WhisperX, rerunning `installer.py` first uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*), which conflicts with the MLX dependencies.
 - **Model downloads**: models are downloaded from Hugging Face on first use (several GB for 1.7B plus the aligner). Set `HF_ENDPOINT` to use a mirror. If `_model_cache/<last part of the repo id>/config.json` exists (for example `_model_cache/Qwen3-ASR-1.7B`), that local copy is used.
@@ -168,36 +174,6 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 - The default Qwen3-ASR runs on PyTorch and uses the CUDA runtime bundled with the PyTorch wheels; no separate cuBLAS/cuDNN installation is needed. A manual WhisperX install needs CUDA 12 cuBLAS and cuDNN 9; see [WhisperX (manual install)](whisperx-manual.en-US.md#cuda-runtime).
 
 The installer selects Python wheels; it does not install a system CUDA Toolkit. Newer CUDA 13-capable drivers do not require CUDA 13 Python packages for this project.
-
-### Install with uv (manual setup)
-
-uv provisions Python 3.13 in `.venv`. Existing application environments are supported on Python 3.10–3.13. The bootstrap command below does not require a preinstalled Python.
-
-1. Clone the project:
-   ```bash
-   git clone https://github.com/Huanshere/VideoLingo.git
-   cd VideoLingo
-   ```
-
-2. Create the environment and install dependencies:
-   ```bash
-    uv run --no-project --python 3.13 setup_env.py
-   ```
-
-   `setup_env.py` delegates to `installer.py`: bootstrap packages, matched Torch/torchaudio/torchvision, application requirements (including Qwen3-ASR: mlx-audio on Apple Silicon, qwen-asr elsewhere), spaCy checks, optional PyPI Demucs 4.1, project metadata, fonts and environment checks. Demucs uses normal dependency resolution. Use `--shared` to select `~/.venvs/videolingo`, or `--path` for a custom location.
-
-3. 🎉 Launch Streamlit app:
-   ```bash
-   .venv\Scripts\streamlit run st.py        # Windows
-   .venv/bin/streamlit run st.py            # macOS / Linux
-   ```
-   Or double-click `OneKeyStart.bat` on Windows.
-
-4. Open `http://localhost:8501` and configure your OpenAI-compatible API URL, key and model in the sidebar. `OneKeyStart.bat` prefers the shared venv, then the project's `.venv`; use the explicit environment command above if you want that checkout's local environment.
-
-   ![tutorial](./en_page.png)
-
-5. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation. To use custom terms, add them to `custom_terms.xlsx` before processing, e.g. `Baguette | French bread | Not just any bread!`.
 
 ## HTTP API
 
@@ -227,4 +203,4 @@ The local HTTP API replaces Excel batch mode and shares the Streamlit pipeline. 
     .venv\Scripts\python -m spacy download en_core_web_md
    ```
 
-9. **Torch package versions disagree**: Run the selected environment's `python installer.py --check`, then `python installer.py` to repair. The supported family is Torch/torchaudio 2.8.0 with torchvision 0.23.0, using one matching CPU/CUDA build. Current Demucs is PyPI 4.1, not the older Git package requiring a `--no-deps` workaround.
+9. **Torch package versions disagree**: Run the selected environment's `python installer.py --check`, then `python installer.py` to repair. Intel Macs use Torch/torchaudio 2.2.2 with torchvision 0.17.2; other platforms use 2.8.0 with 0.23.0. Keep the three packages matched. Current Demucs is PyPI 4.1, not the older Git package requiring a `--no-deps` workaround.

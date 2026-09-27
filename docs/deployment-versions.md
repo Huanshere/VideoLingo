@@ -16,24 +16,25 @@ or commit timestamps alone, determine the effective dependency versions.
 | #599 | New uv environments use Python 3.13; existing environments supported on 3.10–3.13. Torch/torchaudio 2.8.0, torchvision 0.23.0, WhisperX >=3.8.6,<3.9, TorchCodec >=0.7,<0.8, Transformers <5, Hub <1. Normal PyPI Demucs >=4.1,<5 replaces Git/--no-deps. CUDA selection becomes cu128/cu126, CPU index explicit. Removes MoviePy, Replicate, direct resampy and duplicate Lightning pins. |
 | #602/#610/#611 | Runtime/cache/logging and audio-processing changes; no replacement of the #599 dependency family. Audio sample rates and bitrates are media settings, not CUDA dependency versions. |
 | BUILDER-305 (unreleased) | Default local ASR becomes Qwen3-ASR + Qwen3-ForcedAligner. Removes whisperx, pyannote-audio, ctranslate2 and torchcodec from `requirements.txt` and the installer's WhisperX stage (installer now has 6 stages). Adds marker-split engines: `qwen-asr==0.0.6` with Transformers 4.57/Hub <1 outside Apple Silicon; `mlx-audio>=0.5.5,<0.6` with Transformers 5/Hub 1 plus nagisa/soynlp on Apple Silicon (macOS ≥14). Torch 2.8 family unchanged. WhisperX is not an installer option; install it yourself from `docs/pages/docs/whisperx-manual.*.md`. On Apple Silicon the installer removes the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) (hub <1 conflict) unless another installed package still needs one, and does not install WhisperX again. It re-registers stale project metadata before syncing so pip reports no conflict against the old requirements. The installer stops early on Intel Macs and on Apple Silicon below macOS 14. |
+| #624 (pending) | Setup uses Python 3.12. Intel Macs use qwen-asr on CPU with Torch/torchaudio 2.2.2, torchvision 0.17.2, NumPy 1.26 and Numba <0.63; optional Demucs is skipped because sphn has no Intel macOS wheel. Apple Silicon still uses MLX on macOS 14+. Windows/Linux retain Torch 2.8. |
 
 Full current application bounds are in `requirements.txt`; optional Demucs is in
 `installer.py`. Do not copy an older PR's intermediate version list into setup.
 
 ## Deployment alignment
 
-- Host uv setup: `setup_env.py` creates Python 3.13 and delegates to `installer.py`.
+- Host uv setup: `setup_env.py` creates Python 3.12 and delegates to `installer.py`.
   Auto selection uses the driver's `nvidia-smi` CUDA capability: >=12.8 selects
   cu128, otherwise cu126 when NVIDIA is detected. An unparseable capability also
   falls back to cu126; this fallback is not a compatibility guarantee. No NVIDIA
   selects CPU. Existing compatible builds can be reused without replacement.
-- Docker: CUDA 12.8.1/cuDNN runtime on Ubuntu 24.04, Python 3.13 through the same
+- Docker: CUDA 12.8.1/cuDNN runtime on Ubuntu 24.04, Python 3.12 through the same
   setup script, explicit cu128. `CUDA_VERSION=12.6.3` selects the matching cu126
   variant. Explicit selection is necessary because image builds normally cannot
   see the runtime GPU. Host driver and NVIDIA Container Toolkit remain external.
   Source comes from the build context, not a fresh upstream clone. Build performs
   the common installer check and pip check; no model is downloaded at build time.
-- Colab: application runs from its own Python 3.13 venv and the same installer.
+- Colab: application runs from its own Python 3.12 venv and the same installer.
   Colab's kernel Python remains platform-managed; pyngrok runs there. The install
   cell does not launch Streamlit, and the final cell uses the application venv.
   Embedded output logs predate this change and are explicitly labeled historical.

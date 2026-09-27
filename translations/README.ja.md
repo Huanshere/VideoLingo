@@ -79,7 +79,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## インストール
 
-VideoLingo は Windows、Linux、および macOS 14 以降の Apple Silicon Mac に対応しています。Intel Mac には現在対応していません。
+VideoLingo は Windows、Linux、macOS 14 以降の Apple Silicon Mac、および CPU で音声認識を行う Intel Mac に対応しています。セットアップには Python 3.12 を使用します。
 
 ### Windows：ワンクリックでインストール 🎉
 
@@ -92,37 +92,17 @@ VideoLingo は Windows、Linux、および macOS 14 以降の Apple Silicon Mac 
 
 ### ソースコードからインストール（Windows・macOS・Linux）
 
-先に [Git](https://git-scm.com/downloads) と [uv](https://docs.astral.sh/uv/getting-started/installation/) をインストールし、ターミナルを開き直して `git --version` と `uv --version` を確認してください。
-
-NVIDIA GPU を使う場合は、対応するドライバーを先にインストールしてください。Apple Silicon Mac には macOS 14 以降が必要です。詳しくは [GPU 要件](../docs/pages/docs/start.en-US.md#gpu-runtime)をご覧ください。
-
-uv が Python とアプリの環境を準備するため、Python の事前インストールは不要です。
-
-1. リポジトリをクローン
-
 ```bash
 git clone https://github.com/Huanshere/VideoLingo.git
 cd VideoLingo
+uv run --no-project --python 3.12 setup_env.py --yes --launch
 ```
 
-2. 環境を作成して依存関係をインストール
-
-```bash
-uv run --no-project --python 3.13 setup_env.py
-```
-
-3. アプリケーションの起動
-
-```bash
-.venv\Scripts\streamlit run st.py        # Windows
-.venv/bin/streamlit run st.py            # macOS / Linux
-```
-
-`http://localhost:8501` を開き、サイドバーで API URL、キー、モデルを設定してください。
+次回からは Windows で `OneKeyStart.bat`、macOS/Linux で `.venv/bin/python -m streamlit run st.py` を使用します。Apple Silicon は MLX、Intel Mac は CPU で音声認識を行います。オプションのボーカル分離は自動インストールされません。
 
 #### Docker（オプション）
 
-Linux の NVIDIA コンテナーには Docker、互換ドライバー、[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) が必要です。イメージは同じ Python 3.13 セットアップとアプリ依存関係を使用し、既定は CUDA 12.8.1/cu128 です。CUDA 12.6 の組み合わせとデータ永続化は [Docker ドキュメント](/docs/pages/docs/docker.en-US.md)を参照してください。
+Linux の NVIDIA コンテナーには Docker、互換ドライバー、[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) が必要です。イメージは同じ Python 3.12 セットアップとアプリ依存関係を使用し、既定は CUDA 12.8.1/cu128 です。CUDA 12.6 の組み合わせとデータ永続化は [Docker ドキュメント](/docs/pages/docs/docker.en-US.md)を参照してください。
 
 ```bash
 docker build -t videolingo .

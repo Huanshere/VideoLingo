@@ -18,7 +18,7 @@ outputs and private notes, but does not sanitize a modified configuration file.
 docker build -t videolingo .
 ```
 
-Default: `nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04`, Python 3.13 and PyTorch
+Default: `nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04`, Python 3.12 and PyTorch
 cu128. For the matched CUDA 12.6 variant:
 
 ```bash
