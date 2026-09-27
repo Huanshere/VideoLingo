@@ -66,6 +66,8 @@ class AdvancedSyllableEstimator:
         return max(1, total)
 
     def _detect_language(self, text: str) -> str:
+        # Kana first: the kanji of Japanese text are in the range of Chinese
+        if re.search(self.lang_patterns['ja'], text): return 'ja'
         for lang, pattern in self.lang_patterns.items():
             if re.search(pattern, text): return lang
         return 'en'

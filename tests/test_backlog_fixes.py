@@ -1737,3 +1737,19 @@ def test_dubbing_stops_when_the_service_refuses(monkeypatch, tmp_path):
         tts_main.tts_main("Hello there", str(audio), 1, None)
 
     assert not audio.exists()
+
+
+# ------------------------------------------------------------------
+# Dubbing: the duration of Japanese text, hyphens inside words
+# ------------------------------------------------------------------
+
+def test_japanese_text_is_not_estimated_as_chinese():
+    from core.tts_backend.estimate_duration import init_estimator, estimate_duration
+
+    estimator = init_estimator()
+    # 3 kanji and 17 kana: as Chinese, the kana were left out and the estimate was 1.9 s for 4.9 s
+    japanese = estimate_duration("皆さん、こんにちは 新しいエピソードの始まりです", estimator)
+    chinese = estimate_duration("大家好，欢迎收看新的一期", estimator)
+
+    assert 4 < japanese < 5.5
+    assert chinese == pytest.approx(11 * 0.21 + 0.1)
