@@ -26,7 +26,7 @@ _AUDIO_SEGS_DIR = "output/audio/segs"
 _AUDIO_TMP_DIR = "output/audio/tmp"
 
 # ------------------------------------------
-# Done markers (written by st.py task runner after a stage finishes
+# Done markers (written by the shared pipeline after a stage finishes
 # cleanly; absence implies the stage did not complete).
 # ------------------------------------------
 _TEXT_DONE_MARKER = "output/.subtitle_done"

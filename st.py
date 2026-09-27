@@ -12,8 +12,11 @@ _configure_utf8_console()
 
 import streamlit as st
 from core.st_utils.imports_and_utils import *
-from core.st_utils.task_runner import TaskRunner
-from core import *
+from core.task_runner import TaskRunner
+from core.pipeline import get_steps
+from core.utils import load_key, update_key
+from core.utils.onekeycleanup import cleanup
+from core.utils.delete_retry_dubbing import delete_dubbing_files
 from translations.translations import DISPLAY_LANGUAGES, init_display_language, set_display_language
 from core.utils.models import _TEXT_DONE_MARKER, _AUDIO_DONE_MARKER
 
@@ -34,14 +37,14 @@ DUB_VIDEO = "output/output_dub.mp4"
 @st.fragment(run_every=1)
 def _task_control_panel(runner_key: str):
     """Renders progress bar + pause/stop buttons. Auto-refreshes every 1s."""
-    runner = TaskRunner.get(st.session_state, runner_key)
+    runner = _get_runner(runner_key)
 
     if runner.state == "idle":
         return
 
     # Progress
     step_text = (
-        f"({runner.current_step + 1}/{runner.total_steps}) {runner.current_label}"
+        f"({runner.current_step + 1}/{runner.total_steps}) {t(runner.current_label)}"
         if runner.current_step >= 0
         else ""
     )
@@ -52,6 +55,10 @@ def _task_control_panel(runner_key: str):
         else:
             st.info(f"⏳ {t('Running...')} {step_text}")
         st.progress(runner.progress)
+
+        if runner.state == "stopping":
+            st.info(t("Stopping..."))
+            return
 
         # Control buttons
         col1, col2 = st.columns(2)
@@ -105,10 +112,10 @@ def _task_control_panel(runner_key: str):
 # ─── Text processing ───
 
 
-def _touch(path):
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        f.write("")
+def _get_runner(key):
+    if key not in st.session_state:
+        st.session_state[key] = TaskRunner()
+    return st.session_state[key]
 
 
 def _clear_path(path):
@@ -117,40 +124,6 @@ def _clear_path(path):
             os.remove(path)
         except OSError:
             pass
-
-
-def _get_text_steps():
-    """Return the subtitle processing steps as (label, callable) list."""
-    steps = [
-        (t("Word-level transcription and alignment"), _2_asr.transcribe),
-        (
-            t("Sentence segmentation using NLP and LLM"),
-            lambda: (
-                _3_1_split_nlp.split_by_spacy(),
-                _3_2_split_meaning.split_sentences_by_meaning(),
-            ),
-        ),
-        (
-            t("Summarization and multi-step translation"),
-            lambda: (_4_1_summarize.get_summary(), _4_2_translate.translate_all()),
-        ),
-        (
-            t("Cutting and aligning long subtitles"),
-            lambda: (
-                _5_split_sub.split_for_sub_main(),
-                _6_gen_sub.align_timestamp_main(),
-            ),
-        ),
-        (
-            t("Merging subtitles into the video"),
-            _7_sub_into_vid.merge_subtitles_to_video,
-        ),
-        (
-            t("Finalize subtitle outputs"),
-            lambda: _touch(_TEXT_DONE_MARKER),
-        ),
-    ]
-    return steps
 
 
 def _subtitle_length_controls():
@@ -223,7 +196,7 @@ def _subtitle_length_controls():
 
 def text_processing_section():
     st.header(t("b. Translate and Generate Subtitles"))
-    runner = TaskRunner.get(st.session_state, "_text_runner")
+    runner = _get_runner("_text_runner")
     from core._1_ytdlp import is_audio_only_input
     audio_only = is_audio_only_input()
 
@@ -249,7 +222,7 @@ def text_processing_section():
             and (audio_only or os.path.exists(SUB_VIDEO))
         )
 
-        if not text_done:
+        if runner.is_active or runner.is_done or not text_done:
             if runner.is_active:
                 _task_control_panel("_text_runner")
             elif runner.is_done:
@@ -259,8 +232,7 @@ def text_processing_section():
                 if st.button(
                     t("Start Processing Subtitles"), key="text_processing_button"
                 ):
-                    _clear_path(_TEXT_DONE_MARKER)
-                    steps = _get_text_steps()
+                    steps = get_steps("subtitles")
                     runner.start(steps)
                     st.rerun()
         else:
@@ -277,33 +249,11 @@ def text_processing_section():
 # ─── Audio processing ───
 
 
-def _get_audio_steps():
-    """Return the audio/dubbing processing steps as (label, callable) list."""
-    steps = [
-        (
-            t("Generate audio tasks and chunks"),
-            lambda: (
-                _8_1_audio_task.gen_audio_task_main(),
-                _8_2_dub_chunks.gen_dub_chunks(),
-            ),
-        ),
-        (t("Extract reference audio"), _9_refer_audio.extract_refer_audio_main),
-        (t("Generate and merge audio files"), _10_gen_audio.gen_audio),
-        (t("Merge full audio"), _11_merge_audio.merge_full_audio),
-        (t("Merge final audio into video"), _12_dub_to_vid.merge_video_audio),
-        (
-            t("Finalize dubbing outputs"),
-            lambda: _touch(_AUDIO_DONE_MARKER),
-        ),
-    ]
-    return steps
-
-
 def audio_processing_section():
     from core._1_ytdlp import is_audio_only_input
     audio_only = is_audio_only_input()
     st.header(t("c. Dubbing"))
-    runner = TaskRunner.get(st.session_state, "_audio_runner")
+    runner = _get_runner("_audio_runner")
 
     with st.container(border=True):
         st.markdown(
@@ -324,7 +274,7 @@ def audio_processing_section():
             os.path.exists("output/dub.mp3")
             and (audio_only or os.path.exists(DUB_VIDEO))
         )
-        if not audio_done:
+        if runner.is_active or runner.is_done or not audio_done:
             if runner.is_active:
                 _task_control_panel("_audio_runner")
             elif runner.is_done:
@@ -333,8 +283,7 @@ def audio_processing_section():
                 if st.button(
                     t("Start Audio Processing"), key="audio_processing_button"
                 ):
-                    _clear_path(_AUDIO_DONE_MARKER)
-                    steps = _get_audio_steps()
+                    steps = get_steps("dubbing")
                     runner.start(steps)
                     st.rerun()
         else:

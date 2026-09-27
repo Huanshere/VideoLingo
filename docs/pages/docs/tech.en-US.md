@@ -1,8 +1,8 @@
 ## Videolingo Video Translation System Technical Documentation
 
-Videolingo is a highly integrated video translation system capable of automatically executing a series of complex operations, including video downloading, audio extraction, speech recognition, text processing, translation, subtitle generation, text-to-speech synthesis, and audio-video synthesis. The system leverages AI technologies (ASR, NLP, LLMs, TTS) and provides both a command-line interface for batch processing and an interactive web interface using Streamlit for task management and system configuration.
+Videolingo is a highly integrated video translation system capable of automatically executing a series of complex operations, including video downloading, audio extraction, speech recognition, text processing, translation, subtitle generation, text-to-speech synthesis, and audio-video synthesis. The system leverages AI technologies (ASR, NLP, LLMs, TTS) and provides both a local HTTP API for serial automation and an interactive web interface using Streamlit for task management and system configuration.
 
-The project has undergone significant refactoring, resulting in a more modular and robust architecture. Core functionalities are now organized into distinct packages and modules, primarily located within the `core` directory and its subdirectories (`asr_backend`, `spacy_utils`, `st_utils`, `tts_backend`, `utils`), as well as a dedicated `batch` directory for batch processing utilities, and a `translations` directory for internationalization.
+The project has undergone significant refactoring, resulting in a more modular and robust architecture. Core functionalities are now organized into distinct packages and modules, primarily located within the `core` directory and its subdirectories (`asr_backend`, `spacy_utils`, `st_utils`, `tts_backend`, `utils`), alongside `api.py` for HTTP automation and a `translations` directory for internationalization.
 
 For developers, many components within the `core` directory – especially files named with the `_X_*.py` numbering scheme – represent distinct steps in the processing pipeline and can be executed individually for debugging purposes. Intermediate and final outputs are typically stored in the `output` directory, with mechanisms for cleanup and archival to the `history` directory.
 
@@ -81,11 +81,11 @@ The following outlines the core technical modules and workflows:
 *   `core/__init__.py`, `core/asr_backend/__init__.py`, `core/spacy_utils/__init__.py`, `core/st_utils/__init__.py`, `core/tts_backend/__init__.py`: Package initialization files, defining the public interfaces (`__all__`) for their respective packages/subpackages.
 *   `core/__init__.py`: Initializes the main `core` package, exporting key functions and modules from subpackages for easier access.
 
-**8. Batch Processing Module (`batch`):**
+**8. Shared pipeline and HTTP API:**
 
-*   `batch/utils/settings_check.py`: Validates the settings defined in `batch/tasks_setting.xlsx` against the video files in `batch/input`, checking for file existence, valid URLs, and correct configuration values (e.g., dubbing flags). Uses `rich` for output.
-*   `batch/utils/video_processor.py`: Defines the `process_video` function, which orchestrates the processing pipeline for *a single* video in a batch job. Handles input (URL or local file), calls the core processing steps (transcription, translation, subtitling, optional dubbing), manages retries, handles output folders, and invokes `cleanup`.
-*   `batch/utils/batch_processor.py`: The main coordinator for batch processing. Reads tasks from `batch/tasks_setting.xlsx` (using `pandas`), iterates through the tasks, validates settings (`settings_check.py`), manages language configuration changes, calls `video_processor.py` for each video, handles errors and retries (including recovering files from the ERROR folder), and updates the status in the Excel file. Uses `rich` for console output.
+* `core/pipeline.py`: One subtitle/dubbing plan shared by Streamlit and the API.
+* `core/task_runner.py`: Sequential background execution, progress, pause and cooperative stop.
+* `api.py`: Local HTTP input, run, status, stop, file and archive endpoints. Uses the existing `config.yaml`, `output/` and `history/`; replaces Excel batch processing.
 
 **9. Streamlit Interface Module (`core/st_utils`, `st.py`):**
 
@@ -98,4 +98,4 @@ The following outlines the core technical modules and workflows:
 
 *   `translations/translations.py`: Implements UI translation functionality. Defines supported display languages, loads translated strings from JSON files based on the selected language (`load_key("display_language")`), and provides a `translate(key)` function to retrieve translated text, falling back to the original key if a translation is missing.
 
-Videolingo automates the complete process from video acquisition to the final generation of videos with translated subtitles and dubbing.  The enhanced modular design allows each step to be more easily run and debugged, provides greater flexibility through multiple backend options (ASR, TTS), and offers improved configuration management and user interfaces for both interactive and batch processing workflows.
+Videolingo automates the complete process from video acquisition to the final generation of videos with translated subtitles and dubbing.  The enhanced modular design allows each step to be more easily run and debugged, provides greater flexibility through multiple backend options (ASR, TTS), and offers improved configuration management and user interfaces for both interactive and API workflows.

@@ -193,11 +193,9 @@ uv provisions Python 3.13 in `.venv`. Existing application environments are supp
 
 > Need help? Our [AI Assistant](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) is here to guide you through any issues!
 
-## 🏭 Batch Mode (beta)
+## HTTP API
 
-Document: [English](/batch/README.md) | [Chinese](/batch/README.zh.md)
-
-Note: This section is still in early development and may have limited functionality
+The local HTTP API replaces Excel batch mode and shares the Streamlit pipeline. See the [API guide](https://github.com/Huanshere/VideoLingo/blob/main/docs/api.md).
 
 ## 🚨 Common Errors & Pitfalls
 

@@ -11,13 +11,9 @@ except ImportError:
 def check_cancel():
     """Cooperative cancellation hook for long-running core loops.
 
-    Imports lazily to avoid coupling core scripts to the Streamlit-side
-    TaskRunner. Becomes a no-op when no runner is active (CLI usage).
+    Uses the shared runner when a pipeline is active; otherwise a no-op.
     """
-    try:
-        from core.st_utils.task_runner import TaskRunner
-    except Exception:
-        return
+    from core.task_runner import TaskRunner
     TaskRunner.check_cancel()
 
 

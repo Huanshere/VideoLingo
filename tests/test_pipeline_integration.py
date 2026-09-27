@@ -41,11 +41,10 @@ def configured_workdir(tmp_path, monkeypatch):
 
 def test_video_translation_and_dubbing(configured_workdir):
     subprocess.run(['ffmpeg','-v','error','-f','lavfi','-i','color=c=blue:s=640x360:r=25','-i',os.environ['VIDEOLINGO_TEST_AUDIO'],'-shortest','-c:v','libx264','-c:a','aac','output/sample.mp4'],check=True)
-    from core import _2_asr, _3_1_split_nlp, _3_2_split_meaning, _4_1_summarize, _4_2_translate, _5_split_sub, _6_gen_sub, _7_sub_into_vid, _8_1_audio_task, _8_2_dub_chunks, _9_refer_audio, _10_gen_audio, _11_merge_audio, _12_dub_to_vid
-    steps = [_2_asr.transcribe, _3_1_split_nlp.split_by_spacy, _3_2_split_meaning.split_sentences_by_meaning, _4_1_summarize.get_summary, _4_2_translate.translate_all, _5_split_sub.split_for_sub_main, _6_gen_sub.align_timestamp_main, _7_sub_into_vid.merge_subtitles_to_video, _8_1_audio_task.gen_audio_task_main, _8_2_dub_chunks.gen_dub_chunks, _9_refer_audio.extract_refer_audio_main, _10_gen_audio.gen_audio, _11_merge_audio.merge_full_audio, _12_dub_to_vid.merge_video_audio]
-    from core.st_utils.task_runner import TaskRunner
+    from core.pipeline import get_steps
+    from core.task_runner import TaskRunner
     runner = TaskRunner()
-    runner.start([(func.__name__,func) for func in steps])
+    runner.start(get_steps("all", dubbing=True))
     runner._thread.join(timeout=1200)
     assert not runner._thread.is_alive(), 'Pipeline timed out'
     assert runner.state == 'completed', runner.error_msg
@@ -59,9 +58,8 @@ def test_audio_only_translation(configured_workdir):
     shutil.copyfile(os.environ['VIDEOLINGO_TEST_AUDIO'], 'output/sample.wav')
     from core.utils import update_key
     update_key('demucs', False)
-    from core import _2_asr, _3_1_split_nlp, _3_2_split_meaning, _4_1_summarize, _4_2_translate, _5_split_sub, _6_gen_sub, _7_sub_into_vid
-    steps = [_2_asr.transcribe, _3_1_split_nlp.split_by_spacy, _3_2_split_meaning.split_sentences_by_meaning, _4_1_summarize.get_summary, _4_2_translate.translate_all, _5_split_sub.split_for_sub_main, _6_gen_sub.align_timestamp_main, _7_sub_into_vid.merge_subtitles_to_video]
-    for step in steps:
+    from core.pipeline import get_steps
+    for _, step in get_steps("subtitles"):
         step()
     assert Path('output/src.srt').stat().st_size > 0
     assert any('\u4e00' <= c <= '\u9fff' for c in Path('output/trans.srt').read_text(encoding='utf-8'))

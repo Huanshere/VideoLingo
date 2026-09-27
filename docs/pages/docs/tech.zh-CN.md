@@ -1,8 +1,8 @@
 ## Videolingo 视频翻译系统技术文档
 
-Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系列复杂的操作，包括视频下载、音频提取、语音识别、文本处理、翻译、字幕生成、文本到语音合成以及音视频合成。该系统利用 AI 技术（ASR、NLP、LLMs、TTS），并提供用于批量处理的命令行界面和使用 Streamlit 的交互式 Web 界面，用于任务管理和系统配置。
+Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系列复杂的操作，包括视频下载、音频提取、语音识别、文本处理、翻译、字幕生成、文本到语音合成以及音视频合成。该系统利用 AI 技术（ASR、NLP、LLMs、TTS），并提供用于串行自动化的本地 HTTP API和使用 Streamlit 的交互式 Web 界面，用于任务管理和系统配置。
 
-该项目已经过重大重构，形成了一个更加模块化和健壮的结构。核心功能现在组织成不同的包和模块，主要位于 `core` 目录及其子目录（`asr_backend`、`spacy_utils`、`st_utils`、`tts_backend`、`utils`）中，以及一个专门的 `batch` 目录用于批量处理实用程序，以及一个 `translations` 目录用于国际化。
+该项目已经过重大重构，形成了一个更加模块化和健壮的结构。核心功能现在组织成不同的包和模块，主要位于 `core` 目录及其子目录（`asr_backend`、`spacy_utils`、`st_utils`、`tts_backend`、`utils`）中，以及用于 HTTP 自动化的 `api.py` 和用于国际化的 `translations` 目录。
 
 对于开发人员来说，`core` 目录中的许多组件（尤其是编号为 `_X_*.py` 的文件）代表处理管道中的不同步骤，并且可以单独执行以进行调试。中间输出和最终输出通常存储在 `output` 目录中，并具有清理和归档到 `history` 目录的机制。
 
@@ -81,11 +81,11 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系
 *   `core/__init__.py`, `core/asr_backend/__init__.py`, `core/spacy_utils/__init__.py`, `core/st_utils/__init__.py`, `core/tts_backend/__init__.py`: 包初始化文件，定义其各自包/子包的公共接口 (`__all__`)。
 *   `core/__init__.py`: 初始化主 `core` 包，从子包导出关键函数和模块，以便更轻松地访问。
 
-**8. 批量处理模块 (`batch`):**
+**8. 共用流程和 HTTP API：**
 
-*   `batch/utils/settings_check.py`: 根据 `batch/input` 中的视频文件验证 `batch/tasks_setting.xlsx` 中定义的设置，检查文件是否存在、有效的 URL 和正确的配置值（例如，配音标志）。使用 `rich` 进行输出。
-*   `batch/utils/video_processor.py`: 定义 `process_video` 函数，该函数编排批处理作业中*单个*视频的处理管道。 处理输入（URL 或本地文件），调用核心处理步骤（转录、翻译、字幕、可选配音），并进行重试，管理输出文件夹，并调用 `cleanup`。
-*   `batch/utils/batch_processor.py`: 批量处理的主协调器。从 `batch/tasks_setting.xlsx` 读取任务（使用 `pandas`），迭代任务，验证设置 (`settings_check.py`)，管理语言配置更改，为每个视频调用 `video_processor.py`，处理错误并重试（包括从 ERROR 文件夹恢复文件），并更新 Excel 文件中的状态。 使用 `rich` 进行控制台输出。
+* `core/pipeline.py`：Streamlit 与 API 共用的字幕和配音步骤。
+* `core/task_runner.py`：串行后台执行、进度、暂停与协作式停止。
+* `api.py`：提供输入、运行、状态、停止、文件和归档接口。保留 `config.yaml`、`output/` 和 `history/`，替代 Excel 批处理。
 
 **9. Streamlit 界面模块 (`core/st_utils`, `st.py`):**
 

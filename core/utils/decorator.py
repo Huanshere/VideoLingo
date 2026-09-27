@@ -1,3 +1,5 @@
+from core.task_runner import StopTask
+
 import functools
 import time
 import os
@@ -15,6 +17,8 @@ def except_handler(error_msg, retry=0, delay=1, default_return=None):
             for i in range(retry + 1):
                 try:
                     return func(*args, **kwargs)
+                except StopTask:
+                    raise
                 except Exception as e:
                     last_exception = e
                     rprint(f"[red]{error_msg}: {e}, retry: {i+1}/{retry}[/red]")

@@ -95,7 +95,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 - 自行选择兼容 OpenAI Chat Completions、能返回结构化 JSON 的服务和模型，在侧栏配置 API 地址、密钥和模型。
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
-详细的安装、 API 配置、汉化、批量说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
+详细的安装、 LLM 配置和使用说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)
 
 ## 当前限制
 1. 转录和词级时间轴可能受到视频背景声影响。对于背景音乐较大的视频，请开启人声分离增强：Qwen3-ASR 仍对原始音频转写，ForcedAligner 用分离出的人声对齐。对齐后的词会按启发式规则贴回标点，少数情况下个别词可能丢失标点。

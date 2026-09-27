@@ -130,7 +130,9 @@ VideoLingo supports OpenAI-Like API format and various TTS interfaces:
 - Speech recognition: run Qwen3-ASR + ForcedAligner locally (default), or the ElevenLabs API. WhisperX is not installed by the installer; to use it as a backend, follow [WhisperX (manual install)](docs/pages/docs/whisperx-manual.en-US.md).
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS and a custom adapter in `core/tts_backend/custom_tts.py`.
 
-For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
+For agent / HTTP automation, see the [local API guide](docs/api.md). It replaces Excel batch mode and shares the Streamlit pipeline.
+
+For detailed installation, LLM configuration, and usage instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Current Limitations
 

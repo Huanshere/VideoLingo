@@ -193,11 +193,9 @@ uv 创建使用 Python 3.13 的 `.venv`，已有应用环境支持 Python 3.10�
 > 需要帮助？我们的 [AI助手](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) 随时解答问题！
 
 
-## 🏭 批量模式（beta）
+## HTTP API
 
-使用说明: [English](/batch/README.md) | [简体中文](/batch/README.zh.md)
-
-这个模式仍处于早期开发阶段，可能有潜在的错误。
+Excel 批处理已由本地 HTTP API 替代，与 Streamlit 共用处理流程。参见 [API 使用说明](https://github.com/Huanshere/VideoLingo/blob/main/docs/api.md)。
 
 ## 🚨 常见报错与踩坑
 

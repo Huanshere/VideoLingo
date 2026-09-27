@@ -1,20 +1,11 @@
-"""
-Background task runner for Streamlit with pause/resume/stop control.
-
-Usage:
-    runner = TaskRunner.get(st.session_state)
-    runner.start(steps)  # list of (label, callable) tuples
-    runner.pause() / runner.resume() / runner.stop()
-    runner.state  # "idle" | "running" | "paused" | "stopped" | "completed" | "error"
-"""
+"""Single-process sequential runner shared by Streamlit and the local API."""
 
 from __future__ import annotations
 
 import threading
-import time
 import traceback
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, ClassVar
 
 
 class StopTask(Exception):
@@ -28,7 +19,7 @@ class TaskRunner:
     """Manages a background thread that executes a sequence of steps with pause/stop control."""
 
     # Public read-only state
-    state: str = "idle"  # idle | running | paused | stopped | completed | error
+    state: str = "idle"  # idle | running | paused | stopping | stopped | completed | error
     current_step: int = -1  # 0-indexed, -1 = not started
     total_steps: int = 0
     current_label: str = ""
@@ -44,7 +35,7 @@ class TaskRunner:
     # core functions can call ``TaskRunner.check_cancel()`` without needing a
     # direct reference. The pointer is only meaningful inside the background
     # thread that ``start()`` launches.
-    _current: "TaskRunner | None" = None
+    _current: ClassVar["TaskRunner | None"] = None
 
     def __post_init__(self):
         self._pause_event.set()  # not paused initially
@@ -66,14 +57,6 @@ class TaskRunner:
         if runner._stop_event.is_set():
             raise StopTask()
 
-    # ------ Singleton per session_state ------
-    @staticmethod
-    def get(session_state, key: str = "_task_runner") -> "TaskRunner":
-        """Get or create a TaskRunner stored in Streamlit session_state."""
-        if key not in session_state:
-            session_state[key] = TaskRunner()
-        return session_state[key]
-
     # ------ Control API ------
 
     def start(self, steps: list[tuple[str, Callable]]):
@@ -82,8 +65,8 @@ class TaskRunner:
         Args:
             steps: list of (label, callable) — each callable takes no args.
         """
-        if self.state == "running" or self.state == "paused":
-            return  # already running
+        if self.is_active:
+            raise RuntimeError("A task is already active")
 
         self._steps = steps
         self.total_steps = len(steps)
@@ -111,13 +94,13 @@ class TaskRunner:
     def stop(self):
         """Request stop. The task will halt before the next step."""
         if self.state in ("running", "paused"):
+            self.state = "stopping"
             self._stop_event.set()
             self._pause_event.set()  # unblock if paused so thread can exit
-            self.state = "stopped"
 
     def reset(self):
         """Reset to idle state (only when not running)."""
-        if self.state not in ("running", "paused"):
+        if not self.is_active:
             self.state = "idle"
             self.current_step = -1
             self.total_steps = 0
@@ -127,7 +110,7 @@ class TaskRunner:
 
     @property
     def is_active(self) -> bool:
-        return self.state in ("running", "paused")
+        return self.state in ("running", "paused", "stopping") or bool(self._thread and self._thread.is_alive())
 
     @property
     def is_done(self) -> bool:
@@ -138,7 +121,7 @@ class TaskRunner:
         """0.0 to 1.0"""
         if self.total_steps == 0:
             return 0.0
-        return min((self.current_step + 1) / self.total_steps, 1.0)
+        return 1.0 if self.state == "completed" else max(self.current_step, 0) / self.total_steps
 
     # ------ Internal ------
 
@@ -163,6 +146,7 @@ class TaskRunner:
                 self.current_step = i
                 self.current_label = label
                 func()
+                self.check_cancel()
 
             self.state = "completed"
         except StopTask:
