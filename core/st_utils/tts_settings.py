@@ -64,10 +64,13 @@ def select_tts_method(labels):
         st.warning(t("The dubbing method of your configuration is not available any more. Select another one."))
         return None
     methods = PROVIDERS[chosen]
-    # After a provider switch the old method is not in the list: take the provider's first one
-    selected = st.selectbox(t("TTS Method"), methods,
-                            index=methods.index(current) if current in methods else 0,
-                            format_func=lambda method: labels[method])
+    if len(methods) == 1:  # nothing to choose: no box
+        selected = methods[0]
+    else:
+        # After a provider switch the old method is not in the list: take the provider's first one
+        selected = st.selectbox(t("TTS Method"), methods,
+                                index=methods.index(current) if current in methods else 0,
+                                format_func=lambda method: labels[method])
     if selected is None:
         return None
     if selected != current:

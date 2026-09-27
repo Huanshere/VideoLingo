@@ -218,3 +218,24 @@ def test_settings_are_saved_into_a_config_without_the_section(monkeypatch, tmp_p
 
     assert config_utils.load_key("fish_audio") == {"api_key": "abc", "mode": "preset", "voice_id": "123"}
     assert "# kept" in config.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("method,boxes", [("fish_audio", ["TTS Provider"]),
+                                          ("sf_fish_tts", ["TTS Provider", "TTS Method"])])
+def test_provider_with_one_method_has_no_method_box(monkeypatch, method, boxes):
+    from streamlit.testing.v1 import AppTest
+    from core.utils import config_utils
+    from translations import translations
+
+    monkeypatch.setattr(config_utils, "load_key", lambda key: method)
+    monkeypatch.setattr(config_utils, "load_key_or", lambda key, default: default)
+    monkeypatch.setattr(translations, "translate", lambda text: text)
+
+    def page():
+        from core.st_utils.tts_settings import PROVIDERS, select_tts_method
+        select_tts_method({name: name for methods in PROVIDERS.values() for name in methods})
+
+    app = AppTest.from_function(page, default_timeout=30).run()
+
+    assert not app.exception
+    assert [box.label for box in app.selectbox] == boxes
