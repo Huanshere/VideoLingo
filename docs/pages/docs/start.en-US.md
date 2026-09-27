@@ -26,14 +26,13 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | TTS Solution | Provider | Pros | Cons | Chinese Effect | Non-Chinese Effect |
 |:---------|:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | [OpenLux](https://www.openlux.ai/register?aff=wKYu) | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
-| 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Authentic native | Limited official models | 🤩 | 😂 |
 | 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
 | Edge TTS | Online service | No separate API key in this adapter | Requires network access | — | — |
 | 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
 - For OpenAI TTS, use [OpenLux](https://www.openlux.ai/register?aff=wKYu) with the same key as for the LLM. Another service with the speech endpoint of OpenAI works with `openai_tts.base_url` and `openai_tts.model` in `config.yaml`;
-- For Fish TTS and F5-TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to both services
+- For F5-TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9). It clones the voice of the video;
 > For a custom TTS adapter, edit `core/tts_backend/custom_tts.py`.
 
 <details>
@@ -60,12 +59,6 @@ Edge TTS is the default and needs no API key. Run `edge-tts --list-voices` to li
 
 </details>
 
-<details>
-<summary>How to choose Fish TTS voices?</summary>
-
-Go to the [official website](https://fish.audio/en/) to listen and choose voices. Find the voice code in the URL, e.g. Dingzhen is `54a5170264694bfc8e9ad98df7bd89c3`. Popular voices are already added in `config.yaml`. To use other voices, modify the `fish_tts.character_id_dict` dictionary in `config.yaml`.
-
-</details>
 
 <details>
 <summary>GPT-SoVITS-v2 Tutorial</summary>

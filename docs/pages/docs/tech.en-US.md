@@ -55,7 +55,6 @@ The following outlines the core technical modules and workflows:
 *   **TTS Backends (`core/tts_backend`):**
     *   `core/tts_backend/custom_tts.py`: Placeholder/template for integrating custom TTS engines.
     *   `core/tts_backend/edge_tts.py`: Interface to Microsoft Edge TTS using the `edge-tts` command-line tool.
-    *   `core/tts_backend/fish_tts.py`: Interface to the 302.ai Fish TTS API.
     *   `core/tts_backend/gpt_sovits_tts.py`: Interface to a local GPT-SoVITS server, including server startup logic.
     *   `core/tts_backend/openai_tts.py`: Interface to the OpenAI Text-to-Speech API.
     *   `core/tts_backend/sf_cosyvoice2.py`: Interface to the SiliconFlow CosyVoice2 TTS API, supporting reference audio.

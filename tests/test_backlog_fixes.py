@@ -229,9 +229,9 @@ def test_refer_audio_is_skipped_when_references_exist(monkeypatch, tmp_path):
 def test_configured_keys_accepts_a_non_string_key():
     from core.st_utils.tts_settings import configured_keys
 
-    config = {"fish_tts.api_key": 1234567890, "f5tts.302_api": ""}
+    config = {"sf_fish_tts.api_key": 1234567890, "sf_cosyvoice2.api_key": ""}
 
-    assert configured_keys("302.ai", "f5tts", config.get) == ("1234567890", False)
+    assert configured_keys("SiliconFlow", "sf_cosyvoice2", config.get) == ("1234567890", False)
 
 
 def test_removed_dubbing_method_of_an_old_config_is_a_clear_error(monkeypatch):

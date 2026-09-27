@@ -110,7 +110,7 @@ pause_before_translate: false
 pause_after_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [edge_tts, openai_tts, fish_tts, f5tts, sf_fish_tts, sf_cosyvoice2, gpt_sovits, custom_tts]
+# TTS selection [edge_tts, openai_tts, f5tts, sf_fish_tts, sf_cosyvoice2, gpt_sovits, custom_tts]
 tts_method: 'edge_tts'
 
 # SiliconFlow FishTTS
@@ -133,14 +133,6 @@ openai_tts:
   base_url: 'https://api.openlux.ai/v1'
   model: 'gpt-4o-mini-tts'
 
-# FishTTS configuration, 302.ai API only
-fish_tts:
-  api_key: 'YOUR_302_API_KEY'
-  character: 'AD学姐'
-  character_id_dict:
-    'AD学姐': '7f92f8afb8ec43bf81429cc1c9199cb1'
-    '丁真': '54a5170264694bfc8e9ad98df7bd89c3'
-
 # SiliconFlow CosyVoice2 Clone
 sf_cosyvoice2:
   api_key: 'YOUR_SF_KEY'
@@ -154,6 +146,7 @@ gpt_sovits:
   character: 'Huanyuv2'
   refer_mode: 3
 
+# F5-TTS, 302.ai API only: the voice of the video is cloned
 f5tts:
   302_api: 'YOUR_302_API_KEY'
 

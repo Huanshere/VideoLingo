@@ -2,7 +2,7 @@
 
 PROVIDERS = {
     "OpenLux": ("openai_tts",),
-    "302.ai": ("fish_tts", "f5tts"),
+    "302.ai": ("f5tts",),
     "SiliconFlow": ("sf_fish_tts", "sf_cosyvoice2"),
     "Microsoft Edge": ("edge_tts",),
     "Local service": ("gpt_sovits",),
@@ -10,7 +10,7 @@ PROVIDERS = {
 }
 KEY_PATHS = {
     "OpenLux": ("openai_tts.api_key",),
-    "302.ai": ("fish_tts.api_key", "f5tts.302_api"),
+    "302.ai": ("f5tts.302_api",),
     "SiliconFlow": ("sf_fish_tts.api_key", "sf_cosyvoice2.api_key"),
 }
 
