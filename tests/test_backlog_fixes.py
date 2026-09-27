@@ -1175,3 +1175,39 @@ def test_style_is_read_from_a_config_without_the_key(monkeypatch, tmp_path):
     assert config_utils.update_key("subtitle.style", {"source": {"font_size": 20}}, add_missing=True)
     assert module.get_subtitle_style("source")["font_size"] == 20
     assert module.get_subtitle_style("translation") == module.DEFAULT_STYLE["translation"]
+
+
+def test_saving_the_style_keeps_the_comments(monkeypatch, tmp_path):
+    import core.utils.config_utils as config_utils
+    import core.utils.subtitle_style as module
+    config = tmp_path / "config.yaml"
+    config.write_text(
+        "subtitle:\n  style:\n    source:\n      font_size: 15\n    translation:\n      # below the video\n"
+        "      margin_v: 27\n\n# *Summary length\nsummary_length: 8000\n", encoding="utf-8")
+    monkeypatch.setattr(config_utils, "CONFIG_PATH", str(config))
+
+    style = {kind: module.get_subtitle_style(kind) for kind in ("source", "translation")}
+    style["source"]["font_size"] = 20
+    style["translation"]["font_name"] = "Helvetica"
+    module.save_subtitle_style(style)
+
+    text = config.read_text(encoding="utf-8")
+    assert "# *Summary length" in text and "# below the video" in text
+    assert module.get_subtitle_style("source")["font_size"] == 20
+    assert module.get_subtitle_style("translation") == {**module.DEFAULT_STYLE["translation"], "font_name": "Helvetica"}
+    assert "outline_width" not in text  # only the changed values are written
+
+
+@pytest.mark.parametrize("content", ["subtitle:\n  max_length: 75\n", "subtitle:\n  style:\n    source: big\n"])
+def test_saving_the_style_without_a_usable_one(monkeypatch, tmp_path, content):
+    import core.utils.config_utils as config_utils
+    import core.utils.subtitle_style as module
+    (tmp_path / "config.yaml").write_text(content, encoding="utf-8")
+    monkeypatch.setattr(config_utils, "CONFIG_PATH", str(tmp_path / "config.yaml"))
+
+    style = {kind: module.get_subtitle_style(kind) for kind in ("source", "translation")}
+    style["source"]["font_size"] = 20
+    module.save_subtitle_style(style)
+
+    assert module.get_subtitle_style("source") == {**module.DEFAULT_STYLE["source"], "font_size": 20}
+    assert module.get_subtitle_style("translation") == module.DEFAULT_STYLE["translation"]

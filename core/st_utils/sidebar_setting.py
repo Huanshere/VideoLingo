@@ -17,7 +17,7 @@ def config_input(label, key, help=None, placeholder=None):
 
 def subtitle_style_settings():
     """Font, size and color of the burned-in subtitles; the other values of subtitle.style are edited in config.yaml."""
-    from core.utils.subtitle_style import default_font, get_subtitle_style, to_ass_color, to_hex_color
+    from core.utils.subtitle_style import default_font, get_subtitle_style, save_subtitle_style, to_ass_color, to_hex_color
     with st.popover(t("Subtitle Style"), use_container_width=True):
         style = {}
         columns = st.columns(2)
@@ -35,7 +35,7 @@ def subtitle_style_settings():
             font_color = current["font_color"] if color == to_hex_color(current["font_color"]) else to_ass_color(color)
             style[kind] = {**current, "font_name": font_name.strip(), "font_size": font_size, "font_color": font_color}
         if style != {kind: get_subtitle_style(kind) for kind in style}:
-            update_key("subtitle.style", style, add_missing=True)
+            save_subtitle_style(style)
             st.rerun()
 
 

@@ -4,7 +4,7 @@ import re
 
 from rich import print as rprint
 
-from .config_utils import load_key_or
+from .config_utils import load_key_or, update_key
 
 # An empty font name stands for the default font of the system
 DEFAULT_STYLE = {
@@ -66,6 +66,21 @@ def get_subtitle_style(kind):
             value = default
         style[key] = value
     return style
+
+
+def save_subtitle_style(style):
+    """Write the changed values one by one, so that the comments of config.yaml are kept."""
+    changes = [
+        (kind, key) for kind in style for key, value in style[kind].items()
+        if value != get_subtitle_style(kind).get(key)
+    ]
+    try:
+        if all(update_key(f"subtitle.style.{kind}.{key}", style[kind][key], add_missing=True) for kind, key in changes):
+            return
+    except KeyError:
+        pass
+    # A config.yaml from before this setting, or one with a broken `style`
+    update_key("subtitle.style", style, add_missing=True)
 
 
 def get_force_style(kind):
