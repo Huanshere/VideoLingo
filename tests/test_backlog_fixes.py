@@ -658,3 +658,113 @@ def test_failed_faithful_translation_is_still_an_error(monkeypatch):
 
     with pytest.raises(ValueError, match="Missing required key"):
         module.translate_lines("Hello.\nBye.", None, None, None, None)
+
+
+# ------------------------------------------------------------------
+# C6: a subtitle line is split on both sides or not at all (#369, #339)
+# ------------------------------------------------------------------
+
+def _split_sub(monkeypatch, split, align, max_length=20):
+    import core._5_split_sub as module
+
+    def fake_ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
+        reply = align(prompt) if callable(align) else align
+        if isinstance(reply, Exception):
+            raise reply
+        check = valid_def(reply)
+        if check["status"] != "success":
+            raise ValueError(check["message"])
+        return reply
+
+    settings = {"subtitle": {"max_length": max_length, "target_multiplier": 1.2}, "max_workers": 2}
+    monkeypatch.setattr(module, "load_key", lambda key: settings[key])
+    monkeypatch.setattr(module, "split_sentence", lambda sentence, num_parts: split(sentence) if callable(split) else split)
+    monkeypatch.setattr(module, "get_align_prompt", lambda src, tr, part: tr)
+    monkeypatch.setattr(module, "ask_gpt", fake_ask_gpt)
+    return module
+
+
+LONG_SRC = "this is a long source line that has to be split"
+LONG_TR = "这是一行需要被切分的很长的译文字幕内容"
+
+
+def test_split_sub_splits_both_sides(monkeypatch):
+    module = _split_sub(
+        monkeypatch,
+        split="this is a long source line\nthat has to be split",
+        align={"align": [{"target_part_1": "这是一行需要被切分的"}, {"target_part_2": "很长的译文字幕内容"}]},
+    )
+
+    src, tr, remerged = module.split_align_subs(["short", LONG_SRC], ["短", LONG_TR])
+
+    assert src == ["short", "this is a long source line", "that has to be split"]
+    assert tr == ["短", "这是一行需要被切分的", "很长的译文字幕内容"]
+    assert remerged == ["短", "这是一行需要被切分的很长的译文字幕内容"]
+
+
+@pytest.mark.parametrize("align", [
+    {"align": [{"target_part_1": "这是"}, {"target_part_2": "一行"}, {"target_part_3": "译文"}]},
+    {"align": [{"target_part_1": "这是一行需要被切分的很长的译文字幕内容"}, {"target_part_2": " "}]},
+    {"align": [{"target_part_1": "这是一行"}, {"part_2": "译文"}]},
+    {"align": "这是一行"},
+    RuntimeError("connection reset"),
+])
+def test_split_sub_keeps_the_line_when_the_parts_do_not_match(monkeypatch, align):
+    module = _split_sub(monkeypatch, split="this is a long source line\nthat has to be split", align=align)
+
+    src, tr, remerged = module.split_align_subs(["short", LONG_SRC], ["短", LONG_TR])
+
+    assert src == ["short", LONG_SRC]
+    assert tr == ["短", LONG_TR]
+    assert remerged == ["短", LONG_TR]
+
+
+def test_split_sub_keeps_the_line_when_the_source_has_one_part(monkeypatch):
+    module = _split_sub(
+        monkeypatch,
+        split=LONG_SRC,
+        align={"align": [{"target_part_1": "这是一行"}, {"target_part_2": "译文"}]},
+    )
+
+    src, tr, _ = module.split_align_subs([LONG_SRC], [LONG_TR])
+
+    assert (src, tr) == ([LONG_SRC], [LONG_TR])
+
+
+def test_split_sub_stops_when_the_task_is_cancelled(monkeypatch):
+    from core.task_runner import StopTask
+
+    module = _split_sub(monkeypatch, split="this is a long source line\nthat has to be split", align=StopTask())
+
+    with pytest.raises(StopTask):
+        module.split_align_subs([LONG_SRC], [LONG_TR])
+
+
+def test_split_sub_main_writes_lines_of_equal_length(monkeypatch, tmp_path):
+    def align(prompt):
+        if prompt == LONG_TR:
+            return {"align": [{"target_part_1": "这是"}, {"target_part_2": "一行"}, {"target_part_3": "译文"}]}
+        return {"align": [{"target_part_1": "第二行需要切分的"}, {"target_part_2": "比较长的译文字幕"}]}
+
+    def split(sentence):
+        if sentence == LONG_SRC:
+            return "this is a long source line\nthat has to be split"
+        return "another long source line\nthat is split in two"
+
+    module = _split_sub(monkeypatch, split=split, align=align, max_length=30)
+    translation, split_sub, remerged = (str(tmp_path / name) for name in ("t.xlsx", "s.xlsx", "r.xlsx"))
+    pd.DataFrame({
+        "Source": [LONG_SRC, "another long source line that is split in two"],
+        "Translation": [LONG_TR, "第二行需要切分的比较长的译文字幕"],
+    }).to_excel(translation, index=False)
+    monkeypatch.setattr(module, "_4_2_TRANSLATION", translation)
+    monkeypatch.setattr(module, "_5_SPLIT_SUB", split_sub)
+    monkeypatch.setattr(module, "_5_REMERGED", remerged)
+
+    module.split_for_sub_main()
+
+    result = pd.read_excel(split_sub)
+    assert result["Source"].tolist() == [LONG_SRC, "another long source line", "that is split in two"]
+    assert result["Translation"].tolist() == [LONG_TR, "第二行需要切分的", "比较长的译文字幕"]
+    assert not result.isna().any().any()
+    assert not pd.read_excel(remerged).isna().any().any()

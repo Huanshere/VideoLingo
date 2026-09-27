@@ -3,6 +3,7 @@ from typing import List, Tuple
 import concurrent.futures
 
 from core._3_2_split_meaning import split_sentence
+from core.task_runner import StopTask
 from core.prompts import get_align_prompt
 from rich.panel import Panel
 from rich.console import Console
@@ -31,19 +32,31 @@ def calc_len(text: str) -> float:
 
     return sum(char_weight(char) for char in text)
 
+def get_target_parts(response_data, num_parts):
+    """The aligned target parts of a response, or None unless there are exactly `num_parts` non-empty ones."""
+    align_data = response_data.get('align') if isinstance(response_data, dict) else None
+    if not isinstance(align_data, list) or len(align_data) != num_parts:
+        return None
+    parts = []
+    for i, item in enumerate(align_data):
+        part = item.get(f'target_part_{i+1}') if isinstance(item, dict) else None
+        if not isinstance(part, str) or not part.strip():
+            return None
+        parts.append(part.strip())
+    return parts
+
 def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], List[str], str]:
     align_prompt = get_align_prompt(src_sub, tr_sub, src_part)
+    src_parts = src_part.split('\n')
     
     def valid_align(response_data):
         if 'align' not in response_data:
             return {"status": "error", "message": "Missing required key: `align`"}
-        if len(response_data['align']) < 2:
-            return {"status": "error", "message": "Align does not contain more than 1 part as expected!"}
+        if get_target_parts(response_data, len(src_parts)) is None:
+            return {"status": "error", "message": f"Align does not contain {len(src_parts)} non-empty parts as expected!"}
         return {"status": "success", "message": "Align completed"}
     parsed = ask_gpt(align_prompt, resp_type='json', valid_def=valid_align, log_title='align_subs')
-    align_data = parsed['align']
-    src_parts = src_part.split('\n')
-    tr_parts = [item[f'target_part_{i+1}'].strip() for i, item in enumerate(align_data)]
+    tr_parts = get_target_parts(parsed, len(src_parts))
     
     # The parts are in the target language, so the source-language joiner does not apply
     tr_remerged = join_words(tr_parts, get_text_joiner(''.join(tr_parts)))
@@ -78,13 +91,26 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str]):
     @except_handler("Error in split_align_subs")
     def process(i):
         split_src = split_sentence(src_lines[i], num_parts=2).strip()
+        if len([part for part in split_src.split('\n') if part.strip()]) < 2:
+            console.print(f"[yellow]⚠️ Line {i} could not be split, keeping it as is[/yellow]")
+            return
         src_parts, tr_parts, tr_remerged = align_subs(src_lines[i], tr_lines[i], split_src)
+        # Source and translation must stay in step: a line is split on both sides or not at all
+        if not tr_parts or len(src_parts) != len(tr_parts):
+            console.print(f"[yellow]⚠️ Line {i} was aligned into a different number of parts, keeping it as is[/yellow]")
+            return
         src_lines[i] = src_parts
         tr_lines[i] = tr_parts
         remerged_tr_lines[i] = tr_remerged
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
-        executor.map(process, to_split)
+        futures = [executor.submit(process, i) for i in to_split]
+    for i, future in zip(to_split, futures):
+        error = future.exception()
+        if isinstance(error, StopTask):
+            raise error
+        if error:
+            console.print(f"[yellow]⚠️ Line {i} is kept unsplit: {error}[/yellow]")
     
     # Flatten `src_lines` and `tr_lines`
     src_lines = [item for sublist in src_lines for item in (sublist if isinstance(sublist, list) else [sublist])]
