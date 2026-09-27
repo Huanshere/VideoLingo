@@ -874,3 +874,56 @@ def test_long_reference_in_an_unspaced_language(tmp_path):
     _, prompt_text = prepare_reference(_reference(tmp_path, 30, 16000, 1), "一二三四五六七八九十")
 
     assert prompt_text == "一二三四五"
+
+
+# ------------------------------------------------------------------
+# C10: the dub is merged into the video when subtitles are not burned in (#482)
+# ------------------------------------------------------------------
+
+def _dub_video(monkeypatch, tmp_path, codec, container, has_background=True):
+    import json
+    import shutil
+    import subprocess
+    from pathlib import Path
+    from pydub.generators import Sine
+    from core import _1_ytdlp, _12_dub_to_vid as merge
+
+    if not shutil.which('ffmpeg') or not shutil.which('ffprobe'):
+        pytest.skip('FFmpeg and FFprobe are required')
+    monkeypatch.chdir(tmp_path)
+    Path('output').mkdir()
+    source = Path(f'output/source.{container}')
+    subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-f', 'lavfi',
+                    '-i', 'color=c=black:s=320x240:r=25:d=6', '-c:v', codec, str(source)], check=True)
+    tone = Sine(440, sample_rate=48000).to_audio_segment(duration=6000).apply_gain(-18)
+    tone.export('output/dub.mp3', format='mp3', bitrate='64k')
+    if has_background:
+        tone.apply_gain(-12).export('output/background.wav', format='wav')
+    monkeypatch.setattr(_1_ytdlp, 'is_audio_only_input', lambda: False)
+    monkeypatch.setattr(merge, 'find_video_files', lambda: str(source))
+    monkeypatch.setattr(merge, '_BACKGROUND_AUDIO_FILE', 'output/background.wav')
+    monkeypatch.setattr(merge, 'load_key', {'burn_subtitles': False, 'ffmpeg_gpu': False}.__getitem__)
+    monkeypatch.setattr(merge, 'check_cancel', lambda: None)
+    merge.merge_video_audio()
+    probe = subprocess.run(['ffprobe', '-v', 'error', '-show_streams', '-of', 'json',
+                            'output/output_dub.mp4'], check=True, capture_output=True, text=True)
+    streams = json.loads(probe.stdout)['streams']
+    return {stream['codec_type']: stream for stream in streams}
+
+
+@pytest.mark.parametrize('has_background', [True, False])
+def test_dub_is_merged_without_burning_subtitles(monkeypatch, tmp_path, has_background):
+    streams = _dub_video(monkeypatch, tmp_path, 'mpeg4', 'mp4', has_background)
+
+    assert streams['video']['codec_name'] == 'mpeg4'  # copied, not encoded again
+    assert streams['audio']['codec_name'] == 'aac'
+    assert abs(float(streams['video']['duration']) - 6.0) < 0.1
+    assert abs(float(streams['audio']['duration']) - 6.0) < 0.1
+
+
+def test_video_that_cannot_be_copied_is_encoded_again(monkeypatch, tmp_path):
+    streams = _dub_video(monkeypatch, tmp_path, 'flv1', 'flv')
+
+    assert streams['video']['codec_name'] != 'flv1'
+    assert abs(float(streams['video']['duration']) - 6.0) < 0.1
+    assert streams['audio']['codec_name'] == 'aac'

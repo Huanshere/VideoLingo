@@ -5,7 +5,6 @@ import json
 import math
 
 import cv2
-import numpy as np
 from rich.console import Console
 
 from core._1_ytdlp import find_video_files
@@ -61,60 +60,61 @@ def merge_video_audio():
     VIDEO_FILE = find_video_files()
     background_file = _BACKGROUND_AUDIO_FILE
     
-    if not load_key("burn_subtitles"):
-        rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as subtitles are not burned in.[/bold yellow]")
-
-        # Create a black frame
-        frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(DUB_VIDEO, fourcc, 1, (1920, 1080))
-        out.write(frame)
-        out.release()
-
-        rprint("[bold green]Placeholder video has been generated.[/bold green]")
-        return
+    burn_subtitles = load_key("burn_subtitles")
 
     # Normalize dub audio
     normalized_dub_audio = 'output/normalized_dub.wav'
     normalize_dub_audio(DUB_AUDIO, normalized_dub_audio)
-    
-    # Merge video and audio with translated subtitles
-    video = cv2.VideoCapture(VIDEO_FILE)
-    TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    video.release()
-    rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
-    
-    subtitle_filter = (
-        f"subtitles={DUB_SUB_FILE}:force_style='FontSize={TRANS_FONT_SIZE},"
-        f"FontName={TRANS_FONT_NAME},PrimaryColour={TRANS_FONT_COLOR},"
-        f"OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
-        f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
-    )
     
     has_background = os.path.isfile(background_file)
     cmd = ['ffmpeg', '-y', '-i', VIDEO_FILE]
     if has_background:
         cmd.extend(['-i', background_file])
     cmd.extend(['-i', normalized_dub_audio])
-    video_filter = (f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
-                    f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
-                    f'{subtitle_filter}[v]')
+
+    filters = []
+    if burn_subtitles:
+        # Merge video and audio with translated subtitles
+        video = cv2.VideoCapture(VIDEO_FILE)
+        TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        video.release()
+        rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
+
+        subtitle_filter = (
+            f"subtitles={DUB_SUB_FILE}:force_style='FontSize={TRANS_FONT_SIZE},"
+            f"FontName={TRANS_FONT_NAME},PrimaryColour={TRANS_FONT_COLOR},"
+            f"OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
+            f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
+        )
+        filters.append(f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
+                       f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
+                       f'{subtitle_filter}[v]')
+    else:
+        rprint("[bold yellow]Subtitles are not burned in: the dubbed audio is merged into the original video.[/bold yellow]")
     if has_background:
-        cmd.extend(['-filter_complex', video_filter + ';'
-                    '[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]'])
+        filters.append('[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]')
     else:
         rprint('[yellow]Original background audio is unavailable; exporting the dubbed voice alone.[/yellow]')
-        cmd.extend(['-filter_complex', video_filter])
+    if filters:
+        cmd.extend(['-filter_complex', ';'.join(filters)])
 
-    cmd.extend(['-map', '[v]', '-map', '[a]' if has_background else '1:a'])
+    cmd.extend(['-map', '[v]' if burn_subtitles else '0:v:0', '-map', '[a]' if has_background else '1:a'])
+    encoder = []
     if load_key("ffmpeg_gpu"):
         rprint("[bold green]Using GPU acceleration...[/bold green]")
-        cmd.extend(['-c:v', 'h264_nvenc'])
-    
-    cmd.extend(['-c:a', 'aac', '-b:a', '192k', DUB_VIDEO])
-    
-    subprocess.run(cmd, check=True)
+        encoder = ['-c:v', 'h264_nvenc']
+    audio_output = ['-c:a', 'aac', '-b:a', '192k', DUB_VIDEO]
+
+    if burn_subtitles:
+        subprocess.run(cmd + encoder + audio_output, check=True)
+    else:
+        try:
+            # The picture is not touched, so it is copied as it is
+            subprocess.run(cmd + ['-c:v', 'copy'] + audio_output, check=True)
+        except subprocess.CalledProcessError:
+            rprint("[yellow]The video stream cannot be copied into MP4, encoding it again...[/yellow]")
+            subprocess.run(cmd + encoder + audio_output, check=True)
     rprint(f"[bold green]Video and audio successfully merged into {DUB_VIDEO}[/bold green]")
 
 if __name__ == '__main__':

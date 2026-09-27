@@ -295,7 +295,7 @@ def audio_processing_section():
                     "Audio processing is complete! You can check the audio files in the `output` folder."
                 )
             )
-            if not audio_only and load_key("burn_subtitles") and os.path.exists(DUB_VIDEO):
+            if not audio_only and os.path.exists(DUB_VIDEO):
                 st.video(DUB_VIDEO)
             if st.button(t("Delete dubbing files"), key="delete_dubbing_files"):
                 _clear_path(_AUDIO_DONE_MARKER)
