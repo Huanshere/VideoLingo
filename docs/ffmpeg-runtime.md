@@ -116,7 +116,9 @@ with TorchCodec imports deliberately blocked.
 The real tiny.en CPU backend then ran its default pyannote VAD and English alignment
 on that sample: 35 timestamped words. Once tiny.en and the alignment model were
 cached in the separate verification directory, a network-denied repeat passed in
-1.49 s. WhisperX remains a manual **Python dependency** in a separate Apple
+1.49 s. Replacing two unrelated candidate-version transitive packages with
+stable tokenizers 0.22.2 and safetensors 0.8.0 still passed in 1.57 s. WhisperX
+remains a manual **Python dependency** in a separate Apple
 Silicon environment because its Hugging Face Hub constraint conflicts with MLX;
 it did not require a manually installed FFmpeg CLI or shared libraries for this
 pipeline. No paid translation/TTS API, live YouTube download, NVENC or larger
