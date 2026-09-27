@@ -73,11 +73,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### 语言支持
 
-**输入语言支持：**
+**本地语音识别：** Qwen3-ASR（默认 1.7B，可选 0.6B）。
 
-🇺🇸 英语 🤩  |  🇷🇺 俄语 😊  |  🇫🇷 法语 🤩  |  🇩🇪 德语 🤩  |  🇮🇹 意大利语 🤩  |  🇪🇸 西班牙语 🤩  |  🇯🇵 日语 😐  |  🇨🇳 中文* 😊
+根据 [Qwen 官方文档](https://github.com/QwenLM/Qwen3-ASR#released-models-description-and-download)，ASR 支持 30 种语言和 22 种中文方言。用于字幕时间戳的 ForcedAligner 支持以下 11 种语言：
 
-> *本地识别使用 Qwen3-ASR（默认 1.7B，可选 0.6B）。
+普通话 · 英语 · 粤语 · 法语 · 德语 · 意大利语 · 日语 · 韩语 · 葡萄牙语 · 俄语 · 西班牙语
+
+以上为上游模型的支持范围，并非 VideoLingo 逐语言实测的质量评级。实际识别效果取决于音源和所选模型。
 
 翻译语言取决于所选 LLM，配音语言取决于所选 TTS。
 

@@ -71,11 +71,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### Language Support
 
-**Input Language Support(more to come):**
+**Local speech recognition:** Qwen3-ASR (1.7B by default, 0.6B selectable).
 
-🇺🇸 English 🤩 | 🇷🇺 Russian 😊 | 🇫🇷 French 🤩 | 🇩🇪 German 🤩 | 🇮🇹 Italian 🤩 | 🇪🇸 Spanish 🤩 | 🇯🇵 Japanese 😐 | 🇨🇳 Chinese* 😊
+According to the [Qwen documentation](https://github.com/QwenLM/Qwen3-ASR#released-models-description-and-download), ASR supports 30 languages and 22 Chinese dialects. ForcedAligner, used for subtitle timestamps, supports these 11 languages:
 
-> *Local recognition uses Qwen3-ASR (1.7B by default, 0.6B selectable).
+Chinese (Mandarin) · English · Cantonese · French · German · Italian · Japanese · Korean · Portuguese · Russian · Spanish
+
+These are upstream model capabilities, not per-language quality ratings tested by VideoLingo. Accuracy depends on the recording and selected model.
 
 Translation languages depend on the selected LLM; dubbing languages depend on the selected TTS method.
 

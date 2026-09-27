@@ -71,11 +71,13 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### Soporte de Idiomas
 
-**Soporte de idiomas de entrada (más por venir):**
+**Reconocimiento de voz local:** Qwen3-ASR (1.7B por defecto, 0.6B seleccionable).
 
-🇺🇸 Inglés 🤩 | 🇷🇺 Ruso 😊 | 🇫🇷 Francés 🤩 | 🇩🇪 Alemán 🤩 | 🇮🇹 Italiano 🤩 | 🇪🇸 Español 🤩 | 🇯🇵 Japonés 😐 | 🇨🇳 Chino* 😊
+Según la [documentación de Qwen](https://github.com/QwenLM/Qwen3-ASR#released-models-description-and-download), el ASR admite 30 idiomas y 22 dialectos chinos. ForcedAligner, utilizado para las marcas de tiempo de los subtítulos, admite estos 11 idiomas:
 
-> *El reconocimiento local usa Qwen3-ASR (1.7B por defecto, 0.6B seleccionable).
+Chino (mandarín) · Inglés · Cantonés · Francés · Alemán · Italiano · Japonés · Coreano · Portugués · Ruso · Español
+
+Estas son las capacidades de los modelos originales, no valoraciones de calidad probadas por VideoLingo para cada idioma. La precisión depende de la grabación y del modelo elegido.
 
 Los idiomas de traducción dependen del LLM elegido; los de doblaje, del método TTS.
 
