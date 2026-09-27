@@ -97,8 +97,7 @@ AI エージェントがこのコンピューターを操作できる場合は�
 ### ソースコードからインストール（Windows・macOS・Linux）
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 

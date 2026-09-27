@@ -139,8 +139,7 @@ If you use an NVIDIA GPU, install a compatible driver first; see [GPU runtime](#
 ### Install from source (Windows, macOS, Linux)
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 

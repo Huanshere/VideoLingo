@@ -77,8 +77,7 @@ VideoLingo 支持 Windows、macOS（Apple Silicon / Intel）和 Linux。
 ### 从源码安装（Windows、macOS、Linux）
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 

@@ -97,8 +97,7 @@ If you use an AI agent that can operate your computer, send it this prompt:
 ### Install from source (Windows, macOS, Linux)
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 

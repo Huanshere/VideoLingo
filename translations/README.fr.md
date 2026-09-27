@@ -97,8 +97,7 @@ Si votre agent IA peut utiliser votre ordinateur, envoyez-lui ce message :
 ### Installation depuis le code source (Windows, macOS, Linux)
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 

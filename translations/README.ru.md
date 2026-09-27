@@ -97,8 +97,7 @@ VideoLingo работает в Windows, macOS (Apple Silicon / Intel) и Linux.
 ### Установка из исходного кода (Windows, macOS, Linux)
 
 ```bash
-git clone https://github.com/Huanshere/VideoLingo.git
-cd VideoLingo
+git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
