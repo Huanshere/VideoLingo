@@ -85,7 +85,9 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
 
-使用 NVIDIA 加速时，需要安装与显卡兼容的驱动。主机安装器根据 `nvidia-smi` 报告的 CUDA 支持版本选择 PyTorch：>=12.8 使用 `cu128`，否则使用 `cu126`；没有 NVIDIA 时使用 CPU 包。这是在选择 Python 包，不会自动安装系统 CUDA Toolkit。在 Apple Silicon（macOS 14+）上，本地识别改用 MLX。详见 [GPU 运行库要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
+使用 NVIDIA GPU 加速，请安装或更新显卡驱动。安装程序会自动选择适配的 PyTorch 版本。
+
+在 Apple Silicon（macOS 14+）上，本地识别使用 MLX。详见 [GPU 运行库要求](../docs/pages/docs/start.zh-CN.md#gpu-runtime)。
 
 > 安装器会自动下载并配置 FFmpeg 和 ffprobe，无需手动下载或设置 PATH。首次安装需要联网，之后启动会复用已下载的程序。
 

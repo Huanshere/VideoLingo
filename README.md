@@ -83,7 +83,9 @@ Meet any problem? Chat with our free online AI agent [**here**](https://share.fa
 
 Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
-For NVIDIA acceleration, install a driver compatible with your GPU. The host installer selects PyTorch `cu128` when `nvidia-smi` reports CUDA >=12.8, otherwise `cu126`; without NVIDIA it selects CPU packages. This selects Python packages, not a system CUDA Toolkit. On Apple Silicon (macOS 14+), local recognition uses MLX instead. See [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
+To use NVIDIA GPU acceleration, install or update your graphics driver. The installer will automatically select a compatible PyTorch version.
+
+On Apple Silicon (macOS 14+), local recognition uses MLX. See [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
 
 > FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools.
 
