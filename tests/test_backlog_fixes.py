@@ -1356,3 +1356,117 @@ def test_no_source_subtitles_of_the_dub_when_they_do_not_match(monkeypatch, tmp_
     module.create_srt_subtitle()
 
     assert sorted(os.listdir("output")) == ["audio", "dub.srt"]
+
+
+# ------------------------------------------------------------------
+# D1: checkpoint after the translation (#355, #483, #571)
+# ------------------------------------------------------------------
+
+def _translation_results(translation, source=("Hello world.", "...", "How are you?")):
+    pd.DataFrame({"Source": list(source), "Translation": list(translation),
+                  "timestamp": ["00:00:00,000 --> 00:00:01,000"] * len(source), "duration": [1.0] * len(source),
+                  }).to_excel("output/log/translation_results.xlsx", index=False)
+
+
+def _translation_checkpoint(monkeypatch, tmp_path, enabled=True):
+    from core import pipeline
+    from core.task_runner import TaskRunner
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    _translation_results(["你好，世界。", None, "你好吗？"])
+    monkeypatch.setattr(pipeline, "load_key_or", lambda key, default: {"pause_after_translate": enabled}[key])
+    calls = []
+    runner = TaskRunner()
+    runner.start([("Summarization and multi-step translation", pipeline.review_translation),
+                  ("after", lambda: calls.append("subtitles"))])
+    return pipeline, runner, calls
+
+
+def test_task_waits_after_the_translation_and_uses_the_edit(monkeypatch, tmp_path):
+    pipeline, runner, calls = _translation_checkpoint(monkeypatch, tmp_path)
+    try:
+        assert _wait_for(lambda: runner.state == "paused")
+        assert runner.pause_message == pipeline.REVIEW_TRANSLATION
+        assert calls == []
+        _translation_results(["大家好。", None, "你好吗？"])
+        runner.resume()
+    finally:
+        runner.resume()
+        _finish_runner(runner)
+    assert runner.state == "completed" and calls == ["subtitles"]
+    assert pipeline.read_translation() == [["Hello world.", "...", "How are you?"], ["大家好。", "", "你好吗？"]]
+
+
+@pytest.mark.parametrize("edit", [
+    lambda: _translation_results(["你好，世界。", None], source=["Hello world.", "..."]),
+    lambda: _translation_results(["你好，世界。", None, "你好吗？"], source=["Hello, world.", "...", "How are you?"]),
+    lambda: _translation_results(["你好，世界。", None, " "]),
+    lambda: pd.DataFrame({"Source": ["Hello world.", "...", "How are you?"]}).to_excel(
+        "output/log/translation_results.xlsx", index=False),
+    lambda: open("output/log/translation_results.xlsx", "w").close(),
+    lambda: os.remove("output/log/translation_results.xlsx"),
+])
+def test_checkpoint_waits_again_when_the_translation_cannot_be_used(monkeypatch, tmp_path, edit):
+    pipeline, runner, calls = _translation_checkpoint(monkeypatch, tmp_path)
+    try:
+        assert _wait_for(lambda: runner.state == "paused")
+        edit()
+        runner.resume()
+        assert _wait_for(lambda: runner.pause_message == pipeline.INVALID_TRANSLATION)
+        assert runner.state == "paused" and calls == []
+        _translation_results(["你好，世界。", "……", "你好吗？"])
+        runner.resume()
+    finally:
+        runner.resume()
+        _finish_runner(runner)
+    assert runner.state == "completed" and calls == ["subtitles"]
+
+
+def test_checkpoint_after_the_translation_can_be_stopped(monkeypatch, tmp_path):
+    _, runner, calls = _translation_checkpoint(monkeypatch, tmp_path)
+    try:
+        assert _wait_for(lambda: runner.state == "paused")
+    finally:
+        runner.stop()
+        _finish_runner(runner)
+    assert runner.state == "stopped" and calls == []
+
+
+def test_no_checkpoint_after_the_translation_when_it_is_switched_off(monkeypatch, tmp_path):
+    _, runner, calls = _translation_checkpoint(monkeypatch, tmp_path, enabled=False)
+    _finish_runner(runner)
+    assert runner.state == "completed" and calls == ["subtitles"]
+
+
+def test_no_checkpoint_when_the_subtitles_are_cut_already(monkeypatch, tmp_path):
+    from core import pipeline
+    from core.task_runner import TaskRunner
+    from core.utils.models import _5_SPLIT_SUB
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    open(_5_SPLIT_SUB, "w").close()
+    monkeypatch.setattr(pipeline, "load_key_or", lambda key, default: True)
+    runner = TaskRunner()
+    runner.start([("one", pipeline.review_translation)])
+    _finish_runner(runner)
+    assert runner.state == "completed"
+
+
+def test_checkpoint_after_the_translation_is_off_without_the_key(monkeypatch, tmp_path):
+    from core import pipeline
+    from core.task_runner import TaskRunner
+    monkeypatch.chdir(tmp_path)
+    with open("config.yaml", "w", encoding="utf-8") as f:
+        f.write("pause_before_translate: true\n")
+    runner = TaskRunner()
+    runner.start([("one", pipeline.review_translation)])
+    _finish_runner(runner)
+    assert runner.state == "completed"
+    pipeline.review_translation()
+
+
+def test_translation_is_reviewed_before_the_subtitles_are_cut():
+    from core import pipeline
+    calls = [call for _, calls in pipeline.SUBTITLE_STEPS for call in calls]
+    assert calls[calls.index("_4_2_translate.translate_all") + 1:][:2] == [
+        "pipeline.review_translation", "_5_split_sub.split_for_sub_main"]

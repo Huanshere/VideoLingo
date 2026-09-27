@@ -147,7 +147,7 @@ def status():
 
 @app.post("/resume")
 def resume():
-    """Continue a paused task, such as the checkpoint of pause_before_translate."""
+    """Continue a paused task, such as the checkpoints of pause_before_translate and pause_after_translate."""
     with operation_lock:
         if runner.state != "paused":
             raise HTTPException(409, "No task is paused.")

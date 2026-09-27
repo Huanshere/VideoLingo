@@ -346,6 +346,15 @@ def page_setting():
         if pause_before_translate != load_key("pause_before_translate"):
             update_key("pause_before_translate", pause_before_translate)
             st.rerun()
+
+        pause_after_translate = st.toggle(
+            t("Pause after translation"),
+            value=bool(load_key_or("pause_after_translate", False)),
+            help=t("Pause after the translation, so that you can edit the `Translation` column of `output/log/translation_results.xlsx` before the subtitles are generated"),
+        )
+        if pause_after_translate != bool(load_key_or("pause_after_translate", False)):
+            update_key("pause_after_translate", pause_after_translate, add_missing=True)
+            st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
         tts_method_labels = {
             "azure_tts": t("Azure TTS"),

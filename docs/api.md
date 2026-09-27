@@ -51,6 +51,9 @@ step groups, not elapsed time. States: `idle`, `running`, `paused`, `stopping`, 
 `completed`, `error`. With `pause_before_translate: true` in `config.yaml` the task pauses
 after the terminology is extracted: `state` is `paused` and `pause_message` says why. Edit
 `output/log/terminology.json` if needed, then continue with `POST /resume`.
+`pause_after_translate: true` pauses in the same way after the translation: edit the
+`Translation` column of `output/log/translation_results.xlsx`, keep the `Source` column and
+the rows as they are, then continue with `POST /resume`.
 
 ```http
 GET /files/trans.srt

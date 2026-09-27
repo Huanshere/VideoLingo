@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 
 from core.task_runner import TaskRunner
-from core.utils.config_utils import load_key
-from core.utils.models import _4_1_TERMINOLOGY, _4_2_TRANSLATION, _TEXT_DONE_MARKER, _AUDIO_DONE_MARKER
+from core.utils.config_utils import load_key, load_key_or
+from core.utils.models import _4_1_TERMINOLOGY, _4_2_TRANSLATION, _5_SPLIT_SUB, _TEXT_DONE_MARKER, _AUDIO_DONE_MARKER
 
 
 # Labels remain translation keys; only the UI translates them.
@@ -15,7 +15,8 @@ SUBTITLE_STEPS = [
     ("Sentence segmentation using NLP and LLM", (
         "_3_1_split_nlp.split_by_spacy", "_3_2_split_meaning.split_sentences_by_meaning")),
     ("Summarization and multi-step translation", (
-        "_4_1_summarize.get_summary", "pipeline.review_terminology", "_4_2_translate.translate_all")),
+        "_4_1_summarize.get_summary", "pipeline.review_terminology", "_4_2_translate.translate_all",
+        "pipeline.review_translation")),
     ("Cutting and aligning long subtitles", (
         "_5_split_sub.split_for_sub_main", "_6_gen_sub.align_timestamp_main")),
     ("Merging subtitles into the video", ("_7_sub_into_vid.merge_subtitles_to_video",)),
@@ -36,6 +37,8 @@ DUBBING_STEPS = [
 # These messages are translation keys as well
 REVIEW_TERMINOLOGY = "Terminology is ready for review. Edit `output/log/terminology.json` if needed, then press Resume to start translating."
 INVALID_TERMINOLOGY = "`output/log/terminology.json` can not be read after your edit. Fix it, then press Resume."
+REVIEW_TRANSLATION = "Translation is ready for review. Edit the `Translation` column of `output/log/translation_results.xlsx` if needed, without changing the `Source` column or the number of rows. Save and close the file, then press Resume."
+INVALID_TRANSLATION = "`output/log/translation_results.xlsx` can not be used after your edit. Keep the rows and the `Source` column as they were, leave no translation empty, and close the file. Then press Resume."
 
 
 def terminology_error():
@@ -67,6 +70,44 @@ def review_terminology():
             return
         print(f"⚠️ {_4_1_TERMINOLOGY}: {error}")
         message = INVALID_TERMINOLOGY
+
+
+def read_translation():
+    """The source lines and the translated lines of the translation results, empty cells as ''."""
+    import pandas as pd
+    df = pd.read_excel(_4_2_TRANSLATION)
+    return [["" if pd.isna(value) else str(value).strip() for value in df[column]] for column in ("Source", "Translation")]
+
+
+def translation_error(source, translation):
+    """What is wrong with the edited translation results, or None when the subtitles can use them."""
+    try:
+        edited_source, edited_translation = read_translation()
+    except Exception as e:  # locked by the spreadsheet program, no longer a spreadsheet, a missing column
+        return f"{type(e).__name__}: {e}"
+    if edited_source != source:
+        return "the rows or the `Source` column have changed"
+    for row, (before, after) in enumerate(zip(translation, edited_translation), 2):
+        if before and not after:
+            return f"the translation in row {row} is empty"
+    return None
+
+
+def review_translation():
+    """Optional checkpoint `pause_after_translate`: the task waits until the user resumes it."""
+    runner = TaskRunner._current
+    if runner is None or not load_key_or("pause_after_translate", False) or Path(_5_SPLIT_SUB).exists():
+        return
+    source, translation = read_translation()
+    message = REVIEW_TRANSLATION
+    while True:
+        runner.pause(message)
+        TaskRunner.check_cancel()
+        error = translation_error(source, translation)
+        if error is None:
+            return
+        print(f"⚠️ {_4_2_TRANSLATION}: {error}")
+        message = INVALID_TRANSLATION
 
 
 def _execute(calls, clear_marker=None):
