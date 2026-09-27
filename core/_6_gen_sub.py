@@ -74,7 +74,12 @@ def get_sentence_timestamps(df_words, df_sentences):
     for idx, sentence in df_sentences['Source'].items():
         clean_sentence = remove_punctuation(sentence.lower()).replace(" ", "")
         sentence_len = len(clean_sentence)
-        
+
+        # A line with nothing but punctuation has no words to match; place it after the loop
+        if sentence_len == 0:
+            time_stamp_list.append(None)
+            continue
+
         match_found = False
         while current_pos <= len(full_words_str) - sentence_len:
             if full_words_str[current_pos:current_pos+sentence_len] == clean_sentence:
@@ -97,7 +102,14 @@ def get_sentence_timestamps(df_words, df_sentences):
                           full_words_str[current_pos:current_pos+len(clean_sentence)])
             print("\nOriginal sentence:", df_sentences['Source'][idx])
             raise ValueError("❎ No match found for sentence.")
-    
+
+    # Punctuation-only lines fill the gap between their neighbours
+    for i, stamp in enumerate(time_stamp_list):
+        if stamp is None:
+            start = time_stamp_list[i-1][1] if i > 0 else 0.0
+            following = next((s for s in time_stamp_list[i+1:] if s is not None), None)
+            time_stamp_list[i] = (start, max(start, following[0]) if following else start)
+
     return time_stamp_list
 
 def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output_dir: str, for_display: bool = True):
