@@ -162,3 +162,72 @@ def test_core_utils_unknown_attribute_is_still_an_attribute_error():
 
     with pytest.raises(AttributeError):
         core.utils.does_not_exist
+
+
+# ------------------------------------------------------------------
+# _4_2_translate: a first sentence longer than the chunk size (replaces PR #479)
+# ------------------------------------------------------------------
+
+def test_split_chunks_has_no_empty_chunk(tmp_path, monkeypatch):
+    import core._4_2_translate as translate
+
+    sentences = ["x" * 50, "short one", "short two", "y" * 50, "short three"]
+    source = tmp_path / "split_by_meaning.txt"
+    source.write_text("\n".join(sentences), encoding="utf-8")
+    monkeypatch.setattr(translate, "_3_2_SPLIT_BY_MEANING", str(source))
+
+    chunks = translate.split_chunks_by_chars(chunk_size=30, max_i=10)
+
+    assert all(chunk.strip() for chunk in chunks)
+    assert "\n".join(chunks).split("\n") == sentences
+
+
+# ------------------------------------------------------------------
+# _9_refer_audio: the skip check looks at the reference directory
+# ------------------------------------------------------------------
+
+def _refer_audio(monkeypatch, tmp_path):
+    import numpy as np
+    import core._9_refer_audio as refer
+
+    refers, segs = tmp_path / "refers", tmp_path / "segs"
+    segs.mkdir()
+    monkeypatch.setattr(refer, "_AUDIO_REFERS_DIR", str(refers))
+    monkeypatch.setattr(refer, "_AUDIO_SEGS_DIR", str(segs))
+    monkeypatch.setattr(refer, "find_spec", lambda name: None)
+    monkeypatch.setattr(refer.pd, "read_excel", lambda path: pd.DataFrame(
+        {"number": [1, 2], "start_time": ["00:00:00,000", "00:00:01,000"], "end_time": ["00:00:01,000", "00:00:02,000"]}))
+    monkeypatch.setattr(refer.sf, "read", lambda path: (np.zeros(32000, dtype="float32"), 16000))
+    return refer, refers, segs
+
+
+def test_refer_audio_is_extracted_even_when_dub_segments_exist(monkeypatch, tmp_path):
+    refer, refers, segs = _refer_audio(monkeypatch, tmp_path)
+    (segs / "1.wav").write_bytes(b"left over from an earlier dubbing run")
+
+    refer.extract_refer_audio_main()
+
+    assert sorted(path.name for path in refers.iterdir()) == ["1.wav", "2.wav"]
+
+
+def test_refer_audio_is_skipped_when_references_exist(monkeypatch, tmp_path):
+    refer, refers, _ = _refer_audio(monkeypatch, tmp_path)
+    refers.mkdir()
+    (refers / "1.wav").write_bytes(b"existing")
+
+    refer.extract_refer_audio_main()
+
+    assert [path.name for path in refers.iterdir()] == ["1.wav"]
+
+
+# ------------------------------------------------------------------
+# tts_settings: follow-ups to PR #613
+# ------------------------------------------------------------------
+
+def test_configured_keys_accepts_a_non_string_key():
+    from core.st_utils.tts_settings import configured_keys
+
+    config = {"azure_tts.api_key": 1234567890, "openai_tts.api_key": None,
+              "fish_tts.api_key": "YOUR_302_API_KEY", "f5tts.302_api": ""}
+
+    assert configured_keys("302.ai", "openai_tts", config.get) == ("1234567890", False)

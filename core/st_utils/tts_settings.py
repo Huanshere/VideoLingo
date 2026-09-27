@@ -16,7 +16,7 @@ KEY_PATHS = {
 def configured_keys(provider, method, load_key):
     """Prefer the selected method; reuse a sole existing key without writing it."""
     paths = KEY_PATHS[provider]
-    values = {path: load_key(path) for path in paths}
+    values = {path: str(load_key(path) or "") for path in paths}  # YAML reads a digits-only key as int
     usable = {path: value for path, value in values.items()
               if value and not value.startswith("YOUR_")}
     current = paths[PROVIDERS[provider].index(method)]
@@ -52,8 +52,9 @@ def select_tts_method(labels):
     if chosen is None:
         return None
     methods = PROVIDERS[chosen]
+    # After a provider switch the old method is not in the list: take the provider's first one
     selected = st.selectbox(t("TTS Method"), methods,
-                            index=methods.index(current) if current in methods else None,
+                            index=methods.index(current) if current in methods else 0,
                             format_func=lambda method: labels[method])
     if selected is None:
         return None
