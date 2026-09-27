@@ -11,7 +11,7 @@ from core.utils.models import _4_1_TERMINOLOGY, _4_2_TRANSLATION, _5_SPLIT_SUB, 
 
 # Labels remain translation keys; only the UI translates them.
 SUBTITLE_STEPS = [
-    ("Word-level transcription and alignment", ("_2_asr.transcribe",)),
+    ("Word-level transcription and alignment", ("_2_import_subtitles.import_subtitles", "_2_asr.transcribe")),
     ("Sentence segmentation using NLP and LLM", (
         "_3_1_split_nlp.split_by_spacy", "_3_2_split_meaning.split_sentences_by_meaning")),
     ("Summarization and multi-step translation", (

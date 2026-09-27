@@ -2,6 +2,7 @@ import pandas as pd
 from typing import List, Tuple
 import concurrent.futures
 
+from core._1_ytdlp import find_subtitle_file
 from core._3_2_split_meaning import split_sentence
 from core.task_runner import StopTask
 from core.prompts import get_align_prompt
@@ -142,6 +143,13 @@ def split_for_sub_main():
     df = pd.read_excel(_4_2_TRANSLATION)
     src = df['Source'].tolist()
     trans = df['Translation'].tolist()
+
+    if find_subtitle_file():
+        # The subtitles of the user keep their lines and their times
+        console.print("[cyan]📄 Subtitles of the user: the lines are kept as they are[/cyan]")
+        for path in (_5_SPLIT_SUB, _5_REMERGED):
+            pd.DataFrame({'Source': src, 'Translation': trans}).to_excel(path, index=False)
+        return
     
     subtitle_set = load_key("subtitle")
     MAX_SUB_LENGTH = subtitle_set["max_length"]

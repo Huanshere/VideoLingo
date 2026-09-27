@@ -76,12 +76,15 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
     media_file = find_video_files(save_path)
     write_input_manifest(media_file, "video", save_path)
 
-def write_input_manifest(media_file: str, media_type: str, save_path='output'):
+def write_input_manifest(media_file: str, media_type: str, save_path='output', subtitle_file=None):
     os.makedirs(save_path, exist_ok=True)
     manifest_path = os.path.join(save_path, INPUT_MANIFEST)
     media_path = media_file.replace("\\", "/") if sys.platform.startswith('win') else media_file
+    manifest = {"path": media_path, "type": media_type}
+    if subtitle_file:
+        manifest["subtitle"] = subtitle_file.replace("\\", "/")
     with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump({"path": media_path, "type": media_type}, f, ensure_ascii=False, indent=2)
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
 
 def _read_input_manifest(save_path='output'):
     manifest_path = os.path.join(save_path, INPUT_MANIFEST)
@@ -91,9 +94,18 @@ def _read_input_manifest(save_path='output'):
         data = json.load(f)
     media_file = data.get("path")
     media_type = data.get("type")
-    if media_type not in {"video", "audio"} or not media_file or not os.path.exists(media_file):
+    if media_type not in {"video", "audio", "subtitle"} or not media_file or not os.path.exists(media_file):
         return None
     return media_file.replace("\\", "/") if sys.platform.startswith('win') else media_file, media_type
+
+def find_subtitle_file(save_path='output'):
+    """The subtitles of the user that take the place of the recognition, or None."""
+    manifest_path = os.path.join(save_path, INPUT_MANIFEST)
+    if not os.path.exists(manifest_path):
+        return None
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        subtitle_file = json.load(f).get("subtitle")
+    return subtitle_file if subtitle_file and os.path.exists(subtitle_file) else None
 
 def find_video_files(save_path='output'):
     video_files = [file for file in glob.glob(save_path + "/*") if os.path.isfile(file) and os.path.splitext(file)[1][1:].lower() in load_key("allowed_video_formats")]
@@ -147,11 +159,11 @@ def find_media_file(save_path='output'):
     raise ValueError("No media file found. Please download or upload a media file first.")
 
 def is_audio_only_input(save_path='output'):
-    # True when the input is a standalone audio file (no video present).
+    # True when the input has no video: a standalone audio file, or subtitles only.
     # In this case VideoLingo only produces subtitle files; no video output.
     try:
         _, media_type = find_media_file(save_path)
-        return media_type == "audio"
+        return media_type in ("audio", "subtitle")
     except Exception:
         return False
 

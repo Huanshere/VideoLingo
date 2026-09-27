@@ -1071,7 +1071,8 @@ def test_transcribe_stage_stops_before_the_translation(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(pipeline, "import_module", lambda name: SimpleNamespace(**{
         function: lambda call=f"{name}.{function}": calls.append(call)
-        for function in ("transcribe", "split_by_spacy", "split_sentences_by_meaning", "gen_source_subtitles")}))
+        for function in ("import_subtitles", "transcribe", "split_by_spacy", "split_sentences_by_meaning",
+                         "gen_source_subtitles")}))
 
     steps = pipeline.get_steps("transcribe")
     for _, step in steps:
@@ -1079,7 +1080,8 @@ def test_transcribe_stage_stops_before_the_translation(tmp_path, monkeypatch):
 
     assert [label for label, _ in steps] == [
         "Word-level transcription and alignment", "Sentence segmentation using NLP and LLM", "Generate subtitle files"]
-    assert calls == ["core._2_asr.transcribe", "core._3_1_split_nlp.split_by_spacy",
+    assert calls == ["core._2_import_subtitles.import_subtitles", "core._2_asr.transcribe",
+                     "core._3_1_split_nlp.split_by_spacy",
                      "core._3_2_split_meaning.split_sentences_by_meaning", "core._6_gen_sub.gen_source_subtitles"]
     assert not os.path.exists("output/.subtitle_done")
 
@@ -1470,3 +1472,211 @@ def test_translation_is_reviewed_before_the_subtitles_are_cut():
     calls = [call for _, calls in pipeline.SUBTITLE_STEPS for call in calls]
     assert calls[calls.index("_4_2_translate.translate_all") + 1:][:2] == [
         "pipeline.review_translation", "_5_split_sub.split_for_sub_main"]
+
+
+# ------------------------------------------------------------------
+# D1: subtitles of the user instead of the recognition (#255, #457, #476)
+# ------------------------------------------------------------------
+
+SRT = """1
+00:00:01,000 --> 00:00:03,000
+<i>Hello</i> world.
+
+2
+00:00:03,500 --> 00:00:05,000
+{\\an8}- How are you?
+- Fine, <font color="#ffff00">thanks</font>.
+
+3
+00:00:05,000 --> 00:00:06,000
+♪♪
+
+4
+00:01:00.250 --> 01:00:02.5
+2024
+
+5
+00:00:07,000 --> 00:00:08,000
+Pneumonoultramicroscopicsilicovolcanoconiosis 你好，世界
+"""
+CUES = [
+    (1.0, 3.0, "Hello world."),
+    (3.5, 5.0, "- How are you? - Fine, thanks."),
+    (7.0, 8.0, "Pneumonoultramicroscopicsilicovolcanoconiosis 你好，世界"),
+    (60.25, 3602.5, "2024"),
+]
+
+
+@pytest.mark.parametrize("content", [
+    SRT.encode("utf-8"),
+    SRT.replace("\n", "\r\n").encode("utf-8-sig"),
+    SRT.encode("utf-16"),
+    SRT.replace("\n\n", "\n").encode("utf-8"),
+])
+def test_subtitles_of_an_srt_file(content):
+    from core._2_import_subtitles import read_cues
+    assert read_cues(content) == CUES
+
+
+@pytest.mark.parametrize("content", [
+    b"", b"Hello world.", "1\n00:00:01,000 --> 00:00:02,000\n♪\n".encode("utf-8"),
+    "1\n00:00:01,000 --> 00:00:02,000\n你好\n".encode("gbk"),
+    "1\n00:00:02,000 --> 00:00:02,000\nHello\n".encode("utf-8"),
+])
+def test_file_without_subtitles_is_refused(content):
+    from core._2_import_subtitles import read_cues
+    with pytest.raises(ValueError):
+        read_cues(content)
+
+
+def _input_subtitles(monkeypatch, tmp_path, video=False, language="en"):
+    import core._2_import_subtitles as module
+    from core._1_ytdlp import write_input_manifest
+    monkeypatch.chdir(tmp_path)
+    with open("config.yaml", "w", encoding="utf-8") as f:
+        f.write(f"allowed_video_formats: [mp4]\nallowed_audio_formats: [mp3]\ndemucs: false\n"
+                f"whisper:\n  language: {language}\n")
+    os.makedirs("output")
+    if video:
+        open("output/talk.mp4", "w").close()
+        write_input_manifest("output/talk.mp4", "video")
+    return module
+
+
+def test_subtitles_are_the_input_without_a_media_file(monkeypatch, tmp_path):
+    from core import _1_ytdlp
+    module = _input_subtitles(monkeypatch, tmp_path)
+
+    subtitle_file = module.add_input_subtitles("my: talk.srt", SRT.encode("utf-8"))
+
+    assert subtitle_file == os.path.join("output", "input", "my talk.srt")
+    assert _1_ytdlp.find_media_file() == (subtitle_file, "subtitle")
+    assert _1_ytdlp.find_subtitle_file() == subtitle_file
+    assert _1_ytdlp.is_audio_only_input()
+
+
+def test_subtitles_go_with_the_video(monkeypatch, tmp_path):
+    from core import _1_ytdlp
+    module = _input_subtitles(monkeypatch, tmp_path, video=True)
+    assert _1_ytdlp.find_subtitle_file() is None
+
+    subtitle_file = module.add_input_subtitles("talk.srt", SRT.encode("utf-8"))
+
+    assert _1_ytdlp.find_media_file() == ("output/talk.mp4", "video")
+    assert _1_ytdlp.find_subtitle_file() == subtitle_file
+    assert not _1_ytdlp.is_audio_only_input()
+
+
+def test_file_without_subtitles_is_not_added(monkeypatch, tmp_path):
+    module = _input_subtitles(monkeypatch, tmp_path)
+    with pytest.raises(ValueError):
+        module.add_input_subtitles("talk.srt", b"Hello world.")
+    assert os.listdir("output") == []
+
+
+def test_subtitles_take_the_place_of_the_recognition(monkeypatch, tmp_path):
+    from core._6_gen_sub import get_sentence_timestamps
+    module = _input_subtitles(monkeypatch, tmp_path)
+    module.add_input_subtitles("talk.srt", SRT.encode("utf-8"))
+
+    module.import_subtitles()
+
+    sentences = [text for _, _, text in CUES]
+    for name in ("split_by_nlp.txt", "split_by_meaning.txt"):
+        with open(f"output/log/{name}", encoding="utf-8") as f:
+            assert f.read().split("\n") == sentences
+    words = pd.read_excel("output/log/cleaned_chunks.xlsx")
+    assert list(words.columns) == ["text", "start", "end", "speaker_id"]
+    assert list(words["text"][:2]) == ['"Hello"', '"world."'] and len(words) == 12
+    assert list(words["start"][:3]) == [1.0, 2.0, 3.5] and list(words["end"][:3]) == [2.0, 3.0, 3.5]
+    # The lines get the times of their subtitles back
+    words["text"] = words["text"].str.strip('"')
+    stamps = get_sentence_timestamps(words, pd.DataFrame({"Source": sentences}))
+    assert stamps == [(start, end) for start, end, _ in CUES]
+
+
+def test_subtitles_with_a_video_prepare_the_audio_of_the_dubbing(monkeypatch, tmp_path):
+    import core._2_asr as asr
+    module = _input_subtitles(monkeypatch, tmp_path, video=True)
+    module.add_input_subtitles("talk.srt", SRT.encode("utf-8"))
+    calls = []
+    monkeypatch.setattr(asr, "prepare_audio", lambda *args: calls.append(args))
+
+    module.import_subtitles()
+
+    assert calls == [("output/talk.mp4", "video", False)]
+    assert os.path.exists("output/log/cleaned_chunks.xlsx")
+
+
+def test_subtitles_without_a_video_need_no_audio(monkeypatch, tmp_path):
+    import core._2_asr as asr
+    module = _input_subtitles(monkeypatch, tmp_path)
+    module.add_input_subtitles("talk.srt", SRT.encode("utf-8"))
+    monkeypatch.setattr(asr, "prepare_audio", lambda *args: pytest.fail("there is no audio"))
+
+    module.import_subtitles()
+
+    assert os.path.exists("output/log/cleaned_chunks.xlsx")
+
+
+def test_subtitles_need_their_language(monkeypatch, tmp_path):
+    module = _input_subtitles(monkeypatch, tmp_path, language="auto")
+    module.add_input_subtitles("talk.srt", SRT.encode("utf-8"))
+    with pytest.raises(ValueError, match="language"):
+        module.import_subtitles()
+    assert not os.path.exists("output/log")
+
+
+def test_recognition_is_kept_without_subtitles_of_the_user(monkeypatch, tmp_path):
+    module = _input_subtitles(monkeypatch, tmp_path, video=True)
+    module.import_subtitles()
+    assert not os.path.exists("output/log")
+
+    # A retry keeps the words that are there
+    module.add_input_subtitles("talk.srt", SRT.encode("utf-8"))
+    os.makedirs("output/log")
+    _words().to_excel("output/log/cleaned_chunks.xlsx", index=False)
+    module.import_subtitles()
+    assert len(pd.read_excel("output/log/cleaned_chunks.xlsx")) == 5
+    assert os.listdir("output/log") == ["cleaned_chunks.xlsx"]
+
+
+def test_subtitles_of_the_user_are_not_cut(monkeypatch, tmp_path):
+    import core._5_split_sub as module
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    _translation_results(["大家好。" * 30, "……", "你好吗？"])
+    monkeypatch.setattr(module, "find_subtitle_file", lambda: "output/input/talk.srt")
+    monkeypatch.setattr(module, "split_align_subs", lambda *args: pytest.fail("the lines are kept"))
+
+    module.split_for_sub_main()
+
+    for name in ("translation_results_for_subtitles.xlsx", "translation_results_remerged.xlsx"):
+        df = pd.read_excel(f"output/log/{name}")
+        assert list(df["Source"]) == ["Hello world.", "...", "How are you?"]
+        assert list(df["Translation"]) == ["大家好。" * 30, "……", "你好吗？"]
+
+
+def test_source_subtitles_of_the_user_are_not_cut(monkeypatch, tmp_path):
+    import core._1_ytdlp as ytdlp
+    import core._5_split_sub as split_sub
+    import core._6_gen_sub as module
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/log")
+    _words().to_excel("output/log/cleaned_chunks.xlsx", index=False)
+    with open("output/log/split_by_meaning.txt", "w", encoding="utf-8") as f:
+        f.write("Hello world.\nHow are you?")
+    monkeypatch.setattr(ytdlp, "find_subtitle_file", lambda: "output/input/talk.srt")
+    monkeypatch.setattr(split_sub, "split_source_lines", lambda lines: pytest.fail("the lines are kept"))
+
+    module.gen_source_subtitles()
+
+    with open("output/src.srt", encoding="utf-8") as f:
+        assert f.read() == ("1\n00:00:00,000 --> 00:00:01,000\nHello world.\n\n\n"
+                            "2\n00:00:02,000 --> 00:00:03,200\nHow are you?")
+
+
+def test_subtitles_are_imported_before_the_recognition():
+    from core import pipeline
+    assert pipeline.SUBTITLE_STEPS[0][1] == ("_2_import_subtitles.import_subtitles", "_2_asr.transcribe")
+    assert pipeline.TRANSCRIBE_STEPS[0] == pipeline.SUBTITLE_STEPS[0]

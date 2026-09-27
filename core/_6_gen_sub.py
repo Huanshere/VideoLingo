@@ -154,13 +154,15 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
 
 def gen_source_subtitles():
     """Transcription only: `src.srt` from the split sentences, without a translation."""
+    from core._1_ytdlp import find_subtitle_file
     from core._5_split_sub import split_source_lines
     df_text = pd.read_excel(_2_CLEANED_CHUNKS)
     df_text['text'] = df_text['text'].str.strip('"').str.strip()
     with open(_3_2_SPLIT_BY_MEANING, 'r', encoding='utf-8') as f:
         lines = [line.strip() for line in f if line.strip()]
 
-    df_source = pd.DataFrame({'Source': split_source_lines(lines)})
+    # The subtitles of the user keep their lines
+    df_source = pd.DataFrame({'Source': lines if find_subtitle_file() else split_source_lines(lines)})
     align_timestamp(df_text, df_source, [('src.srt', ['Source'])], _OUTPUT_DIR, for_display=False)
     console.print(Panel("[bold green]🎉📝 Source subtitles are ready: `output/src.srt`[/bold green]"))
 

@@ -240,11 +240,13 @@ def text_processing_section():
                     steps = get_steps("subtitles")
                     runner.start(steps)
                     st.rerun()
-                # No `help`: its tooltip wrapper takes the button out of `button_style`
-                if st.button(t("Transcribe Only"), key="transcribe_only_button"):
-                    runner.start(get_steps("transcribe"))
-                    st.rerun()
-                st.caption(t("Only generate the source subtitles `src.srt`, without translation"))
+                from core._1_ytdlp import find_subtitle_file
+                if not find_subtitle_file():
+                    # No `help`: its tooltip wrapper takes the button out of `button_style`
+                    if st.button(t("Transcribe Only"), key="transcribe_only_button"):
+                        runner.start(get_steps("transcribe"))
+                        st.rerun()
+                    st.caption(t("Only generate the source subtitles `src.srt`, without translation"))
                 if os.path.exists("output/src.srt"):
                     st.success(t("Source subtitles are ready. You can download them, or start processing subtitles to translate them."))
                     download_subtitle_zip_button(text=t("Download All Srt Files"))

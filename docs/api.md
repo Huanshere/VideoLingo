@@ -60,6 +60,21 @@ GET /files/trans.srt
 POST /archive
 ```
 
+## Existing subtitles
+
+To translate subtitles that you already have, pass an SRT file (UTF-8). They are used instead
+of the recognition, with their own lines and times:
+
+```http
+POST /input
+{"source": "/absolute/path/video.mp4", "subtitles": "/absolute/path/video.srt"}
+```
+
+An SRT file as `source` translates the subtitles without a video: the result is subtitle files
+only, as for audio-only input. The language of the subtitles can not be detected, so set
+`source_language` (or `whisper.language` in `config.yaml`) to their language, not to `auto`.
+The file is kept in `output/input/`.
+
 Output files are also available directly in `output/`. File downloads only serve top-level
 files inside this directory. `/archive` runs in the background: wait for completion before
 preparing the next video. It retains the existing history behavior (same-name archives may
