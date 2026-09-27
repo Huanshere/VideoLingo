@@ -214,5 +214,19 @@
     "Bilingual": "Bilingue",
     "Translation only": "Traduction seule",
     "Source only": "Original seul",
-    "Which subtitles are burned into this video": "Quels sous-titres sont incrustés dans cette vidéo"
+    "Which subtitles are burned into this video": "Quels sous-titres sont incrustés dans cette vidéo",
+    "Azure MAI-Transcribe-2": "Azure MAI-Transcribe-2",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key.": "Qwen3-ASR local fonctionne mieux avec un GPU NVIDIA ou Apple Silicon (le CPU est lent) ; la reconnaissance cloud nécessite une clé API du fournisseur.",
+    "Azure Speech key": "Clé Azure Speech",
+    "Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available.": "Utilisez la clé d’une ressource Azure Speech située dans une région où MAI-Transcribe-2 est disponible.",
+    "Azure Speech region or resource endpoint": "Région ou point de terminaison Azure Speech",
+    "Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key.": "Indiquez une région comme eastus ou le point de terminaison HTTPS de votre ressource Azure Speech. Laissez vide pour détecter la région à partir de la clé.",
+    "Detect Azure Speech region": "Détecter la région Azure Speech",
+    "Detecting Azure Speech region...": "Détection de la région Azure Speech...",
+    "Region detection failed. Check the key or enter the resource region manually.": "Échec de la détection de la région. Vérifiez la clé ou indiquez la région manuellement.",
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 est en préversion publique. L’audio est envoyé à Azure Speech.",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "Fournisseur MAI",
+    "OpenRouter API key": "Clé API OpenRouter",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "L’audio est envoyé à OpenRouter pour MAI-Transcribe-2 et peut entraîner des frais."
 }

@@ -214,5 +214,19 @@
     "Bilingual": "Двуязычные",
     "Translation only": "Только перевод",
     "Source only": "Только оригинал",
-    "Which subtitles are burned into this video": "Какие субтитры вшиваются в это видео"
+    "Which subtitles are burned into this video": "Какие субтитры вшиваются в это видео",
+    "Azure MAI-Transcribe-2": "Azure MAI-Transcribe-2",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key.": "Локальный Qwen3-ASR лучше работает с GPU NVIDIA или Apple Silicon (на CPU медленно); для облачного распознавания нужен API-ключ провайдера.",
+    "Azure Speech key": "Ключ Azure Speech",
+    "Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available.": "Используйте ключ ресурса Azure Speech в регионе, где доступен MAI-Transcribe-2.",
+    "Azure Speech region or resource endpoint": "Регион или конечная точка Azure Speech",
+    "Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key.": "Введите регион, например eastus, или HTTPS-адрес ресурса Azure Speech. Оставьте поле пустым, чтобы определить регион по ключу.",
+    "Detect Azure Speech region": "Определить регион Azure Speech",
+    "Detecting Azure Speech region...": "Определение региона Azure Speech...",
+    "Region detection failed. Check the key or enter the resource region manually.": "Не удалось определить регион. Проверьте ключ или укажите регион ресурса вручную.",
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 находится на этапе публичной предварительной версии. Аудио отправляется в Azure Speech.",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "Провайдер MAI",
+    "OpenRouter API key": "Ключ API OpenRouter",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "Аудио отправляется в OpenRouter для MAI-Transcribe-2; возможна плата."
 }

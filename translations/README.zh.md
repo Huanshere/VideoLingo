@@ -129,7 +129,7 @@ uv run start.py --api
 ## LLM、语音识别与配音服务
 本项目支持 OpenAI-Like 格式的 api 和多种配音接口：
 - LLM：自行选择兼容 OpenAI Chat Completions、能够返回流程所需结构化 JSON 的服务和模型。推荐 [OpenLux](https://www.openlux.ai/register?aff=wKYu) 中转，API 地址填 `https://api.openlux.ai/v1`。默认性价比高用 GPT-6 Luna，模型 ID 填 `gpt-6-luna`；质量更好用 GPT-6 Sol，模型 ID 填 `gpt-6-sol`；质量最好用 Claude Opus 5.5，模型 ID 填 `claude-opus-5-5`。OpenLux 中转约价见安装文档。在侧栏配置 API 地址、密钥和模型。
-- 语音识别：本地运行 Qwen3-ASR + ForcedAligner（默认），或使用 ElevenLabs API。安装器不会安装 WhisperX；若要把它当作后端，见 [WhisperX（手动安装）](../docs/pages/docs/whisperx-manual.zh-CN.md)。
+- 语音识别：本地运行 Qwen3-ASR + ForcedAligner（默认），或在侧栏选择 ElevenLabs、MAI-Transcribe-2。MAI 可使用 Azure Speech 密钥或 OpenRouter 密钥（在侧栏填写）；音频会发送到选定的服务商，可能产生费用。安装器不会安装 WhisperX；若要把它当作后端，见 [WhisperX（手动安装）](../docs/pages/docs/whisperx-manual.zh-CN.md)。
 - TTS：OpenAI、Fish TTS、SiliconFlow Fish/CosyVoice2、GPT-SoVITS、Edge TTS、F5-TTS，以及 `core/tts_backend/custom_tts.py` 中的自定义适配器。
 
 详细的安装、LLM 配置和使用说明可以参见文档：[English](/docs/pages/docs/start.en-US.md) | [简体中文](/docs/pages/docs/start.zh-CN.md)

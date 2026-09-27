@@ -214,5 +214,19 @@
     "Bilingual": "Bilingüe",
     "Translation only": "Solo traducción",
     "Source only": "Solo original",
-    "Which subtitles are burned into this video": "Qué subtítulos se incrustan en este vídeo"
+    "Which subtitles are burned into this video": "Qué subtítulos se incrustan en este vídeo",
+    "Azure MAI-Transcribe-2": "Azure MAI-Transcribe-2",
+    "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key.": "Qwen3-ASR local funciona mejor con una GPU NVIDIA o Apple Silicon (la CPU es lenta); el reconocimiento en la nube requiere una clave API del proveedor.",
+    "Azure Speech key": "Clave de Azure Speech",
+    "Use a key from an Azure Speech resource in a region where MAI-Transcribe-2 is available.": "Use una clave de un recurso de Azure Speech en una región compatible con MAI-Transcribe-2.",
+    "Azure Speech region or resource endpoint": "Región o punto de conexión de Azure Speech",
+    "Enter a region such as eastus, or the HTTPS endpoint of your Azure Speech resource. Leave blank to detect the region from the key.": "Escriba una región como eastus o el punto de conexión HTTPS de su recurso de Azure Speech. Déjelo vacío para detectar la región con la clave.",
+    "Detect Azure Speech region": "Detectar región de Azure Speech",
+    "Detecting Azure Speech region...": "Detectando región de Azure Speech...",
+    "Region detection failed. Check the key or enter the resource region manually.": "No se pudo detectar la región. Compruebe la clave o escriba la región del recurso manualmente.",
+    "MAI-Transcribe-2 is in public preview. Audio is sent to Azure Speech.": "MAI-Transcribe-2 está en versión preliminar pública. El audio se envía a Azure Speech.",
+    "MAI-Transcribe-2": "MAI-Transcribe-2",
+    "MAI provider": "Proveedor de MAI",
+    "OpenRouter API key": "Clave API de OpenRouter",
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "El audio se envía a OpenRouter para MAI-Transcribe-2 y puede generar costes."
 }
