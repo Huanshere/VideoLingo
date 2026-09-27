@@ -54,6 +54,13 @@ see the [WhisperX guide](pages/docs/whisperx-manual.en-US.md#ffmpeg-runtime).
 | Apple Silicon (`darwin` + `arm64`) | `mlx-audio>=0.5.5,<0.6`, plus `nagisa==0.2.11` and `soynlp==0.0.493` | `transformers>=5.14,<6`, `huggingface-hub>=1,<2` |
 | Windows, Linux and Intel Mac | `qwen-asr==0.0.6` | `transformers>=4.57.6,<5`, `huggingface-hub>=0.36.2,<1` |
 
+Qwen uses the bundled CPU model from `silero-vad>=6.2.3,<6.3` to trim non-speech
+edges from its existing windows before transcription and alignment. Both tracks
+keep identical sample boundaries and original time offsets. One second of padding
+protects short or quiet opening words; internal pauses remain intact. Windows
+without detected speech are retained rather than silently discarded. The model
+ships in the Python package, so this step needs no separate model download.
+
 Intel Macs use the last macOS x86_64 PyTorch wheel family: Torch/torchaudio 2.2.2,
 torchvision 0.17.2, NumPy 1.26 and Numba below 0.63, with Qwen3-ASR on CPU.
 The optional Demucs package is skipped on Intel Macs because its `sphn` dependency
