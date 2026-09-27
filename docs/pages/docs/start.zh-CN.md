@@ -123,9 +123,9 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 ### 安装前准备
 
-先安装 [Git](https://git-scm.com/downloads)、[uv](https://docs.astral.sh/uv/getting-started/installation/) 和 [FFmpeg](https://ffmpeg.org/download.html)。uv 链接提供不依赖 Python 的独立安装方式。重新打开终端，检查 `git --version`、`uv --version` 和 `ffmpeg -version`。
+先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
 
-Windows 可选择 FFmpeg 官网列出的 Windows 构建，将 `bin` 目录加入 PATH。macOS 使用 `brew install ffmpeg`，Debian/Ubuntu 使用 `sudo apt install ffmpeg`。默认的 Qwen3-ASR 识别只调用 FFmpeg 命令行程序。FFmpeg 共享库和「FFmpeg 4–7」的版本限制只在你自行安装 WhisperX 时才适用，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md#ffmpeg-runtime)。字幕烧录需要 subtitles 滤镜和合适的字体，安装器会在 Linux 上检查并尝试安装 Noto CJK 字体。
+安装器会自动下载并配置 FFmpeg 和 ffprobe，无需手动下载或设置 PATH。首次安装需要联网，之后启动会复用已下载的程序。 字幕烧录仍需要合适的字体，安装器会在 Linux 上检查并尝试安装 Noto CJK。只有可选的 [WhisperX 后端](whisperx-manual.zh-CN.md#ffmpeg-runtime)需要另外配置 FFmpeg 共享库。
 
 <a id="asr-runtime"></a>
 ### 语音识别（Qwen3-ASR + ForcedAligner）

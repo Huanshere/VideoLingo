@@ -10,6 +10,9 @@ def _configure_utf8_console():
 
 _configure_utf8_console()
 
+from runtime_libraries import configure_ffmpeg
+configure_ffmpeg(required=True)
+
 import streamlit as st
 from core.st_utils.imports_and_utils import *
 from core.task_runner import TaskRunner

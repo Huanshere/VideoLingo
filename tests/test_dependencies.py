@@ -276,6 +276,9 @@ def _patch_health_environment(monkeypatch, versions, gpu=False):
     monkeypatch.setattr(installer.platform, 'system', lambda: HEALTH_HOST['platform_system'])
     monkeypatch.setattr(installer.platform, 'machine', lambda: HEALTH_HOST['platform_machine'])
     monkeypatch.setattr(installer.shutil, 'which', lambda _: '/example/ffmpeg')
+    monkeypatch.setattr(installer, 'configure_ffmpeg', lambda **kwargs: Path('/example'))
+    monkeypatch.setattr(installer, 'validate_ffmpeg', lambda: 'FFmpeg test runtime')
+    monkeypatch.setattr(installer, 'whisperx_selected', lambda: False)
 
 
 @pytest.mark.parametrize('builds,backend,expected', [
@@ -316,30 +319,59 @@ def test_health_check_requires_platform_qwen_package(monkeypatch, capsys):
     assert f'missing package: {package}' in capsys.readouterr().out
 
 
-def test_torchcodec_probe_skipped_without_whisperx(monkeypatch):
+def test_whisperx_audio_probe_skipped_without_whisperx(monkeypatch):
     _patch_health_environment(monkeypatch, _requirement_versions(('', '', '')), gpu=False)
     monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: pytest.fail('TorchCodec is WhisperX-only'))
     assert installer.health_check(quiet=True, check_state=True, torch_backend='cpu') == 0
 
 
+def test_leftover_whisperx_does_not_block_qwen(monkeypatch):
+    _patch_health_environment(monkeypatch, dict(_requirement_versions(('', '', '')), whisperx='3.8.6'))
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: pytest.fail('Qwen must not probe TorchCodec'))
+    assert installer.health_check(quiet=True, torch_backend='cpu') == 0
+
+
+def test_missing_ffmpeg_is_reported_without_downloading(monkeypatch, capsys):
+    _patch_health_environment(monkeypatch, _requirement_versions())
+    def missing(**kwargs):
+        assert kwargs == {'required': True}
+        raise RuntimeError('Run python installer.py')
+    monkeypatch.setattr(installer, 'configure_ffmpeg', missing)
+    assert installer.health_check() == 1
+    assert 'Run python installer.py' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('runtime,backend,expected', [('local', 'qwen', False), ('local', 'whisperx', True), ('elevenlabs', 'whisperx', False), ('local', None, False)])
+def test_whisperx_probe_follows_selected_backend(tmp_path, monkeypatch, runtime, backend, expected):
+    from ruamel.yaml import YAML
+    config = {'whisper': {'runtime': runtime}}
+    if backend:
+        config['whisper']['backend'] = backend
+    with (tmp_path / 'config.yaml').open('w') as stream:
+        YAML().dump(config, stream)
+    monkeypatch.setattr(installer, 'ROOT', tmp_path)
+    assert installer.whisperx_selected() is expected
+
+
 @pytest.mark.parametrize('returncode', [0, 1])
-def test_torchcodec_probe_result(monkeypatch, capsys, returncode):
+def test_whisperx_audio_probe_result(monkeypatch, capsys, returncode):
     _patch_health_environment(monkeypatch, dict(_requirement_versions(('', '', '')), whisperx='3.8.6'), gpu=False)
+    monkeypatch.setattr(installer, 'whisperx_selected', lambda: True)
     calls = []
     def probe(cmd, **kwargs):
         calls.append(cmd)
         assert cmd[:2] == [installer.sys.executable, '-c']
-        assert 'import torchcodec.decoders' in cmd[2]
+        assert 'check_whisperx_runtime()' in cmd[2]
         assert kwargs['timeout'] == 60
-        return subprocess.CompletedProcess(cmd, returncode, stdout='', stderr='incompatible libavcodec' if returncode else '')
+        return subprocess.CompletedProcess(cmd, returncode, stdout='', stderr='missing optional dependency' if returncode else '')
     monkeypatch.setattr(installer.subprocess, 'run', probe)
     assert installer.health_check(check_state=True, torch_backend='cpu') == returncode
     assert len(calls) == 1
     output = capsys.readouterr().out
     if returncode:
-        assert 'TorchCodec could not load' in output
-        assert 'FFmpeg 7 shared libraries' in output
-        assert 'incompatible libavcodec' in output
+        assert 'WhisperX audio runtime check failed' in output
+        assert 'managed FFmpeg installation' in output
+        assert 'missing optional dependency' in output
     else:
         assert 'ERROR:' not in output
 
@@ -348,14 +380,15 @@ def test_torchcodec_probe_result(monkeypatch, capsys, returncode):
     OSError('synthetic process launch failure'),
     subprocess.TimeoutExpired('torchcodec probe', 60),
 ])
-def test_torchcodec_probe_exception_is_an_error(monkeypatch, capsys, error):
+def test_whisperx_audio_probe_exception_is_an_error(monkeypatch, capsys, error):
     _patch_health_environment(monkeypatch, dict(_requirement_versions(), whisperx='3.8.6'), gpu=False)
+    monkeypatch.setattr(installer, 'whisperx_selected', lambda: True)
     def probe(*args, **kwargs):
         raise error
     monkeypatch.setattr(installer.subprocess, 'run', probe)
     assert installer.health_check(check_state=True, torch_backend='cpu') == 1
     output = capsys.readouterr().out
-    assert 'TorchCodec runtime check failed' in output
+    assert 'WhisperX audio runtime check failed' in output
     assert str(error) in output
 
 
@@ -617,3 +650,24 @@ def test_asr_install_summary_probe_failure_is_nonfatal(monkeypatch, tmp_path, ca
     output = capsys.readouterr().out
     assert 'Device information unavailable' in output
     assert 'Qwen3-ASR-1.7B' in output
+
+
+@pytest.mark.parametrize("external", [True, False])
+def test_mlx_cleanup_keeps_transitive_dependencies_and_handles_cycles(monkeypatch, external):
+    _apple_silicon(monkeypatch)
+    dists = [
+        _fake_distribution('faster-whisper', 'ctranslate2'),
+        _fake_distribution('ctranslate2', 'faster-whisper'),  # a cycle must terminate
+        _fake_distribution('whisperx', 'faster-whisper', 'torchcodec'),
+        _fake_distribution('VideoLingo', 'whisperx'),
+    ]
+    if external:
+        dists.append(_fake_distribution('another-asr-app', 'faster_whisper'))
+    monkeypatch.setattr(installer.metadata, 'distributions', lambda: dists)
+    installed = {'faster-whisper': '1', 'ctranslate2': '1', 'whisperx': '1', 'torchcodec': '1'}
+    monkeypatch.setattr(installer, 'package_version', installed.get)
+    calls = []
+    monkeypatch.setattr(installer, 'run', lambda cmd, **kwargs: calls.append(cmd))
+    installer.remove_whisperx_for_mlx()
+    removed = set(calls[0][calls[0].index('-y') + 1:])
+    assert removed == ({'whisperx', 'torchcodec'} if external else set(installed))

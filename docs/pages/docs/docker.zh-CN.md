@@ -31,8 +31,9 @@ docker build --build-arg CUDA_VERSION=12.6.3 -t videolingo:cu126 .
 `requirements.txt` 约束。镜像是 Linux，本地识别默认使用 Qwen3-ASR + ForcedAligner，
 通过官方 qwen-asr 包（Transformers 4.57、Hub <1）在 CUDA 上运行。镜像内不安装
 WhisperX，它也不是安装器选项。若要自己追加（例如在派生镜像中），见
-[WhisperX（手动安装）](whisperx-manual.zh-CN.md)。Demucs 4.1 使用正常依赖解析。Ubuntu 提供 FFmpeg 及共享库、Noto CJK
-字体和图像运行库。
+[WhisperX（手动安装）](whisperx-manual.zh-CN.md)。Demucs 4.1 使用正常依赖解析。
+安装器在镜像构建时自动下载 FFmpeg 和 ffprobe。Ubuntu 提供 Noto CJK 字体和图像运行库。
+只有自行追加 WhisperX 时才需要额外安装 FFmpeg 共享库。
 
 ## 启动并保留数据
 

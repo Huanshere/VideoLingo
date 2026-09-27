@@ -498,18 +498,33 @@ def attach_words(text, items, offset=0.0, limit=None):
         value = max(0.0, float(value))
         return min(value, limit) if limit is not None else value
 
-    words, pos, n = [], 0, len(text)
+    # Nagisa normalizes Japanese tokens (e.g. ＡＩ -> AI, ｶﾞ -> ガ).
+    # Match compatibility-decomposed characters, retaining their original offsets.
+    # NFKD also lets a composed kana match a half-width base + voiced mark.
+    normalized, original_ends = [], []
+    for index, char in enumerate(text):
+        part = unicodedata.normalize("NFKD", char)
+        normalized.extend(part)
+        original_ends.extend([index + 1] * len(part))
+    words, pos, cursor, n = [], 0, 0, len(text)
     for token, start, end in items:
         if not token:
             continue
-        j = pos
-        for ch in token:
-            while j < n and text[j] != ch:
-                j += 1
-            if j >= n:
+        k = cursor
+        for ch in unicodedata.normalize("NFKD", token):
+            while k < len(normalized) and normalized[k] != ch:
+                k += 1
+            if k >= len(normalized):
                 break
-            j += 1
+            k += 1
         else:
+            cursor = k
+            j = original_ends[k - 1]
+            if j <= pos and words:
+                # One compatibility character can expand to several aligner tokens
+                # (㍿ -> 株式 + 会社). Emit it once, covering all their timestamps.
+                words[-1]["end"] = max(words[-1]["end"], round(offset + clamp(end), 3))
+                continue
             while j < n and not text[j].isspace() and not _is_token_char(text[j]):
                 j += 1
             surface = text[pos:j].strip()

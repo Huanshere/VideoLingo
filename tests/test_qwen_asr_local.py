@@ -808,3 +808,29 @@ def test_probe_mismatch_message_is_not_repetitive(pipeline):
     message = str(error.value)
     assert message.count("probe clips") == 2 and message.count("auto-detected probe clips of it") == 1
     assert "; the probe clips sound like Chinese). Use auto" in message
+
+
+@pytest.mark.parametrize("text,tokens,expected", [
+    ("今日は２０２６年です。", ["今日", "は", "2", "0", "2", "6", "年", "です"],
+     ["今日", "は", "２", "０", "２", "６", "年", "です。"]),
+    ("ＡＩ ニュースです。", ["AI", "ニュース", "です"], ["ＡＩ", "ニュース", "です。"]),
+    ("①テストです。", ["1", "テスト", "です"], ["①", "テスト", "です。"]),
+    ("ｶﾞｯﾂです。", ["ガッツ", "です"], ["ｶﾞｯﾂ", "です。"]),
+    ("㍿です。", ["株式", "会社", "です"], ["㍿", "です。"]),
+])
+def test_attach_words_preserves_original_normalized_characters(text, tokens, expected):
+    assert words(text, tokens) == expected
+
+
+def test_normalized_japanese_words_reach_subtitle_timestamps():
+    import pandas as pd
+    from core._6_gen_sub import get_sentence_timestamps
+    aligned = qwen.attach_words("ＡＩ ニュースです。", [("AI", 0, 1), ("ニュース", 1, 2), ("です", 2, 3)])
+    frame = pd.DataFrame(aligned).rename(columns={"word": "text"})
+    assert get_sentence_timestamps(frame, pd.DataFrame({"Source": ["ＡＩ ニュースです。"]})) == [(0.0, 3.0)]
+
+
+def test_compatibility_character_uses_all_its_token_timestamps():
+    assert qwen.attach_words("㍿", [("株式", 0, 1), ("会社", 1, 2)], offset=5) == [
+        {"word": "㍿", "start": 5.0, "end": 7.0}
+    ]

@@ -81,14 +81,11 @@ Dubbing languages depend on the selected TTS method.
 
 Meet any problem? Chat with our free online AI agent [**here**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) to help you.
 
-Install [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/) and [FFmpeg](https://ffmpeg.org/download.html) first. Reopen your terminal after installation and check `git --version`, `uv --version` and `ffmpeg -version`.
+Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
 For NVIDIA acceleration, install a driver compatible with your GPU. The host installer selects PyTorch `cu128` when `nvidia-smi` reports CUDA >=12.8, otherwise `cu126`; without NVIDIA it selects CPU packages. This selects Python packages, not a system CUDA Toolkit. On Apple Silicon (macOS 14+), local recognition uses MLX instead. See [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
 
-> **Note:** FFmpeg is required. Please install it via package managers:
-> - Windows: choose one of the Windows builds linked on the [FFmpeg download page](https://ffmpeg.org/download.html) and add its `bin` directory to PATH.
-> - macOS: ```brew install ffmpeg``` (via [Homebrew](https://brew.sh/))
-> - Linux: ```sudo apt install ffmpeg``` (Debian/Ubuntu)
+> FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools.
 
 ### Install with uv
 

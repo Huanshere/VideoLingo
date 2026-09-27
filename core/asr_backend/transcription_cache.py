@@ -12,7 +12,8 @@ from core.utils import check_cancel
 CACHE_DIR = Path(".cache/asr")
 # Bump when preprocessing, model options or result interpretation changes.
 # 2: Demucs stems are decoded/encoded with FFmpeg and no longer start ~60 ms late.
-SCHEMA = 2
+# 3: Qwen alignment preserves original Unicode characters after token normalization.
+SCHEMA = 3
 
 
 def cache_key(media_file, whisper, demucs):

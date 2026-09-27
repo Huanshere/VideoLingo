@@ -1,8 +1,8 @@
 """Load processing modules only when used (API startup needs no models)."""
 from importlib import import_module
-from runtime_libraries import configure_ffmpeg_dlls
+from runtime_libraries import configure_ffmpeg
 
-configure_ffmpeg_dlls()
+configure_ffmpeg()
 
 
 def __getattr__(name):
