@@ -1,5 +1,6 @@
 {
     "TTS Provider": "Proveedor de voz",
+    "The dubbing method of your configuration is not available any more. Select another one.": "El método de doblaje de su configuración ya no está disponible. Seleccione otro.",
     "Local service": "Servicio local",
     "Custom provider": "Proveedor personalizado",
     "Provider API Key": "Clave API del proveedor",
@@ -41,7 +42,6 @@
     "Refer_dynamic": "Referencia dinámica",
     "OpenAI Voice": "Voz de OpenAI",
     "Fish TTS Character": "Personaje Fish TTS",
-    "Azure Voice": "Voz de Azure",
     "Please refer to Github homepage for GPT_SoVITS configuration": "Consulte la página principal de Github para la configuración de GPT_SoVITS",
     "SoVITS Character": "Personaje SoVITS",
     "Refer Mode": "Modo de referencia",
@@ -151,7 +151,6 @@
     "ElevenLabs API": "API de ElevenLabs",
     "Voice": "Voz",
     "302ai API": "API de 302ai",
-    "Azure TTS": "Azure TTS",
     "OpenAI TTS": "OpenAI TTS",
     "Fish TTS": "Fish TTS",
     "SiliconFlow Fish TTS": "SiliconFlow Fish TTS",

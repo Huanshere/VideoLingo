@@ -342,7 +342,6 @@ def page_setting():
             st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
         tts_method_labels = {
-            "azure_tts": t("Azure TTS"),
             "openai_tts": t("OpenAI TTS"),
             "fish_tts": t("Fish TTS"),
             "sf_fish_tts": t("SiliconFlow Fish TTS"),
@@ -392,9 +391,6 @@ def page_setting():
             if fish_tts_character != load_key("fish_tts.character"):
                 update_key("fish_tts.character", fish_tts_character)
                 st.rerun()
-
-        elif select_tts == "azure_tts":
-            config_input(t("Azure Voice"), "azure_tts.voice")
 
         elif select_tts == "gpt_sovits":
             st.info(t("Please refer to Github homepage for GPT_SoVITS configuration"))

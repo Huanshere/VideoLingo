@@ -1,14 +1,14 @@
 """Provider grouping without changing existing TTS method/config identifiers."""
 
 PROVIDERS = {
-    "302.ai": ("azure_tts", "openai_tts", "fish_tts", "f5tts"),
+    "302.ai": ("openai_tts", "fish_tts", "f5tts"),
     "SiliconFlow": ("sf_fish_tts", "sf_cosyvoice2"),
     "Microsoft Edge": ("edge_tts",),
     "Local service": ("gpt_sovits",),
     "Custom provider": ("custom_tts",),
 }
 KEY_PATHS = {
-    "302.ai": ("azure_tts.api_key", "openai_tts.api_key", "fish_tts.api_key", "f5tts.302_api"),
+    "302.ai": ("openai_tts.api_key", "fish_tts.api_key", "f5tts.302_api"),
     "SiliconFlow": ("sf_fish_tts.api_key", "sf_cosyvoice2.api_key"),
 }
 
@@ -50,6 +50,7 @@ def select_tts_method(labels):
                           index=list(PROVIDERS).index(provider) if provider else None,
                           format_func=lambda name: t(name))
     if chosen is None:
+        st.warning(t("The dubbing method of your configuration is not available any more. Select another one."))
         return None
     methods = PROVIDERS[chosen]
     # After a provider switch the old method is not in the list: take the provider's first one

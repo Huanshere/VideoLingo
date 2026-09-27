@@ -1,5 +1,6 @@
 {
     "TTS Provider": "配音服务商",
+    "The dubbing method of your configuration is not available any more. Select another one.": "配置里的配音方式已不再提供，请重新选择。",
     "Local service": "本地服务",
     "Custom provider": "自定义服务",
     "Provider API Key": "服务商 API 密钥",
@@ -41,7 +42,6 @@
     "Refer_dynamic": "动态参考",
     "OpenAI Voice": "OpenAI语音",
     "Fish TTS Character": "Fish TTS角色",
-    "Azure Voice": "Azure语音",
     "Please refer to Github homepage for GPT_SoVITS configuration": "请参考Github主页了解GPT_SoVITS配置",
     "SoVITS Character": "SoVITS角色",
     "Refer Mode": "参考模式",
@@ -151,7 +151,6 @@
     "ElevenLabs API": "ElevenLabs API密钥",
     "Voice": "声音",
     "302ai API": "302ai API密钥",
-    "Azure TTS": "Azure TTS",
     "OpenAI TTS": "OpenAI TTS",
     "Fish TTS": "Fish TTS",
     "SiliconFlow Fish TTS": "硅基流动 Fish TTS",

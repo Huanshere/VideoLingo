@@ -1,5 +1,6 @@
 {
     "TTS Provider": "音声合成プロバイダー",
+    "The dubbing method of your configuration is not available any more. Select another one.": "設定の吹き替え方式は利用できなくなりました。別の方式を選択してください。",
     "Local service": "ローカルサービス",
     "Custom provider": "カスタムサービス",
     "Provider API Key": "プロバイダー API キー",
@@ -41,7 +42,6 @@
     "Refer_dynamic": "動的参照",
     "OpenAI Voice": "OpenAI音声",
     "Fish TTS Character": "Fish TTSキャラクター",
-    "Azure Voice": "Azure音声",
     "Please refer to Github homepage for GPT_SoVITS configuration": "GPT_SoVITSの設定についてはGithubホームページを参照してください",
     "SoVITS Character": "SoVITSキャラクター",
     "Refer Mode": "参照モード",
@@ -151,7 +151,6 @@
     "ElevenLabs API": "ElevenLabs API",
     "Voice": "ボイス",
     "302ai API": "302ai API",
-    "Azure TTS": "Azure TTS",
     "OpenAI TTS": "OpenAI TTS",
     "Fish TTS": "Fish TTS",
     "SiliconFlow Fish TTS": "SiliconFlow Fish TTS",

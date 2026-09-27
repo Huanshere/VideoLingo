@@ -26,7 +26,9 @@ TRANSCRIBE_STEPS = SUBTITLE_STEPS[:2] + [
     ("Generate subtitle files", ("_6_gen_sub.gen_source_subtitles",)),
 ]
 DUBBING_STEPS = [
-    ("Generate audio tasks and chunks", ("_8_1_audio_task.gen_audio_task_main", "_8_2_dub_chunks.gen_dub_chunks")),
+    ("Generate audio tasks and chunks", (
+        "pipeline.check_tts_method", "_8_1_audio_task.gen_audio_task_main",
+        "_8_2_dub_chunks.gen_dub_chunks")),
     ("Extract reference audio", ("_9_refer_audio.extract_refer_audio_main",)),
     ("Generate and merge audio files", ("_10_gen_audio.gen_audio",)),
     ("Merge full audio", ("_11_merge_audio.merge_full_audio",)),
@@ -108,6 +110,15 @@ def review_translation():
             return
         print(f"⚠️ {_4_2_TRANSLATION}: {error}")
         message = INVALID_TRANSLATION
+
+
+def check_tts_method():
+    """The method of an older config.yaml may be gone, such as azure_tts."""
+    from core.st_utils.tts_settings import PROVIDERS
+    method = load_key("tts_method")
+    if not any(method in methods for methods in PROVIDERS.values()):
+        raise ValueError(f"The dubbing method `{method}` is not available any more. "
+                         "Select another one in the dubbing settings and retry.")
 
 
 def _execute(calls, clear_marker=None):

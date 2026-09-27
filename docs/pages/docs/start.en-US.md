@@ -25,7 +25,6 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 
 | TTS Solution | Provider | Pros | Cons | Chinese Effect | Non-Chinese Effect |
 |:---------|:---------|:-----|:-----|:---------|:-----------|
-| 🔊 Azure TTS ⭐ | [302AI](https://gpt302.saaslink.net/C2oHR9) | Natural effect | Limited emotions | 🤩 | 😃 |
 | 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
 | 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | Authentic native | Limited official models | 🤩 | 😂 |
 | 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
@@ -33,7 +32,7 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
-- For OpenAI TTS, Azure TTS, and Fish TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to all three services
+- For OpenAI TTS, Fish TTS and F5-TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9) - one API key provides access to all three services
 > For a custom TTS adapter, edit `core/tts_backend/custom_tts.py`.
 
 <details>
@@ -54,9 +53,9 @@ Voice list can be found on the [official website](https://platform.openai.com/do
 
 </details>
 <details>
-<summary>How to choose Azure voices?</summary>
+<summary>How to choose Edge TTS voices?</summary>
 
-Recommended to try voices in the [online demo](https://speech.microsoft.com/portal/voicegallery). You can find the voice code in the code on the right, e.g. `zh-CN-XiaoxiaoMultilingualNeural`
+Edge TTS is the default and needs no API key. Run `edge-tts --list-voices` to list the voices, e.g. `zh-CN-XiaoxiaoNeural` or `en-US-JennyNeural`, and select one of the target language. Modify `edge_tts.voice` in `config.yaml` or in the sidebar.
 
 </details>
 

@@ -229,10 +229,26 @@ def test_refer_audio_is_skipped_when_references_exist(monkeypatch, tmp_path):
 def test_configured_keys_accepts_a_non_string_key():
     from core.st_utils.tts_settings import configured_keys
 
-    config = {"azure_tts.api_key": 1234567890, "openai_tts.api_key": None,
-              "fish_tts.api_key": "YOUR_302_API_KEY", "f5tts.302_api": ""}
+    config = {"fish_tts.api_key": 1234567890, "openai_tts.api_key": None, "f5tts.302_api": ""}
 
     assert configured_keys("302.ai", "openai_tts", config.get) == ("1234567890", False)
+
+
+def test_removed_dubbing_method_of_an_old_config_is_a_clear_error(monkeypatch):
+    from core import pipeline
+
+    monkeypatch.setattr(pipeline, "load_key", lambda key: "azure_tts")
+    with pytest.raises(ValueError, match="azure_tts"):
+        pipeline.check_tts_method()
+
+    monkeypatch.setattr(pipeline, "load_key", lambda key: "edge_tts")
+    pipeline.check_tts_method()
+
+
+def test_dubbing_checks_the_method_before_anything_else():
+    from core import pipeline
+
+    assert pipeline.DUBBING_STEPS[0][1][0] == "pipeline.check_tts_method"
 
 
 # ------------------------------------------------------------------
@@ -1695,19 +1711,6 @@ class _Refused:
         return {"error": "invalid key"}
 
 
-def test_refused_azure_request_is_not_saved_as_audio(monkeypatch, tmp_path):
-    from core.tts_backend import azure_tts
-
-    monkeypatch.setattr(azure_tts, "load_key", lambda key: "value")
-    monkeypatch.setattr(azure_tts.requests, "request", lambda *args, **kwargs: _Refused())
-    audio = tmp_path / "1.wav"
-
-    with pytest.raises(ValueError, match="401"):
-        azure_tts.azure_tts("Hello", str(audio))
-
-    assert not audio.exists()
-
-
 def test_refused_openai_request_is_an_error(monkeypatch, tmp_path):
     from core.tts_backend import openai_tts
 
@@ -1726,10 +1729,10 @@ def test_dubbing_stops_when_the_service_refuses(monkeypatch, tmp_path):
     from core.tts_backend import tts_main
 
     def refuse(text, save_as):
-        raise ValueError("Azure TTS request failed: HTTP 401")
+        raise ValueError("OpenAI TTS request failed: HTTP 401")
 
-    monkeypatch.setattr(tts_main, "load_key", lambda key: "azure_tts")
-    monkeypatch.setattr(tts_main, "azure_tts", refuse)
+    monkeypatch.setattr(tts_main, "load_key", lambda key: "openai_tts")
+    monkeypatch.setattr(tts_main, "openai_tts", refuse)
     monkeypatch.setattr(tts_main, "ask_gpt", lambda *args, **kwargs: {"text": "Hello there"})
     audio = tmp_path / "1.wav"
 

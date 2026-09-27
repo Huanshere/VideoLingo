@@ -24,7 +24,6 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 | TTS 方案 | 提供商 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:---------|:-----|:-----|:---------|:-----------|
-| 🔊 Azure TTS ⭐ | [302AI](https://gpt302.saaslink.net/C2oHR9) | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
 | 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
 | 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 真是本地人 | 官方模型有限 | 🤩 | 😂 |
 | 🎙️ SiliconFlow FishTTS | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | 语音克隆 | 克隆效果不稳定 | 😃 | 😃 |
@@ -32,7 +31,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 | 🗣️ GPT-SoVITS | 本地 | 最强语音克隆 | 只支持中英文，需要本地训练推理，配置麻烦 | 🏆 | 🚫 |
 
 - SiliconFlow FishTTS 请在 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) 获取key，注意克隆功能需要付费充值积分；
-- OpenAI TTS、Azure TTS 和 Fish TTS，仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9) - 一个 API key 即可使用所有服务
+- OpenAI TTS、Fish TTS 和 F5-TTS，仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9) - 一个 API key 即可使用所有服务
 > 自定义 TTS 适配器位于 `core/tts_backend/custom_tts.py`。
 
 <details>
@@ -53,9 +52,9 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 </details>
 <details>
-<summary>Azure 声音怎么选？</summary>
+<summary>Edge TTS 声音怎么选？</summary>
 
-建议在 [在线体验](https://speech.microsoft.com/portal/voicegallery) 中试听选择你想要的声音，在右边的代码中可以找到该声音对应的代号，例如 `zh-CN-XiaoxiaoMultilingualNeural`
+Edge TTS 是默认的配音方式，不需要 API 密钥。运行 `edge-tts --list-voices` 可以列出所有声音，例如 `zh-CN-XiaoxiaoNeural`、`en-US-JennyNeural`，请选择目标语言的声音，在 `config.yaml` 的 `edge_tts.voice` 或侧栏中修改。
 
 </details>
 

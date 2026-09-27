@@ -102,8 +102,8 @@ pause_before_translate: false
 pause_after_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
-tts_method: 'azure_tts'
+# TTS selection [edge_tts, openai_tts, fish_tts, f5tts, sf_fish_tts, sf_cosyvoice2, gpt_sovits, custom_tts]
+tts_method: 'edge_tts'
 
 # SiliconFlow FishTTS
 sf_fish_tts:
@@ -121,11 +121,6 @@ sf_fish_tts:
 openai_tts:
   api_key: 'YOUR_302_API_KEY'
   voice: 'alloy'
-
-# Azure configuration, 302.ai API only
-azure_tts:
-  api_key: 'YOUR_302_API_KEY'
-  voice: 'zh-CN-YunfengNeural'
 
 # FishTTS configuration, 302.ai API only
 fish_tts:

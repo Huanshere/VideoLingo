@@ -53,7 +53,6 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系
 *   `core/_8_2_dub_chunks.py`: 分析音频任务文件，计算时间间隙和语速，根据速度和停顿确定配音块的最佳切断点，必要时合并行，匹配字幕，并更新任务文件。
 *   `core/_9_refer_audio.py`: 基于音频任务文件中定义的时间戳，从源人声音轨中提取特定的音频片段，创建某些 TTS 引擎（如 GPT-SoVITS、F5-TTS、FishTTS）使用的参考音频文件。
 *   **TTS 后端 (`core/tts_backend`):**
-    *   `core/tts_backend/azure_tts.py`: Azure 文本转语音 API 的接口。
     *   `core/tts_backend/custom_tts.py`: 用于集成自定义 TTS 引擎的占位符/模板。
     *   `core/tts_backend/edge_tts.py`: 使用 `edge-tts` 命令行工具的 Microsoft Edge TTS 的接口。
     *   `core/tts_backend/fish_tts.py`: 302.ai Fish TTS API 的接口。
