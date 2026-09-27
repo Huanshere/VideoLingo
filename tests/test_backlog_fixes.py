@@ -1259,3 +1259,100 @@ def test_translation_style_without_the_polish_step(monkeypatch):
     faithfulness, _ = _prompts(monkeypatch, "colloquial, short sentences", False)
 
     assert faithfulness == plain[0].replace("<translation_principles>", STYLE_SECTION + "<translation_principles>")
+
+
+# ------------------------------------------------------------------
+# D3: which subtitles are burned into the two videos (#338, #348, #464)
+# ------------------------------------------------------------------
+
+def _burn(monkeypatch, tmp_path, configured, files=("src.srt", "trans.srt")):
+    import core.utils.subtitle_style as module
+    monkeypatch.chdir(tmp_path)
+    for name in files:
+        open(name, "w").close()
+    monkeypatch.setattr(module, "load_key_or", lambda key, default: configured.get(key, default))
+    monkeypatch.setattr(module, "get_force_style", lambda kind: kind.upper())
+    return module
+
+
+@pytest.mark.parametrize("video,configured,expected", [
+    ("subtitle", {}, "subtitles=src.srt:force_style='SOURCE',subtitles=trans.srt:force_style='TRANSLATION'"),
+    ("dubbed", {}, "subtitles=trans.srt:force_style='TRANSLATION'"),
+    ("subtitle", {"subtitle.sub_video_subtitles": "translation"}, "subtitles=trans.srt:force_style='TRANSLATION'"),
+    ("subtitle", {"subtitle.sub_video_subtitles": "source"}, "subtitles=src.srt:force_style='SOURCE'"),
+    ("dubbed", {"subtitle.dub_video_subtitles": "bilingual"},
+     "subtitles=src.srt:force_style='SOURCE',subtitles=trans.srt:force_style='TRANSLATION'"),
+    ("dubbed", {"subtitle.sub_video_subtitles": "source"}, "subtitles=trans.srt:force_style='TRANSLATION'"),
+    ("subtitle", {"subtitle.sub_video_subtitles": "both"},
+     "subtitles=src.srt:force_style='SOURCE',subtitles=trans.srt:force_style='TRANSLATION'"),
+    ("dubbed", {"subtitle.dub_video_subtitles": None}, "subtitles=trans.srt:force_style='TRANSLATION'"),
+])
+def test_subtitle_filters(monkeypatch, tmp_path, video, configured, expected):
+    module = _burn(monkeypatch, tmp_path, configured)
+
+    assert module.get_subtitle_filters(video, "src.srt", "trans.srt") == expected
+
+
+@pytest.mark.parametrize("mode", ["bilingual", "source"])
+def test_dub_without_source_subtitles_burns_the_translation(monkeypatch, tmp_path, mode):
+    module = _burn(monkeypatch, tmp_path, {"subtitle.dub_video_subtitles": mode}, files=("trans.srt",))
+
+    assert module.get_subtitle_filters("dubbed", "src.srt", "trans.srt") == "subtitles=trans.srt:force_style='TRANSLATION'"
+
+
+def test_default_subtitle_filter_is_the_one_from_before(monkeypatch, tmp_path):
+    module = _style(monkeypatch, None)
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output")
+    for name in ("src.srt", "trans.srt", "dub.srt"):
+        open(f"output/{name}", "w").close()
+
+    assert module.get_subtitle_filters("subtitle", "output/src.srt", "output/trans.srt") == (
+        f"subtitles=output/src.srt:force_style='{module.get_force_style('source')}',"
+        f"subtitles=output/trans.srt:force_style='{module.get_force_style('translation')}'")
+    assert module.get_subtitle_filters("dubbed", "output/dub_src.srt", "output/dub.srt") == (
+        f"subtitles=output/dub.srt:force_style='{module.get_force_style('translation')}'")
+
+
+def _dub_subtitle_tasks(tmp_path, monkeypatch, **columns):
+    import core._11_merge_audio as module
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("output/audio")
+    pd.DataFrame({
+        "number": [1, 2],
+        "lines": [str(["你好。", "最近好吗？"]), str(["再见。"])],
+        "new_sub_times": [str([[0.0, 1.5], [1.5, 3.25]]), str([[3661.5, 3663.0]])],
+        **columns,
+    }).to_excel("output/audio/tts_tasks.xlsx", index=False)
+    return module
+
+
+def test_dub_subtitles_in_both_languages(monkeypatch, tmp_path):
+    module = _dub_subtitle_tasks(tmp_path, monkeypatch, src_lines=[str(["Hello.", "How are you?"]), str(["Bye."])])
+
+    module.create_srt_subtitle()
+
+    with open("output/dub.srt", encoding="utf-8") as f:
+        assert f.read() == (
+            "1\n00:00:00,000 --> 00:00:01,500\n你好。\n\n"
+            "2\n00:00:01,500 --> 00:00:03,250\n最近好吗？\n\n"
+            "3\n01:01:01,500 --> 01:01:03,000\n再见。\n\n")
+    with open("output/dub_src.srt", encoding="utf-8") as f:
+        assert f.read() == (
+            "1\n00:00:00,000 --> 00:00:01,500\nHello.\n\n"
+            "2\n00:00:01,500 --> 00:00:03,250\nHow are you?\n\n"
+            "3\n01:01:01,500 --> 01:01:03,000\nBye.\n\n")
+
+
+@pytest.mark.parametrize("columns", [
+    {},
+    {"src_lines": [str(["Hello."]), str(["Bye."])]},
+    {"src_lines": [None, None]},
+])
+def test_no_source_subtitles_of_the_dub_when_they_do_not_match(monkeypatch, tmp_path, columns):
+    module = _dub_subtitle_tasks(tmp_path, monkeypatch, **columns)
+    open("output/dub_src.srt", "w").close()
+
+    module.create_srt_subtitle()
+
+    assert sorted(os.listdir("output")) == ["audio", "dub.srt"]

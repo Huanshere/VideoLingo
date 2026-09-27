@@ -63,6 +63,9 @@ subtitle:
   max_length: 75
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
+  # *Subtitles burned into the subtitle video and into the dubbed video [bilingual, translation, source]
+  sub_video_subtitles: 'bilingual'
+  dub_video_subtitles: 'translation'
   # *Style of the burned-in subtitles. Colors are &HBBGGRR, &HAABBGGRR (AA is the transparency) or #RRGGBB. An empty font_name uses the default font of the system
   style:
     source:

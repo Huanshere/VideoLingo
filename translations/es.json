@@ -198,5 +198,11 @@
     "Font": "Fuente",
     "Font size": "Tamaño de fuente",
     "Font color": "Color de fuente",
-    "Name of a font installed on this computer, empty for the default font": "Nombre de una fuente instalada en este equipo; vacío para la fuente predeterminada"
+    "Name of a font installed on this computer, empty for the default font": "Nombre de una fuente instalada en este equipo; vacío para la fuente predeterminada",
+    "Subtitle video": "Vídeo con subtítulos",
+    "Dubbed video": "Vídeo doblado",
+    "Bilingual": "Bilingüe",
+    "Translation only": "Solo traducción",
+    "Source only": "Solo original",
+    "Which subtitles are burned into this video": "Qué subtítulos se incrustan en este vídeo"
 }

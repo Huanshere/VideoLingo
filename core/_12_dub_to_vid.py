@@ -9,12 +9,13 @@ from rich.console import Console
 from core._1_ytdlp import find_video_files
 from core.utils import *
 from core.utils.models import *
-from core.utils.subtitle_style import get_force_style
+from core.utils.subtitle_style import get_subtitle_filters
 
 console = Console()
 
 DUB_VIDEO = "output/output_dub.mp4"
 DUB_SUB_FILE = 'output/dub.srt'
+DUB_SRC_SUB_FILE = 'output/dub_src.srt'
 DUB_AUDIO = 'output/dub.mp3'
 
 def normalize_dub_audio(audio_path, output_path):
@@ -62,14 +63,14 @@ def merge_video_audio():
 
     filters = []
     if burn_subtitles:
-        # Merge video and audio with translated subtitles
+        # Merge video and audio with the subtitles of the dub
         video = cv2.VideoCapture(VIDEO_FILE)
         TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
         TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
         video.release()
         rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
 
-        subtitle_filter = f"subtitles={DUB_SUB_FILE}:force_style='{get_force_style('translation')}'"
+        subtitle_filter = get_subtitle_filters('dubbed', DUB_SRC_SUB_FILE, DUB_SUB_FILE)
         filters.append(f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
                        f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
                        f'{subtitle_filter}[v]')

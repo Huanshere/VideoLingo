@@ -198,5 +198,11 @@
     "Font": "フォント",
     "Font size": "フォントサイズ",
     "Font color": "文字色",
-    "Name of a font installed on this computer, empty for the default font": "このコンピューターにインストールされているフォント名。空欄の場合は既定のフォントを使用します"
+    "Name of a font installed on this computer, empty for the default font": "このコンピューターにインストールされているフォント名。空欄の場合は既定のフォントを使用します",
+    "Subtitle video": "字幕動画",
+    "Dubbed video": "吹き替え動画",
+    "Bilingual": "二言語",
+    "Translation only": "訳文のみ",
+    "Source only": "原文のみ",
+    "Which subtitles are burned into this video": "この動画に焼き込む字幕"
 }

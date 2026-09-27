@@ -198,5 +198,11 @@
     "Font": "字体",
     "Font size": "字号",
     "Font color": "文字颜色",
-    "Name of a font installed on this computer, empty for the default font": "本机已安装的字体名称，留空使用默认字体"
+    "Name of a font installed on this computer, empty for the default font": "本机已安装的字体名称，留空使用默认字体",
+    "Subtitle video": "字幕视频",
+    "Dubbed video": "配音视频",
+    "Bilingual": "双语",
+    "Translation only": "只有译文",
+    "Source only": "只有原文",
+    "Which subtitles are burned into this video": "烧录进这个视频的字幕"
 }

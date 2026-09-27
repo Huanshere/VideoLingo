@@ -198,5 +198,11 @@
     "Font": "Police",
     "Font size": "Taille de police",
     "Font color": "Couleur de police",
-    "Name of a font installed on this computer, empty for the default font": "Nom d'une police installée sur cet ordinateur, vide pour la police par défaut"
+    "Name of a font installed on this computer, empty for the default font": "Nom d'une police installée sur cet ordinateur, vide pour la police par défaut",
+    "Subtitle video": "Vidéo sous-titrée",
+    "Dubbed video": "Vidéo doublée",
+    "Bilingual": "Bilingue",
+    "Translation only": "Traduction seule",
+    "Source only": "Original seul",
+    "Which subtitles are burned into this video": "Quels sous-titres sont incrustés dans cette vidéo"
 }

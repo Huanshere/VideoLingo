@@ -198,5 +198,11 @@
     "Font": "Шрифт",
     "Font size": "Размер шрифта",
     "Font color": "Цвет шрифта",
-    "Name of a font installed on this computer, empty for the default font": "Название шрифта, установленного на этом компьютере; пусто — шрифт по умолчанию"
+    "Name of a font installed on this computer, empty for the default font": "Название шрифта, установленного на этом компьютере; пусто — шрифт по умолчанию",
+    "Subtitle video": "Видео с субтитрами",
+    "Dubbed video": "Видео с озвучкой",
+    "Bilingual": "Двуязычные",
+    "Translation only": "Только перевод",
+    "Source only": "Только оригинал",
+    "Which subtitles are burned into this video": "Какие субтитры вшиваются в это видео"
 }

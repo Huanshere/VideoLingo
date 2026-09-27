@@ -3,7 +3,7 @@ from core._1_ytdlp import find_video_files
 import cv2
 import numpy as np
 from core.utils import *
-from core.utils.subtitle_style import get_force_style
+from core.utils.subtitle_style import get_subtitle_filters
 
 OUTPUT_DIR = "output"
 OUTPUT_VIDEO = f"{OUTPUT_DIR}/output_sub.mp4"
@@ -54,8 +54,7 @@ def merge_subtitles_to_video():
         '-vf', (
             f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
             f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,"
-            f"subtitles={SRC_SRT}:force_style='{get_force_style('source')}',"
-            f"subtitles={TRANS_SRT}:force_style='{get_force_style('translation')}'"
+            f"{get_subtitle_filters('subtitle', SRC_SRT, TRANS_SRT)}"
         ).encode('utf-8'),
     ]
 

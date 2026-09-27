@@ -198,5 +198,11 @@
     "Font": "Font",
     "Font size": "Font size",
     "Font color": "Font color",
-    "Name of a font installed on this computer, empty for the default font": "Name of a font installed on this computer, empty for the default font"
+    "Name of a font installed on this computer, empty for the default font": "Name of a font installed on this computer, empty for the default font",
+    "Subtitle video": "Subtitle video",
+    "Dubbed video": "Dubbed video",
+    "Bilingual": "Bilingual",
+    "Translation only": "Translation only",
+    "Source only": "Source only",
+    "Which subtitles are burned into this video": "Which subtitles are burned into this video"
 }

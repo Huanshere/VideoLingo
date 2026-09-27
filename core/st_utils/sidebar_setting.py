@@ -15,6 +15,28 @@ def config_input(label, key, help=None, placeholder=None):
     return val
 
 
+def burned_subtitles_settings():
+    """Which subtitles are burned into the subtitle video and into the dubbed video."""
+    from core.utils.subtitle_style import BURN_MODES, BURN_MODE_KEYS, get_burn_mode
+    labels = {"bilingual": t("Bilingual"), "translation": t("Translation only"), "source": t("Source only")}
+    columns = st.columns(2)
+    for column, video, label in zip(columns, ("subtitle", "dubbed"), (t("Subtitle video"), t("Dubbed video"))):
+        key = BURN_MODE_KEYS[video][0]
+        mode = get_burn_mode(video)
+        with column:
+            selected = st.selectbox(
+                label,
+                options=list(BURN_MODES),
+                index=BURN_MODES.index(mode),
+                format_func=labels.get,
+                help=t("Which subtitles are burned into this video"),
+                key=f"burn_mode_{video}",
+            )
+        if selected != mode:
+            update_key(key, selected, add_missing=True)
+            st.rerun()
+
+
 def subtitle_style_settings():
     """Font, size and color of the burned-in subtitles; the other values of subtitle.style are edited in config.yaml."""
     from core.utils.subtitle_style import default_font, get_subtitle_style, save_subtitle_style, to_ass_color, to_hex_color
@@ -313,6 +335,7 @@ def page_setting():
                 update_key("burn_subtitles", burn_subtitles)
                 st.rerun()
             if burn_subtitles:
+                burned_subtitles_settings()
                 subtitle_style_settings()
 
         pause_before_translate = st.toggle(

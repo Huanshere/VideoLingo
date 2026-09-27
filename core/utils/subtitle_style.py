@@ -1,4 +1,5 @@
-"""Style of the burned-in subtitles, from `subtitle.style` in config.yaml."""
+"""Style and languages of the burned-in subtitles, from `subtitle` in config.yaml."""
+import os
 import platform
 import re
 
@@ -19,6 +20,10 @@ DEFAULT_STYLE = {
     },
 }
 COLOR_KEYS = {"font_color", "outline_color", "back_color"}
+
+BURN_MODES = ("bilingual", "translation", "source")
+# The key of each video in config.yaml and what it shows without the key
+BURN_MODE_KEYS = {"subtitle": ("subtitle.sub_video_subtitles", "bilingual"), "dubbed": ("subtitle.dub_video_subtitles", "translation")}
 
 
 def default_font():
@@ -96,3 +101,25 @@ def get_force_style(kind):
     else:
         parts.append("BorderStyle=1")
     return ",".join(parts)
+
+
+def get_burn_mode(video):
+    """Which subtitles go into the `subtitle` or `dubbed` video: bilingual, translation or source."""
+    key, default = BURN_MODE_KEYS[video]
+    mode = load_key_or(key, default)
+    if mode not in BURN_MODES:
+        rprint(f"[yellow]⚠️ {key} = {mode!r} can not be used, using {default!r}[/yellow]")
+        mode = default
+    return mode
+
+
+def get_subtitle_filters(video, source_srt, translation_srt):
+    """The `subtitles` filters of ffmpeg for a video, the source subtitles below the translated ones."""
+    mode = get_burn_mode(video)
+    if mode != "translation" and not os.path.exists(source_srt):
+        # A dub from before the source subtitles of the dub were written
+        rprint(f"[yellow]⚠️ {source_srt} not found, burning the translated subtitles only[/yellow]")
+        mode = "translation"
+    subtitles = {"source": source_srt, "translation": translation_srt}
+    kinds = ["source", "translation"] if mode == "bilingual" else [mode]
+    return ",".join(f"subtitles={subtitles[kind]}:force_style='{get_force_style(kind)}'" for kind in kinds)
