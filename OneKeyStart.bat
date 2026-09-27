@@ -16,6 +16,8 @@ for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss
 set "LOGFILE=logs\videolingo_%dt%.log"
 set "CHECK_ONLY="
 if /I "%~1"=="--check-only" set "CHECK_ONLY=1"
+set "API_MODE="
+if /I "%~1"=="--api" set "API_MODE=1"
 
 > "%LOGFILE%" echo [%DATE% %TIME%] VideoLingo starting...
 echo %C_CYAN%Log file:%C_RESET% %LOGFILE%
@@ -93,6 +95,18 @@ if errorlevel 1 (
     echo %C_YELLOW%Environment needs repair. Installing missing or changed components...%C_RESET%
     "%VENV_PY%" installer.py --yes
     if errorlevel 1 goto install_failed
+)
+
+if defined API_MODE (
+    echo %C_GREEN%Starting VideoLingo API with %VENV_LABEL%...%C_RESET%
+    "%VENV_PY%" api.py
+    if errorlevel 1 (
+        set "API_EXIT=!errorlevel!"
+        echo %C_RED%VideoLingo API stopped with an error.%C_RESET%
+        pause
+        exit /b !API_EXIT!
+    )
+    goto end
 )
 
 echo %C_GREEN%Starting VideoLingo with %VENV_LABEL%...%C_RESET%

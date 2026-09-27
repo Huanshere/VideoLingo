@@ -124,6 +124,8 @@ API 与 Streamlit 共用处理流程，保留固定 `output/`，一次执行一�
 uv run start.py --api
 ```
 
+如果使用 Windows 一键安装，请改为运行 `.\OneKeyStart.bat --api`。
+
 输入文件、启动处理、查询进度、下载结果、失败重试和串行批量处理，参见 **[HTTP API 使用文档](../docs/api.md)**。
 启动后也可打开 [交互式接口文档](http://localhost:8000/docs)。
 

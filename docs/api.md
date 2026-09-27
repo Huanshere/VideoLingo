@@ -13,6 +13,9 @@ The same command installs any missing dependencies on first use:
 uv run start.py --api
 ```
 
+If you used the Windows one-click installer, run `.\OneKeyStart.bat --api` instead;
+it uses the same environment as the double-click launcher.
+
 The server listens on `127.0.0.1:8000`. Interactive documentation: http://127.0.0.1:8000/docs;
 OpenAPI schema: http://127.0.0.1:8000/openapi.json. This is a trusted local API with no
 authentication; keep it on localhost. Run one server process, without multiple workers.
