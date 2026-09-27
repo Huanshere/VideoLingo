@@ -15,6 +15,30 @@ def config_input(label, key, help=None, placeholder=None):
     return val
 
 
+def subtitle_style_settings():
+    """Font, size and color of the burned-in subtitles; the other values of subtitle.style are edited in config.yaml."""
+    from core.utils.subtitle_style import default_font, get_subtitle_style, to_ass_color, to_hex_color
+    with st.popover(t("Subtitle Style"), use_container_width=True):
+        style = {}
+        columns = st.columns(2)
+        for column, kind, label in zip(columns, ("source", "translation"), (t("Source subtitles"), t("Translated subtitles"))):
+            current = get_subtitle_style(kind)
+            with column:
+                st.markdown(f"**{label}**")
+                font_name = st.text_input(
+                    t("Font"), value=current["font_name"], placeholder=default_font(), key=f"subtitle_font_{kind}",
+                    help=t("Name of a font installed on this computer, empty for the default font"))
+                font_size = st.number_input(
+                    t("Font size"), min_value=1, max_value=100, value=int(current["font_size"]), key=f"subtitle_size_{kind}")
+                color = st.color_picker(t("Font color"), value=to_hex_color(current["font_color"]), key=f"subtitle_color_{kind}")
+            # The transparency of the configured color is kept as long as the color is
+            font_color = current["font_color"] if color == to_hex_color(current["font_color"]) else to_ass_color(color)
+            style[kind] = {**current, "font_name": font_name.strip(), "font_size": font_size, "font_color": font_color}
+        if style != {kind: get_subtitle_style(kind) for kind in style}:
+            update_key("subtitle.style", style, add_missing=True)
+            st.rerun()
+
+
 # The languages shown first keep the order of the old dropdown
 LANGUAGE_LABELS = {
     "en": "🇺🇸 English", "zh": "🇨🇳 简体中文", "es": "🇪🇸 Español", "ru": "🇷🇺 Русский",
@@ -277,6 +301,8 @@ def page_setting():
             if burn_subtitles != load_key("burn_subtitles"):
                 update_key("burn_subtitles", burn_subtitles)
                 st.rerun()
+            if burn_subtitles:
+                subtitle_style_settings()
 
         pause_before_translate = st.toggle(
             t("Pause before translation"),

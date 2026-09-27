@@ -188,5 +188,12 @@
     "Only generate the source subtitles `src.srt`, without translation": "只生成原文字幕 `src.srt`，不翻譯",
     "Source subtitles are ready. You can download them, or start processing subtitles to translate them.": "原文字幕已生成。可以直接下載，也可以點擊「開始處理字幕」繼續翻譯。",
     "Pause before translation": "翻譯前暫停",
-    "Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts": "提取術語後暫停，方便在翻譯開始前編輯 `output/log/terminology.json`"
+    "Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts": "提取術語後暫停，方便在翻譯開始前編輯 `output/log/terminology.json`",
+    "Subtitle Style": "字幕樣式",
+    "Source subtitles": "原文字幕",
+    "Translated subtitles": "譯文字幕",
+    "Font": "字體",
+    "Font size": "字號",
+    "Font color": "文字顏色",
+    "Name of a font installed on this computer, empty for the default font": "本機已安裝的字體名稱，留空使用預設字體"
 }

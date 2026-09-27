@@ -2,31 +2,8 @@ import os, subprocess, time
 from core._1_ytdlp import find_video_files
 import cv2
 import numpy as np
-import platform
 from core.utils import *
-
-SRC_FONT_SIZE = 15
-TRANS_FONT_SIZE = 17
-FONT_NAME = 'Arial'
-TRANS_FONT_NAME = 'Arial'
-
-# Linux need to install google noto fonts: apt-get install fonts-noto
-if platform.system() == 'Linux':
-    FONT_NAME = 'NotoSansCJK-Regular'
-    TRANS_FONT_NAME = 'NotoSansCJK-Regular'
-# Mac OS has different font names
-elif platform.system() == 'Darwin':
-    FONT_NAME = 'Arial Unicode MS'
-    TRANS_FONT_NAME = 'Arial Unicode MS'
-
-SRC_FONT_COLOR = '&HFFFFFF'
-SRC_OUTLINE_COLOR = '&H000000'
-SRC_OUTLINE_WIDTH = 1
-SRC_SHADOW_COLOR = '&H80000000'
-TRANS_FONT_COLOR = '&H00FFFF'
-TRANS_OUTLINE_COLOR = '&H000000'
-TRANS_OUTLINE_WIDTH = 1 
-TRANS_BACK_COLOR = '&H33000000'
+from core.utils.subtitle_style import get_force_style
 
 OUTPUT_DIR = "output"
 OUTPUT_VIDEO = f"{OUTPUT_DIR}/output_sub.mp4"
@@ -77,12 +54,8 @@ def merge_subtitles_to_video():
         '-vf', (
             f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
             f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,"
-            f"subtitles={SRC_SRT}:force_style='FontSize={SRC_FONT_SIZE},FontName={FONT_NAME}," 
-            f"PrimaryColour={SRC_FONT_COLOR},OutlineColour={SRC_OUTLINE_COLOR},OutlineWidth={SRC_OUTLINE_WIDTH},"
-            f"ShadowColour={SRC_SHADOW_COLOR},BorderStyle=1',"
-            f"subtitles={TRANS_SRT}:force_style='FontSize={TRANS_FONT_SIZE},FontName={TRANS_FONT_NAME},"
-            f"PrimaryColour={TRANS_FONT_COLOR},OutlineColour={TRANS_OUTLINE_COLOR},OutlineWidth={TRANS_OUTLINE_WIDTH},"
-            f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
+            f"subtitles={SRC_SRT}:force_style='{get_force_style('source')}',"
+            f"subtitles={TRANS_SRT}:force_style='{get_force_style('translation')}'"
         ).encode('utf-8'),
     ]
 

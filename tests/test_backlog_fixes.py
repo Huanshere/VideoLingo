@@ -1107,3 +1107,71 @@ def test_source_subtitles_without_a_translation(monkeypatch, tmp_path):
             "3\n00:00:02,000 --> 00:00:02,800\nHow are\n\n\n"
             "4\n00:00:02,800 --> 00:00:03,200\nyou?"
         )
+
+
+# ------------------------------------------------------------------
+# D2: the style of the burned-in subtitles is configurable (#460)
+# ------------------------------------------------------------------
+
+def _style(monkeypatch, configured):
+    import core.utils.subtitle_style as module
+    monkeypatch.setattr(module, "load_key_or", lambda key, default: configured if key == "subtitle.style" else default)
+    monkeypatch.setattr(module, "default_font", lambda: "Arial")
+    return module
+
+
+@pytest.mark.parametrize("configured", [None, {}, {"source": None}, "bold"])
+def test_default_subtitle_style(monkeypatch, configured):
+    module = _style(monkeypatch, configured)
+
+    assert module.get_force_style("source") == (
+        "FontSize=15,FontName=Arial,PrimaryColour=&HFFFFFF,OutlineColour=&H000000,Outline=1,BorderStyle=1")
+    assert module.get_force_style("translation") == (
+        "FontSize=17,FontName=Arial,PrimaryColour=&H00FFFF,OutlineColour=&H000000,Outline=1,"
+        "BackColour=&H33000000,Alignment=2,MarginV=27,BorderStyle=4")
+
+
+def test_configured_subtitle_style(monkeypatch):
+    module = _style(monkeypatch, {"translation": {
+        "font_name": "Noto Sans CJK SC", "font_size": 22, "font_color": "#ff8000",
+        "outline_width": 2.5, "back_color": "&h80000000", "margin_v": 40}})
+
+    assert module.get_force_style("translation") == (
+        "FontSize=22,FontName=Noto Sans CJK SC,PrimaryColour=&H0080FF,OutlineColour=&H000000,Outline=2.5,"
+        "BackColour=&H80000000,Alignment=2,MarginV=40,BorderStyle=4")
+    assert module.get_force_style("source").startswith("FontSize=15,FontName=Arial,")
+
+
+@pytest.mark.parametrize("key,value", [
+    ("font_name", "Arial',drawtext=text=x"), ("font_name", "a:b"), ("font_name", 3),
+    ("font_size", "big"), ("font_size", -1), ("font_size", True),
+    ("font_color", "red"), ("font_color", "&HFFF"), ("font_color", "#ff80001"),
+    ("margin_v", None),
+])
+def test_unusable_style_value_falls_back_to_the_default(monkeypatch, key, value):
+    module = _style(monkeypatch, {"translation": {key: value}})
+
+    assert module.get_subtitle_style("translation") == module.DEFAULT_STYLE["translation"]
+
+
+@pytest.mark.parametrize("value,ass,hex_color", [
+    ("&H00FFFF", "&H00FFFF", "#ffff00"),
+    ("&h3300ff80", "&H3300FF80", "#80ff00"),
+    ("#FF8000", "&H0080FF", "#ff8000"),
+])
+def test_subtitle_colors(value, ass, hex_color):
+    from core.utils.subtitle_style import to_ass_color, to_hex_color
+    assert to_ass_color(value) == ass
+    assert to_hex_color(ass) == hex_color
+
+
+def test_style_is_read_from_a_config_without_the_key(monkeypatch, tmp_path):
+    import core.utils.config_utils as config_utils
+    import core.utils.subtitle_style as module
+    (tmp_path / "config.yaml").write_text("subtitle:\n  max_length: 75\n", encoding="utf-8")
+    monkeypatch.setattr(config_utils, "CONFIG_PATH", str(tmp_path / "config.yaml"))
+
+    assert module.get_subtitle_style("source") == module.DEFAULT_STYLE["source"]
+    assert config_utils.update_key("subtitle.style", {"source": {"font_size": 20}}, add_missing=True)
+    assert module.get_subtitle_style("source")["font_size"] == 20
+    assert module.get_subtitle_style("translation") == module.DEFAULT_STYLE["translation"]

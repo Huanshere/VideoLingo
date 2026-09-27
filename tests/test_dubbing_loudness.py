@@ -100,7 +100,7 @@ def test_final_video_merge_with_real_ffmpeg(tmp_path, monkeypatch, has_backgroun
     monkeypatch.setattr(merge, '_BACKGROUND_AUDIO_FILE', 'output/background.wav')
     monkeypatch.setattr(merge, 'load_key', {'burn_subtitles': True, 'ffmpeg_gpu': False}.__getitem__)
     monkeypatch.setattr(merge, 'check_cancel', lambda: None)
-    monkeypatch.setattr(merge, 'TRANS_FONT_NAME', 'Arial')
+    monkeypatch.setattr(merge, 'get_force_style', lambda kind: 'FontSize=17,FontName=Arial')
     merge.merge_video_audio()
     probe = subprocess.run(['ffprobe', '-v', 'error', '-show_streams', '-of', 'json',
                             'output/output_dub.mp4'], check=True, capture_output=True, text=True)

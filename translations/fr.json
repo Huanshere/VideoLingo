@@ -181,5 +181,12 @@
     "Only generate the source subtitles `src.srt`, without translation": "Génère uniquement les sous-titres source `src.srt`, sans traduction",
     "Source subtitles are ready. You can download them, or start processing subtitles to translate them.": "Les sous-titres source sont prêts. Vous pouvez les télécharger ou lancer le traitement des sous-titres pour les traduire.",
     "Pause before translation": "Pause avant la traduction",
-    "Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts": "Pause après l'extraction de la terminologie, pour modifier `output/log/terminology.json` avant le début de la traduction"
+    "Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts": "Pause après l'extraction de la terminologie, pour modifier `output/log/terminology.json` avant le début de la traduction",
+    "Subtitle Style": "Style des sous-titres",
+    "Source subtitles": "Sous-titres source",
+    "Translated subtitles": "Sous-titres traduits",
+    "Font": "Police",
+    "Font size": "Taille de police",
+    "Font color": "Couleur de police",
+    "Name of a font installed on this computer, empty for the default font": "Nom d'une police installée sur cet ordinateur, vide pour la police par défaut"
 }

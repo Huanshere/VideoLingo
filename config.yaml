@@ -63,6 +63,22 @@ subtitle:
   max_length: 75
   # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
   target_multiplier: 1.2
+  # *Style of the burned-in subtitles. Colors are &HBBGGRR, &HAABBGGRR (AA is the transparency) or #RRGGBB. An empty font_name uses the default font of the system
+  style:
+    source:
+      font_name: ''
+      font_size: 15
+      font_color: '&HFFFFFF'
+      outline_color: '&H000000'
+      outline_width: 1
+    translation:
+      font_name: ''
+      font_size: 17
+      font_color: '&H00FFFF'
+      outline_color: '&H000000'
+      outline_width: 1
+      back_color: '&H33000000'
+      margin_v: 27
 
 # *Summary length, set low to 2k if using local LLM
 summary_length: 8000
