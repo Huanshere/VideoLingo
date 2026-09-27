@@ -110,7 +110,7 @@ pause_before_translate: false
 pause_after_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [edge_tts, openai_tts, f5tts, sf_fish_tts, sf_cosyvoice2, gpt_sovits, custom_tts]
+# TTS selection [edge_tts, openai_tts, fish_audio, f5tts, sf_fish_tts, sf_cosyvoice2, gpt_sovits, custom_tts]
 tts_method: 'edge_tts'
 
 # SiliconFlow FishTTS
@@ -132,6 +132,20 @@ openai_tts:
   # *Base URL and model of the speech endpoint
   base_url: 'https://api.openlux.ai/v1'
   model: 'gpt-4o-mini-tts'
+
+# Fish Audio, the official API (https://fish.audio)
+fish_audio:
+  api_key: 'YOUR_FISH_AUDIO_KEY'
+  # clone: the voice of the video is cloned; preset: the fixed voice of voice_id
+  mode: 'clone'
+  # The voice of the mode "preset": the ID of a voice of fish.audio, the last part of the address of its page
+  voice_id: '74c6aba5cbf94a15bbdc547ffce5cb38'
+  # The voices that the page offers by name. Add the voices of fish.audio that you like: name and ID
+  voices:
+    '语彤 Yutong (中文, female)': '74c6aba5cbf94a15bbdc547ffce5cb38'
+    '浩然 Haoran (中文, male)': 'd675c275d1d44e57b4ef3840c5a23209'
+  # *s2.1-pro, s2-pro or s1
+  model: 's2.1-pro'
 
 # SiliconFlow CosyVoice2 Clone
 sf_cosyvoice2:

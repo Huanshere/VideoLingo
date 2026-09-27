@@ -225,5 +225,11 @@
     "MAI-Transcribe-2": "MAI-Transcribe-2",
     "MAI provider": "MAI 服務商",
     "OpenRouter API key": "OpenRouter API 密鑰",
-    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音訊將傳送至 OpenRouter 進行 MAI-Transcribe-2 轉寫，可能產生費用。"
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音訊將傳送至 OpenRouter 進行 MAI-Transcribe-2 轉寫，可能產生費用。",
+    "Fish Audio": "Fish Audio",
+    "Voice of the video": "影片裡的聲音（複製）",
+    "Fixed voice": "固定音色",
+    "Another voice of fish.audio": "fish.audio 上的其他音色",
+    "Voice ID or the address of its page": "音色 ID 或音色頁面的網址",
+    "Open a voice on fish.audio and copy the address of its page": "在 fish.audio 打開喜歡的音色，複製它頁面的網址"
 }

@@ -225,5 +225,11 @@
     "MAI-Transcribe-2": "MAI-Transcribe-2",
     "MAI provider": "Fournisseur MAI",
     "OpenRouter API key": "Clé API OpenRouter",
-    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "L’audio est envoyé à OpenRouter pour MAI-Transcribe-2 et peut entraîner des frais."
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "L’audio est envoyé à OpenRouter pour MAI-Transcribe-2 et peut entraîner des frais.",
+    "Fish Audio": "Fish Audio",
+    "Voice of the video": "Voix de la vidéo (clonée)",
+    "Fixed voice": "Voix fixe",
+    "Another voice of fish.audio": "Une autre voix de fish.audio",
+    "Voice ID or the address of its page": "ID de la voix ou adresse de sa page",
+    "Open a voice on fish.audio and copy the address of its page": "Ouvrez une voix sur fish.audio et copiez l'adresse de sa page"
 }

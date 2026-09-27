@@ -389,6 +389,7 @@ def page_setting():
     with st.expander(t("Dubbing Settings"), expanded=True):
         tts_method_labels = {
             "openai_tts": t("OpenAI TTS"),
+            "fish_audio": t("Fish Audio"),
             "sf_fish_tts": t("SiliconFlow Fish TTS"),
             "edge_tts": t("Edge TTS"),
             "gpt_sovits": t("GPT-SoVITS"),
@@ -424,6 +425,41 @@ def page_setting():
 
         elif select_tts == "openai_tts":
             config_input(t("OpenAI Voice"), "openai_tts.voice")
+
+        elif select_tts == "fish_audio":
+            from core.st_utils.tts_settings import save_settings
+            from core.tts_backend.fish_audio_tts import voice_id_of
+            mode_options = {
+                "clone": t("Voice of the video"),
+                "preset": t("Fixed voice"),
+            }
+            current_mode = load_key_or("fish_audio.mode", "clone")
+            selected_mode = st.selectbox(
+                t("Mode Selection"),
+                options=list(mode_options.keys()),
+                format_func=lambda x: mode_options[x],
+                index=list(mode_options.keys()).index(current_mode) if current_mode in mode_options else 0,
+            )
+            if selected_mode != current_mode:
+                save_settings({"fish_audio.mode": selected_mode})
+                st.rerun()
+            if selected_mode == "preset":
+                voices = dict(load_key_or("fish_audio.voices", None) or {})
+                voice_id = str(load_key_or("fish_audio.voice_id", "") or "")
+                other = t("Another voice of fish.audio")
+                names = list(voices) + [other]
+                listed = next((name for name, listed_id in voices.items() if listed_id == voice_id), other)
+                # The key keeps "Another voice" selected while its field is still empty
+                selected_voice = st.selectbox(t("Voice"), names, index=names.index(listed), key="fish_audio_voice")
+                if selected_voice == other:
+                    entered = st.text_input(t("Voice ID or the address of its page"),
+                                            value="" if voice_id in voices.values() else voice_id,
+                                            help=t("Open a voice on fish.audio and copy the address of its page"))
+                    selected_id = voice_id_of(entered)
+                else:
+                    selected_id = voices[selected_voice]
+                if selected_id and selected_id != voice_id:
+                    save_settings({"fish_audio.voice_id": selected_id})
 
         elif select_tts == "gpt_sovits":
             st.info(t("Please refer to Github homepage for GPT_SoVITS configuration"))

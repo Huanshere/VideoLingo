@@ -115,7 +115,7 @@ docker run -d -p 8501:8501 --gpus all videolingo
 VideoLingo поддерживает формат API, подобный OpenAI, и различные интерфейсы TTS:
 - LLM: выберите провайдера OpenAI-совместимого Chat Completions и модель, способную возвращать нужный структурированный JSON. URL API, ключ и модель задаются на боковой панели.
 - Распознавание речи: локальный Qwen3-ASR + ForcedAligner (по умолчанию), ElevenLabs или MAI-Transcribe-2. Для MAI можно использовать ключ Azure Speech или OpenRouter (вводится на боковой панели); аудио отправляется выбранному провайдеру и может тарифицироваться. Установщик не ставит WhisperX; чтобы использовать его как бэкенд, см. [WhisperX (ручная установка)](../docs/pages/docs/whisperx-manual.en-US.md).
-- TTS: OpenAI, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS и собственный адаптер в `core/tts_backend/custom_tts.py`.
+- TTS: OpenAI, Fish Audio, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS и собственный адаптер в `core/tts_backend/custom_tts.py`.
 
 Для подробных инструкций по установке, настройке API и пакетному режиму обратитесь к документации: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 

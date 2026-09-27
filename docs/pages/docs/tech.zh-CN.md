@@ -59,6 +59,7 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系
     *   `core/tts_backend/openai_tts.py`: OpenAI 文本转语音 API 的接口。
     *   `core/tts_backend/sf_cosyvoice2.py`: SiliconFlow CosyVoice2 TTS API 的接口，支持参考音频。
     *   `core/tts_backend/sf_fishtts.py`: SiliconFlow Fish TTS API 的接口，支持具有参考音频的预设、自定义和动态语音模式。
+    *   `core/tts_backend/fish_audio_tts.py`: Fish Audio 官方 API 的接口，用一段参考克隆视频里的声音，或按 ID 使用固定音色。
     *   `core/tts_backend/_302_f5tts.py`: 302.ai F5-TTS API 的接口，使用参考音频进行语音克隆。
     *   `core/tts_backend/estimate_duration.py`: 提供根据特定语言的音节计数和标点符号停顿来估计文本的说话时长的函数。用于音频任务生成和字幕修剪。
     *   `core/tts_backend/tts_main.py`: 中央 TTS 调度器。清理输入文本，根据配置 (`load_key("tts_method")`) 选择适当的 TTS 后端，调用相应的 TTS 函数，使用重试和基于 GPT 的文本纠正来处理错误，验证音频时长，并保存输出 WAV 文件。

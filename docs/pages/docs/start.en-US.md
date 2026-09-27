@@ -26,12 +26,14 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | TTS Solution | Provider | Pros | Cons | Chinese Effect | Non-Chinese Effect |
 |:---------|:---------|:-----|:-----|:---------|:-----------|
 | 🎙️ OpenAI TTS | [OpenLux](https://www.openlux.ai/register?aff=wKYu) | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
+| 🎙️ Fish Audio | [Fish Audio](https://fish.audio) | Clones the voice of the video, or uses any voice of fish.audio | Paid API | 🤩 | 😃 |
 | 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
 | Edge TTS | Online service | No separate API key in this adapter | Requires network access | — | — |
 | 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
 - For SiliconFlow FishTTS, get key from [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE), note that cloning feature requires paid credits;
 - For OpenAI TTS, use [OpenLux](https://www.openlux.ai/register?aff=wKYu) with the same key as for the LLM. Another service with the speech endpoint of OpenAI works with `openai_tts.base_url` and `openai_tts.model` in `config.yaml`;
+- For Fish Audio, get the key at [fish.audio](https://fish.audio/app/api-keys/). The API is billed by usage and needs credit in the account; cloning costs nothing extra;
 - For F5-TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9). It clones the voice of the video;
 > For a custom TTS adapter, edit `core/tts_backend/custom_tts.py`.
 
@@ -52,6 +54,18 @@ Currently supports 3 modes:
 Voice list can be found on the [official website](https://platform.openai.com/docs/guides/text-to-speech/voice-options), such as `alloy`, `echo`, `nova`, etc. Modify `openai_tts.voice` in `config.yaml`. The default model is `gpt-4o-mini-tts`.
 
 </details>
+<details>
+<summary>How to choose Fish Audio voices?</summary>
+
+Select the provider `Fish Audio` in the page. There are two modes:
+
+- **Voice of the video (cloned)**: the default. The first 15-30 seconds of speech of the video are the reference of all lines. Nothing is stored in your Fish Audio account. Clone only voices that you are allowed to use.
+- **Fixed voice**: the list has two voices, `语彤 Yutong` and `浩然 Haoran`. For any other voice, select `Another voice of fish.audio`, find a voice that you like on [fish.audio](https://fish.audio), open it and paste the address of its page or its ID.
+
+To have your favourite voices in the list, add them with a name and their ID to `fish_audio.voices` in `config.yaml`. The model is `fish_audio.model`, by default `s2.1-pro`.
+
+</details>
+
 <details>
 <summary>How to choose Edge TTS voices?</summary>
 
