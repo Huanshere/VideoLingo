@@ -19,8 +19,22 @@ SHARED_VENV = Path.home() / ".venvs" / "videolingo"
 PYTHON_RELATIVE = "Scripts/python.exe" if os.name == "nt" else "bin/python"
 
 
+def is_python_312(python: Path) -> bool:
+    if not python.is_file():
+        return False
+    try:
+        return subprocess.run(
+            [str(python), "-c", "import sys; sys.exit(sys.version_info[:2] != (3, 12))"],
+            cwd=ROOT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ).returncode == 0
+    except OSError:
+        return False
+
+
 def is_healthy(python: Path) -> bool:
-    return python.is_file() and subprocess.run(
+    return subprocess.run(
         [str(python), "installer.py", "--quick-check", "--quiet"], cwd=ROOT
     ).returncode == 0
 
@@ -32,19 +46,18 @@ def main() -> int:
     mode.add_argument("--check", action="store_true", help="check the environment without installing or launching")
     args = parser.parse_args()
 
-    candidates = [(venv, venv / PYTHON_RELATIVE) for venv in (LOCAL_VENV, SHARED_VENV)]
-    python = next((exe for _, exe in candidates if is_healthy(exe)), None)
+    candidates = [(venv, venv / PYTHON_RELATIVE) for venv in (SHARED_VENV, LOCAL_VENV)]
+    selected = next(((venv, exe) for venv, exe in candidates if is_python_312(exe)), None)
 
     if args.check:
-        if python is None:
-            python = next((exe for _, exe in candidates if exe.is_file()), None)
-        if python is None:
-            print("ERROR: No VideoLingo environment found. Run uv run start.py to install it.")
+        if selected is None:
+            print("ERROR: No VideoLingo Python 3.12 environment found. Run uv run start.py to install it.")
             return 1
+        _, python = selected
         return subprocess.run([str(python), "installer.py", "--check"], cwd=ROOT).returncode
 
-    if python is None:
-        target = LOCAL_VENV if LOCAL_VENV.exists() or not SHARED_VENV.exists() else SHARED_VENV
+    if selected is None or not is_healthy(selected[1]):
+        target = selected[0] if selected else LOCAL_VENV
         python = target / PYTHON_RELATIVE
         print("Installing or repairing VideoLingo...")
         setup = [sys.executable, "setup_env.py", "--yes"]
@@ -55,6 +68,8 @@ def main() -> int:
         )
         if result.returncode:
             return result.returncode
+    else:
+        _, python = selected
 
     if not python.is_file():
         print("ERROR: VideoLingo's Python environment was not created.")

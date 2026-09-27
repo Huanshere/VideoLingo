@@ -180,7 +180,7 @@ def main() -> None:
     print("\n" + "=" * 60)
     print("  Setup complete")
     print("=" * 60)
-    if target == LOCAL_VENV:
+    if target in (LOCAL_VENV, SHARED_VENV):
         print("  Start with: uv run start.py")
     else:
         print(f"  Start with: {python_exe} -m streamlit run st.py")
