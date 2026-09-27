@@ -6,6 +6,7 @@ changes affect this process and its children, never the user's system settings.
 
 import os
 import platform
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -37,11 +38,19 @@ def configure_ffmpeg(*, download=False, required=False):
                 # Repair interrupted installs where the marker survived but a tool did not.
                 suffix = ".exe" if sys.platform == "win32" else ""
                 if not all((directory / (name + suffix)).is_file() for name in ("ffmpeg", "ffprobe")):
-                    (directory / "installed.crumb").unlink(missing_ok=True)
                     # Provider binaries can be read/execute-only. Its zip extraction
                     # cannot overwrite a surviving tool after an interrupted install.
-                    for name in ("ffmpeg", "ffprobe"):
-                        (directory / (name + suffix)).unlink(missing_ok=True)
+                    for name in ("installed.crumb", "ffmpeg" + suffix, "ffprobe" + suffix):
+                        path = directory / name
+                        try:
+                            path.unlink(missing_ok=True)
+                        except PermissionError:
+                            if os.name != "nt":
+                                raise
+                            # Windows forbids deleting read-only files, even in a
+                            # writable directory. Preserve other permission bits.
+                            path.chmod(path.stat().st_mode | stat.S_IWUSR)
+                            path.unlink()
                 get_or_fetch_platform_executables_else_raise()
         suffix = ".exe" if sys.platform == "win32" else ""
         if not all((directory / (name + suffix)).is_file() for name in ("ffmpeg", "ffprobe")):

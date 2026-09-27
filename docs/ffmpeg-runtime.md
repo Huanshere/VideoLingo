@@ -156,3 +156,19 @@ compatible. The real installer health check also passed with WhisperX selected,
 Demucs required and the cu128 Torch build.
 After rebasing onto #621 at `bf6e4e4`, the same full-suite run passed **356 tests,
 4 skipped, 6 subtests passed**.
+
+### Windows verification of the macOS recovery fix
+
+After pulling `814bd78` and `f2e556b`, the interrupted-cache regression failed on
+Windows with `PermissionError: [WinError 5]` when deleting the read-only surviving
+executable. Recovery now retries Windows permission failures after adding the
+owner-write bit, preserving other mode bits. This applies only to the managed
+pair and its installation marker during incomplete-cache recovery; the macOS
+and Linux unlink path is unchanged.
+
+All six combinations of a surviving ffmpeg/ffprobe/neither and a writable or
+read-only marker passed. A separate temporary-cache experiment seeded a
+read-only `ffmpeg.exe` and marker, then ran the actual provider download,
+extraction and codec/filter validation successfully with system PATH cleared
+(FFmpeg 8.0.1). The temporary cache was removed afterward. The full Windows
+suite passed **361 tests, 4 skipped, 6 subtests passed**.

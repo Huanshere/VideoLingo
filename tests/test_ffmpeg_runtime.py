@@ -78,22 +78,27 @@ def test_offline_check_never_downloads(tmp_path, monkeypatch):
         runtime.configure_ffmpeg(required=True)
 
 
-def test_setup_repairs_incomplete_download(tmp_path, monkeypatch):
+@pytest.mark.parametrize('surviving_name', ['ffmpeg', 'ffprobe', None])
+@pytest.mark.parametrize('readonly_marker', [False, True])
+def test_setup_repairs_incomplete_download(tmp_path, monkeypatch, surviving_name, readonly_marker):
     from static_ffmpeg import run
     directory = tmp_path / 'managed'
     directory.mkdir()
     marker = directory / 'installed.crumb'
     marker.touch()
+    if readonly_marker:
+        marker.chmod(0o444)
     suffix = '.exe' if sys.platform == 'win32' else ''
-    surviving_tool = directory / ('ffmpeg' + suffix)
-    surviving_tool.touch()
-    surviving_tool.chmod(0o555)
+    surviving_tool = directory / (surviving_name + suffix) if surviving_name else None
+    if surviving_tool:
+        surviving_tool.touch()
+        surviving_tool.chmod(0o555)
     monkeypatch.delenv('VIDEOLINGO_FFMPEG_DIR', raising=False)
     monkeypatch.setattr(run, 'get_platform_dir', lambda: str(directory))
     calls = []
     def fetch():
         assert not marker.exists()
-        assert not surviving_tool.exists()
+        assert not surviving_tool or not surviving_tool.exists()
         for name in ('ffmpeg', 'ffprobe'):
             (directory / (name + suffix)).touch()
         calls.append(True)
