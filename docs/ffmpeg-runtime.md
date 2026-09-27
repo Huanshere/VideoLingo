@@ -12,7 +12,8 @@ macOS 14+ Apple Silicon for the default MLX stack). This is automatic provisioni
 not removal of the FFmpeg engine. Setup needs access to PyPI and the provider's
 GitHub download URLs. A download failure fails setup with a retry instruction;
 rerun `python installer.py` once connectivity is restored. Partial downloads
-without both tools are fetched again. Normal imports, app launch and `--check`
+without both tools are fetched again, including a read/execute-only executable
+left by an interrupted extraction. Normal imports, app launch and `--check`
 never download, so installed media tools work offline.
 
 `runtime_libraries.configure_ffmpeg()` prepends the managed directory to the
@@ -79,8 +80,54 @@ Run the targeted offline checks after setup:
 python -m pytest tests/test_ffmpeg_runtime.py tests/test_dependencies.py tests/test_qwen_asr_local.py tests/test_audio_extract_quality.py tests/test_audio_timeline.py tests/test_dubbing_loudness.py
 ```
 
-macOS and Linux binaries have not been executed in this Windows environment.
-Their provider support does not constitute a VideoLingo end-to-end verification.
+macOS validation on 2026-09-27 used an Apple Silicon arm64 Mac (macOS 26.6.2,
+16 GiB) with a new Python 3.13.15 environment. The documented `setup_env.py`
+flow, using `--path` to keep the environment in a separate verification directory,
+installed Torch 2.8.0, mlx-audio 0.5.6, Demucs 4.1.0 and static-ffmpeg 3.0.
+`installer.py` downloaded and extracted both tools without Homebrew or a manual
+FFmpeg installation. The macOS provider archive supplied **FFmpeg 7.0** (the
+provider's URL contains `v8.0`, but the binaries report 7.0); `file` and `lipo`
+identified both as native Mach-O arm64, and they executed without changing macOS
+security settings. With a child process PATH limited to system command directories,
+neither tool was discoverable before `configure_ffmpeg()`. Afterwards, both resolved
+inside this environment's `static_ffmpeg/bin/darwin_arm64` directory. The separate
+WhisperX environment downloaded its own managed pair to the same package-relative
+location. `installer.py --check --require-demucs` passed with network access denied.
+
+The same network-denied process exported and read MP3 through pydub, read metadata
+with ffprobe, ran atempo, loudnorm and amix, encoded H.264/AAC, and burned an ASS
+subtitle. libass selected `/System/Library/Fonts/Helvetica.ttc`; the subtitle was
+visible in the encoded frame. yt-dlp discovered both managed tools. Demucs' real
+audio reader/writer path passed the stem alignment tests (separation model mocked).
+The full default-environment suite with system FFmpeg excluded passed **354 tests,
+6 skipped, 6 subtests passed**. Skips covered two opt-in API pipeline tests, a
+live-server test, the optional WhisperX test in the default MLX environment, and
+two Windows-only checks. `pip check` found no broken requirements.
+
+The default **MLX Qwen3-ASR 1.7B** model and ForcedAligner-0.6B, reused from a
+complete local Hugging Face cache, processed the 15.051 s public English sample
+with network access denied: 37 words with valid monotonic timestamps, 7.95 s for
+the backend call. The managed FFmpeg CLI decoded the sample. The separate stable
+WhisperX 3.8.6 environment used Torch 2.8.0, pyannote-audio 4.0.7 and TorchCodec
+0.7.0. Importing TorchCodec's native decoder failed because `libavutil.59.dylib`
+was absent, while `check_whisperx_runtime()` passed with an in-memory waveform.
+The optional-backend regression test also passed in that separate environment
+with TorchCodec imports deliberately blocked.
+The real tiny.en CPU backend then ran its default pyannote VAD and English alignment
+on that sample: 35 timestamped words. Once tiny.en and the alignment model were
+cached in the separate verification directory, a network-denied repeat passed in
+1.49 s. WhisperX remains a manual **Python dependency** in a separate Apple
+Silicon environment because its Hugging Face Hub constraint conflicts with MLX;
+it did not require a manually installed FFmpeg CLI or shared libraries for this
+pipeline. No paid translation/TTS API, live YouTube download, NVENC or larger
+WhisperX model was exercised. Linux binaries remain untested here.
+
+The macOS run also exposed and fixed an interrupted-cache edge case: the provider's
+read/execute-only `ffmpeg` could survive without `ffprobe`, and extraction could
+not overwrite it. Setup now removes the incomplete managed pair before fetching
+again. A regression test covers this, and a temporary-cache exercise verified
+missing-tool and download-failure messages plus successful re-extraction. Only
+the new verification cache was modified.
 
 Provider: https://github.com/zackees/static_ffmpeg (version 3.0).
 The alternative ffmpeg-binaries 1.1.0 was inspected but not adopted: its Windows

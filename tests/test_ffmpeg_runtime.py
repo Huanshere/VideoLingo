@@ -84,12 +84,16 @@ def test_setup_repairs_incomplete_download(tmp_path, monkeypatch):
     directory.mkdir()
     marker = directory / 'installed.crumb'
     marker.touch()
+    suffix = '.exe' if sys.platform == 'win32' else ''
+    surviving_tool = directory / ('ffmpeg' + suffix)
+    surviving_tool.touch()
+    surviving_tool.chmod(0o555)
     monkeypatch.delenv('VIDEOLINGO_FFMPEG_DIR', raising=False)
     monkeypatch.setattr(run, 'get_platform_dir', lambda: str(directory))
     calls = []
     def fetch():
         assert not marker.exists()
-        suffix = '.exe' if sys.platform == 'win32' else ''
+        assert not surviving_tool.exists()
         for name in ('ffmpeg', 'ffprobe'):
             (directory / (name + suffix)).touch()
         calls.append(True)

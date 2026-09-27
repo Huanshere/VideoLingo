@@ -38,6 +38,10 @@ def configure_ffmpeg(*, download=False, required=False):
                 suffix = ".exe" if sys.platform == "win32" else ""
                 if not all((directory / (name + suffix)).is_file() for name in ("ffmpeg", "ffprobe")):
                     (directory / "installed.crumb").unlink(missing_ok=True)
+                    # Provider binaries can be read/execute-only. Its zip extraction
+                    # cannot overwrite a surviving tool after an interrupted install.
+                    for name in ("ffmpeg", "ffprobe"):
+                        (directory / (name + suffix)).unlink(missing_ok=True)
                 get_or_fetch_platform_executables_else_raise()
         suffix = ".exe" if sys.platform == "win32" else ""
         if not all((directory / (name + suffix)).is_file() for name in ("ffmpeg", "ffprobe")):
