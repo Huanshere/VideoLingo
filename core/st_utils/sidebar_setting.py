@@ -219,7 +219,7 @@ def page_setting():
                     update_key("whisper.qwen_model", size, add_missing=True)
                     st.rerun()
             elif importlib.util.find_spec("whisperx") is None:
-                st.warning(t("WhisperX is not installed. VideoLingo's installer does not install it. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen."))
+                st.warning(t("WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen."))
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
 

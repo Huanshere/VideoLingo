@@ -12,7 +12,7 @@ def local_backend(whisper):
     return backend
 
 WHISPERX_NOT_INSTALLED = (
-    "WhisperX is not installed. VideoLingo's installer does not install it. "
+    "WhisperX is not installed. "
     "Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) "
     "and install the extra packages yourself, or set whisper.backend to qwen."
 )

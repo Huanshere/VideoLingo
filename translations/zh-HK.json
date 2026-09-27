@@ -168,6 +168,6 @@
     "Qwen3-ASR Model Size": "Qwen3-ASR 模型大小",
     "1.7B (more accurate)": "1.7B（更準確）",
     "0.6B (faster, less memory)": "0.6B（更快、更省顯存）",
-    "WhisperX is not installed. VideoLingo's installer does not install it. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX 未安裝。VideoLingo 的安裝器不會安裝它。請按手動文件（docs/pages/docs/whisperx-manual.zh-CN.md）自行安裝額外依賴，或把 whisper.backend 改回 qwen。",
+    "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX 未安裝。請按手動文件（docs/pages/docs/whisperx-manual.zh-CN.md）自行安裝額外依賴，或把 whisper.backend 改回 qwen。",
     "Word-level transcription and alignment": "詞級語音識別與對齊"
 }

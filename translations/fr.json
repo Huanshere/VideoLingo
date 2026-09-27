@@ -161,6 +161,6 @@
     "Qwen3-ASR Model Size": "Taille du modèle Qwen3-ASR",
     "1.7B (more accurate)": "1.7B (plus précis)",
     "0.6B (faster, less memory)": "0.6B (plus rapide, moins de mémoire)",
-    "WhisperX is not installed. VideoLingo's installer does not install it. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX n'est pas installé. L'installateur de VideoLingo ne l'installe pas. Suivez la page manuelle (docs/pages/docs/whisperx-manual.en-US.md) et installez vous-même les paquets supplémentaires, ou remettez whisper.backend sur qwen.",
+    "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX n'est pas installé. Suivez la page manuelle (docs/pages/docs/whisperx-manual.en-US.md) et installez vous-même les paquets supplémentaires, ou remettez whisper.backend sur qwen.",
     "Word-level transcription and alignment": "Transcription et alignement au niveau des mots"
 }

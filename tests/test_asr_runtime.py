@@ -53,6 +53,7 @@ class RetiredRuntimeTests(unittest.TestCase):
         message = str(caught.exception)
         self.assertIn("docs/pages/docs/whisperx-manual.en-US.md", message)
         self.assertIn("whisper.backend to qwen", message)
+        self.assertNotIn("installer", message.lower())
         self.assertNotIn("--local-whisperx", message)
         self.assertNotIn("setup_env", message)
         self.assertNotIn("optional install", message.lower())
