@@ -172,5 +172,8 @@
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX n'est pas installé. Suivez la page manuelle (docs/pages/docs/whisperx-manual.en-US.md) et installez vous-même les paquets supplémentaires, ou remettez whisper.backend sur qwen.",
     "Word-level transcription and alignment": "Transcription et alignement au niveau des mots",
     "Stopping...": "Arrêt en cours...",
-    "API check failed": "Échec de la vérification de l'API"
+    "API check failed": "Échec de la vérification de l'API",
+    "Path of a cookies.txt file exported from your browser, for videos that require sign-in": "Chemin d'un fichier cookies.txt exporté depuis votre navigateur, pour les vidéos qui exigent une connexion",
+    "Download failed": "Échec du téléchargement",
+    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "Cette vidéo exige une connexion. Exportez cookies.txt depuis votre navigateur et indiquez son chemin dans les paramètres Youtube."
 }

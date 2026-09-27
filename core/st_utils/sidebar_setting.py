@@ -78,9 +78,6 @@ def page_setting():
         unsafe_allow_html=True,
     )
 
-    # with st.expander(t("Youtube Settings"), expanded=True):
-    #     config_input(t("Cookies Path"), "youtube.cookies_path")
-
     with st.expander(t("LLM Configuration"), expanded=True):
         config_input(t("API_KEY"), "api.key", placeholder=t("Enter your API key"))
         config_input(

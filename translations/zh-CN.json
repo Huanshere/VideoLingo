@@ -179,5 +179,8 @@
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX 未安装。请按手动文档（docs/pages/docs/whisperx-manual.zh-CN.md）自行安装额外依赖，或把 whisper.backend 改回 qwen。",
     "Word-level transcription and alignment": "词级语音识别与对齐",
     "Stopping...": "正在停止...",
-    "API check failed": "API 检查失败"
+    "API check failed": "API 检查失败",
+    "Path of a cookies.txt file exported from your browser, for videos that require sign-in": "从浏览器导出的 cookies.txt 文件路径，用于下载需要登录才能观看的视频",
+    "Download failed": "下载失败",
+    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "这个视频需要登录验证。请从浏览器导出 cookies.txt，并把文件路径填到上方的 Youtube设置 里。"
 }

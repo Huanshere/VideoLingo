@@ -172,5 +172,8 @@
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX はインストールされていません。手動インストールの文書（docs/pages/docs/whisperx-manual.en-US.md）に従って追加パッケージを自分で入れるか、whisper.backend を qwen に戻してください。",
     "Word-level transcription and alignment": "単語レベルの文字起こしとアライメント",
     "Stopping...": "停止中...",
-    "API check failed": "API チェックに失敗しました"
+    "API check failed": "API チェックに失敗しました",
+    "Path of a cookies.txt file exported from your browser, for videos that require sign-in": "ブラウザからエクスポートした cookies.txt のパス（ログインが必要な動画用）",
+    "Download failed": "ダウンロードに失敗しました",
+    "This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings.": "この動画はログインが必要です。ブラウザから cookies.txt をエクスポートし、そのパスを Youtube 設定に入力してください。"
 }

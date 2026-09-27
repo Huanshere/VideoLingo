@@ -29,6 +29,11 @@ def update_ytdlp():
     from yt_dlp import YoutubeDL
     return YoutubeDL
 
+def needs_cookies(error):
+    """True when the site refused the download until the user is signed in."""
+    message = str(error).lower()
+    return any(hint in message for hint in ("sign in to confirm", "--cookies", "login required"))
+
 def download_video_ytdlp(url, save_path='output', resolution='1080'):
     os.makedirs(save_path, exist_ok=True)
     ydl_opts = {
@@ -50,9 +55,11 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
         ydl_opts['proxy'] = proxy.strip()
 
     # Read Youtube Cookie File
-    cookies_path = load_key("youtube.cookies_path")
-    if os.path.exists(cookies_path):
-        ydl_opts["cookiefile"] = str(cookies_path)
+    cookies_path = str(youtube.get("cookies_path") or "").strip().strip('"')
+    if cookies_path:
+        if not os.path.isfile(cookies_path):
+            raise ValueError(f"Cookies file not found: {cookies_path}")
+        ydl_opts["cookiefile"] = cookies_path
 
     # Get YoutubeDL class after updating
     YoutubeDL = update_ytdlp()

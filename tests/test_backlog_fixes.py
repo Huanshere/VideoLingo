@@ -768,3 +768,56 @@ def test_split_sub_main_writes_lines_of_equal_length(monkeypatch, tmp_path):
     assert result["Translation"].tolist() == [LONG_TR, "第二行需要切分的", "比较长的译文字幕"]
     assert not result.isna().any().any()
     assert not pd.read_excel(remerged).isna().any().any()
+
+
+# ------------------------------------------------------------------
+# C7: YouTube cookies (#525)
+# ------------------------------------------------------------------
+
+def _ytdlp_options(monkeypatch, tmp_path, youtube):
+    import core._1_ytdlp as module
+
+    recorded = {}
+
+    class Download:
+        def __init__(self, opts): recorded.update(opts)
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def download(self, urls): pass
+
+    monkeypatch.setattr(module, "load_key", lambda key: youtube)
+    monkeypatch.setattr(module, "update_ytdlp", lambda: Download)
+    monkeypatch.setattr(module, "find_video_files", lambda path: "synthetic.mp4")
+    monkeypatch.setattr(module, "write_input_manifest", lambda *args: None)
+    module.download_video_ytdlp("https://video.example.com/item", str(tmp_path))
+    return recorded
+
+
+def test_cookies_file_is_passed_to_the_downloader(monkeypatch, tmp_path):
+    cookies = tmp_path / "cookies.txt"
+    cookies.write_text("# Netscape HTTP Cookie File\n", encoding="utf-8")
+
+    opts = _ytdlp_options(monkeypatch, tmp_path, {"cookies_path": f' "{cookies}" '})
+
+    assert opts["cookiefile"] == str(cookies)
+
+
+@pytest.mark.parametrize("youtube", [{}, {"cookies_path": None}, {"cookies_path": ""}, {"cookies_path": "  "}])
+def test_download_without_cookies(monkeypatch, tmp_path, youtube):
+    assert "cookiefile" not in _ytdlp_options(monkeypatch, tmp_path, youtube)
+
+
+def test_missing_cookies_file_is_reported(monkeypatch, tmp_path):
+    with pytest.raises(ValueError, match="Cookies file not found"):
+        _ytdlp_options(monkeypatch, tmp_path, {"cookies_path": str(tmp_path / "nothing.txt")})
+
+
+@pytest.mark.parametrize("message,expected", [
+    ("ERROR: [youtube] abc: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies", True),
+    ("ERROR: [youtube] abc: Sign in to confirm your age.", True),
+    ("ERROR: unable to download video data: HTTP Error 403: Forbidden", False),
+])
+def test_needs_cookies(message, expected):
+    from core._1_ytdlp import needs_cookies
+
+    assert needs_cookies(Exception(message)) is expected

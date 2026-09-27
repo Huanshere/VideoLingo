@@ -4,7 +4,7 @@ import shutil
 from time import sleep
 
 import streamlit as st
-from core._1_ytdlp import download_video_ytdlp, find_media_file, write_input_manifest
+from core._1_ytdlp import download_video_ytdlp, find_media_file, needs_cookies, write_input_manifest
 from core.utils import *
 from translations.translations import translate as t
 
@@ -105,10 +105,25 @@ def download_video_section():
             default_idx = list(res_dict.values()).index(target_res) if target_res in res_dict.values() else 0
             res_display = st.selectbox(t("Resolution"), options=res_options, index=default_idx)
             res = res_dict[res_display]
+        with st.expander(t("Youtube Settings")):
+            cookies_path = st.text_input(
+                t("Cookies Path"),
+                value=load_key("youtube.cookies_path") or "",
+                placeholder="cookies.txt",
+                help=t("Path of a cookies.txt file exported from your browser, for videos that require sign-in"),
+            )
+            if cookies_path != (load_key("youtube.cookies_path") or ""):
+                update_key("youtube.cookies_path", cookies_path)
         if st.button(t("Download Video"), key="download_button", width="stretch"):
             if url:
-                with st.spinner(t("Downloading video...")):
-                    download_video_ytdlp(url, resolution=res)
+                try:
+                    with st.spinner(t("Downloading video...")):
+                        download_video_ytdlp(url, resolution=res)
+                except Exception as e:
+                    st.error(f"{t('Download failed')}: {e}")
+                    if needs_cookies(e):
+                        st.info(t("This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings."))
+                    return False
                 st.rerun()
 
         _inject_file_uploader_i18n()
