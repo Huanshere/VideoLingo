@@ -75,9 +75,11 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 Según la [documentación de Qwen](https://github.com/QwenLM/Qwen3-ASR#released-models-description-and-download), el ASR admite 30 idiomas y 22 dialectos chinos. ForcedAligner, utilizado para las marcas de tiempo de los subtítulos, admite estos 11 idiomas:
 
-Chino (mandarín) · Inglés · Cantonés · Francés · Alemán · Italiano · Japonés · Coreano · Portugués · Ruso · Español
+🇺🇸 Inglés 🤩 (3.35%) | 🇷🇺 Ruso 😊 (5.99%) | 🇫🇷 Francés 🤩 (4.75%) | 🇩🇪 Alemán 🤩 (3.92%) | 🇮🇹 Italiano 🤩 (2.41%) | 🇪🇸 Español 🤩 (3.36%) | 🇯🇵 Japonés 😊 (5.20%) | 🇨🇳 Chino (mandarín) 🤩 (2.41%)
 
-Estas son las capacidades de los modelos originales, no valoraciones de calidad probadas por VideoLingo para cada idioma. La precisión depende de la grabación y del modelo elegido.
+🇰🇷 Coreano 🤩 (2.57%) | 🇵🇹 Portugués 🤩 (3.92%) | 🇭🇰 Cantonés 🤩 (3.98%)
+
+> Las valoraciones usan las tasas de error FLEURS de Qwen3-ASR-1.7B del [informe oficial, tabla A.2(b)](https://arxiv.org/pdf/2601.21337v2#page=16): 🤩 <5 %, 😊 5–<10 %, 😐 ≥10 %. El proyecto define estos intervalos. Los valores son WER/CER según el idioma, no una clasificación entre idiomas ni una valoración del proceso completo de subtitulado. Los resultados varían según la grabación y el modelo.
 
 Los idiomas de traducción dependen del LLM elegido; los de doblaje, del método TTS.
 
