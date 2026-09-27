@@ -3,6 +3,7 @@ from rich.panel import Panel
 from rich.console import Console
 from rich.table import Table
 from rich import box
+from core.task_runner import StopTask
 from core.utils import *
 console = Console()
 
@@ -11,8 +12,10 @@ def valid_translate_result(result: dict, required_keys: list, required_sub_keys:
     if not all(key in result for key in required_keys):
         return {"status": "error", "message": f"Missing required key(s): {', '.join(set(required_keys) - set(result.keys()))}"}
     
-    # Check for required sub-keys in all items
-    for key in result:
+    # Check for required sub-keys in all items; keys the model added on its own are ignored
+    for key in required_keys:
+        if not isinstance(result[key], dict):
+            return {"status": "error", "message": f"Item {key} is not an object"}
         if not all(sub_key in result[key] for sub_key in required_sub_keys):
             return {"status": "error", "message": f"Missing required sub-key(s) in item {key}: {', '.join(set(required_sub_keys) - set(result[key].keys()))}"}
 
@@ -33,6 +36,7 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
                 result = ask_gpt(prompt+retry* " ", resp_type='json', valid_def=valid_faith, log_title=f'translate_{step_name}')
             elif step_name == 'expressiveness':
                 result = ask_gpt(prompt+retry* " ", resp_type='json', valid_def=valid_express, log_title=f'translate_{step_name}')
+            result = {str(i): result[str(i)] for i in range(1, length+1)}
             if len(lines.split('\n')) == len(result):
                 return result
             if retry != 2:
@@ -65,7 +69,14 @@ def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_
 
     ## Step 2: Express Smoothly  
     prompt2 = get_prompt_expressiveness(faith_result, lines, shared_prompt)
-    express_result = retry_translation(prompt2, len(lines.split('\n')), 'expressiveness')
+    try:
+        express_result = retry_translation(prompt2, len(lines.split('\n')), 'expressiveness')
+    except StopTask:
+        raise
+    except Exception as e:
+        # The polish step is optional: keep the faithful translation instead of stopping the video
+        console.print(f'[yellow]⚠️ Expressiveness translation of block {index} failed ({e}), using the direct translation[/yellow]')
+        express_result = {key: {"free": faith_result[key]["direct"]} for key in faith_result}
 
     table = Table(title="Translation Results", show_header=False, box=box.ROUNDED)
     table.add_column("Translations", style="bold")

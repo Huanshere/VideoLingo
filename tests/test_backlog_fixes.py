@@ -601,3 +601,60 @@ def test_split_does_not_swallow_a_stop_request(monkeypatch):
 
     with pytest.raises(StopTask):
         module.split_sentence("some long sentence that was being split", 2)
+
+
+# ------------------------------------------------------------------
+# translate_lines: extra keys, and a polish step that fails (#433)
+# ------------------------------------------------------------------
+
+def _translate_lines(monkeypatch, replies, reflect=True):
+    import core.translate_lines as module
+
+    calls = []
+
+    def fake_ask_gpt(prompt, resp_type=None, valid_def=None, log_title="default"):
+        calls.append(log_title)
+        reply = replies[log_title]
+        if isinstance(reply, Exception):
+            raise reply
+        check = valid_def(reply)
+        if check["status"] != "success":
+            raise ValueError(check["message"])
+        return reply
+
+    monkeypatch.setattr(module, "ask_gpt", fake_ask_gpt)
+    monkeypatch.setattr(module, "load_key", lambda key: reflect)
+    monkeypatch.setattr(module, "check_cancel", lambda: None)
+    monkeypatch.setattr(module, "generate_shared_prompt", lambda *args: "shared")
+    monkeypatch.setattr(module, "get_prompt_faithfulness", lambda *args: "faith")
+    monkeypatch.setattr(module, "get_prompt_expressiveness", lambda *args: "express")
+    return module, calls
+
+
+FAITH = {"1": {"origin": "Hello.", "direct": "你好。"}, "2": {"origin": "Bye.", "direct": "再见。"}}
+
+
+def test_translation_ignores_keys_the_model_added(monkeypatch):
+    module, _ = _translate_lines(monkeypatch, {
+        "translate_faithfulness": {**FAITH, "note": "two lines translated"},
+        "translate_expressiveness": {"analysis": "fine", "1": {"free": "你好呀。"}, "2": {"free": "回头见。"}},
+    })
+
+    assert module.translate_lines("Hello.\nBye.", None, None, None, None) == ("你好呀。\n回头见。", "Hello.\nBye.")
+
+
+def test_failed_polish_step_falls_back_to_the_direct_translation(monkeypatch):
+    module, calls = _translate_lines(monkeypatch, {
+        "translate_faithfulness": FAITH,
+        "translate_expressiveness": {"1": {"free": "你好呀。"}, "2": "回头见。"},
+    })
+
+    assert module.translate_lines("Hello.\nBye.", None, None, None, None) == ("你好。\n再见。", "Hello.\nBye.")
+    assert calls == ["translate_faithfulness", "translate_expressiveness"]
+
+
+def test_failed_faithful_translation_is_still_an_error(monkeypatch):
+    module, _ = _translate_lines(monkeypatch, {"translate_faithfulness": {"1": FAITH["1"]}})
+
+    with pytest.raises(ValueError, match="Missing required key"):
+        module.translate_lines("Hello.\nBye.", None, None, None, None)
