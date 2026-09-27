@@ -23,7 +23,8 @@ def split_chunks_by_chars(chunk_size, max_i):
     sentence_count = 0
     for sentence in sentences:
         if len(chunk) + len(sentence + '\n') > chunk_size or sentence_count == max_i:
-            chunks.append(chunk.strip())
+            if chunk.strip():  # a first sentence longer than chunk_size leaves nothing to flush
+                chunks.append(chunk.strip())
             chunk = sentence + '\n'
             sentence_count = 1
         else:
