@@ -125,7 +125,7 @@ VideoLingo 支持 Windows、macOS 和 Linux 系统，可使用 CPU 或 GPU 运�
 
 先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。
 
-安装器会自动下载并配置 FFmpeg 和 ffprobe，无需手动下载或设置 PATH。首次安装需要联网，之后启动会复用已下载的程序。 字幕烧录仍需要合适的字体，安装器会在 Linux 上检查并尝试安装 Noto CJK。只有可选的 [WhisperX 后端](whisperx-manual.zh-CN.md#ffmpeg-runtime)需要另外配置 FFmpeg 共享库。
+字幕烧录需要合适的字体，安装器会在 Linux 上检查并尝试安装 Noto CJK。可选的 [WhisperX 后端](whisperx-manual.zh-CN.md#ffmpeg-runtime)需要另外配置 FFmpeg 共享库。
 
 <a id="asr-runtime"></a>
 ### 语音识别（Qwen3-ASR + ForcedAligner）
@@ -189,8 +189,6 @@ uv 创建使用 Python 3.13 的 `.venv`，已有应用环境支持 Python 3.10�
    ![tutorial](./zh_page.png)
 
 5. （可选）更多设置可以在 `config.yaml` 中手动修改。自定义术语请在处理前写入 `custom_terms.xlsx`，三列分别为原文、译文、备注。
-
-> 需要帮助？我们的 [AI助手](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) 随时解答问题！
 
 
 ## HTTP API

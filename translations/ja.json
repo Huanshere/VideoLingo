@@ -75,7 +75,7 @@
     "Merge full audio": "完全な音声を統合",
     "Merge dubbing to the video": "吹き替えを動画に統合",
     "Audio processing complete! 🎇": "音声処理完了！🎇",
-    "Hello, welcome to VideoLingo. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> for free!": "VideoLingoへようこそ。問題が発生した場合は、無料のQAエージェント<a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">こちら</a>で即座に回答を得ることができます！また、SaaSウェブサイト<a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>を無料でお試しいただけます！",
+    "Welcome to VideoLingo! 👋 You can also try it online at <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a>.": "VideoLingo へようこそ！👋 <a href=\"https://videolingo.io\" target=\"_blank\">videolingo.io</a> でもオンラインでお試しいただけます。",
     "WhisperX Runtime": "WhisperX ランタイム",
     "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key.": "Local runtime requires >8GB GPU; ElevenLabs runtime requires an ElevenLabs API key.",
     "The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue.": "The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue.",

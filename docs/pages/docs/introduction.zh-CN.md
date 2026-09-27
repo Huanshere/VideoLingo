@@ -60,7 +60,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## 安装
 
-先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。安装器会自动下载并配置 FFmpeg 和 ffprobe，无需手动下载或设置 PATH。首次安装需要联网，之后启动会复用已下载的程序。NVIDIA 要求见[运行库说明](start.zh-CN.md#gpu-runtime)；选择可选的 WhisperX 后端时，另见 [WhisperX 安装指南](whisperx-manual.zh-CN.md)。
+先安装 [Git](https://git-scm.com/downloads) 和 [uv](https://docs.astral.sh/uv/getting-started/installation/)。重开终端，检查 `git --version` 和 `uv --version`。NVIDIA 要求见[运行库说明](start.zh-CN.md#gpu-runtime)；选择可选的 WhisperX 后端时，另见 [WhisperX 安装指南](whisperx-manual.zh-CN.md)。
 
 1. 克隆仓库
 

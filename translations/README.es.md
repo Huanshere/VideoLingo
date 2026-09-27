@@ -79,13 +79,9 @@ Los idiomas de doblaje dependen del método TTS elegido.
 
 ## Instalación
 
-¿Tienes algún problema? Chatea con nuestro agente de IA en línea gratuito [**aquí**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) para ayudarte.
-
 Instala [Git](https://git-scm.com/downloads) y [uv](https://docs.astral.sh/uv/getting-started/installation/). Abre de nuevo la terminal y comprueba `git --version` y `uv --version`.
 
 Para NVIDIA, instala un controlador compatible con tu GPU. El instalador selecciona PyTorch `cu128` si `nvidia-smi` indica CUDA >=12.8, y `cu126` en caso contrario; sin NVIDIA, selecciona paquetes CPU. Selecciona paquetes Python, no instala el CUDA Toolkit del sistema. En Apple Silicon (macOS 14+), el reconocimiento local usa MLX. Consulta los [requisitos GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
-
-> FFmpeg y ffprobe se descargan y configuran automáticamente durante la instalación. No hace falta descargarlos manualmente ni configurar PATH. La instalación requiere conexión a Internet; los siguientes inicios reutilizan las herramientas descargadas.
 
 ### Instalación con uv
 

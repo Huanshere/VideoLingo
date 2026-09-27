@@ -79,15 +79,11 @@ Dubbing languages depend on the selected TTS method.
 
 ## Installation
 
-Meet any problem? Chat with our free online AI agent [**here**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) to help you.
-
 Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
 To use NVIDIA GPU acceleration, install or update your graphics driver. The installer will automatically select a compatible PyTorch version.
 
 On Apple Silicon (macOS 14+), local recognition uses MLX. See [GPU prerequisites](docs/pages/docs/start.en-US.md#gpu-runtime).
-
-> FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools.
 
 ### Install with uv
 

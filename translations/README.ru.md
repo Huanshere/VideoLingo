@@ -79,13 +79,9 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Установка
 
-Возникли проблемы? Общайтесь с нашим бесплатным онлайн ИИ-агентом [**здесь**](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh), который поможет вам.
-
 Установите [Git](https://git-scm.com/downloads) и [uv](https://docs.astral.sh/uv/getting-started/installation/). Откройте терминал заново и проверьте `git --version` и `uv --version`.
 
 Для NVIDIA нужен совместимый с GPU драйвер. Установщик выбирает PyTorch `cu128`, если `nvidia-smi` сообщает CUDA >=12.8, иначе `cu126`; без NVIDIA используются пакеты CPU. Это выбор пакетов Python, а не установка системного CUDA Toolkit. На Apple Silicon (macOS 14+) локальное распознавание использует MLX. См. [требования GPU](../docs/pages/docs/start.en-US.md#gpu-runtime).
-
-> FFmpeg и ffprobe загружаются и настраиваются автоматически при установке. Ручная загрузка и настройка PATH не нужны. Для установки нужен интернет; при последующих запусках используются уже загруженные программы.
 
 ### Установка через uv
 

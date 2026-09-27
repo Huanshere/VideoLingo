@@ -126,7 +126,7 @@ VideoLingo supports Windows, macOS and Linux systems, and can run on CPU or GPU.
 
 Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`.
 
-FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools. Subtitle rendering still needs suitable fonts; setup checks/installs Noto CJK on Linux. Only the optional [WhisperX backend](whisperx-manual.en-US.md#ffmpeg-runtime) needs additional FFmpeg shared libraries.
+Subtitle rendering needs suitable fonts; setup checks/installs Noto CJK on Linux. The optional [WhisperX backend](whisperx-manual.en-US.md#ffmpeg-runtime) needs additional FFmpeg shared libraries.
 
 <a id="asr-runtime"></a>
 ### Speech recognition (Qwen3-ASR + ForcedAligner)
@@ -190,8 +190,6 @@ uv provisions Python 3.13 in `.venv`. Existing application environments are supp
    ![tutorial](./en_page.png)
 
 5. (Optional) More settings can be manually modified in `config.yaml`, watch command line output during operation. To use custom terms, add them to `custom_terms.xlsx` before processing, e.g. `Baguette | French bread | Not just any bread!`.
-
-> Need help? Our [AI Assistant](https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh) is here to guide you through any issues!
 
 ## HTTP API
 

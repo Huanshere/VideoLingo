@@ -58,7 +58,7 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ## Installation
 
-Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`. FFmpeg and ffprobe are downloaded and configured automatically during setup. No manual download or PATH configuration is needed. Setup needs an internet connection; subsequent launches reuse the downloaded tools. See the [GPU prerequisites](start.en-US.md#gpu-runtime) for NVIDIA requirements, and the separate [WhisperX guide](whisperx-manual.en-US.md) if you choose that optional backend.
+Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/) first. Reopen your terminal and check `git --version` and `uv --version`. See the [GPU prerequisites](start.en-US.md#gpu-runtime) for NVIDIA requirements, and the separate [WhisperX guide](whisperx-manual.en-US.md) if you choose that optional backend.
 
 1. Clone the repository
 
