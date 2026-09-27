@@ -71,17 +71,11 @@ https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c
 
 ### Language Support
 
-**Local speech recognition:** Qwen3-ASR (1.7B by default, 0.6B selectable).
+**Input languages:**
 
-According to the [Qwen documentation](https://github.com/QwenLM/Qwen3-ASR#released-models-description-and-download), ASR supports 30 languages and 22 Chinese dialects. ForcedAligner, used for subtitle timestamps, supports these 11 languages:
+🇺🇸 English 🤩 | 🇷🇺 Russian 😊 | 🇫🇷 French 🤩 | 🇩🇪 German 🤩 | 🇮🇹 Italian 🤩 | 🇪🇸 Spanish 🤩 | 🇯🇵 Japanese 😊 | 🇨🇳 Chinese 🤩
 
-🇺🇸 English 🤩 (3.35%) | 🇷🇺 Russian 😊 (5.99%) | 🇫🇷 French 🤩 (4.75%) | 🇩🇪 German 🤩 (3.92%) | 🇮🇹 Italian 🤩 (2.41%) | 🇪🇸 Spanish 🤩 (3.36%) | 🇯🇵 Japanese 😊 (5.20%) | 🇨🇳 Chinese (Mandarin) 🤩 (2.41%)
-
-🇰🇷 Korean 🤩 (2.57%) | 🇵🇹 Portuguese 🤩 (3.92%) | 🇭🇰 Cantonese 🤩 (3.98%)
-
-> Ratings use Qwen3-ASR-1.7B FLEURS error rates from the [official report, Table A.2(b)](https://arxiv.org/pdf/2601.21337v2#page=16): 🤩 <5%, 😊 5–<10%, 😐 ≥10%. Emoji bands are defined by this project; values are WER/CER depending on the language, not a cross-language ranking or an end-to-end subtitle score. Results vary with the recording and model.
-
-Translation languages depend on the selected LLM; dubbing languages depend on the selected TTS method.
+Dubbing languages depend on the selected TTS method.
 
 ## Installation
 
