@@ -1,12 +1,8 @@
-# Local HTTP API / 本地 API
+# Local HTTP API
 
 The API replaces Excel batch mode. It uses the **same pipeline as Streamlit**, the existing
 `config.yaml`, fixed `output/`, and `history/`. There is one operation at a time, no queue,
 no database and no task directories. Use either the UI or API for a working directory.
-
-API 替代原来的 Excel 批处理入口，与 Streamlit 共用流程。保留 `config.yaml`、`output/`
-和 `history/`。一次只执行一个操作；多个视频由调用方逐个提交，不需要队列或任务目录。
-同一工作目录选择 UI 或 API 一种方式使用。
 
 ## Start
 
@@ -75,9 +71,6 @@ be overwritten); move results elsewhere first if you want to keep multiple versi
 - Status is in memory. After a server restart it is `idle`; files remain, and `/run` can retry.
 - No CLI, Excel task file, persistent job history, or service queue is needed. An agent can loop:
   input → wait → run → wait → collect results → archive → wait → next input.
-
-已有中间文件会被复用。修改语言或模型后如需重做，请明确归档或替换旧输出；不会自动推断
-缓存失效。停止是协作式的，请等 `active: false` 后再开始下一项。
 
 ## Tests (no model downloads)
 
