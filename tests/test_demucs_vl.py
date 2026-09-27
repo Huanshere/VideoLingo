@@ -3,6 +3,7 @@
 Real FFmpeg, the real Demucs reader/writer helpers and the app's own decoders are used, so
 the MP3 encoder-delay handling that shifted word timestamps ~60 ms late is exercised.
 """
+import os
 import subprocess
 from types import SimpleNamespace
 
@@ -99,5 +100,33 @@ def test_stem_falls_back_to_wav_without_libmp3lame(tmp_path, monkeypatch):
     import torch
     monkeypatch.setattr(demucs_vl, "_ffmpeg_has_encoder", lambda name: False)
     path = tmp_path / "vocal.mp3"
-    demucs_vl.save_stem(torch.zeros(2, 4410), path, 44100)
+    writer = demucs_vl.StemWriter(path, 44100, 2)
+    writer.write(torch.zeros(2, 4410))
+    writer.close()
     assert path.read_bytes()[:4] == b"RIFF"
+
+
+def test_long_audio_is_separated_in_chunks(raw_mp3, fake_demucs, monkeypatch):
+    """Chunks with context on both sides give the same stems as one pass (#517)."""
+    demucs_vl.demucs_audio()
+    samples = fake_demucs["input"][0][1]
+    whole = [open(stem, "rb").read() for stem in (_VOCAL_AUDIO_FILE, _BACKGROUND_AUDIO_FILE)]
+    for stem in (_VOCAL_AUDIO_FILE, _BACKGROUND_AUDIO_FILE):
+        os.remove(stem)
+
+    shapes = []
+    separate = demucs_vl.PreloadedSeparator.separate_tensor
+
+    def recording(self, wav, sr=None):
+        shapes.append(wav.shape[1])
+        return separate(self, wav, sr)
+
+    monkeypatch.setattr(demucs_vl.PreloadedSeparator, "separate_tensor", recording)
+    monkeypatch.setattr(demucs_vl, "CHUNK_SECONDS", 6)
+    monkeypatch.setattr(demucs_vl, "CONTEXT_SECONDS", 1)
+    demucs_vl.demucs_audio()
+
+    # 6 s chunks of a 20 s track, each with up to 1 s of context on both sides
+    assert shapes == [7 * 44100, 8 * 44100, 8 * 44100, samples - 17 * 44100]
+    assert [open(stem, "rb").read() for stem in (_VOCAL_AUDIO_FILE, _BACKGROUND_AUDIO_FILE)] == whole
+    assert sorted(os.listdir("output/audio")) == ["background.mp3", "raw.mp3", "vocal.mp3"]
