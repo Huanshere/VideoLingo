@@ -125,10 +125,13 @@ sf_fish_tts:
   # preset, custom, dynamic
   mode: "preset"
 
-# OpenAI TTS-1 API configuration, 302.ai API only
+# OpenAI TTS: the speech endpoint of OpenLux, or of another service with the API of OpenAI
 openai_tts:
   api_key: 'YOUR_302_API_KEY'
   voice: 'alloy'
+  # *Base URL and model of the speech endpoint
+  base_url: 'https://api.openlux.ai/v1'
+  model: 'gpt-4o-mini-tts'
 
 # FishTTS configuration, 302.ai API only
 fish_tts:

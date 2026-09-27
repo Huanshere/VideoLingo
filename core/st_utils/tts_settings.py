@@ -1,14 +1,16 @@
 """Provider grouping without changing existing TTS method/config identifiers."""
 
 PROVIDERS = {
-    "302.ai": ("openai_tts", "fish_tts", "f5tts"),
+    "OpenLux": ("openai_tts",),
+    "302.ai": ("fish_tts", "f5tts"),
     "SiliconFlow": ("sf_fish_tts", "sf_cosyvoice2"),
     "Microsoft Edge": ("edge_tts",),
     "Local service": ("gpt_sovits",),
     "Custom provider": ("custom_tts",),
 }
 KEY_PATHS = {
-    "302.ai": ("openai_tts.api_key", "fish_tts.api_key", "f5tts.302_api"),
+    "OpenLux": ("openai_tts.api_key",),
+    "302.ai": ("fish_tts.api_key", "f5tts.302_api"),
     "SiliconFlow": ("sf_fish_tts.api_key", "sf_cosyvoice2.api_key"),
 }
 
