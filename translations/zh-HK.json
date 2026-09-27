@@ -178,5 +178,6 @@
     "0.6B (faster, less memory)": "0.6B（更快、更省顯存）",
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX 未安裝。請按手動文件（docs/pages/docs/whisperx-manual.zh-CN.md）自行安裝額外依賴，或把 whisper.backend 改回 qwen。",
     "Word-level transcription and alignment": "詞級語音識別與對齊",
-    "Stopping...": "正在停止..."
+    "Stopping...": "正在停止...",
+    "API check failed": "API 檢查失敗"
 }

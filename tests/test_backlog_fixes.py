@@ -231,3 +231,120 @@ def test_configured_keys_accepts_a_non_string_key():
               "fish_tts.api_key": "YOUR_302_API_KEY", "f5tts.302_api": ""}
 
     assert configured_keys("302.ai", "openai_tts", config.get) == ("1234567890", False)
+
+
+# ------------------------------------------------------------------
+# ask_gpt: replies of reasoning models and chatty models (#478, #490, #422)
+# ------------------------------------------------------------------
+
+@pytest.mark.parametrize("content,expected", [
+    ('{"message": "success"}', {"message": "success"}),
+    ('```json\n{"message": "success"}\n```', {"message": "success"}),
+    ('<think>\nThe user wants {"message": "draft"}.\n</think>\n\n{"message": "success"}', {"message": "success"}),
+    ('<think>plan</think>\n```json\n{"message": "success"}\n```', {"message": "success"}),
+    ('reasoning without the opening tag {"a": 1}</think>{"message": "success"}', {"message": "success"}),
+    ('Here is an example {"message": "draft"} and the answer:\n```json\n{"message": "success"}\n```\nHope it helps {ok}',
+     {"message": "success"}),
+    ('```json\n{"message": "draft"}\n```\nCorrected:\n```json\n{"message": "success"}\n```', {"message": "success"}),
+    ('Sure! {"message": "success"}', {"message": "success"}),
+    ('{"message": "success",}', {"message": "success"}),
+    ('{"1": {"origin": "a ```code``` b", "direct": "甲"}}', {"1": {"origin": "a ```code``` b", "direct": "甲"}}),
+])
+def test_parse_json_response(content, expected):
+    assert _ask_gpt_module().parse_json_response(content) == expected
+
+
+@pytest.mark.parametrize("content", ["", None, "I cannot help with that.", "<think>still thinking", "[1, 2, 3]", '"success"'])
+def test_parse_json_response_rejects_a_reply_without_an_object(content):
+    with pytest.raises(ValueError, match="not a JSON object"):
+        _ask_gpt_module().parse_json_response(content)
+
+
+@pytest.mark.parametrize("base_url,expected", [
+    ("https://api.openai.com/v1", "https://api.openai.com/v1"),
+    ("https://api.openai.com", "https://api.openai.com/v1"),
+    ("https://api.openai.com/", "https://api.openai.com/v1"),
+    ("https://api.openai.com/v1/", "https://api.openai.com/v1"),
+    ("https://api.openai.com/v1/chat/completions", "https://api.openai.com/v1"),
+    ("https://api.openai.com/v1/chat/completions/", "https://api.openai.com/v1"),
+    ("http://localhost:11434/v1/chat/completions", "http://localhost:11434/v1"),
+    (" https://api.deepseek.com ", "https://api.deepseek.com/v1"),
+    ("https://ark.cn-beijing.volces.com/api/v3/chat/completions", "https://ark.cn-beijing.volces.com/api/v3"),
+])
+def test_normalize_base_url(base_url, expected):
+    assert _ask_gpt_module().normalize_base_url(base_url) == expected
+
+
+def test_normalize_base_url_keeps_other_api_versions():
+    assert _ask_gpt_module().normalize_base_url("https://open.bigmodel.cn/api/paas/v4/") == "https://open.bigmodel.cn/api/paas/v4"
+
+
+# ------------------------------------------------------------------
+# sidebar: API check reports the real error (#465, #405, #390, #440)
+# ------------------------------------------------------------------
+
+class _FakeCompletions:
+    def __init__(self, outcome):
+        self.outcome, self.calls = outcome, 0
+
+    def create(self, **params):
+        self.calls += 1
+        if isinstance(self.outcome, Exception):
+            raise self.outcome
+        from types import SimpleNamespace
+        message = SimpleNamespace(content=self.outcome)
+        return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+
+
+def _check_api(monkeypatch, tmp_path, outcome, key="sk-test"):
+    from types import SimpleNamespace
+    import core.st_utils.sidebar_setting as sidebar
+
+    module = _ask_gpt_module()
+    completions = _FakeCompletions(outcome)
+    config = {"api.key": key, "api.base_url": "https://api.example.com/v1/chat/completions",
+              "api.model": "test-model", "api.llm_support_json": False}
+    seen = {}
+
+    def fake_openai(api_key, base_url):
+        seen.update(api_key=api_key, base_url=base_url)
+        return SimpleNamespace(chat=SimpleNamespace(completions=completions))
+
+    monkeypatch.setattr(module, "load_key", config.get)
+    monkeypatch.setattr(module, "OpenAI", fake_openai)
+    monkeypatch.setattr(module, "GPT_LOG_FOLDER", str(tmp_path))
+    return sidebar.check_api(), completions, seen
+
+
+def test_check_api_success(monkeypatch, tmp_path):
+    result, completions, seen = _check_api(monkeypatch, tmp_path, '<think>ok</think>{"message": "success"}')
+
+    assert result == (True, "")
+    assert seen == {"api_key": "sk-test", "base_url": "https://api.example.com/v1"}
+    assert completions.calls == 1
+
+
+def test_check_api_reports_the_error_without_retrying(monkeypatch, tmp_path):
+    result, completions, _ = _check_api(monkeypatch, tmp_path, ConnectionError("model `test-model` not found"))
+
+    assert result == (False, "ConnectionError: model `test-model` not found")
+    assert completions.calls == 1
+
+
+def test_check_api_is_not_answered_from_the_cache(monkeypatch, tmp_path):
+    import core.st_utils.sidebar_setting as sidebar
+
+    _check_api(monkeypatch, tmp_path, '{"message": "success"}')
+    monkeypatch.setattr(sidebar.time, "time", lambda: 1.0)
+    result, completions, _ = _check_api(monkeypatch, tmp_path, ConnectionError("key revoked"))
+
+    assert result[0] is False
+    assert completions.calls == 1
+
+
+def test_check_api_without_key(monkeypatch, tmp_path):
+    result, completions, _ = _check_api(monkeypatch, tmp_path, '{"message": "success"}', key="")
+
+    assert result == (False, "ValueError: API key is not set")
+    assert completions.calls == 0
+

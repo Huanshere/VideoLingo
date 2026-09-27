@@ -178,5 +178,6 @@
     "0.6B (faster, less memory)": "0.6B (faster, less memory)",
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.",
     "Word-level transcription and alignment": "Word-level transcription and alignment",
-    "Stopping...": "Stopping..."
+    "Stopping...": "Stopping...",
+    "API check failed": "API check failed"
 }

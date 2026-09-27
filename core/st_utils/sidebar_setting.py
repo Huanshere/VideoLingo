@@ -1,9 +1,10 @@
 import importlib.util
+import time
 import streamlit as st
 import requests
 from translations.translations import translate as t
 from core.utils import *
-from core.utils.ask_gpt import is_local_endpoint
+from core.utils.ask_gpt import is_local_endpoint, normalize_base_url
 
 
 def config_input(label, key, help=None, placeholder=None):
@@ -45,10 +46,7 @@ def _fetch_model_list(base_url, api_key):
     """Fetch available models from OpenAI-compatible /v1/models endpoint."""
     if not base_url or (not api_key and not is_local_endpoint(base_url)):
         return []
-    url = base_url.rstrip("/")
-    if not url.endswith("/v1"):
-        url += "/v1"
-    url += "/models"
+    url = normalize_base_url(base_url) + "/models"
     try:
         resp = requests.get(
             url, headers={"Authorization": f"Bearer {api_key}"} if api_key else {}, timeout=10
@@ -145,11 +143,8 @@ def page_setting():
 
             if st.button("📡 " + t("Check API"), key="api", use_container_width=True):
                 with st.spinner(t("Check API") + "..."):
-                    is_valid = check_api()
-                st.toast(
-                    t("API Key is valid") if is_valid else t("API Key is invalid"),
-                    icon="✅" if is_valid else "❌",
-                )
+                    is_valid, error = check_api()
+                show_api_check(is_valid, error)
         except ImportError:
             c1, c2 = st.columns([4, 1])
             with c1:
@@ -161,11 +156,8 @@ def page_setting():
                 )
             with c2:
                 if st.button("📡", key="api"):
-                    is_valid = check_api()
-                    st.toast(
-                        t("API Key is valid") if is_valid else t("API Key is invalid"),
-                        icon="✅" if is_valid else "❌",
-                    )
+                    is_valid, error = check_api()
+                    show_api_check(is_valid, error)
         llm_support_json = st.toggle(
             t("LLM JSON Format Support"),
             value=load_key("api.llm_support_json"),
@@ -372,15 +364,26 @@ def page_setting():
 
 
 def check_api():
+    """Returns (is_valid, error): one request without retries, never answered from the cache."""
     try:
-        resp = ask_gpt(
-            "This is a test, response 'message':'success' in json format.",
+        resp = ask_gpt.__wrapped__(
+            f"This is a test ({time.time():.0f}), response 'message':'success' in json format.",
             resp_type="json",
             log_title="None",
         )
-        return resp.get("message") == "success"
-    except Exception:
-        return False
+        if resp.get("message") == "success":
+            return True, ""
+        return False, f"Unexpected response: {str(resp)[:300]}"
+    except Exception as e:
+        return False, f"{type(e).__name__}: {str(e)[:500]}"
+
+
+def show_api_check(is_valid, error):
+    if is_valid:
+        st.toast(t("API Key is valid"), icon="✅")
+    else:
+        st.toast(t("API check failed"), icon="❌")
+        st.error(f"{t('API check failed')}: {error}")
 
 
 if __name__ == "__main__":
