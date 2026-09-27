@@ -24,6 +24,7 @@ class TaskRunner:
     total_steps: int = 0
     current_label: str = ""
     error_msg: str = ""
+    pause_message: str = ""  # why the task paused itself, empty when the user paused it
 
     # Internal
     _pause_event: threading.Event = field(default_factory=threading.Event)
@@ -73,6 +74,7 @@ class TaskRunner:
         self.current_step = -1
         self.current_label = ""
         self.error_msg = ""
+        self.pause_message = ""
         self.state = "running"
 
         self._pause_event.set()
@@ -81,13 +83,15 @@ class TaskRunner:
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
 
-    def pause(self):
+    def pause(self, message: str = ""):
         if self.state == "running":
             self._pause_event.clear()
+            self.pause_message = message
             self.state = "paused"
 
     def resume(self):
         if self.state == "paused":
+            self.pause_message = ""
             self._pause_event.set()
             self.state = "running"
 
@@ -95,6 +99,7 @@ class TaskRunner:
         """Request stop. The task will halt before the next step."""
         if self.state in ("running", "paused"):
             self.state = "stopping"
+            self.pause_message = ""
             self._stop_event.set()
             self._pause_event.set()  # unblock if paused so thread can exit
 
@@ -106,6 +111,7 @@ class TaskRunner:
             self.total_steps = 0
             self.current_label = ""
             self.error_msg = ""
+            self.pause_message = ""
             self._steps = []
 
     @property

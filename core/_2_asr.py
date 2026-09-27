@@ -17,6 +17,23 @@ WHISPERX_NOT_INSTALLED = (
     "and install the extra packages yourself, or set whisper.backend to qwen."
 )
 
+def prepare_audio(media_file, media_type, demucs):
+    """The audio of the input for the recognition and the dubbing. Returns the audio with the voice."""
+    if media_type == "video":
+        convert_video_to_audio(media_file)
+    else:
+        prepare_audio_for_asr(media_file)
+
+    # Demucs vocal separation:
+    if not demucs:
+        return _RAW_AUDIO_FILE
+    from importlib.util import find_spec
+    if find_spec("demucs") is None:
+        raise RuntimeError("Vocal separation is not installed. Turn it off in settings or install Demucs separately.")
+    from core.asr_backend.demucs_vl import demucs_audio
+    demucs_audio()
+    return normalize_audio_volume(_VOCAL_AUDIO_FILE, _VOCAL_AUDIO_FILE, format="mp3")
+
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
     runtime = load_key("whisper.runtime")
@@ -41,21 +58,7 @@ def transcribe():
             whisper["qwen_engine"] = qwen_asr_local.resolve_engine(whisper.get("qwen_engine"))
     key = cache.cache_key(media_file, whisper, demucs) if whisper.get("cache", True) else None
     cached = cache.read_result(key, "complete") if key else None
-    if media_type == "video":
-        convert_video_to_audio(media_file)
-    else:
-        prepare_audio_for_asr(media_file)
-
-    # 2. Demucs vocal separation:
-    if demucs:
-        from importlib.util import find_spec
-        if find_spec("demucs") is None:
-            raise RuntimeError("Vocal separation is not installed. Turn it off in settings or install Demucs separately.")
-        from core.asr_backend.demucs_vl import demucs_audio
-        demucs_audio()
-        vocal_audio = normalize_audio_volume(_VOCAL_AUDIO_FILE, _VOCAL_AUDIO_FILE, format="mp3")
-    else:
-        vocal_audio = _RAW_AUDIO_FILE
+    vocal_audio = prepare_audio(media_file, media_type, demucs)
 
     # Downstream alignment/dubbing still needs the prepared audio on a cache hit.
     if cached:

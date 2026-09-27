@@ -1,8 +1,10 @@
 import importlib.util
+import time
 import streamlit as st
 import requests
 from translations.translations import translate as t
 from core.utils import *
+from core.utils.ask_gpt import is_local_endpoint, normalize_base_url
 
 
 def config_input(label, key, help=None, placeholder=None):
@@ -13,17 +15,87 @@ def config_input(label, key, help=None, placeholder=None):
     return val
 
 
+def burned_subtitles_settings():
+    """Which subtitles are burned into the subtitle video and into the dubbed video."""
+    from core.utils.subtitle_style import BURN_MODES, BURN_MODE_KEYS, get_burn_mode
+    labels = {"bilingual": t("Bilingual"), "translation": t("Translation only"), "source": t("Source only")}
+    columns = st.columns(2)
+    for column, video, label in zip(columns, ("subtitle", "dubbed"), (t("Subtitle video"), t("Dubbed video"))):
+        key = BURN_MODE_KEYS[video][0]
+        mode = get_burn_mode(video)
+        with column:
+            selected = st.selectbox(
+                label,
+                options=list(BURN_MODES),
+                index=BURN_MODES.index(mode),
+                format_func=labels.get,
+                help=t("Which subtitles are burned into this video"),
+                key=f"burn_mode_{video}",
+            )
+        if selected != mode:
+            update_key(key, selected, add_missing=True)
+            st.rerun()
+
+
+def subtitle_style_settings():
+    """Font, size and color of the burned-in subtitles; the other values of subtitle.style are edited in config.yaml."""
+    from core.utils.subtitle_style import default_font, get_subtitle_style, save_subtitle_style, to_ass_color, to_hex_color
+    with st.popover(t("Subtitle Style"), use_container_width=True):
+        style = {}
+        columns = st.columns(2)
+        for column, kind, label in zip(columns, ("source", "translation"), (t("Source subtitles"), t("Translated subtitles"))):
+            current = get_subtitle_style(kind)
+            with column:
+                st.markdown(f"**{label}**")
+                font_name = st.text_input(
+                    t("Font"), value=current["font_name"], placeholder=default_font(), key=f"subtitle_font_{kind}",
+                    help=t("Name of a font installed on this computer, empty for the default font"))
+                font_size = st.number_input(
+                    t("Font size"), min_value=1, max_value=100, value=int(current["font_size"]), key=f"subtitle_size_{kind}")
+                color = st.color_picker(t("Font color"), value=to_hex_color(current["font_color"]), key=f"subtitle_color_{kind}")
+            # The transparency of the configured color is kept as long as the color is
+            font_color = current["font_color"] if color == to_hex_color(current["font_color"]) else to_ass_color(color)
+            style[kind] = {**current, "font_name": font_name.strip(), "font_size": font_size, "font_color": font_color}
+        if style != {kind: get_subtitle_style(kind) for kind in style}:
+            save_subtitle_style(style)
+            st.rerun()
+
+
+# The languages shown first keep the order of the old dropdown
+LANGUAGE_LABELS = {
+    "en": "🇺🇸 English", "zh": "🇨🇳 简体中文", "es": "🇪🇸 Español", "ru": "🇷🇺 Русский",
+    "fr": "🇫🇷 Français", "de": "🇩🇪 Deutsch", "it": "🇮🇹 Italiano", "ja": "🇯🇵 日本語",
+    "yue": "🇭🇰 粵語", "ko": "🇰🇷 한국어", "pt": "🇵🇹 Português", "ar": "🇸🇦 العربية",
+    "id": "🇮🇩 Bahasa Indonesia", "th": "🇹🇭 ไทย", "vi": "🇻🇳 Tiếng Việt", "tr": "🇹🇷 Türkçe",
+    "hi": "🇮🇳 हिन्दी", "ms": "🇲🇾 Bahasa Melayu", "nl": "🇳🇱 Nederlands", "sv": "🇸🇪 Svenska",
+    "da": "🇩🇰 Dansk", "fi": "🇫🇮 Suomi", "pl": "🇵🇱 Polski", "cs": "🇨🇿 Čeština",
+    "fil": "🇵🇭 Filipino", "fa": "🇮🇷 فارسی", "el": "🇬🇷 Ελληνικά", "ro": "🇷🇴 Română",
+    "hu": "🇭🇺 Magyar", "mk": "🇲🇰 Македонски",
+}
+
+
+def recognition_languages(configured=None):
+    """Label -> code for the recognition language dropdown: every Qwen3-ASR language."""
+    from core.asr_backend.qwen_asr_local import ISO_TO_QWEN
+
+    langs = {"Auto": "auto"}
+    for code in [*LANGUAGE_LABELS, *ISO_TO_QWEN]:
+        if code in ISO_TO_QWEN and code not in langs.values():
+            langs[LANGUAGE_LABELS.get(code, ISO_TO_QWEN[code])] = code
+    # A code set by hand in config.yaml (WhisperX and ElevenLabs know more languages) stays selectable
+    if configured not in langs.values():
+        langs[str(configured)] = configured
+    return langs
+
+
 def _fetch_model_list(base_url, api_key):
     """Fetch available models from OpenAI-compatible /v1/models endpoint."""
-    if not api_key or not base_url:
+    if not base_url or (not api_key and not is_local_endpoint(base_url)):
         return []
-    url = base_url.rstrip("/")
-    if not url.endswith("/v1"):
-        url += "/v1"
-    url += "/models"
+    url = normalize_base_url(base_url) + "/models"
     try:
         resp = requests.get(
-            url, headers={"Authorization": f"Bearer {api_key}"}, timeout=10
+            url, headers={"Authorization": f"Bearer {api_key}"} if api_key else {}, timeout=10
         )
         resp.raise_for_status()
         data = resp.json().get("data", [])
@@ -51,9 +123,6 @@ def page_setting():
         """<style>[data-testid="stSidebar"] {min-width: 420px; max-width: 420px;}</style>""",
         unsafe_allow_html=True,
     )
-
-    # with st.expander(t("Youtube Settings"), expanded=True):
-    #     config_input(t("Cookies Path"), "youtube.cookies_path")
 
     with st.expander(t("LLM Configuration"), expanded=True):
         config_input(t("API_KEY"), "api.key", placeholder=t("Enter your API key"))
@@ -117,11 +186,8 @@ def page_setting():
 
             if st.button("📡 " + t("Check API"), key="api", use_container_width=True):
                 with st.spinner(t("Check API") + "..."):
-                    is_valid = check_api()
-                st.toast(
-                    t("API Key is valid") if is_valid else t("API Key is invalid"),
-                    icon="✅" if is_valid else "❌",
-                )
+                    is_valid, error = check_api()
+                show_api_check(is_valid, error)
         except ImportError:
             c1, c2 = st.columns([4, 1])
             with c1:
@@ -133,11 +199,8 @@ def page_setting():
                 )
             with c2:
                 if st.button("📡", key="api"):
-                    is_valid = check_api()
-                    st.toast(
-                        t("API Key is valid") if is_valid else t("API Key is invalid"),
-                        icon="✅" if is_valid else "❌",
-                    )
+                    is_valid, error = check_api()
+                    show_api_check(is_valid, error)
         llm_support_json = st.toggle(
             t("LLM JSON Format Support"),
             value=load_key("api.llm_support_json"),
@@ -149,17 +212,7 @@ def page_setting():
     with st.expander(t("Subtitles Settings"), expanded=True):
         c1, c2 = st.columns(2)
         with c1:
-            langs = {
-                "Auto": "auto",
-                "🇺🇸 English": "en",
-                "🇨🇳 简体中文": "zh",
-                "🇪🇸 Español": "es",
-                "🇷🇺 Русский": "ru",
-                "🇫🇷 Français": "fr",
-                "🇩🇪 Deutsch": "de",
-                "🇮🇹 Italiano": "it",
-                "🇯🇵 日本語": "ja",
-            }
+            langs = recognition_languages(load_key("whisper.language"))
             lang = st.selectbox(
                 t("Recog Lang"),
                 options=list(langs.keys()),
@@ -204,22 +257,7 @@ def page_setting():
             if backend != configured_backend:
                 update_key("whisper.backend", backend, add_missing=True)
                 st.rerun()
-            if backend == "qwen":
-                sizes = ["1.7b", "0.6b"]
-                configured_size = load_key_or("whisper.qwen_model", "1.7b")
-                size = st.selectbox(
-                    t("Qwen3-ASR Model Size"),
-                    options=sizes,
-                    index=sizes.index(configured_size) if configured_size in sizes else 0,
-                    format_func=lambda x: {
-                        "1.7b": t("1.7B (more accurate)"),
-                        "0.6b": t("0.6B (faster, less memory)"),
-                    }[x],
-                )
-                if size != configured_size:
-                    update_key("whisper.qwen_model", size, add_missing=True)
-                    st.rerun()
-            elif importlib.util.find_spec("whisperx") is None:
+            if backend == "whisperx" and importlib.util.find_spec("whisperx") is None:
                 st.warning(t("WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen."))
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
@@ -281,6 +319,17 @@ def page_setting():
                 update_key("target_language", target_language)
                 st.rerun()
 
+        configured_style = str(load_key_or("translation_style", "") or "")
+        translation_style = st.text_input(
+            t("Translation style"),
+            value=configured_style,
+            placeholder=t("e.g. colloquial, short sentences"),
+            help=t("Optional. Describe the style of the translation in your own words, it is added to the translation prompt"),
+        )
+        if translation_style != configured_style:
+            update_key("translation_style", translation_style, add_missing=True)
+            st.rerun()
+
         demucs_available = importlib.util.find_spec("demucs") is not None
         if not demucs_available and load_key("demucs"):
             update_key("demucs", False)
@@ -316,20 +365,29 @@ def page_setting():
             if burn_subtitles != load_key("burn_subtitles"):
                 update_key("burn_subtitles", burn_subtitles)
                 st.rerun()
+            if burn_subtitles:
+                burned_subtitles_settings()
+                subtitle_style_settings()
+
+        pause_before_translate = st.toggle(
+            t("Pause before translation"),
+            value=load_key("pause_before_translate"),
+            help=t("Pause after the terminology is extracted, so that you can edit `output/log/terminology.json` before the translation starts"),
+        )
+        if pause_before_translate != load_key("pause_before_translate"):
+            update_key("pause_before_translate", pause_before_translate)
+            st.rerun()
+
+        pause_after_translate = st.toggle(
+            t("Pause after translation"),
+            value=bool(load_key_or("pause_after_translate", False)),
+            help=t("Pause after the translation, so that you can edit the `Translation` column of `output/log/translation_results.xlsx` before the subtitles are generated"),
+        )
+        if pause_after_translate != bool(load_key_or("pause_after_translate", False)):
+            update_key("pause_after_translate", pause_after_translate, add_missing=True)
+            st.rerun()
     with st.expander(t("Dubbing Settings"), expanded=True):
-        tts_methods = [
-            "azure_tts",
-            "openai_tts",
-            "fish_tts",
-            "sf_fish_tts",
-            "edge_tts",
-            "gpt_sovits",
-            "custom_tts",
-            "sf_cosyvoice2",
-            "f5tts",
-        ]
         tts_method_labels = {
-            "azure_tts": t("Azure TTS"),
             "openai_tts": t("OpenAI TTS"),
             "fish_tts": t("Fish TTS"),
             "sf_fish_tts": t("SiliconFlow Fish TTS"),
@@ -339,19 +397,11 @@ def page_setting():
             "sf_cosyvoice2": t("SiliconFlow CosyVoice2"),
             "f5tts": t("F5-TTS"),
         }
-        select_tts = st.selectbox(
-            t("TTS Method"),
-            options=tts_methods,
-            index=tts_methods.index(load_key("tts_method")),
-            format_func=lambda x: tts_method_labels[x],
-        )
-        if select_tts != load_key("tts_method"):
-            update_key("tts_method", select_tts)
-            st.rerun()
+        from core.st_utils.tts_settings import select_tts_method
+        select_tts = select_tts_method(tts_method_labels)
 
         # sub settings for each tts method
         if select_tts == "sf_fish_tts":
-            config_input(t("SiliconFlow API Key"), "sf_fish_tts.api_key")
 
             # Add mode selection dropdown
             mode_options = {
@@ -374,11 +424,9 @@ def page_setting():
                 config_input(t("Voice"), "sf_fish_tts.voice")
 
         elif select_tts == "openai_tts":
-            config_input(t("302ai API"), "openai_tts.api_key")
             config_input(t("OpenAI Voice"), "openai_tts.voice")
 
         elif select_tts == "fish_tts":
-            config_input(t("302ai API"), "fish_tts.api_key")
             fish_tts_character = st.selectbox(
                 t("Fish TTS Character"),
                 options=list(load_key("fish_tts.character_id_dict").keys()),
@@ -389,10 +437,6 @@ def page_setting():
             if fish_tts_character != load_key("fish_tts.character"):
                 update_key("fish_tts.character", fish_tts_character)
                 st.rerun()
-
-        elif select_tts == "azure_tts":
-            config_input(t("302ai API"), "azure_tts.api_key")
-            config_input(t("Azure Voice"), "azure_tts.voice")
 
         elif select_tts == "gpt_sovits":
             st.info(t("Please refer to Github homepage for GPT_SoVITS configuration"))
@@ -419,23 +463,29 @@ def page_setting():
         elif select_tts == "edge_tts":
             config_input(t("Edge TTS Voice"), "edge_tts.voice")
 
-        elif select_tts == "sf_cosyvoice2":
-            config_input(t("SiliconFlow API Key"), "sf_cosyvoice2.api_key")
-
-        elif select_tts == "f5tts":
-            config_input(t("302ai API"), "f5tts.302_api")
 
 
 def check_api():
+    """Returns (is_valid, error): one request without retries, never answered from the cache."""
     try:
-        resp = ask_gpt(
-            "This is a test, response 'message':'success' in json format.",
+        resp = ask_gpt.__wrapped__(
+            f"This is a test ({time.time():.0f}), response 'message':'success' in json format.",
             resp_type="json",
             log_title="None",
         )
-        return resp.get("message") == "success"
-    except Exception:
-        return False
+        if resp.get("message") == "success":
+            return True, ""
+        return False, f"Unexpected response: {str(resp)[:300]}"
+    except Exception as e:
+        return False, f"{type(e).__name__}: {str(e)[:500]}"
+
+
+def show_api_check(is_valid, error):
+    if is_valid:
+        st.toast(t("API Key is valid"), icon="✅")
+    else:
+        st.toast(t("API check failed"), icon="❌")
+        st.error(f"{t('API check failed')}: {error}")
 
 
 if __name__ == "__main__":

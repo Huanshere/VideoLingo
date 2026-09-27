@@ -12,6 +12,12 @@ TRANS_SRT = "output/trans.srt"
 MAX_MERGE_COUNT = 5
 ESTIMATOR = None
 
+def clean_line(text):
+    """A line of the subtitles without the remarks in brackets and without the dashes of a dialogue."""
+    text = re.sub(r'\([^)]*\)|（[^）]*）', '', text)
+    # A hyphen inside a word is a part of the word: "hands-on"
+    return re.sub(r'(?<!\w)-|-(?!\w)', '', text).strip()
+
 def calc_if_too_fast(est_dur, tol_dur, duration, tolerance):
     accept = load_key("speed_factor.accept") # Maximum acceptable speed factor
     if est_dur / accept > tol_dur:  # Even max speed factor cannot adapt
@@ -152,7 +158,7 @@ def gen_dub_chunks():
         lines = [line.strip() for line in block.split('\n') if line.strip()]
         if len(lines) >= 3:
             text = ' '.join(lines[2:])
-            text = re.sub(r'\([^)]*\)|（[^）]*）', '', text).strip().replace('-', '')
+            text = clean_line(text)
             content_lines.append(text)
             
     # Process source subtitles (same structure)
@@ -160,7 +166,7 @@ def gen_dub_chunks():
         lines = [line.strip() for line in block.split('\n') if line.strip()]
         if len(lines) >= 3:
             text = ' '.join(lines[2:])
-            text = re.sub(r'\([^)]*\)|（[^）]*）', '', text).strip().replace('-', '')
+            text = clean_line(text)
             ori_content_lines.append(text)
 
     # Match processing

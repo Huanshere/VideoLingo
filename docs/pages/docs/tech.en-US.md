@@ -53,7 +53,6 @@ The following outlines the core technical modules and workflows:
 *   `core/_8_2_dub_chunks.py`: Analyzes the audio task file, calculates time gaps and speaking rates, determines optimal cut points for dubbing chunks based on speed and pauses, merges lines where necessary, matches subtitles, and updates the task file.
 *   `core/_9_refer_audio.py`: Extracts specific audio segments from the source vocal track based on timestamps defined in the audio task file, creating reference audio files used by certain TTS engines (e.g., GPT-SoVITS, F5-TTS, FishTTS).
 *   **TTS Backends (`core/tts_backend`):**
-    *   `core/tts_backend/azure_tts.py`: Interface to the Azure Text-to-Speech API.
     *   `core/tts_backend/custom_tts.py`: Placeholder/template for integrating custom TTS engines.
     *   `core/tts_backend/edge_tts.py`: Interface to Microsoft Edge TTS using the `edge-tts` command-line tool.
     *   `core/tts_backend/fish_tts.py`: Interface to the 302.ai Fish TTS API.

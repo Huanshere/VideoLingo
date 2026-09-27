@@ -35,8 +35,8 @@ def extract_refer_audio_main():
             title="Info", border_style="yellow",
         ))
         reference_audio = _RAW_AUDIO_FILE
-    if os.path.exists(os.path.join(_AUDIO_SEGS_DIR, '1.wav')):
-        rprint(Panel("Audio segments already exist, skipping extraction", title="Info", border_style="blue"))
+    if os.path.exists(os.path.join(_AUDIO_REFERS_DIR, '1.wav')):
+        rprint(Panel("Reference audio already exists, skipping extraction", title="Info", border_style="blue"))
         return
 
     # Create output directory

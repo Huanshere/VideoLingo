@@ -36,8 +36,10 @@ POST /run
 {"stage": "all", "target_language": "zh", "dubbing": true}
 ```
 
-`stage` is `subtitles`, `dubbing`, or `all` (default). `dubbing` defaults to false and
+`stage` is `transcribe`, `subtitles`, `dubbing`, or `all` (default). `dubbing` defaults to false and
 only controls whether `all` includes dubbing. `stage: dubbing` requires existing subtitles.
+`stage: transcribe` stops after the source subtitles: it writes `src.srt` only, without
+translation or video. A later `subtitles` run reuses the transcription.
 On Intel Macs, dubbing uses the new voice without mixing in the original background sound.
 Audio-only input supports subtitles, matching the UI. Optional `source_language` and
 `target_language` are saved to `config.yaml`; other settings use that file directly.
@@ -46,12 +48,32 @@ Do not edit configuration while processing.
 Poll `GET /status` again. It returns `state`, `active`, `step`, `step_index` (zero-based),
 `total_steps`, `progress`, `error`, and top-level output `files`. Progress counts completed
 step groups, not elapsed time. States: `idle`, `running`, `paused`, `stopping`, `stopped`,
-`completed`, `error` (`paused` is used by the shared UI runner).
+`completed`, `error`. With `pause_before_translate: true` in `config.yaml` the task pauses
+after the terminology is extracted: `state` is `paused` and `pause_message` says why. Edit
+`output/log/terminology.json` if needed, then continue with `POST /resume`.
+`pause_after_translate: true` pauses in the same way after the translation: edit the
+`Translation` column of `output/log/translation_results.xlsx`, keep the `Source` column and
+the rows as they are, then continue with `POST /resume`.
 
 ```http
 GET /files/trans.srt
 POST /archive
 ```
+
+## Existing subtitles
+
+To translate subtitles that you already have, pass an SRT file (UTF-8). They are used instead
+of the recognition, with their own lines and times:
+
+```http
+POST /input
+{"source": "/absolute/path/video.mp4", "subtitles": "/absolute/path/video.srt"}
+```
+
+An SRT file as `source` translates the subtitles without a video: the result is subtitle files
+only, as for audio-only input. The language of the subtitles can not be detected, so set
+`source_language` (or `whisper.language` in `config.yaml`) to their language, not to `auto`.
+The file is kept in `output/input/`.
 
 Output files are also available directly in `output/`. File downloads only serve top-level
 files inside this directory. `/archive` runs in the background: wait for completion before

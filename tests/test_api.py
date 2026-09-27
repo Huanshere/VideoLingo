@@ -216,3 +216,56 @@ def test_api_import_does_not_load_ui_or_models():
         "import api, sys; assert not {'streamlit', 'torch', 'spacy', 'qwen_asr'} & sys.modules.keys()",
     ], cwd=Path(__file__).resolve().parents[1], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+def test_transcribe_stage_and_resume(client, monkeypatch):
+    input_file(client)
+    assert client.post("/resume").status_code == 409
+    calls = []
+    def plan(stage, dubbing):
+        calls.append(stage)
+        return [("Checkpoint", lambda: (api.runner.pause("Review"), TaskRunner.check_cancel()))]
+    monkeypatch.setattr(api, "get_steps", plan)
+    assert client.post("/run", json={"stage": "transcribe"}).status_code == 202
+    for _ in range(300):
+        if client.get("/status").json()["state"] == "paused":
+            break
+        threading.Event().wait(0.01)
+    assert client.get("/status").json()["pause_message"] == "Review"
+    assert client.post("/resume").json()["state"] == "running"
+    state = finish(client)
+    assert calls == ["transcribe"]
+    assert state["state"] == "completed" and state["pause_message"] is None
+
+
+SRT = "1\n00:00:01,000 --> 00:00:02,000\nHello world.\n"
+
+
+def test_input_of_subtitles_with_and_without_a_video(client):
+    from core._1_ytdlp import find_media_file, find_subtitle_file
+    Path("talk.srt").write_text(SRT, encoding="utf-8")
+    subtitles = str(Path("talk.srt").resolve())
+
+    input_file(client, subtitles=subtitles)
+    assert find_media_file() == ("output/sample.mp4", "video")
+    assert find_subtitle_file() == "output/input/talk.srt"
+
+    response = client.post("/input", json={"source": subtitles, "existing": "replace"})
+    assert response.status_code == 202 and finish(client)["state"] == "completed"
+    assert find_media_file() == ("output/input/talk.srt", "subtitle")
+    assert not Path("output/sample.mp4").exists()
+    # Without a video there is nothing to dub
+    assert client.post("/run", json={"stage": "all", "dubbing": True}).status_code == 422
+
+
+def test_input_refuses_a_file_without_subtitles(client):
+    input_file(client)
+    Path("empty.srt").write_text("Hello world.", encoding="utf-8")
+    Path("talk.txt").write_text(SRT, encoding="utf-8")
+    Path("output/trans.srt").write_text(SRT, encoding="utf-8")
+    video = str(Path("sample.mp4").resolve())
+    for subtitles in ("empty.srt", "talk.txt", "missing.srt", "output/trans.srt"):
+        request = {"source": video, "subtitles": subtitles, "existing": "replace"}
+        assert client.post("/input", json=request).status_code == 422
+        assert client.post("/input", json={"source": subtitles, "existing": "replace"}).status_code == 422
+    assert Path("output/sample.mp4").exists()

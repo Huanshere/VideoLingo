@@ -47,11 +47,9 @@ def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prom
         return True
 
     response = requests.post('http://127.0.0.1:9880/tts', json=payload)
-    if response.status_code == 200:
-        return save_audio(response, save_path, current_dir)
-    else:
-        rprint(f"[bold red]TTS request failed, status code:[/bold red] {response.status_code}")
-        return False
+    if response.status_code != 200:
+        raise ValueError(f"GPT-SoVITS request failed: HTTP {response.status_code} {response.text[:200]}")
+    return save_audio(response, save_path, current_dir)
 
 def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     start_gpt_sovits_server()
@@ -99,8 +97,11 @@ def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
     else:
         raise ValueError("Invalid REFER_MODE. Choose 1, 2, or 3.")
 
-    success = gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
-    if not success and REFER_MODE == 3:
+    try:
+        gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)
+    except ValueError:
+        if REFER_MODE != 3:
+            raise
         rprint(f"[bold red]TTS request failed, switching back to mode 2 and retrying[/bold red]")
         ref_audio_path = current_dir / "output/audio/refers/1.wav"
         gpt_sovits_tts(text, TARGET_LANGUAGE, save_as, ref_audio_path, prompt_lang, prompt_text)

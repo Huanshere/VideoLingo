@@ -33,8 +33,7 @@ def fish_tts(text: str, save_as: str) -> bool:
             f.write(audio_response.content)
         return True
     
-    print("Request failed:", response_data)
-    return False
+    raise ValueError(f"Fish TTS request failed: {str(response_data)[:200]}")
 
 if __name__ == '__main__':
     fish_tts("Hi! Welcome to VideoLingo!", "test.wav")

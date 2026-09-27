@@ -30,6 +30,8 @@ def search_things_to_note_in_prompt(sentence):
     else:
         return None
 
+# Kept on a retry, so that the edits of `pause_before_translate` are not overwritten
+@check_file_exists(_4_1_TERMINOLOGY)
 def get_summary():
     src_content = combine_chunks()
     custom_terms = pd.read_excel(CUSTOM_TERMS_PATH)

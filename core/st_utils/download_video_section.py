@@ -4,7 +4,9 @@ import shutil
 from time import sleep
 
 import streamlit as st
-from core._1_ytdlp import download_video_ytdlp, find_media_file, write_input_manifest
+from core._1_ytdlp import download_video_ytdlp, find_media_file, find_subtitle_file, needs_cookies, write_input_manifest
+from core._2_import_subtitles import add_input_subtitles, read_cues
+from core.utils.models import _2_CLEANED_CHUNKS
 from core.utils import *
 from translations.translations import translate as t
 
@@ -49,6 +51,10 @@ def _inject_file_uploader_i18n():
             content: "{limit_text}";
             font-size: 0.8rem;
         }}
+        /* The uploader of the subtitles takes SRT files only */
+        .st-key-subtitle_upload div[data-testid="stFileUploaderDropzoneInstructions"] > div > span:nth-of-type(2)::before {{
+            content: "SRT";
+        }}
         /* Browse files button */
         div[data-testid="stFileUploader"] button[kind="secondary"] {{
             font-size: 0 !important;
@@ -62,6 +68,39 @@ def _inject_file_uploader_i18n():
         unsafe_allow_html=True,
     )
 
+def upload_subtitles(label, hint, new_input=False):
+    """Subtitles of the user for the input. True when they were added, the page has to run again then."""
+    with st.container(key="subtitle_upload"):
+        uploaded_file = st.file_uploader(label, type=["srt"], help=hint)
+    if not uploaded_file:
+        return False
+    try:
+        read_cues(uploaded_file.getvalue())
+    except ValueError as e:
+        st.error(t("These subtitles can not be used: {error}").replace("{error}", str(e)))
+        return False
+    if new_input and os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
+    add_input_subtitles(uploaded_file.name.replace(' ', '_'), uploaded_file.getvalue())
+    return True
+
+
+def input_subtitles_section(media_type):
+    """The subtitles that come with the input, or the place to add them before the recognition."""
+    subtitle_file = find_subtitle_file()
+    if subtitle_file:
+        text = "Subtitles `{file}` are translated as they are, no video is generated." if media_type == "subtitle" \
+            else "Subtitles `{file}` are used instead of the recognition, with their own lines and times."
+        st.info(t(text).replace("{file}", os.path.basename(subtitle_file)))
+        if load_key("whisper.language") == "auto":
+            st.warning(t("The language of subtitles can not be detected. Select their language as `Recog Lang` in the settings."))
+    elif not os.path.exists(_2_CLEANED_CHUNKS):
+        with st.expander(t("Use existing subtitles")):
+            _inject_file_uploader_i18n()
+            if upload_subtitles(t("Subtitles (SRT)"), t("They are used instead of the recognition, with their own lines and times")):
+                st.rerun()
+
+
 def download_video_section():
     st.header(t("a. Download or Upload Video"))
     with st.container(border=True):
@@ -69,8 +108,9 @@ def download_video_section():
             media_file, media_type = find_media_file()
             if media_type == "video":
                 st.video(media_file)
-            else:
+            elif media_type == "audio":
                 st.audio(media_file)
+            input_subtitles_section(media_type)
             if st.button(t("Delete and Reselect"), key="delete_video_button"):
                 os.remove(media_file)
                 if os.path.exists(OUTPUT_DIR):
@@ -105,10 +145,25 @@ def download_video_section():
             default_idx = list(res_dict.values()).index(target_res) if target_res in res_dict.values() else 0
             res_display = st.selectbox(t("Resolution"), options=res_options, index=default_idx)
             res = res_dict[res_display]
+        with st.expander(t("Youtube Settings")):
+            cookies_path = st.text_input(
+                t("Cookies Path"),
+                value=load_key("youtube.cookies_path") or "",
+                placeholder="cookies.txt",
+                help=t("Path of a cookies.txt file exported from your browser, for videos that require sign-in"),
+            )
+            if cookies_path != (load_key("youtube.cookies_path") or ""):
+                update_key("youtube.cookies_path", cookies_path)
         if st.button(t("Download Video"), key="download_button", width="stretch"):
             if url:
-                with st.spinner(t("Downloading video...")):
-                    download_video_ytdlp(url, resolution=res)
+                try:
+                    with st.spinner(t("Downloading video...")):
+                        download_video_ytdlp(url, resolution=res)
+                except Exception as e:
+                    st.error(f"{t('Download failed')}: {e}")
+                    if needs_cookies(e):
+                        st.info(t("This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings."))
+                    return False
                 st.rerun()
 
         _inject_file_uploader_i18n()
@@ -141,5 +196,9 @@ def download_video_section():
 
             st.session_state["_processed_upload_id"] = upload_id
             st.rerun()
-        else:
-            return False
+
+        if upload_subtitles(t("Or upload subtitles without a video (SRT)"),
+                            t("The subtitles are translated with their own lines and times. For a video with these subtitles, upload the video first and add the subtitles below it"),
+                            new_input=True):
+            st.rerun()
+        return False

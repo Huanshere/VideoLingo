@@ -1,6 +1,7 @@
 """Local, single-user API. Start from the repository root with uv run start.py --api."""
 from pathlib import Path
 import shutil
+import sys
 from threading import Lock
 from typing import Literal
 from urllib.parse import urlparse
@@ -8,6 +9,17 @@ from urllib.parse import urlparse
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field
+
+
+
+def _configure_utf8_console():
+    """Allow Rich and task threads to print Unicode on Windows."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_configure_utf8_console()
 
 from core.pipeline import get_steps
 from core.task_runner import TaskRunner
@@ -21,13 +33,14 @@ OUTPUT = Path("output")
 
 class InputRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    source: str = Field(min_length=1, description="Local file path or HTTP(S) video URL")
+    source: str = Field(min_length=1, description="Local file path or HTTP(S) video URL; an SRT file to translate subtitles without a video")
+    subtitles: str | None = Field(default=None, min_length=1, description="Local SRT file that is used instead of the recognition")
     existing: Literal["reject", "archive", "replace"] = "reject"
 
 
 class RunRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    stage: Literal["subtitles", "dubbing", "all"] = "all"
+    stage: Literal["transcribe", "subtitles", "dubbing", "all"] = "all"
     dubbing: bool = False
     target_language: str | None = Field(default=None, min_length=1)
     source_language: str | None = Field(default=None, min_length=1)
@@ -45,9 +58,23 @@ def archive_output():
         raise RuntimeError("Some output files could not be archived; inspect output/ before retrying.")
 
 
-def prepare_input(source, existing):
+def subtitle_file(path):
+    """The SRT file of a request, which has to be one with subtitles in it."""
+    from core._2_import_subtitles import read_cues
+    path = Path(path).resolve()
+    if not path.is_file() or path.suffix.lower() != ".srt" or path.is_relative_to(OUTPUT.resolve()):
+        raise HTTPException(422, "Subtitles must be an existing SRT file outside output/")
+    try:
+        read_cues(path.read_bytes())
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return path
+
+
+def prepare_input(source, existing, subtitles=None):
     from core._1_ytdlp import (download_video_ytdlp, write_input_manifest,
                               sanitize_filename, GENERATED_AUDIO_NAMES, GENERATED_VIDEO_NAMES)
+    from core._2_import_subtitles import add_input_subtitles
     if OUTPUT.exists() and any(OUTPUT.iterdir()):
         if existing == "archive":
             archive_output()
@@ -56,6 +83,8 @@ def prepare_input(source, existing):
     OUTPUT.mkdir(exist_ok=True)
     if urlparse(source).scheme in {"http", "https"}:
         download_video_ytdlp(source, resolution=load_key("ytb_resolution"))
+    elif Path(source).suffix.lower() == ".srt":
+        subtitles = Path(source)
     else:
         source = Path(source)
         name = sanitize_filename(source.stem) + source.suffix.lower()
@@ -65,6 +94,8 @@ def prepare_input(source, existing):
         shutil.copy2(source, destination)
         kind = "video" if source.suffix.lower()[1:] in load_key("allowed_video_formats") else "audio"
         write_input_manifest(str(destination), kind)
+    if subtitles:
+        add_input_subtitles(subtitles.name, subtitles.read_bytes())
 
 
 @app.post("/input", status_code=202)
@@ -84,12 +115,15 @@ def set_input(request: InputRequest):
             if source.is_relative_to(OUTPUT.resolve()):
                 raise HTTPException(422, "Source must be outside output/; use /run for an existing input.")
             formats = load_key("allowed_video_formats") + load_key("allowed_audio_formats")
-            if source.suffix.lower()[1:] not in formats:
+            if source.suffix.lower() == ".srt":
+                source = subtitle_file(source)
+            elif source.suffix.lower()[1:] not in formats:
                 raise HTTPException(422, "Unsupported media format")
             source = str(source)
+        subtitles = subtitle_file(request.subtitles) if request.subtitles else None
         if OUTPUT.exists() and any(OUTPUT.iterdir()) and request.existing == "reject":
             raise HTTPException(409, "output/ is not empty; explicitly choose archive or replace.")
-        runner.start([("Prepare input", lambda: prepare_input(source, request.existing))])
+        runner.start([("Prepare input", lambda: prepare_input(source, request.existing, subtitles))])
         return {"accepted": True}
 
 
@@ -104,8 +138,8 @@ def run(request: RunRequest):
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from exc
         needs_dubbing = request.stage == "dubbing" or (request.stage == "all" and request.dubbing)
-        if needs_dubbing and kind == "audio":
-            raise HTTPException(422, "Audio-only input supports subtitles, as in the UI.")
+        if needs_dubbing and kind in ("audio", "subtitle"):
+            raise HTTPException(422, "Input without a video supports subtitles only, as in the UI.")
         if request.stage == "dubbing" and not all((OUTPUT / name).exists() for name in ("src.srt", "trans.srt")):
             raise HTTPException(409, "Generate subtitles before starting dubbing.")
         if request.target_language is not None:
@@ -128,8 +162,19 @@ def status():
         "total_steps": runner.total_steps,
         "progress": runner.progress,
         "error": runner.error_msg or None,
+        "pause_message": runner.pause_message or None,
         "files": files,
     }
+
+
+@app.post("/resume")
+def resume():
+    """Continue a paused task, such as the checkpoints of pause_before_translate and pause_after_translate."""
+    with operation_lock:
+        if runner.state != "paused":
+            raise HTTPException(409, "No task is paused.")
+        runner.resume()
+        return {"state": runner.state}
 
 
 @app.post("/stop")

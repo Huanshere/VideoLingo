@@ -24,7 +24,6 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 | TTS 方案 | 提供商 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:---------|:-----|:-----|:---------|:-----------|
-| 🔊 Azure TTS ⭐ | [302AI](https://gpt302.saaslink.net/C2oHR9) | 效果自然 | 情感不够丰富 | 🤩 | 😃 |
 | 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
 | 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 真是本地人 | 官方模型有限 | 🤩 | 😂 |
 | 🎙️ SiliconFlow FishTTS | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | 语音克隆 | 克隆效果不稳定 | 😃 | 😃 |
@@ -32,7 +31,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 | 🗣️ GPT-SoVITS | 本地 | 最强语音克隆 | 只支持中英文，需要本地训练推理，配置麻烦 | 🏆 | 🚫 |
 
 - SiliconFlow FishTTS 请在 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) 获取key，注意克隆功能需要付费充值积分；
-- OpenAI TTS、Azure TTS 和 Fish TTS，仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9) - 一个 API key 即可使用所有服务
+- OpenAI TTS、Fish TTS 和 F5-TTS，仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9) - 一个 API key 即可使用所有服务
 > 自定义 TTS 适配器位于 `core/tts_backend/custom_tts.py`。
 
 <details>
@@ -53,9 +52,9 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 </details>
 <details>
-<summary>Azure 声音怎么选？</summary>
+<summary>Edge TTS 声音怎么选？</summary>
 
-建议在 [在线体验](https://speech.microsoft.com/portal/voicegallery) 中试听选择你想要的声音，在右边的代码中可以找到该声音对应的代号，例如 `zh-CN-XiaoxiaoMultilingualNeural`
+Edge TTS 是默认的配音方式，不需要 API 密钥。运行 `edge-tts --list-voices` 可以列出所有声音，例如 `zh-CN-XiaoxiaoNeural`、`en-US-JennyNeural`，请选择目标语言的声音，在 `config.yaml` 的 `edge_tts.voice` 或侧栏中修改。
 
 </details>
 
@@ -151,7 +150,7 @@ uv run start.py
 
 本地识别默认使用 **Qwen3-ASR** 转写，再用 **Qwen3-ForcedAligner-0.6B** 生成词级时间轴。开启人声分离时，转写用原始音频，对齐用分离出的人声。
 
-- **模型大小**：侧栏「Qwen3-ASR 模型大小」或 `config.yaml` 的 `whisper.qwen_model`。`1.7b`（默认）更准确；`0.6b` 更快、更省显存。对齐模型固定为 ForcedAligner-0.6B。
+- **模型大小**：`config.yaml` 的 `whisper.qwen_model`（侧栏不提供）。`1.7b`（默认）更准确；`0.6b` 更快、更省显存。对齐模型固定为 ForcedAligner-0.6B。
 - **推理引擎**：`whisper.qwen_engine: auto` 时自动选择，一般不需要改。
 
 | 平台 | 引擎 | 模型 | 说明 |
@@ -202,7 +201,7 @@ Excel 批处理已由本地 HTTP API 替代，与 Streamlit 共用处理流程�
 
 4. **`Qwen3-ASR could not detect the language`** 或 **`... is still degenerate after retrying`**：`Auto` 模式下没能识别出语言，或识别结果退化（循环重复、内容过少）。在侧栏明确选择识别语言后重试，也可以换另一个模型大小。
 
-5. **显存不足（CUDA out of memory）**：在侧栏把 Qwen3-ASR 模型大小改为 0.6B；也可以关闭其他占用显卡的程序。
+5. **显存不足（CUDA out of memory）**：在 `config.yaml` 里把 `whisper.qwen_model` 改为 `0.6b`；也可以关闭其他占用显卡的程序。
 
 6. **macOS 安装时报 mlx 无法解析 / 没有可用的安装包**：mlx 只提供 macOS 14 及以上的 Apple Silicon 安装包，请先升级系统。
 

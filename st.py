@@ -16,7 +16,7 @@ configure_ffmpeg(required=True)
 import streamlit as st
 from core.st_utils.imports_and_utils import *
 from core.task_runner import TaskRunner
-from core.pipeline import get_steps
+from core.pipeline import get_steps, truncated_dubbing_lines
 from core.utils import load_key, update_key
 from core.utils.onekeycleanup import cleanup
 from core.utils.delete_retry_dubbing import delete_dubbing_files
@@ -55,6 +55,8 @@ def _task_control_panel(runner_key: str):
     if runner.is_active:
         if runner.state == "paused":
             st.warning(f"⏸️ {t('Paused')} {step_text}")
+            if runner.pause_message:
+                st.info(t(runner.pause_message))
         else:
             st.info(f"⏳ {t('Running...')} {step_text}")
         st.progress(runner.progress)
@@ -238,6 +240,16 @@ def text_processing_section():
                     steps = get_steps("subtitles")
                     runner.start(steps)
                     st.rerun()
+                from core._1_ytdlp import find_subtitle_file
+                if not find_subtitle_file():
+                    # No `help`: its tooltip wrapper takes the button out of `button_style`
+                    if st.button(t("Transcribe Only"), key="transcribe_only_button"):
+                        runner.start(get_steps("transcribe"))
+                        st.rerun()
+                    st.caption(t("Only generate the source subtitles `src.srt`, without translation"))
+                if os.path.exists("output/src.srt"):
+                    st.success(t("Source subtitles are ready. You can download them, or start processing subtitles to translate them."))
+                    download_subtitle_zip_button(text=t("Download All Srt Files"))
         else:
             if not audio_only and load_key("burn_subtitles") and os.path.exists(SUB_VIDEO):
                 st.video(SUB_VIDEO)
@@ -295,7 +307,10 @@ def audio_processing_section():
                     "Audio processing is complete! You can check the audio files in the `output` folder."
                 )
             )
-            if not audio_only and load_key("burn_subtitles") and os.path.exists(DUB_VIDEO):
+            truncated = truncated_dubbing_lines()
+            if truncated:
+                st.warning(t("{n} dubbed line(s) did not fit their time and were cut at the end. They are listed in `output/log/dub_truncated.json`.").replace("{n}", str(len(truncated))))
+            if not audio_only and os.path.exists(DUB_VIDEO):
                 st.video(DUB_VIDEO)
             if st.button(t("Delete dubbing files"), key="delete_dubbing_files"):
                 _clear_path(_AUDIO_DONE_MARKER)

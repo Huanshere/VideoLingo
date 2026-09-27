@@ -12,6 +12,7 @@ console = Console()
 DUB_VOCAL_FILE = 'output/dub.mp3'
 
 DUB_SUB_FILE = 'output/dub.srt'
+DUB_SRC_SUB_FILE = 'output/dub_src.srt'
 OUTPUT_FILE_TEMPLATE = f"{_AUDIO_SEGS_DIR}/{{}}.wav"
 
 def load_and_flatten_data(excel_file):
@@ -84,19 +85,31 @@ def merge_audio_segments(audios, new_sub_times, sample_rate):
     
     return merged_audio
 
-def create_srt_subtitle():
-    df, lines, new_sub_times = load_and_flatten_data(_8_1_AUDIO_TASK)
-    
-    with open(DUB_SUB_FILE, 'w', encoding='utf-8') as f:
-        for i, ((start_time, end_time), line) in enumerate(zip(new_sub_times, lines), 1):
+def write_srt(path, times, lines):
+    with open(path, 'w', encoding='utf-8') as f:
+        for i, ((start_time, end_time), line) in enumerate(zip(times, lines), 1):
             start_str = f"{int(start_time//3600):02d}:{int((start_time%3600)//60):02d}:{int(start_time%60):02d},{int((start_time*1000)%1000):03d}"
             end_str = f"{int(end_time//3600):02d}:{int((end_time%3600)//60):02d}:{int(end_time%60):02d},{int((end_time*1000)%1000):03d}"
             
             f.write(f"{i}\n")
             f.write(f"{start_str} --> {end_str}\n")
             f.write(f"{line}\n\n")
-    
-    rprint(f"[bold green]✅ Subtitle file created: {DUB_SUB_FILE}[/bold green]")
+    rprint(f"[bold green]✅ Subtitle file created: {path}[/bold green]")
+
+def create_srt_subtitle():
+    df, lines, new_sub_times = load_and_flatten_data(_8_1_AUDIO_TASK)
+    write_srt(DUB_SUB_FILE, new_sub_times, lines)
+
+    # The source lines on the timeline of the dub, for bilingual subtitles in the dubbed video
+    if os.path.exists(DUB_SRC_SUB_FILE):
+        os.remove(DUB_SRC_SUB_FILE)
+    if 'src_lines' in df.columns:
+        try:
+            src_lines = [line for row in df['src_lines'].tolist() for line in parse_task_literal(row)]
+        except (TypeError, ValueError, SyntaxError):
+            src_lines = []
+        if len(src_lines) == len(lines):
+            write_srt(DUB_SRC_SUB_FILE, new_sub_times, src_lines)
 
 def merge_full_audio():
     """Main function: Process the complete audio merging process"""

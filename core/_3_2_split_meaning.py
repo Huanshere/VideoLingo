@@ -1,8 +1,10 @@
 import concurrent.futures
 from difflib import SequenceMatcher
 import math
+import re
 from core.prompts import get_split_prompt
 from core.spacy_utils.load_nlp_model import init_nlp
+from core.task_runner import StopTask
 from core.utils import *
 from rich.console import Console
 from rich.table import Table
@@ -45,20 +47,51 @@ def find_split_positions(original, modified):
 
     return split_positions
 
+BR_TAG = re.compile(r'\[\s*/?\s*br\s*/?\s*\]|<\s*/?\s*br\s*/?\s*>', re.IGNORECASE)  # [br] <br> <br/> [BR] ...
+BREAK_MARKS = ',;:，、；：。！？!?'
+
+def pick_split(response_data):
+    """The split the model chose, with [br] tags; the other one if the choice is unusable."""
+    choice = re.search(r'[12]', str(response_data.get("choice", "")))
+    order = [choice.group()] if choice else []
+    for number in order + [n for n in ("1", "2") if n not in order]:
+        split = BR_TAG.sub('[br]', str(response_data.get(f"split{number}", "")))
+        parts = split.split('[br]')
+        if len(parts) > 1 and all(part.strip() for part in parts):
+            return split
+    return None
+
+def mechanical_split(sentence, num_parts):
+    """Split into roughly equal parts without the LLM: at punctuation, else at a space."""
+    lines, rest = [], sentence.strip()
+    for parts_left in range(num_parts, 1, -1):
+        target, window = len(rest) // parts_left, max(1, len(rest) // (parts_left * 3))
+        nearby = range(max(1, target - window), min(len(rest) - 1, target + window) + 1)
+        cuts = [i for i in nearby if rest[i - 1] in BREAK_MARKS] or [i for i in nearby if rest[i].isspace()]
+        if not cuts and get_joiner(get_source_language()) == " ":
+            break  # never cut inside a word
+        cut = min(cuts, key=lambda i: abs(i - target)) if cuts else target
+        lines.append(rest[:cut].strip())
+        rest = rest[cut:].strip()
+    return '\n'.join(line for line in lines + [rest] if line)
+
 def split_sentence(sentence, num_parts, word_limit=20, index=-1, retry_attempt=0):
     """Split a long sentence using GPT and return the result as a string."""
     split_prompt = get_split_prompt(sentence, num_parts, word_limit)
     def valid_split(response_data):
-        choice = response_data["choice"]
-        if f'split{choice}' not in response_data:
-            return {"status": "error", "message": "Missing required key: `split`"}
-        if "[br]" not in response_data[f"split{choice}"]:
+        if pick_split(response_data) is None:
             return {"status": "error", "message": "Split failed, no [br] found"}
         return {"status": "success", "message": "Split completed"}
     
-    response_data = ask_gpt(split_prompt + " " * retry_attempt, resp_type='json', valid_def=valid_split, log_title='split_by_meaning')
-    choice = response_data["choice"]
-    best_split = response_data[f"split{choice}"]
+    try:
+        response_data = ask_gpt(split_prompt + " " * retry_attempt, resp_type='json', valid_def=valid_split, log_title='split_by_meaning')
+    except StopTask:
+        raise
+    except Exception as e:
+        # One sentence the model cannot split should not stop the whole video
+        console.print(f"[yellow]⚠️ LLM split failed ({e}), splitting mechanically: {sentence}[/yellow]")
+        return mechanical_split(sentence, num_parts)
+    best_split = pick_split(response_data)
     split_points = find_split_positions(sentence, best_split)
     # split the sentence based on the split points
     for i, split_point in enumerate(split_points):
