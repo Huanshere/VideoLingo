@@ -1,6 +1,10 @@
 import os
 import warnings
 import time
+from runtime_libraries import configure_ffmpeg_dlls
+
+configure_ffmpeg_dlls()
+
 import torch
 import functools
 from pathlib import Path

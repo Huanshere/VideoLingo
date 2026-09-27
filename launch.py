@@ -2,6 +2,7 @@
 import subprocess, sys, os, shutil, socket
 from pathlib import Path
 from datetime import datetime
+from runtime_libraries import configure_ffmpeg
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "logs"
@@ -24,6 +25,10 @@ def check_package(name, import_name=None):
 def main():
     errors = []
     warnings = []
+    try:
+        configure_ffmpeg(required=True)
+    except RuntimeError as exc:
+        errors.append(str(exc))
 
     # Python
     log(f"Python: {sys.version.split()[0]} ({sys.executable})")
@@ -55,10 +60,6 @@ def main():
     qwen = "mlx_audio" if apple_silicon else "qwen_asr"
     if not check_package(qwen):
         warnings.append(f"{qwen} not installed. Local Qwen ASR will fail. Run: python installer.py")
-
-    # ffmpeg
-    if not shutil.which("ffmpeg"):
-        errors.append("ffmpeg not found in PATH. Install: choco install ffmpeg")
 
     # Port
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

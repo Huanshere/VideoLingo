@@ -34,8 +34,10 @@ Both variants use Torch/torchaudio 2.8.0, torchvision 0.23.0 and the same
 Qwen3-ASR + ForcedAligner through the official qwen-asr package (Transformers 4.57,
 Hub <1) on CUDA. WhisperX is not installed in the image and is not an installer option.
 To add it yourself (for example in a derived image), follow
-[WhisperX (manual install)](whisperx-manual.en-US.md). Demucs 4.1 uses normal dependency resolution. Ubuntu supplies FFmpeg
-and its shared libraries, Noto CJK fonts and image runtime libraries.
+[WhisperX (manual install)](whisperx-manual.en-US.md). Demucs 4.1 uses normal dependency resolution.
+The installer automatically downloads FFmpeg and ffprobe during the image build.
+Ubuntu supplies Noto CJK fonts and image runtime libraries. Extra FFmpeg shared
+libraries are needed only if you add WhisperX yourself.
 
 ## Run and preserve data
 
