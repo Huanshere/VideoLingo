@@ -1211,3 +1211,51 @@ def test_saving_the_style_without_a_usable_one(monkeypatch, tmp_path, content):
 
     assert module.get_subtitle_style("source") == {**module.DEFAULT_STYLE["source"], "font_size": 20}
     assert module.get_subtitle_style("translation") == module.DEFAULT_STYLE["translation"]
+
+
+# ------------------------------------------------------------------
+# D4: the style of the translation in the words of the user (#112, #504)
+# ------------------------------------------------------------------
+
+STYLE_SECTION = (
+    "### Translation Style\n"
+    "The user asks for the following style. Follow it in the translation, without changing the meaning of the original:\n"
+    "<translation_style>\ncolloquial, short sentences\n</translation_style>\n\n"
+)
+
+
+def _prompts(monkeypatch, style, reflect, **missing):
+    import core.prompts as prompts
+    settings = {"target_language": "简体中文", "reflect_translate": reflect}
+    monkeypatch.setattr(prompts, "load_key", lambda key: settings[key])
+    monkeypatch.setattr(prompts, "load_key_or", lambda key, default: default if missing else style)
+    monkeypatch.setattr(prompts, "get_source_language", lambda: "en")
+    shared = prompts.generate_shared_prompt("before", "after", "summary", "notes")
+    faithful = {"1": {"origin": "Hello.", "direct": "你好。"}}
+    return prompts.get_prompt_faithfulness("Hello.", shared), prompts.get_prompt_expressiveness(faithful, "Hello.", shared)
+
+
+@pytest.mark.parametrize("reflect", [True, False])
+@pytest.mark.parametrize("style", ["", "   ", None])
+def test_prompts_without_a_translation_style(monkeypatch, reflect, style):
+    plain = _prompts(monkeypatch, "", reflect, missing=True)
+
+    assert _prompts(monkeypatch, style, reflect) == plain
+    assert not any("Translation Style" in prompt for prompt in plain)
+    assert "</subsequent_content>" in plain[0] and "notes\n\n<translation_principles>" in plain[0]
+    assert "notes\n\n<Translation Analysis Steps>" in plain[1]
+
+
+def test_translation_style_goes_into_the_polish_step(monkeypatch):
+    plain = _prompts(monkeypatch, "", True)
+    faithfulness, expressiveness = _prompts(monkeypatch, " colloquial, short sentences\n", True)
+
+    assert faithfulness == plain[0]
+    assert expressiveness == plain[1].replace("<Translation Analysis Steps>", STYLE_SECTION + "<Translation Analysis Steps>")
+
+
+def test_translation_style_without_the_polish_step(monkeypatch):
+    plain = _prompts(monkeypatch, "", False)
+    faithfulness, _ = _prompts(monkeypatch, "colloquial, short sentences", False)
+
+    assert faithfulness == plain[0].replace("<translation_principles>", STYLE_SECTION + "<translation_principles>")

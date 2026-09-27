@@ -141,8 +141,23 @@ def generate_shared_prompt(previous_content_prompt, after_content_prompt, summar
 ### Points to Note
 {things_to_note_prompt}'''
 
+def get_translation_style_prompt():
+    """The style the user asks for, as a section of the translation prompt; empty without one."""
+    style = str(load_key_or("translation_style", "") or "").strip()
+    if not style:
+        return ""
+    return f'''### Translation Style
+The user asks for the following style. Follow it in the translation, without changing the meaning of the original:
+<translation_style>
+{style}
+</translation_style>
+
+'''
+
 def get_prompt_faithfulness(lines, shared_prompt):
     TARGET_LANGUAGE = load_key("target_language")
+    # The polish step applies the style when there is one, this step stays a direct translation
+    style_prompt = "" if load_key("reflect_translate") else get_translation_style_prompt()
     # Split lines by \n
     line_splits = lines.split('\n')
     
@@ -166,7 +181,7 @@ We have a segment of original {src_language} subtitles that need to be directly 
 
 {shared_prompt}
 
-<translation_principles>
+{style_prompt}<translation_principles>
 1. Faithful to the original: Accurately convey the content and meaning of the original text, without arbitrarily changing, adding, or omitting content.
 2. Accurate terminology: Use professional terms correctly and maintain consistency in terminology.
 3. Understand the context: Fully comprehend and reflect the background and contextual relationships of the text.
@@ -201,6 +216,7 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
     json_format = json.dumps(json_format, indent=2, ensure_ascii=False)
 
     src_language = get_source_language()
+    style_prompt = get_translation_style_prompt()
     prompt_expressiveness = f'''
 ## Role
 You are a professional Netflix subtitle translator and language consultant.
@@ -218,7 +234,7 @@ Your task is to reflect on and improve these direct translations to create more 
 
 {shared_prompt}
 
-<Translation Analysis Steps>
+{style_prompt}<Translation Analysis Steps>
 Please use a two-step thinking process to handle the text line by line:
 
 1. Direct Translation Reflection:

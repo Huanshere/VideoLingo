@@ -266,6 +266,17 @@ def page_setting():
                 update_key("target_language", target_language)
                 st.rerun()
 
+        configured_style = str(load_key_or("translation_style", "") or "")
+        translation_style = st.text_input(
+            t("Translation style"),
+            value=configured_style,
+            placeholder=t("e.g. colloquial, short sentences"),
+            help=t("Optional. Describe the style of the translation in your own words, it is added to the translation prompt"),
+        )
+        if translation_style != configured_style:
+            update_key("translation_style", translation_style, add_missing=True)
+            st.rerun()
+
         demucs_available = importlib.util.find_spec("demucs") is not None
         if not demucs_available and load_key("demucs"):
             update_key("demucs", False)
