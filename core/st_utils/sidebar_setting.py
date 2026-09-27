@@ -14,6 +14,33 @@ def config_input(label, key, help=None, placeholder=None):
     return val
 
 
+# The languages shown first keep the order of the old dropdown
+LANGUAGE_LABELS = {
+    "en": "🇺🇸 English", "zh": "🇨🇳 简体中文", "es": "🇪🇸 Español", "ru": "🇷🇺 Русский",
+    "fr": "🇫🇷 Français", "de": "🇩🇪 Deutsch", "it": "🇮🇹 Italiano", "ja": "🇯🇵 日本語",
+    "yue": "🇭🇰 粵語", "ko": "🇰🇷 한국어", "pt": "🇵🇹 Português", "ar": "🇸🇦 العربية",
+    "id": "🇮🇩 Bahasa Indonesia", "th": "🇹🇭 ไทย", "vi": "🇻🇳 Tiếng Việt", "tr": "🇹🇷 Türkçe",
+    "hi": "🇮🇳 हिन्दी", "ms": "🇲🇾 Bahasa Melayu", "nl": "🇳🇱 Nederlands", "sv": "🇸🇪 Svenska",
+    "da": "🇩🇰 Dansk", "fi": "🇫🇮 Suomi", "pl": "🇵🇱 Polski", "cs": "🇨🇿 Čeština",
+    "fil": "🇵🇭 Filipino", "fa": "🇮🇷 فارسی", "el": "🇬🇷 Ελληνικά", "ro": "🇷🇴 Română",
+    "hu": "🇭🇺 Magyar", "mk": "🇲🇰 Македонски",
+}
+
+
+def recognition_languages(configured=None):
+    """Label -> code for the recognition language dropdown: every Qwen3-ASR language."""
+    from core.asr_backend.qwen_asr_local import ISO_TO_QWEN
+
+    langs = {"Auto": "auto"}
+    for code in [*LANGUAGE_LABELS, *ISO_TO_QWEN]:
+        if code in ISO_TO_QWEN and code not in langs.values():
+            langs[LANGUAGE_LABELS.get(code, ISO_TO_QWEN[code])] = code
+    # A code set by hand in config.yaml (WhisperX and ElevenLabs know more languages) stays selectable
+    if configured not in langs.values():
+        langs[str(configured)] = configured
+    return langs
+
+
 def _fetch_model_list(base_url, api_key):
     """Fetch available models from OpenAI-compatible /v1/models endpoint."""
     if not base_url or (not api_key and not is_local_endpoint(base_url)):
@@ -150,17 +177,7 @@ def page_setting():
     with st.expander(t("Subtitles Settings"), expanded=True):
         c1, c2 = st.columns(2)
         with c1:
-            langs = {
-                "Auto": "auto",
-                "🇺🇸 English": "en",
-                "🇨🇳 简体中文": "zh",
-                "🇪🇸 Español": "es",
-                "🇷🇺 Русский": "ru",
-                "🇫🇷 Français": "fr",
-                "🇩🇪 Deutsch": "de",
-                "🇮🇹 Italiano": "it",
-                "🇯🇵 日本語": "ja",
-            }
+            langs = recognition_languages(load_key("whisper.language"))
             lang = st.selectbox(
                 t("Recog Lang"),
                 options=list(langs.keys()),

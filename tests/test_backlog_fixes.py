@@ -104,3 +104,28 @@ def test_empty_key_for_a_hosted_endpoint_is_still_an_error(monkeypatch):
     monkeypatch.setattr(module, "load_key", {"api.key": "", "api.base_url": "https://api.openai.com/v1"}.get)
     with pytest.raises(ValueError, match="API key is not set"):
         module.get_api_key()
+
+
+# ------------------------------------------------------------------
+# sidebar: recognition language dropdown (#395, #264, #280, #394, #408, #475)
+# ------------------------------------------------------------------
+
+def test_recognition_languages_cover_every_qwen_language():
+    from core.asr_backend.qwen_asr_local import ISO_TO_QWEN
+    from core.st_utils.sidebar_setting import LANGUAGE_LABELS, recognition_languages
+
+    langs = recognition_languages("en")
+
+    assert list(langs.values())[:9] == ["auto", "en", "zh", "es", "ru", "fr", "de", "it", "ja"]
+    assert set(langs.values()) == {"auto", *ISO_TO_QWEN}
+    assert len(langs) == len(ISO_TO_QWEN) + 1
+    assert set(LANGUAGE_LABELS) == set(ISO_TO_QWEN)
+
+
+@pytest.mark.parametrize("configured", ["uk", "he", None])
+def test_hand_configured_language_does_not_break_the_dropdown(configured):
+    from core.st_utils.sidebar_setting import recognition_languages
+
+    langs = recognition_languages(configured)
+
+    assert list(langs.values()).index(configured) == len(langs) - 1
