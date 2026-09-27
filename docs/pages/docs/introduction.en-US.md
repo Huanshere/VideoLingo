@@ -93,7 +93,7 @@ The project supports OpenAI-Like API format and various dubbing interfaces:
 - Choose an OpenAI-compatible Chat Completions provider and a model capable of returning structured JSON. Set the API URL, key and model in the sidebar.
 - `azure-tts`, `openai-tts`, `siliconflow-fishtts`, `fish-tts`, `GPT-SoVITS`
 
-For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
+For detailed installation, LLM configuration, and usage instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Current Limitations
 

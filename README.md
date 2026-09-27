@@ -121,13 +121,26 @@ docker build -t videolingo .
 docker run -d -p 8501:8501 --gpus all videolingo
 ```
 
-## APIs
+## HTTP API (replaces Excel batch mode)
+
+For agents and scripts, use the local HTTP API instead of the former Excel batch mode.
+It shares the Streamlit pipeline and processes one operation at a time using `output/`.
+After installation, configure `config.yaml` and start it from the project root with the project's Python environment:
+
+```bash
+python api.py
+```
+
+See the **[HTTP API guide](docs/api.md)** for input, processing, progress, downloads,
+retries and serial batch processing. Interactive endpoint docs: [localhost:8000/docs](http://localhost:8000/docs).
+
+## LLM, ASR and TTS providers
 VideoLingo supports OpenAI-Like API format and various TTS interfaces:
 - LLM: choose an OpenAI-compatible Chat Completions provider and model that can return the structured JSON required by the workflow. [OpenLux](https://www.openlux.ai/register?aff=wKYu) is recommended; set the API URL to `https://api.openlux.ai/v1`. Prefer GPT-6 Luna with model ID `gpt-6-luna` for best value, GPT-6 Sol with `gpt-6-sol` for better quality, or Claude Opus 5.5 with `claude-opus-5-5` for best quality. OpenLux relay rates are in the install docs. Configure the API URL, key and model in the sidebar.
 - Speech recognition: run Qwen3-ASR + ForcedAligner locally (default), or the ElevenLabs API. WhisperX is not installed by the installer; to use it as a backend, follow [WhisperX (manual install)](docs/pages/docs/whisperx-manual.en-US.md).
 - TTS: Azure, OpenAI, Fish TTS, SiliconFlow Fish/CosyVoice2, GPT-SoVITS, Edge TTS, F5-TTS and a custom adapter in `core/tts_backend/custom_tts.py`.
 
-For detailed installation, API configuration, and batch mode instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
+For detailed installation, LLM configuration, and usage instructions, please refer to the documentation: [English](/docs/pages/docs/start.en-US.md) | [中文](/docs/pages/docs/start.zh-CN.md)
 
 ## Current Limitations
 

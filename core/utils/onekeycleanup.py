@@ -18,7 +18,8 @@ def cleanup(history_dir="history"):
     os.makedirs(gpt_log_dir, exist_ok=True)
 
     # Move non-log files
-    for file in glob.glob("output/*"):
+    for name in os.listdir("output"):
+        file = os.path.join("output", name)
         if not file.endswith(('log', 'gpt_log')):
             move_file(file, video_history_dir)
 

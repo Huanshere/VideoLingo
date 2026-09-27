@@ -162,5 +162,6 @@
     "1.7B (more accurate)": "1.7B (точнее)",
     "0.6B (faster, less memory)": "0.6B (быстрее, меньше памяти)",
     "WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen.": "WhisperX не установлен. Установите дополнительные пакеты сами по странице docs/pages/docs/whisperx-manual.en-US.md или верните whisper.backend в значение qwen.",
-    "Word-level transcription and alignment": "Пословная транскрипция и выравнивание"
+    "Word-level transcription and alignment": "Пословная транскрипция и выравнивание",
+    "Stopping...": "Остановка..."
 }
