@@ -89,10 +89,9 @@ VideoLingo 支援 Windows、macOS（Apple Silicon / Intel）和 Linux。
 
 ### Windows 一鍵安裝 🎉
 
-1. 開啟[最新版本頁面](https://github.com/Huanshere/VideoLingo/releases/latest)，下載 **Source code (zip)**。
-2. 解壓縮到桌面等方便找到的位置，開啟解壓縮後的資料夾。
-3. 雙擊 `OneKeyStart.bat`，保持視窗開啟。首次執行會自動準備 uv、Python 3.12、應用程式依賴和 FFmpeg，需要連網。
-4. VideoLingo 開啟後，在側邊欄填入 API 網址、金鑰和模型。之後仍雙擊同一個腳本即可啟動。
+1. 從[最新版本頁面](https://github.com/Huanshere/VideoLingo/releases/latest)下載 **Source code (zip)**，解壓縮到桌面等方便找到的位置，並開啟資料夾。
+2. 雙擊 `OneKeyStart.bat`，保持視窗開啟。首次執行會自動安裝 uv、Python 3.12、應用程式依賴和 FFmpeg，需要連網。
+3. 安裝完成後，VideoLingo 會自動在瀏覽器中開啟。在側邊欄填入 API 網址、金鑰和模型，就可以開始使用了。
 
 ### 從原始碼安裝（Windows、macOS、Linux）
 

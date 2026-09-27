@@ -130,9 +130,9 @@ If your AI agent can operate your computer, tell it:
 
 ### Windows: double-click to install 🎉
 
-1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest) and extract it to your Desktop or another folder.
-2. Open the folder and double-click `OneKeyStart.bat`. Keep the window open. On the first run, the script automatically prepares uv, Python 3.12, app dependencies, and FFmpeg. An internet connection is required.
-3. When VideoLingo opens, enter your API URL, key and model in the sidebar. Next time, double-click the same script to start it.
+1. Download **Source code (zip)** from the [latest Release](https://github.com/Huanshere/VideoLingo/releases/latest), extract it to your Desktop or another folder, and open the folder.
+2. Double-click `OneKeyStart.bat` and keep the window open. On the first run, it automatically installs uv, Python 3.12, app dependencies, and FFmpeg. An internet connection is required.
+3. After installation, VideoLingo opens automatically in your browser. Enter your API URL, key, and model in the sidebar to start using it.
 
 If you use an NVIDIA GPU, install a compatible driver first; see [GPU runtime](#gpu-runtime).
 

@@ -89,10 +89,9 @@ Si votre agent IA peut utiliser votre ordinateur, envoyez-lui ce message :
 
 ### Windows : installation en un clic 🎉
 
-1. Ouvrez la [dernière version](https://github.com/Huanshere/VideoLingo/releases/latest) et téléchargez **Source code (zip)**.
-2. Décompressez le ZIP sur le Bureau ou dans un autre dossier, puis ouvrez ce dossier.
-3. Double-cliquez sur `OneKeyStart.bat` et gardez la fenêtre ouverte. Au premier lancement, le script prépare automatiquement uv, Python 3.12, les dépendances et FFmpeg. Une connexion Internet est nécessaire.
-4. Une fois VideoLingo ouvert, renseignez l’URL de l’API, la clé et le modèle dans la barre latérale. Ensuite, double-cliquez sur le même script pour le relancer.
+1. Téléchargez **Source code (zip)** depuis la [dernière version](https://github.com/Huanshere/VideoLingo/releases/latest), décompressez l’archive sur le Bureau ou dans un autre dossier, puis ouvrez ce dossier.
+2. Double-cliquez sur `OneKeyStart.bat` et gardez la fenêtre ouverte. Au premier lancement, le script installe automatiquement uv, Python 3.12, les dépendances et FFmpeg. Une connexion Internet est nécessaire.
+3. Après l’installation, VideoLingo s’ouvre automatiquement dans le navigateur. Renseignez l’URL de l’API, la clé et le modèle dans la barre latérale pour commencer.
 
 ### Installation depuis le code source (Windows, macOS, Linux)
 

@@ -89,10 +89,9 @@ AI エージェントがこのコンピューターを操作できる場合は�
 
 ### Windows：ダブルクリックでインストール 🎉
 
-1. [最新リリース](https://github.com/Huanshere/VideoLingo/releases/latest)を開き、**Source code (zip)** をダウンロードします。
-2. ZIP をデスクトップなどに展開し、展開したフォルダーを開きます。
-3. `OneKeyStart.bat` をダブルクリックし、ウィンドウを開いたままにします。初回は uv、Python 3.12、アプリの依存関係、FFmpeg を自動で準備します。インターネット接続が必要です。
-4. VideoLingo が開いたら、サイドバーに API URL、キー、モデルを入力します。次回も同じスクリプトをダブルクリックして起動します。
+1. [最新リリース](https://github.com/Huanshere/VideoLingo/releases/latest)から **Source code (zip)** をダウンロードし、デスクトップなどに展開してフォルダーを開きます。
+2. `OneKeyStart.bat` をダブルクリックし、ウィンドウを開いたままにします。初回は uv、Python 3.12、アプリの依存関係、FFmpeg を自動でインストールします。インターネット接続が必要です。
+3. インストールが完了すると、VideoLingo がブラウザーで自動的に開きます。サイドバーに API URL、キー、モデルを入力して使い始めてください。
 
 ### ソースコードからインストール（Windows・macOS・Linux）
 
