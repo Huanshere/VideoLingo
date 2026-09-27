@@ -821,3 +821,56 @@ def test_needs_cookies(message, expected):
     from core._1_ytdlp import needs_cookies
 
     assert needs_cookies(Exception(message)) is expected
+
+
+# ------------------------------------------------------------------
+# C8: CosyVoice2 reference audio stays within the limits of the API (#468)
+# ------------------------------------------------------------------
+
+def _reference(tmp_path, seconds, frame_rate=44100, channels=2):
+    from pydub.generators import Sine
+
+    path = tmp_path / "reference.wav"
+    tone = Sine(220, sample_rate=frame_rate).to_audio_segment(duration=seconds * 1000).set_channels(channels)
+    tone.export(path, format="wav")
+    return path
+
+
+def _decode_reference(encoded):
+    import base64
+    import io
+    from pydub import AudioSegment
+
+    return AudioSegment.from_file(io.BytesIO(base64.b64decode(encoded)), format="wav")
+
+
+def test_long_reference_is_cut_with_its_text(tmp_path):
+    from core.tts_backend.sf_cosyvoice2 import prepare_reference
+
+    path = _reference(tmp_path, 30)
+    text = "one two three four five six seven eight nine ten eleven twelve"
+
+    encoded, prompt_text = prepare_reference(path, text)
+
+    audio = _decode_reference(encoded)
+    assert (audio.channels, audio.frame_rate, audio.sample_width) == (1, 24000, 2)
+    assert len(audio) == 15000
+    assert len(encoded) < os.path.getsize(path) / 4
+    assert prompt_text == "one two three four five six"
+
+
+def test_short_reference_keeps_its_length_and_text(tmp_path):
+    from core.tts_backend.sf_cosyvoice2 import prepare_reference
+
+    encoded, prompt_text = prepare_reference(_reference(tmp_path, 4), "这是一句完整的参考文本")
+
+    assert abs(len(_decode_reference(encoded)) - 4000) <= 1
+    assert prompt_text == "这是一句完整的参考文本"
+
+
+def test_long_reference_in_an_unspaced_language(tmp_path):
+    from core.tts_backend.sf_cosyvoice2 import prepare_reference
+
+    _, prompt_text = prepare_reference(_reference(tmp_path, 30, 16000, 1), "一二三四五六七八九十")
+
+    assert prompt_text == "一二三四五"

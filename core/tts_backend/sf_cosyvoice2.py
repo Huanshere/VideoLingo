@@ -1,13 +1,30 @@
 from openai import OpenAI
 from pathlib import Path
 import base64
+import io
+from pydub import AudioSegment
 from core.utils import *
 
-def wav_to_base64(wav_file_path):
-    with open(wav_file_path, 'rb') as audio_file:
-        audio_content = audio_file.read()
-    base64_audio = base64.b64encode(audio_content).decode('utf-8')
-    return base64_audio
+# The API answers 400 to a large reference: send mono 24 kHz and no more than 15 s
+MAX_REFERENCE_SECONDS = 15
+REFERENCE_SAMPLE_RATE = 24000
+
+def prepare_reference(wav_file_path, prompt_text):
+    """Returns the reference as base64 WAV within the limits, and the text that is spoken in it."""
+    audio = AudioSegment.from_file(wav_file_path)
+    audio = audio.set_channels(1).set_frame_rate(REFERENCE_SAMPLE_RATE).set_sample_width(2)
+    prompt_text = str(prompt_text)
+    limit = MAX_REFERENCE_SECONDS * 1000
+    if len(audio) > limit:
+        # Keep the share of the text that goes with the audio that is kept
+        kept = prompt_text[:int(len(prompt_text) * limit / len(audio))]
+        if ' ' in kept and len(kept) < len(prompt_text) and not prompt_text[len(kept)].isspace():
+            kept = kept.rsplit(' ', 1)[0]
+        prompt_text = kept.strip() or prompt_text
+        audio = audio[:limit]
+    buffer = io.BytesIO()
+    audio.export(buffer, format="wav")
+    return base64.b64encode(buffer.getvalue()).decode('utf-8'), prompt_text
 
 @except_handler("Failed to generate audio using SiliconFlow TTS")
 def cosyvoice_tts_for_videolingo(text, save_as, number, task_df):
@@ -29,7 +46,7 @@ def cosyvoice_tts_for_videolingo(text, save_as, number, task_df):
                 print(f"提取参考音频失败: {str(e)}")
                 raise
 
-    reference_base64 = wav_to_base64(ref_audio_path)
+    reference_base64, prompt_text = prepare_reference(ref_audio_path, prompt_text)
     client = OpenAI(api_key=API_KEY, base_url="https://api.siliconflow.cn/v1")
 
     save_path = Path(save_as)
