@@ -1,6 +1,7 @@
 """Local, single-user API. Start from the repository root with uv run start.py --api."""
 from pathlib import Path
 import shutil
+import sys
 from threading import Lock
 from typing import Literal
 from urllib.parse import urlparse
@@ -8,6 +9,17 @@ from urllib.parse import urlparse
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field
+
+
+
+def _configure_utf8_console():
+    """Allow Rich and task threads to print Unicode on Windows."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_configure_utf8_console()
 
 from core.pipeline import get_steps
 from core.task_runner import TaskRunner
