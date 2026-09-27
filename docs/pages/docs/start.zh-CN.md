@@ -142,7 +142,7 @@ git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
-以后在 VideoLingo 文件夹中运行 `uv run start.py` 即可启动。Apple Silicon 自动使用 MLX，Intel Mac 自动使用 CPU 识别；可选的人声分离暂不自动安装。
+以后在 VideoLingo 文件夹中运行 `uv run start.py` 即可启动。Apple Silicon 自动使用 MLX，Intel Mac 使用 CPU 识别。Intel Mac 默认配音只保留新生成的语音，不保留原视频的背景音。
 
 ![tutorial](./zh_page.png)
 
@@ -192,7 +192,7 @@ Excel 批处理已由本地 HTTP API 替代，与 Streamlit 共用处理流程�
 
 2. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: 通常是网络问题。解决方案：中国大陆用户请切换网络节点重试。
 
-3. **`Qwen ASR engine '...' needs the 'qwen-asr' package`（或 `mlx-audio`）**：当前环境没有安装对应的识别包。用启动 VideoLingo 的同一个环境执行 `python installer.py` 修复。Apple Silicon 上如果手动设置了 `qwen_engine: transformers`，请改回 `auto`。
+3. **`Qwen ASR engine '...' needs the 'qwen-asr' package`（或 `mlx-audio`）**：当前缺少识别包。关闭 VideoLingo 后重新启动即可修复：Windows 双击 `OneKeyStart.bat`，源码安装运行 `uv run start.py`。Apple Silicon 上如果手动设置了 `qwen_engine: transformers`，请改回 `auto`。
 
 4. **`Qwen3-ASR could not detect the language`** 或 **`... is still degenerate after retrying`**：`Auto` 模式下没能识别出语言，或识别结果退化（循环重复、内容过少）。在侧栏明确选择识别语言后重试，也可以换另一个模型大小。
 
@@ -202,9 +202,6 @@ Excel 批处理已由本地 HTTP API 替代，与 Streamlit 共用处理流程�
 
 7. **WhisperX 相关报错**（`cublas64_12.dll not found`、段错误、`Weights only load failed`、TorchCodec 等）：只在选择了 WhisperX 后端时出现，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md#common-errors)。
 
-8. **spaCy 模型缺失**：检查模型是否安装在启动 VideoLingo 的同一个环境内。例如，用该环境的 Python 安装英语模型：
-   ```bash
-    .venv\Scripts\python -m spacy download en_core_web_md
-   ```
+8. **spaCy 模型缺失**：VideoLingo 首次用到模型时通常会自动下载。检查网络连接，再重试这一步。
 
-9. **Torch 组件版本不一致**：用所选环境执行 `python installer.py --check`，再执行 `python installer.py` 修复。Intel Mac 使用 Torch/torchaudio 2.2.2、torchvision 0.17.2；其他平台使用 2.8.0、0.23.0。三者需要匹配。当前使用 PyPI Demucs 4.1，不再是需要 `--no-deps` 绕过依赖的旧 Git 包。
+9. **Torch 组件版本不一致**：关闭 VideoLingo 后重新启动即可修复：Windows 双击 `OneKeyStart.bat`，源码安装运行 `uv run start.py`。Intel Mac 使用 Torch/torchaudio 2.2.2、torchvision 0.17.2；其他平台使用 2.8.0、0.23.0。三者需要匹配。Intel Mac 不会自动安装 Demucs。

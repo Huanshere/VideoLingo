@@ -11,12 +11,12 @@ without vendored libraries, package-metadata overrides or a CUDA 13 requirement.
 
 ## Installation and updates
 
-`python setup_env.py --shared` creates/reuses the shared environment using Python
+`uv run setup_env.py --shared` creates/reuses the shared environment using Python
 3.12. The installer checks for Python 3.12. Recreating an environment with a
 different Python version requires confirmation unless `--yes` is supplied.
 
-Use `python installer.py --upgrade` (inside the environment) or
-`python setup_env.py --shared --upgrade` to refresh dependencies within the declared
+Use `uv run --python .venv installer.py --upgrade` for the project environment or
+`uv run setup_env.py --shared --upgrade` for a shared environment to refresh dependencies within the declared
 ranges. Normal startup checks do not unconditionally upgrade dependencies.
 `OneKeyStart.bat --check-only` reports health without repairing or launching the app.
 
@@ -57,7 +57,7 @@ see the [WhisperX guide](pages/docs/whisperx-manual.en-US.md#ffmpeg-runtime).
 Intel Macs use the last macOS x86_64 PyTorch wheel family: Torch/torchaudio 2.2.2,
 torchvision 0.17.2, NumPy 1.26 and Numba below 0.63, with Qwen3-ASR on CPU.
 The optional Demucs package is skipped on Intel Macs because its `sphn` dependency
-has no x86_64 macOS wheel; vocal separation requires a separate manual build.
+has no x86_64 macOS wheel. Dubbing still works with reference clips from the original audio, but the final video does not retain the original background sound unless separation is installed manually.
 Other platforms retain the PyTorch 2.8 family. Installation still stops on
 Apple Silicon below macOS 14, where mlx has no wheels. On Apple Silicon the
 installer uninstalls the WhisperX stack (whisperx, torchcodec, faster-whisper, ctranslate2, pyannote-*) before syncing requirements,

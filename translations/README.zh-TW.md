@@ -101,7 +101,7 @@ git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
-之後在 VideoLingo 資料夾執行 `uv run start.py` 即可啟動。Apple Silicon 自動使用 MLX，Intel Mac 使用 CPU 辨識；可選的人聲分離暫不自動安裝。
+之後在 VideoLingo 資料夾執行 `uv run start.py` 即可啟動。Apple Silicon 自動使用 MLX，Intel Mac 使用 CPU 辨識。Intel Mac 預設配音只保留新產生的語音，不保留原影片的背景音。
 
 #### Docker（可選）
 

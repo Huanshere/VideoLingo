@@ -101,7 +101,7 @@ git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
-次回からは VideoLingo フォルダーで `uv run start.py` を実行します。Apple Silicon は MLX、Intel Mac は CPU で音声認識を行います。Intel Mac ではオプションのボーカル分離は自動インストールされません。
+次回からは VideoLingo フォルダーで `uv run start.py` を実行します。Apple Silicon は MLX、Intel Mac は CPU で音声認識を行います。Intel Mac の吹き替えでは、既定で元動画の背景音は残らず、新しい音声のみを使用します。
 
 #### Docker（オプション）
 

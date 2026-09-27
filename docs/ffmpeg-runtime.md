@@ -1,7 +1,7 @@
 # Managed FFmpeg runtime
 
 The default Qwen installation requires no manual FFmpeg download, package-manager
-command, administrator permission, or system PATH change. Run `setup_env.py` as
+command, administrator permission, or system PATH change. Run `uv run start.py` as
 documented in the README. Its `installer.py` stage installs `static-ffmpeg==3.0`
 and fetches FFmpeg and ffprobe automatically. The binaries live inside that
 Python environment's `static_ffmpeg/bin` directory.
@@ -11,7 +11,7 @@ Silicon binaries. VideoLingo's own platform requirements still apply (notably
 macOS 14+ Apple Silicon for the default MLX stack). This is automatic provisioning,
 not removal of the FFmpeg engine. Setup needs access to PyPI and the provider's
 GitHub download URLs. A download failure fails setup with a retry instruction;
-rerun `python installer.py` once connectivity is restored. Partial downloads
+rerun `uv run start.py` once connectivity is restored. Partial downloads
 without both tools are fetched again, including a read/execute-only executable
 left by an interrupted extraction. Normal imports, app launch and `--check`
 never download, so installed media tools work offline.
@@ -39,8 +39,8 @@ for the distinction from custom code that passes filenames directly to pyannote.
 The optional Windows shared-DLL override remains available for custom usage.
 
 Do not test installation by running `ffmpeg -version` in a new system terminal:
-the application intentionally does not modify that terminal's PATH. Use the
-environment's `python installer.py --check` instead.
+the application intentionally does not modify that terminal's PATH. Run
+`uv run start.py --check` instead. It checks the environment used by the launcher.
 
 ## Validation
 

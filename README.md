@@ -101,7 +101,7 @@ git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
-To start it later, run `uv run start.py` again from the VideoLingo folder. Apple Silicon uses MLX; Intel Macs use CPU recognition. Optional vocal separation is not installed automatically on Intel Macs.
+To start it later, run `uv run start.py` again from the VideoLingo folder. Apple Silicon uses MLX; Intel Macs use CPU recognition. By default, Intel Mac dubbing uses the new voice without the original background sound.
 
 #### Docker (optional)
 
@@ -116,10 +116,10 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 For agents and scripts, use the local HTTP API instead of the former Excel batch mode.
 It shares the Streamlit pipeline and processes one operation at a time using `output/`.
-After installation, configure `config.yaml` and start it from the project root with the project's Python environment:
+Configure `config.yaml` and start it from the project root. The command also installs missing dependencies on first use:
 
 ```bash
-python api.py
+uv run start.py --api
 ```
 
 See the **[HTTP API guide](docs/api.md)** for input, processing, progress, downloads,

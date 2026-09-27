@@ -20,6 +20,7 @@
     "Target Lang": "Target Lang",
     "Input any language in natural language, as long as llm can understand": "Input any language in natural language, as long as llm can understand",
     "Vocal separation enhance": "Vocal separation enhance",
+    "Vocal separation is unavailable in this installation": "Vocal separation is unavailable in this installation",
     "Burn-in Subtitles": "Burn-in Subtitles",
     "Whether to burn subtitles into the video, will increase processing time": "Whether to burn subtitles into the video, will increase processing time",
     "Video Resolution": "Video Resolution",

@@ -1,4 +1,5 @@
 import platform
+import os
 import subprocess
 import json
 import math
@@ -91,20 +92,25 @@ def merge_video_audio():
         f"BackColour={TRANS_BACK_COLOR},Alignment=2,MarginV=27,BorderStyle=4'"
     )
     
-    cmd = [
-        'ffmpeg', '-y', '-i', VIDEO_FILE, '-i', background_file, '-i', normalized_dub_audio,
-        '-filter_complex',
-        f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
-        f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
-        f'{subtitle_filter}[v];'
-        f'[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]'
-    ]
+    has_background = os.path.isfile(background_file)
+    cmd = ['ffmpeg', '-y', '-i', VIDEO_FILE]
+    if has_background:
+        cmd.extend(['-i', background_file])
+    cmd.extend(['-i', normalized_dub_audio])
+    video_filter = (f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
+                    f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
+                    f'{subtitle_filter}[v]')
+    if has_background:
+        cmd.extend(['-filter_complex', video_filter + ';'
+                    '[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]'])
+    else:
+        rprint('[yellow]Original background audio is unavailable; exporting the dubbed voice alone.[/yellow]')
+        cmd.extend(['-filter_complex', video_filter])
 
+    cmd.extend(['-map', '[v]', '-map', '[a]' if has_background else '1:a'])
     if load_key("ffmpeg_gpu"):
         rprint("[bold green]Using GPU acceleration...[/bold green]")
-        cmd.extend(['-map', '[v]', '-map', '[a]', '-c:v', 'h264_nvenc'])
-    else:
-        cmd.extend(['-map', '[v]', '-map', '[a]'])
+        cmd.extend(['-c:v', 'h264_nvenc'])
     
     cmd.extend(['-c:a', 'aac', '-b:a', '192k', DUB_VIDEO])
     

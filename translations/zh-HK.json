@@ -20,6 +20,7 @@
     "Target Lang": "目標語言",
     "Input any language in natural language, as long as llm can understand": "用自然語言輸入任何語言,只要LLM能理解即可",
     "Vocal separation enhance": "人聲分離增強",
+    "Vocal separation is unavailable in this installation": "目前安裝不支援人聲分離",
     "Burn-in Subtitles": "燒錄字幕",
     "Whether to burn subtitles into the video, will increase processing time": "是否將字幕燒錄到影片中，會增加處理時間",
     "Video Resolution": "影片解析度",

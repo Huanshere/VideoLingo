@@ -101,7 +101,7 @@ git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
-Para iniciarlo después, ejecuta `uv run start.py` en la carpeta VideoLingo. Apple Silicon usa MLX; los Mac Intel usan la CPU para el reconocimiento. La separación de voces opcional no se instala automáticamente en los Mac Intel.
+Para iniciarlo después, ejecuta `uv run start.py` en la carpeta VideoLingo. Apple Silicon usa MLX; los Mac Intel usan la CPU para el reconocimiento. Por defecto, el doblaje en Mac Intel usa la voz nueva sin conservar el sonido de fondo original.
 
 #### Docker (opcional)
 

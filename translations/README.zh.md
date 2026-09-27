@@ -103,7 +103,7 @@ git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
-以后在 VideoLingo 文件夹中运行 `uv run start.py` 即可启动。Apple Silicon 自动使用 MLX，Intel Mac 自动使用 CPU 识别；可选的人声分离暂不自动安装。
+以后在 VideoLingo 文件夹中运行 `uv run start.py` 即可启动。Apple Silicon 自动使用 MLX，Intel Mac 使用 CPU 识别。Intel Mac 默认配音只保留新生成的语音，不保留原视频的背景音。
 
 #### Docker（可选）
 
@@ -118,10 +118,10 @@ docker run -d -p 8501:8501 --gpus all videolingo
 
 Agent 和脚本可以直接使用本地 HTTP API，原来的 Excel 批处理模式已由它替代。
 API 与 Streamlit 共用处理流程，保留固定 `output/`，一次执行一个操作。
-安装完成后，配置 `config.yaml`，在项目根目录使用项目的 Python 环境启动：
+配置 `config.yaml`，在项目根目录运行下面的命令。首次使用会自动安装缺少的依赖：
 
 ```bash
-python api.py
+uv run start.py --api
 ```
 
 输入文件、启动处理、查询进度、下载结果、失败重试和串行批量处理，参见 **[HTTP API 使用文档](../docs/api.md)**。

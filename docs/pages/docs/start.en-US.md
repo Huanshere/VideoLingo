@@ -143,7 +143,7 @@ git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo
 uv run start.py
 ```
 
-To start it later, run `uv run start.py` again from the VideoLingo folder. Apple Silicon uses MLX; Intel Macs use CPU recognition. Optional vocal separation is not installed automatically on Intel Macs.
+To start it later, run `uv run start.py` again from the VideoLingo folder. Apple Silicon uses MLX; Intel Macs use CPU recognition. By default, Intel Mac dubbing uses the new voice without the original background sound.
 
 ![tutorial](./en_page.png)
 
@@ -193,7 +193,7 @@ The local HTTP API replaces Excel batch mode and shares the Streamlit pipeline. 
 
 2. **'Retry Failed', 'SSL', 'Connection', 'Timeout'**: Usually network issues. Solution: Users in mainland China please switch network nodes and retry.
 
-3. **`Qwen ASR engine '...' needs the 'qwen-asr' package`** (or `mlx-audio`): the recognition package is missing from the environment. Run `python installer.py` with the same environment used to launch VideoLingo. On Apple Silicon, if you set `qwen_engine: transformers` manually, change it back to `auto`.
+3. **`Qwen ASR engine '...' needs the 'qwen-asr' package`** (or `mlx-audio`): the recognition package is missing. Close VideoLingo, then start it again to repair: double-click `OneKeyStart.bat` on Windows, or run `uv run start.py` for a source installation. On Apple Silicon, if you set `qwen_engine: transformers` manually, change it back to `auto`.
 
 4. **`Qwen3-ASR could not detect the language`** or **`... is still degenerate after retrying`**: `Auto` could not determine the language, or the transcript degenerated (a looping phrase, far too little text). Select the recognition language explicitly in the sidebar and retry, or try the other model size.
 
@@ -203,9 +203,6 @@ The local HTTP API replaces Excel batch mode and shares the Streamlit pipeline. 
 
 7. **WhisperX errors** (`cublas64_12.dll not found`, segfaults, `Weights only load failed`, TorchCodec, etc.): these only occur with the WhisperX backend selected; see [WhisperX (manual install)](whisperx-manual.en-US.md#common-errors).
 
-8. **spaCy model missing**: Check that the model was installed into the same environment used to launch VideoLingo. For example, install the English model using that environment's Python:
-   ```bash
-    .venv\Scripts\python -m spacy download en_core_web_md
-   ```
+8. **spaCy model missing**: VideoLingo normally downloads the model when it is first needed. Check your internet connection, then retry the step.
 
-9. **Torch package versions disagree**: Run the selected environment's `python installer.py --check`, then `python installer.py` to repair. Intel Macs use Torch/torchaudio 2.2.2 with torchvision 0.17.2; other platforms use 2.8.0 with 0.23.0. Keep the three packages matched. Current Demucs is PyPI 4.1, not the older Git package requiring a `--no-deps` workaround.
+9. **Torch package versions disagree**: Close VideoLingo, then start it again to repair: double-click `OneKeyStart.bat` on Windows, or run `uv run start.py` for a source installation. Intel Macs use Torch/torchaudio 2.2.2 with torchvision 0.17.2; other platforms use 2.8.0 with 0.23.0. Keep the three packages matched. Demucs is not installed automatically on Intel Macs.

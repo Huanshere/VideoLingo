@@ -235,10 +235,14 @@ def page_setting():
                 update_key("target_language", target_language)
                 st.rerun()
 
+        demucs_available = importlib.util.find_spec("demucs") is not None
+        if not demucs_available and load_key("demucs"):
+            update_key("demucs", False)
         demucs = st.toggle(
             t("Vocal separation enhance"),
             value=load_key("demucs"),
-            help=t(
+            disabled=not demucs_available,
+            help=t("Vocal separation is unavailable in this installation") if not demucs_available else t(
                 "Recommended for videos with loud background noise, but will increase processing time"
             ),
         )

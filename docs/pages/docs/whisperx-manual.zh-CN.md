@@ -15,18 +15,15 @@ VideoLingo 默认的本地语音识别是 **Qwen3-ASR + Qwen3-ForcedAligner**，
 
 下面的命令由你自己执行。安装器不会代为执行，之后也不会把 WhisperX 装回去。
 
-在 Windows 或 Linux 上，在已经用 `setup_env.py` 装好的 VideoLingo 环境里执行（以项目 `.venv` 为例；使用 `--shared` 共享环境时，把路径换成 `~/.venvs/videolingo`）。不要在 Apple Silicon 的默认环境里执行；请按下文另建环境。
+在 Windows 或 Linux 上完成安装后，从 VideoLingo 文件夹运行下面的命令。它使用项目的 `.venv`；如果使用 `--shared`，请把 `.venv` 换成共享环境的路径。不要在 Apple Silicon 的默认环境里执行；Mac 的独立环境见下文。
 
 ```bash
-# Windows
-.venv\Scripts\python -m pip install "whisperx>=3.8.6,<3.9" "ctranslate2>=4.5,<5" "pyannote-audio>=4.0.4,<5" "torchcodec>=0.7,<0.8"
-# Linux
-.venv/bin/python -m pip install "whisperx>=3.8.6,<3.9" "ctranslate2>=4.5,<5" "pyannote-audio>=4.0.4,<5" "torchcodec>=0.7,<0.8"
+uv pip install --python .venv "whisperx>=3.8.6,<3.9" "ctranslate2>=4.5,<5" "pyannote-audio>=4.0.4,<5" "torchcodec>=0.7,<0.8"
 ```
 
 这 4 个包的版本约束与 3.0.4 版本中 `requirements.txt` 的约束相同。WhisperX 3.8 需要 Torch/torchaudio 2.8、torchvision 0.23 和 Transformers 4，与默认环境一致，因此不需要改动已装的 PyTorch。
 
-启用本地 WhisperX 后，在同一环境运行 `python installer.py --check`。检查会验证 FFmpeg 解码和 pyannote 内存波形路径，不要求 TorchCodec 文件解码器可用。Windows/Linux 上重跑安装器不会卸载自行添加的 WhisperX；Apple Silicon 默认环境会移除与 MLX 不兼容的 WhisperX 依赖，详见下文。
+启用本地 WhisperX 后，运行 `uv run start.py --check`，检查 VideoLingo 实际使用的环境，并验证 FFmpeg 解码和 pyannote 内存波形路径，不要求 TorchCodec 文件解码器可用。Windows/Linux 上重跑安装器不会卸载自行添加的 WhisperX；Apple Silicon 默认环境会移除与 MLX 不兼容的 WhisperX 依赖，详见下文。
 
 ## 启用
 
@@ -76,5 +73,5 @@ TorchCodec 仍随可选依赖安装，以满足 pyannote 的 Python 包依赖。
 3. **Whisper 模型加载时无报错直接段错误 (Segfault)**：ctranslate2 版本与 cuDNN 版本不匹配。确保 `ctranslate2>=4.5.0`（支持 cuDNN 9，PyTorch 2.6+ 自带 cuDNN 9）。
 4. **`RuntimeError: Weights only load failed`**：PyTorch ≥2.6 更改了 `torch.load` 的默认行为。已在 `whisperX_local.py` 中通过猴补丁修复，如果遇到此问题说明代码未正确更新。
 5. **Streamlit 中 WhisperX 转录卡住不动（CPU/GPU 均空闲）**：`librosa.load()` 在 Streamlit 的非主线程中死锁。已用 `whisperx.audio.load_audio()`（基于 ffmpeg 子进程）替换。如果遇到此问题说明代码未正确更新。
-6. **TorchCodec could not load 警告**：单独出现这条警告不影响本项目 WhisperX 流程，因为传给 pyannote 的是已解码的波形。运行 `python installer.py --check` 验证这条音频路径。自行扩展代码让 pyannote 直接读取文件名时，才需要[上述共享库解码器](#ffmpeg-runtime)。
+6. **TorchCodec could not load 警告**：单独出现这条警告不影响本项目 WhisperX 流程，因为传给 pyannote 的是已解码的波形。运行 `uv run start.py --check` 验证这条音频路径。自行扩展代码让 pyannote 直接读取文件名时，才需要[上述共享库解码器](#ffmpeg-runtime)。
 7. **`WhisperX is not installed`**：`whisper.backend` 已设为 `whisperx`，但没有安装该包。识别会在准备音频之前停止。请按上面的步骤自行安装，或把 `whisper.backend` 改回 `qwen`。安装器不会替你安装 WhisperX。

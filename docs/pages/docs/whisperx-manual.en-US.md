@@ -15,18 +15,15 @@ Consider WhisperX when you want to compare against Qwen, want the punctuation-en
 
 These commands are for you to run. The installer will not run them and will not install WhisperX back later.
 
-On Windows or Linux, run this inside the VideoLingo environment created by `setup_env.py` (the project `.venv` is shown; for a `--shared` environment use `~/.venvs/videolingo`). Do not run them in the default Apple Silicon environment; use a separate environment, as described below.
+On Windows or Linux, run this from the VideoLingo folder after setup. It targets the project `.venv`; for a `--shared` environment, replace `.venv` with that environment's path. Do not run it in the default Apple Silicon environment; use a separate environment, as described below.
 
 ```bash
-# Windows
-.venv\Scripts\python -m pip install "whisperx>=3.8.6,<3.9" "ctranslate2>=4.5,<5" "pyannote-audio>=4.0.4,<5" "torchcodec>=0.7,<0.8"
-# Linux
-.venv/bin/python -m pip install "whisperx>=3.8.6,<3.9" "ctranslate2>=4.5,<5" "pyannote-audio>=4.0.4,<5" "torchcodec>=0.7,<0.8"
+uv pip install --python .venv "whisperx>=3.8.6,<3.9" "ctranslate2>=4.5,<5" "pyannote-audio>=4.0.4,<5" "torchcodec>=0.7,<0.8"
 ```
 
 These are the same constraints `requirements.txt` used in 3.0.4. WhisperX 3.8 needs Torch/torchaudio 2.8, torchvision 0.23 and Transformers 4, which match the default environment, so the installed PyTorch build does not change.
 
-After enabling the local WhisperX backend below, run `python installer.py --check` in that same environment. The check exercises FFmpeg decoding and pyannote's in-memory audio path; it does not require TorchCodec's file decoder. On Windows/Linux, rerunning `installer.py` or `--upgrade` does not uninstall WhisperX packages you added yourself. On Apple Silicon, rerunning the installer in the default environment removes the incompatible WhisperX stack (see below).
+After enabling the local WhisperX backend below, run `uv run start.py --check`. It checks the environment VideoLingo uses and exercises FFmpeg decoding and pyannote's in-memory audio path; it does not require TorchCodec's file decoder. On Windows/Linux, rerunning `installer.py` or `--upgrade` does not uninstall WhisperX packages you added yourself. On Apple Silicon, rerunning the installer in the default environment removes the incompatible WhisperX stack (see below).
 
 ## Enable
 
@@ -76,5 +73,5 @@ To use WhisperX on a Mac, create a separate virtual environment for it; do not r
 3. **Whisper model loading segfaults silently**: ctranslate2 version mismatches cuDNN version. Ensure `ctranslate2>=4.5.0` (supports cuDNN 9, which PyTorch 2.6+ ships with).
 4. **`RuntimeError: Weights only load failed`**: PyTorch ≥2.6 changed `torch.load` default behavior. Already fixed via monkey-patch in `whisperX_local.py`. If you see this, your code is not up to date.
 5. **WhisperX transcription hangs in Streamlit (CPU/GPU idle)**: `librosa.load()` deadlocks in Streamlit's non-main thread. Already fixed by replacing it with `whisperx.audio.load_audio()` (ffmpeg subprocess). If you see this, your code is not up to date.
-6. **TorchCodec could not load warning**: This alone does not prevent VideoLingo's WhisperX pipeline from working, because it passes decoded waveforms to pyannote. Run `python installer.py --check` to verify that audio path. Custom code passing filenames to pyannote needs the separate shared-library decoder described [above](#ffmpeg-runtime).
+6. **TorchCodec could not load warning**: This alone does not prevent VideoLingo's WhisperX pipeline from working, because it passes decoded waveforms to pyannote. Run `uv run start.py --check` to verify that audio path. Custom code passing filenames to pyannote needs the separate shared-library decoder described [above](#ffmpeg-runtime).
 7. **`WhisperX is not installed`**: `whisper.backend` is `whisperx` but the package is not installed. Recognition stops before preparing audio. Install the packages yourself as above, or set `whisper.backend` back to `qwen`. The installer will not install WhisperX for you.

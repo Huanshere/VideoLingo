@@ -6,11 +6,11 @@ no database and no task directories. Use either the UI or API for a working dire
 
 ## Start
 
-Install the project dependencies as usual (`python installer.py`), configure your LLM
-and other settings in `config.yaml`, then run from the repository root:
+Configure your LLM and other settings in `config.yaml`, then run from the repository root.
+The same command installs any missing dependencies on first use:
 
 ```bash
-python api.py
+uv run start.py --api
 ```
 
 The server listens on `127.0.0.1:8000`. Interactive documentation: http://127.0.0.1:8000/docs;
@@ -38,6 +38,7 @@ POST /run
 
 `stage` is `subtitles`, `dubbing`, or `all` (default). `dubbing` defaults to false and
 only controls whether `all` includes dubbing. `stage: dubbing` requires existing subtitles.
+On Intel Macs, dubbing uses the new voice without mixing in the original background sound.
 Audio-only input supports subtitles, matching the UI. Optional `source_language` and
 `target_language` are saved to `config.yaml`; other settings use that file directly.
 Do not edit configuration while processing.
@@ -74,7 +75,10 @@ be overwritten); move results elsewhere first if you want to keep multiple versi
 
 ## Tests (no model downloads)
 
+These commands use the project `.venv`. If you use a shared environment, replace `.venv`
+with its path in both commands.
+
 ```bash
-python -m pip install pytest httpx
-python -m pytest tests/test_api.py
+uv pip install --python .venv pytest httpx
+uv run --python .venv pytest tests/test_api.py
 ```

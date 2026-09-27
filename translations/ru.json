@@ -20,6 +20,7 @@
     "Target Lang": "Целевой язык",
     "Input any language in natural language, as long as llm can understand": "Введите любой язык на естественном языке, главное чтобы LLM мог понять",
     "Vocal separation enhance": "Улучшение отделения голоса",
+    "Vocal separation is unavailable in this installation": "Разделение вокала недоступно в этой установке",
     "Burn-in Subtitles": "Встроить субтитры",
     "Whether to burn subtitles into the video, will increase processing time": "Встраивать ли субтитры в видео, это увеличит время обработки",
     "Video Resolution": "Разрешение видео",
