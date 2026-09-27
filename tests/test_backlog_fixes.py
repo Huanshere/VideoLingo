@@ -229,9 +229,9 @@ def test_refer_audio_is_skipped_when_references_exist(monkeypatch, tmp_path):
 def test_configured_keys_accepts_a_non_string_key():
     from core.st_utils.tts_settings import configured_keys
 
-    config = {"fish_tts.api_key": 1234567890, "openai_tts.api_key": None, "f5tts.302_api": ""}
+    config = {"sf_fish_tts.api_key": 1234567890, "sf_cosyvoice2.api_key": ""}
 
-    assert configured_keys("302.ai", "openai_tts", config.get) == ("1234567890", False)
+    assert configured_keys("SiliconFlow", "sf_cosyvoice2", config.get) == ("1234567890", False)
 
 
 def test_removed_dubbing_method_of_an_old_config_is_a_clear_error(monkeypatch):
@@ -1729,6 +1729,7 @@ def test_refused_openai_request_is_an_error(monkeypatch, tmp_path):
     from core.tts_backend import openai_tts
 
     monkeypatch.setattr(openai_tts, "load_key", lambda key: "alloy" if key.endswith("voice") else "value")
+    monkeypatch.setattr(openai_tts, "load_key_or", lambda key, default: default)
     monkeypatch.setattr(openai_tts.requests, "post", lambda *args, **kwargs: _Refused())
     monkeypatch.setattr("time.sleep", lambda seconds: None)
     audio = tmp_path / "1.wav"
@@ -1737,6 +1738,29 @@ def test_refused_openai_request_is_an_error(monkeypatch, tmp_path):
         openai_tts.openai_tts("Hello", str(audio))
 
     assert not audio.exists()
+
+
+def test_openai_speech_uses_the_service_and_model_of_the_config(monkeypatch, tmp_path):
+    from core.tts_backend import openai_tts
+
+    class Audio:
+        status_code = 200
+        content = b"RIFF"
+
+    requests = []
+    config = {"openai_tts.base_url": "http://localhost:8880/v1/", "openai_tts.model": "kokoro"}
+    monkeypatch.setattr(openai_tts, "load_key", lambda key: "nova" if key.endswith("voice") else "value")
+    monkeypatch.setattr(openai_tts, "load_key_or", lambda key, default: config.get(key, default))
+    monkeypatch.setattr(openai_tts.requests, "post", lambda url, **kwargs: requests.append((url, kwargs["json"])) or Audio())
+
+    openai_tts.openai_tts("Hello", str(tmp_path / "1.wav"))
+    config.clear()  # a config.yaml from before these settings
+    openai_tts.openai_tts("Hello", str(tmp_path / "2.wav"))
+
+    assert [(url, body["model"], body["voice"]) for url, body in requests] == [
+        ("http://localhost:8880/v1/audio/speech", "kokoro", "nova"),
+        ("https://api.openlux.ai/v1/audio/speech", "gpt-4o-mini-tts", "nova")]
+    assert (tmp_path / "2.wav").read_bytes() == b"RIFF"
 
 
 def test_dubbing_stops_when_the_service_refuses(monkeypatch, tmp_path):

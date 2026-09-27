@@ -41,7 +41,6 @@
     "Refer_stable": "安定参照",
     "Refer_dynamic": "動的参照",
     "OpenAI Voice": "OpenAI音声",
-    "Fish TTS Character": "Fish TTSキャラクター",
     "Please refer to Github homepage for GPT_SoVITS configuration": "GPT_SoVITSの設定についてはGithubホームページを参照してください",
     "SoVITS Character": "SoVITSキャラクター",
     "Refer Mode": "参照モード",
@@ -151,9 +150,7 @@
     "ElevenLabs": "ElevenLabs",
     "ElevenLabs API": "ElevenLabs API",
     "Voice": "ボイス",
-    "302ai API": "302ai API",
     "OpenAI TTS": "OpenAI TTS",
-    "Fish TTS": "Fish TTS",
     "SiliconFlow Fish TTS": "SiliconFlow Fish TTS",
     "Edge TTS": "Edge TTS",
     "GPT-SoVITS": "GPT-SoVITS",
@@ -228,5 +225,11 @@
     "MAI-Transcribe-2": "MAI-Transcribe-2",
     "MAI provider": "MAI プロバイダー",
     "OpenRouter API key": "OpenRouter API キー",
-    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音声は MAI-Transcribe-2 のため OpenRouter に送信され、料金が発生する場合があります。"
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音声は MAI-Transcribe-2 のため OpenRouter に送信され、料金が発生する場合があります。",
+    "Fish Audio": "Fish Audio",
+    "Voice of the video": "動画の声（クローン）",
+    "Fixed voice": "固定の声",
+    "Another voice of fish.audio": "fish.audio の別の声",
+    "Voice ID or the address of its page": "声の ID、またはそのページのアドレス",
+    "Open a voice on fish.audio and copy the address of its page": "fish.audio で声を開き、そのページのアドレスをコピーしてください"
 }

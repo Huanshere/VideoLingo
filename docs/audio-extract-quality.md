@@ -18,7 +18,7 @@
 
 `raw.mp3` 不只是识别输入。本地识别（默认的 Qwen3-ASR，以及可选的 WhisperX）内部都固定解码到 16 kHz，不受影响；但 Demucs 的人声、
 `_9_refer_audio` 按字幕切出的 `refers/*.wav`、以及 `sf_fish_tts` custom/dynamic、`sf_cosyvoice2`、
-`gpt_sovits`、`f5tts` 的克隆参考，全部继承提取时的带宽。
+`gpt_sovits`、`f5tts`、`fish_audio` 的克隆参考，全部继承提取时的带宽。
 
 本机测量（ffmpeg 7.1，白噪声，48 kHz 源，8192 点 FFT，取相对 1 kHz 频段衰减 10 dB 处）：
 
@@ -34,8 +34,6 @@ ElevenLabs 路径按段解码到 16 kHz 再上传，与 `raw.mp3` 采样率无�
 
 ## 不覆盖什么
 
-- 302.ai `fish_tts` 用固定 `reference_id`，不读本地参考，前两项对它没有影响；它的请求不带 `model`
-  头，服务端默认模型随时间变化，本改动不处理。
 - 「一句一句念」「句间不连贯」来自逐行合成、硬静音拼接与逐块 `atempo`，2.2.1 与 3.0 代码相同，本改动不动。
 - 同一视频内句间响度差异不处理；成片整体响度由 #610 的门限响度归一化处理。
 - 克隆音色是否因此变好，没有用真实 TTS 验证；能保证的只是可测的信号属性。

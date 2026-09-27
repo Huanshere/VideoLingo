@@ -55,11 +55,11 @@ The following outlines the core technical modules and workflows:
 *   **TTS Backends (`core/tts_backend`):**
     *   `core/tts_backend/custom_tts.py`: Placeholder/template for integrating custom TTS engines.
     *   `core/tts_backend/edge_tts.py`: Interface to Microsoft Edge TTS using the `edge-tts` command-line tool.
-    *   `core/tts_backend/fish_tts.py`: Interface to the 302.ai Fish TTS API.
     *   `core/tts_backend/gpt_sovits_tts.py`: Interface to a local GPT-SoVITS server, including server startup logic.
     *   `core/tts_backend/openai_tts.py`: Interface to the OpenAI Text-to-Speech API.
     *   `core/tts_backend/sf_cosyvoice2.py`: Interface to the SiliconFlow CosyVoice2 TTS API, supporting reference audio.
     *   `core/tts_backend/sf_fishtts.py`: Interface to the SiliconFlow Fish TTS API, supporting preset, custom, and dynamic voice modes with reference audio.
+    *   `core/tts_backend/fish_audio_tts.py`: Interface to the API of Fish Audio: the voice of the video is cloned from one reference, or a fixed voice is used by its ID.
     *   `core/tts_backend/_302_f5tts.py`: Interface to the 302.ai F5-TTS API, which uses reference audio for voice cloning.
     *   `core/tts_backend/estimate_duration.py`: Provides functions to estimate the speaking duration of text based on syllable counts and punctuation pauses for a given language. Used for audio task generation and subtitle trimming.
     *   `core/tts_backend/tts_main.py`: Central TTS dispatcher. Cleans input text, selects the appropriate TTS backend based on configuration (`load_key("tts_method")`), calls the corresponding TTS function, handles errors using retries and GPT-based text correction, validates audio duration, and saves the output WAV file.

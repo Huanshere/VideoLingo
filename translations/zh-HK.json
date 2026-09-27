@@ -41,7 +41,6 @@
     "Refer_stable": "穩定參考",
     "Refer_dynamic": "動態參考",
     "OpenAI Voice": "OpenAI語音",
-    "Fish TTS Character": "Fish TTS角色",
     "Please refer to Github homepage for GPT_SoVITS configuration": "請參考Github主頁了解GPT_SoVITS設定",
     "SoVITS Character": "SoVITS角色",
     "Refer Mode": "參考模式",
@@ -151,9 +150,7 @@
     "ElevenLabs": "ElevenLabs",
     "ElevenLabs API": "ElevenLabs API金鑰",
     "Voice": "聲音",
-    "302ai API": "302ai API金鑰",
     "OpenAI TTS": "OpenAI TTS",
-    "Fish TTS": "Fish TTS",
     "SiliconFlow Fish TTS": "矽基流動 Fish TTS",
     "Edge TTS": "Edge TTS",
     "GPT-SoVITS": "GPT-SoVITS",
@@ -228,5 +225,11 @@
     "MAI-Transcribe-2": "MAI-Transcribe-2",
     "MAI provider": "MAI 服務商",
     "OpenRouter API key": "OpenRouter API 密鑰",
-    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音訊將傳送至 OpenRouter 進行 MAI-Transcribe-2 轉寫，可能產生費用。"
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "音訊將傳送至 OpenRouter 進行 MAI-Transcribe-2 轉寫，可能產生費用。",
+    "Fish Audio": "Fish Audio",
+    "Voice of the video": "影片裡的聲音（複製）",
+    "Fixed voice": "固定音色",
+    "Another voice of fish.audio": "fish.audio 上的其他音色",
+    "Voice ID or the address of its page": "音色 ID 或音色頁面的網址",
+    "Open a voice on fish.audio and copy the address of its page": "在 fish.audio 打開喜歡的音色，複製它頁面的網址"
 }

@@ -24,14 +24,16 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 
 | TTS 方案 | 提供商 | 优点 | 缺点 | 中文效果 | 非中文效果 |
 |:---------|:---------|:-----|:-----|:---------|:-----------|
-| 🎙️ OpenAI TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
-| 🎤 Fish TTS | [302AI](https://gpt302.saaslink.net/C2oHR9) | 真是本地人 | 官方模型有限 | 🤩 | 😂 |
+| 🎙️ OpenAI TTS | [OpenLux](https://www.openlux.ai/register?aff=wKYu) | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
+| 🎙️ Fish Audio | [Fish Audio](https://fish.audio) | 克隆视频里的声音，也可以用 fish.audio 上的任意音色 | API 需付费 | 🤩 | 😃 |
 | 🎙️ SiliconFlow FishTTS | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | 语音克隆 | 克隆效果不稳定 | 😃 | 😃 |
 | Edge TTS | 在线服务 | 此适配器无需单独 API 密钥 | 需要联网 | — | — |
 | 🗣️ GPT-SoVITS | 本地 | 最强语音克隆 | 只支持中英文，需要本地训练推理，配置麻烦 | 🏆 | 🚫 |
 
 - SiliconFlow FishTTS 请在 [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) 获取key，注意克隆功能需要付费充值积分；
-- OpenAI TTS、Fish TTS 和 F5-TTS，仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9) - 一个 API key 即可使用所有服务
+- OpenAI TTS 使用 [OpenLux](https://www.openlux.ai/register?aff=wKYu)，和 LLM 用同一个 key 即可。其他兼容 OpenAI 语音接口的服务，可以在 `config.yaml` 里修改 `openai_tts.base_url` 和 `openai_tts.model`；
+- Fish Audio 请在 [fish.audio](https://fish.audio/app/api-keys/) 获取 key。API 按用量计费，账户里需要有余额，克隆不另外收费；
+- F5-TTS 仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9)，克隆视频里的声音；
 > 自定义 TTS 适配器位于 `core/tts_backend/custom_tts.py`。
 
 <details>
@@ -48,9 +50,21 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 <details>
 <summary>OpenAI 声音怎么选？</summary>
 
-声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.yaml` 中修改 `openai_tts.voice` 即可。
+声音列表可以在 [官网](https://platform.openai.com/docs/guides/text-to-speech/voice-options) 找到，例如 `alloy`, `echo`, `nova`等，在 `config.yaml` 中修改 `openai_tts.voice` 即可。默认模型是 `gpt-4o-mini-tts`。
 
 </details>
+<details>
+<summary>Fish Audio 声音怎么选？</summary>
+
+在页面里选择服务商 `Fish Audio`，有两种模式：
+
+- **视频里的声音（克隆）**：默认模式。取视频开头 15-30 秒的人声作为所有句子的参考，不会在你的 Fish Audio 账户里保存任何东西。请只克隆你有权使用的声音。
+- **固定音色**：列表里自带两个音色，`语彤` 和 `浩然`。想用其他音色时，选择 `fish.audio 上的其他音色`，在 [fish.audio](https://fish.audio) 找到喜欢的音色并打开，把页面网址或 ID 粘贴进来即可。
+
+想把喜欢的音色放进列表，在 `config.yaml` 的 `fish_audio.voices` 里添加名字和 ID。模型是 `fish_audio.model`，默认 `s2.1-pro`。
+
+</details>
+
 <details>
 <summary>Edge TTS 声音怎么选？</summary>
 
@@ -58,12 +72,6 @@ Edge TTS 是默认的配音方式，不需要 API 密钥。运行 `edge-tts --li
 
 </details>
 
-<details>
-<summary>Fish TTS 声音怎么选？</summary>
-
-前往 [官网](https://fish.audio/zh-CN/) 中试听选择你想要的声音，在 URL 中可以找到该声音对应的代号，例如丁真是 `54a5170264694bfc8e9ad98df7bd89c3`，热门的几种声音已添加在 `config.yaml` 中。如需使用其他声音，请在 `config.yaml` 中修改 `fish_tts.character_id_dict` 字典。
-
-</details>
 
 <details>
 <summary>GPT-SoVITS-v2 使用教程</summary>

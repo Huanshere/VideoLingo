@@ -41,7 +41,6 @@
     "Refer_stable": "Refer_stable",
     "Refer_dynamic": "Refer_dynamic",
     "OpenAI Voice": "OpenAI Voice",
-    "Fish TTS Character": "Fish TTS Character",
     "Please refer to Github homepage for GPT_SoVITS configuration": "Please refer to Github homepage for GPT_SoVITS configuration",
     "SoVITS Character": "SoVITS Character",
     "Refer Mode": "Refer Mode",
@@ -151,9 +150,7 @@
     "ElevenLabs": "ElevenLabs",
     "ElevenLabs API": "ElevenLabs API",
     "Voice": "Voice",
-    "302ai API": "302ai API",
     "OpenAI TTS": "OpenAI TTS",
-    "Fish TTS": "Fish TTS",
     "SiliconFlow Fish TTS": "SiliconFlow Fish TTS",
     "Edge TTS": "Edge TTS",
     "GPT-SoVITS": "GPT-SoVITS",
@@ -228,5 +225,11 @@
     "MAI-Transcribe-2": "MAI-Transcribe-2",
     "MAI provider": "MAI provider",
     "OpenRouter API key": "OpenRouter API key",
-    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges."
+    "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.": "Audio is sent to OpenRouter for MAI-Transcribe-2 and may incur charges.",
+    "Fish Audio": "Fish Audio",
+    "Voice of the video": "Voice of the video (cloned)",
+    "Fixed voice": "Fixed voice",
+    "Another voice of fish.audio": "Another voice of fish.audio",
+    "Voice ID or the address of its page": "Voice ID or the address of its page",
+    "Open a voice on fish.audio and copy the address of its page": "Open a voice on fish.audio and copy the address of its page"
 }
