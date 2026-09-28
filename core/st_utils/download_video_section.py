@@ -226,10 +226,14 @@ def download_video_section():
         preview = st.session_state.get("_youtube_metadata_preview")
         if preview and preview.get("url") == url:
             _render_youtube_metadata(preview["metadata"])
-            if st.button(t("Download Video"), key="download_button", width="stretch"):
+
+        if st.button(t("Download Video"), key="download_button", width="stretch"):
+            if not url:
+                st.warning(t("Please enter a YouTube link."))
+            else:
                 try:
                     with st.spinner(t("Downloading video...")):
-                        download_video_ytdlp(url, resolution=res, metadata=preview["metadata"])
+                        download_video_ytdlp(url, resolution=res, metadata=preview["metadata"] if preview else None)
                 except Exception as e:
                     st.error(f"{t('Download failed')}: {e}")
                     if needs_cookies(e):

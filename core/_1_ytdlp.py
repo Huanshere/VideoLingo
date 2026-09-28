@@ -46,19 +46,31 @@ def _get_youtube_metadata(info):
         if info and info.get(key) not in (None, '')
     }
 
+def _youtube_network_options():
+    youtube = load_key("youtube")
+    options = {}
+    proxy = youtube.get("proxy")
+    if proxy is not None:
+        if not isinstance(proxy, str):
+            raise ValueError('youtube.proxy must be null, an empty string, or a proxy URL')
+        options['proxy'] = proxy.strip()
+
+    cookies_path = str(youtube.get("cookies_path") or "").strip().strip('"')
+    if cookies_path:
+        if not os.path.isfile(cookies_path):
+            raise ValueError(f"Cookies file not found: {cookies_path}")
+        options["cookiefile"] = cookies_path
+    return options
+
 def get_video_info_ytdlp(url):
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
         'skip_download': True,
         'noplaylist': True,
+        **_youtube_network_options(),
     }
 
-    cookies_path = load_key("youtube.cookies_path")
-    if os.path.exists(cookies_path):
-        ydl_opts["cookiefile"] = str(cookies_path)
-
-    # Metadata previews should not update the package environment.
     from yt_dlp import YoutubeDL
     with YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -73,23 +85,8 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', metadata=No
         'writethumbnail': True,
         'merge_output_format': 'mp4',
         'postprocessors': [{'key': 'FFmpegThumbnailsConvertor', 'format': 'jpg'}],
+        **_youtube_network_options(),
     }
-
-    # None/missing inherits yt-dlp's system/environment proxy discovery.
-    # An empty string explicitly disables proxies; a URL overrides discovery.
-    youtube = load_key("youtube")
-    proxy = youtube.get("proxy")
-    if proxy is not None:
-        if not isinstance(proxy, str):
-            raise ValueError('youtube.proxy must be null, an empty string, or a proxy URL')
-        ydl_opts['proxy'] = proxy.strip()
-
-    # Read Youtube Cookie File
-    cookies_path = str(youtube.get("cookies_path") or "").strip().strip('"')
-    if cookies_path:
-        if not os.path.isfile(cookies_path):
-            raise ValueError(f"Cookies file not found: {cookies_path}")
-        ydl_opts["cookiefile"] = cookies_path
 
     # Get YoutubeDL class after updating
     YoutubeDL = update_ytdlp()
