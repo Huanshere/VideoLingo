@@ -23,7 +23,7 @@ def options(tmp_path, youtube):
     namespace = {
         'os': os, 'load_key': lambda key: youtube if key == 'youtube' else '',
         'update_ytdlp': lambda: Download, 'find_video_files': lambda _: 'synthetic.mp4',
-        'write_input_manifest': lambda *a, **kw: None,
+        'write_input_manifest': lambda *a: None,
     }
     exec(compile(tree, str(source), 'exec'), namespace)
     namespace['download_video_ytdlp']('https://video.example.com/item', str(tmp_path))

@@ -59,5 +59,5 @@ def test_download_with_optional_preview(preview_clicked, metadata):
 
     with pytest.raises(Rerun):
         namespace['download_video_section']()
-    assert downloads == [('https://video.example.com/item', {'resolution': '1080', 'metadata': metadata})]
+    assert downloads == [('https://video.example.com/item', {'resolution': '1080'})]
     assert rendered == ([metadata] if metadata else [])

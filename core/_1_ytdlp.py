@@ -36,9 +36,8 @@ def needs_cookies(error):
 
 def _get_youtube_metadata(info):
     metadata_keys = (
-        'id', 'title', 'description', 'uploader', 'channel',
-        'upload_date', 'duration', 'thumbnail', 'webpage_url',
-        'tags', 'categories',
+        'title', 'description', 'uploader', 'channel',
+        'upload_date', 'duration', 'thumbnail', 'tags',
     )
     return {
         key: info[key]
@@ -76,7 +75,7 @@ def get_video_info_ytdlp(url):
         info = ydl.extract_info(url, download=False)
     return _get_youtube_metadata(info)
 
-def download_video_ytdlp(url, save_path='output', resolution='1080', metadata=None):
+def download_video_ytdlp(url, save_path='output', resolution='1080'):
     os.makedirs(save_path, exist_ok=True)
     ydl_opts = {
         'format': 'bestvideo+bestaudio/best' if resolution == 'best' else f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]',
@@ -101,31 +100,17 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', metadata=No
             if new_filename != filename:
                 os.rename(os.path.join(save_path, file), os.path.join(save_path, new_filename + ext))
     media_file = find_video_files(save_path)
-    write_input_manifest(media_file, "video", save_path, source_url=url, metadata=metadata)
+    write_input_manifest(media_file, "video", save_path)
 
-def write_input_manifest(media_file: str, media_type: str, save_path='output', subtitle_file=None, source_url=None, metadata=None):
+def write_input_manifest(media_file: str, media_type: str, save_path='output', subtitle_file=None):
     os.makedirs(save_path, exist_ok=True)
     manifest_path = os.path.join(save_path, INPUT_MANIFEST)
     media_path = media_file.replace("\\", "/") if sys.platform.startswith('win') else media_file
     manifest = {"path": media_path, "type": media_type}
     if subtitle_file:
         manifest["subtitle"] = subtitle_file.replace("\\", "/")
-    if source_url:
-        manifest["source_url"] = source_url
-    if metadata is not None:
-        manifest["metadata"] = metadata
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
-
-def read_input_metadata(save_path='output'):
-    manifest_path = os.path.join(save_path, INPUT_MANIFEST)
-    if not os.path.exists(manifest_path):
-        return None
-    try:
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            return json.load(f).get("metadata")
-    except (OSError, json.JSONDecodeError):
-        return None
 
 def _read_input_manifest(save_path='output'):
     manifest_path = os.path.join(save_path, INPUT_MANIFEST)

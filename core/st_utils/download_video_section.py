@@ -10,7 +10,6 @@ from core._1_ytdlp import (
     find_subtitle_file,
     get_video_info_ytdlp,
     needs_cookies,
-    read_input_metadata,
     write_input_manifest,
 )
 from core._2_import_subtitles import add_input_subtitles, read_cues
@@ -154,9 +153,6 @@ def download_video_section():
                 st.video(media_file)
             elif media_type == "audio":
                 st.audio(media_file)
-            metadata = read_input_metadata()
-            if metadata:
-                _render_youtube_metadata(metadata)
             input_subtitles_section(media_type)
             if st.button(t("Delete and Reselect"), key="delete_video_button"):
                 os.remove(media_file)
@@ -233,7 +229,7 @@ def download_video_section():
             else:
                 try:
                     with st.spinner(t("Downloading video...")):
-                        download_video_ytdlp(url, resolution=res, metadata=preview["metadata"] if preview else None)
+                        download_video_ytdlp(url, resolution=res)
                 except Exception as e:
                     st.error(f"{t('Download failed')}: {e}")
                     if needs_cookies(e):
