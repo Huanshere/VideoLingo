@@ -16,6 +16,23 @@ KEY_PATHS = {
     "Fish Audio": ("fish_audio.api_key",),
 }
 
+# ------------
+# Provider labels
+# ------------
+# These names are UI copy and have an entry in every translations/*.json.
+# Every other provider name is a company or product name. The dropdown shows it
+# as written. It is not a translation key: translate() would warn, then return
+# the same text.
+TRANSLATED_PROVIDERS = {"Local service", "Custom provider"}
+
+
+def provider_label(name):
+    """Label of one TTS provider in the current display language."""
+    if name not in TRANSLATED_PROVIDERS:
+        return name
+    from translations.translations import translate as t
+    return t(name)
+
 
 def configured_keys(provider, method, load_key):
     """Prefer the selected method; reuse a sole existing key without writing it."""
@@ -59,7 +76,7 @@ def select_tts_method(labels):
     provider = next((name for name, methods in PROVIDERS.items() if current in methods), None)
     chosen = st.selectbox(t("TTS Provider"), list(PROVIDERS),
                           index=list(PROVIDERS).index(provider) if provider else None,
-                          format_func=lambda name: t(name))
+                          format_func=provider_label)
     if chosen is None:
         st.warning(t("The dubbing method of your configuration is not available any more. Select another one."))
         return None
