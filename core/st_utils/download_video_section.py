@@ -4,13 +4,56 @@ import shutil
 from time import sleep
 
 import streamlit as st
-from core._1_ytdlp import download_video_ytdlp, find_media_file, find_subtitle_file, needs_cookies, write_input_manifest
+from core._1_ytdlp import (
+    download_video_ytdlp,
+    find_media_file,
+    find_subtitle_file,
+    get_video_info_ytdlp,
+    needs_cookies,
+    write_input_manifest,
+)
 from core._2_import_subtitles import add_input_subtitles, read_cues
 from core.utils.models import _2_CLEANED_CHUNKS
 from core.utils import *
 from translations.translations import translate as t
 
 OUTPUT_DIR = "output"
+
+def _format_duration(duration):
+    if duration is None:
+        return "-"
+    duration = int(duration)
+    hours, remainder = divmod(duration, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}" if hours else f"{minutes:02d}:{seconds:02d}"
+
+def _format_upload_date(upload_date):
+    if upload_date and len(str(upload_date)) == 8:
+        date = str(upload_date)
+        return f"{date[:4]}-{date[4:6]}-{date[6:]}"
+    return upload_date or "-"
+
+def _render_youtube_metadata(metadata):
+    st.subheader(t("Video Information"))
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        if metadata.get("thumbnail"):
+            try:
+                st.image(metadata["thumbnail"])
+            except Exception:
+                pass
+    with col2:
+        st.markdown(f"**{t('Title')}**: {metadata.get('title', '-')}")
+        st.markdown(f"**{t('Uploader')}**: {metadata.get('uploader', metadata.get('channel', '-'))}")
+        st.markdown(f"**{t('Upload Date')}**: {_format_upload_date(metadata.get('upload_date'))}")
+        st.markdown(f"**{t('Duration')}**: {_format_duration(metadata.get('duration'))}")
+    if metadata.get("description"):
+        with st.expander(t("Description"), expanded=False):
+            st.text(metadata["description"])
+    tags = metadata.get("tags")
+    if tags:
+        tags_text = ", ".join(map(str, tags)) if isinstance(tags, (list, tuple)) else str(tags)
+        st.markdown(f"**{t('Tags')}**: {tags_text}")
 
 
 def _css_text(value):
@@ -116,6 +159,7 @@ def download_video_section():
                 if os.path.exists(OUTPUT_DIR):
                     shutil.rmtree(OUTPUT_DIR)
                 st.session_state.pop("_processed_upload_id", None)
+                st.session_state.pop("_youtube_metadata_preview", None)
                 sleep(1)
                 st.rerun()
             return True
@@ -154,8 +198,35 @@ def download_video_section():
             )
             if cookies_path != (load_key("youtube.cookies_path") or ""):
                 update_key("youtube.cookies_path", cookies_path)
+
+        preview = st.session_state.get("_youtube_metadata_preview")
+        if preview and preview.get("url") != url:
+            st.session_state.pop("_youtube_metadata_preview", None)
+            preview = None
+
+        if st.button(t("Get Video Info"), key="get_video_info_button", width="stretch"):
+            if not url:
+                st.warning(t("Please enter a YouTube link."))
+            else:
+                with st.spinner(t("Fetching video information...")):
+                    try:
+                        metadata = get_video_info_ytdlp(url)
+                        st.session_state["_youtube_metadata_preview"] = {
+                            "url": url,
+                            "metadata": metadata,
+                        }
+                        st.rerun()
+                    except Exception as e:
+                        st.error(t("Failed to fetch video information: {error}").replace("{error}", str(e)))
+
+        preview = st.session_state.get("_youtube_metadata_preview")
+        if preview and preview.get("url") == url:
+            _render_youtube_metadata(preview["metadata"])
+
         if st.button(t("Download Video"), key="download_button", width="stretch"):
-            if url:
+            if not url:
+                st.warning(t("Please enter a YouTube link."))
+            else:
                 try:
                     with st.spinner(t("Downloading video...")):
                         download_video_ytdlp(url, resolution=res)
@@ -164,6 +235,7 @@ def download_video_section():
                     if needs_cookies(e):
                         st.info(t("This video requires sign-in. Export cookies.txt from your browser and fill in its path under Youtube Settings."))
                     return False
+                st.session_state.pop("_youtube_metadata_preview", None)
                 st.rerun()
 
         _inject_file_uploader_i18n()
@@ -195,6 +267,7 @@ def download_video_section():
             write_input_manifest(media_path, media_type)
 
             st.session_state["_processed_upload_id"] = upload_id
+            st.session_state.pop("_youtube_metadata_preview", None)
             st.rerun()
 
         if upload_subtitles(t("Or upload subtitles without a video (SRT)"),
