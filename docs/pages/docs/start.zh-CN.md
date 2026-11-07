@@ -27,6 +27,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 | 🎙️ OpenAI TTS | [OpenLux](https://www.openlux.ai/register?aff=wKYu) | 情感真实 | 中文听起来像外国人 | 😕 | 🤩 |
 | 🎙️ Fish Audio | [Fish Audio](https://fish.audio) | 克隆视频里的声音，也可以用 fish.audio 上的任意音色 | API 需付费 | 🤩 | 😃 |
 | 🎙️ SiliconFlow FishTTS | [硅基流动](https://cloud.siliconflow.cn/i/ttKDEsxE) | 语音克隆 | 克隆效果不稳定 | 😃 | 😃 |
+| 🗣️ ModelBest VoxCPM | ModelBest | 多语言、逐字稿引导的声音克隆 | 需要付费云端 API | 🤩 | 🤩 |
 | Edge TTS | 在线服务 | 此适配器无需单独 API 密钥 | 需要联网 | — | — |
 | 🗣️ GPT-SoVITS | 本地 | 最强语音克隆 | 只支持中英文，需要本地训练推理，配置麻烦 | 🏆 | 🚫 |
 
@@ -34,6 +35,7 @@ VideoLingo提供了多种 tts 接入方式，以下是对比（如不使用配�
 - OpenAI TTS 使用 [OpenLux](https://www.openlux.ai/register?aff=wKYu)，和 LLM 用同一个 key 即可。其他兼容 OpenAI 语音接口的服务，可以在 `config.yaml` 里修改 `openai_tts.base_url` 和 `openai_tts.model`；
 - Fish Audio 请在 [fish.audio](https://fish.audio/app/api-keys/) 获取 key。API 按用量计费，账户里需要有余额，克隆不另外收费；
 - F5-TTS 仅支持 [302AI](https://gpt302.saaslink.net/C2oHR9)，克隆视频里的声音；
+- ModelBest VoxCPM 需要在侧栏填写 API Key。模型 ID 默认使用已验证的 `VoxCPM2`，也可手动修改为账号下其他具备 `speech_synthesis` 能力的模型。平台目前没有暴露 VoxCPM 音色列表，适配器固定使用协议要求的 `default`。可选择 **默认音色**（只发送文本）、**音色克隆**（发送 `ref_audio`，不要求逐字稿）或 **高保真克隆**（额外发送 `prompt_audio` 与 `prompt_text`）。音色克隆模式支持在侧栏上传一段参考音频并用于整段视频；高保真模式还会显示与该音频逐字对应的原文输入框。未上传时，系统继续使用每个字幕对应的原声片段，高保真逐字稿则取自动识别原文。
 > 自定义 TTS 适配器位于 `core/tts_backend/custom_tts.py`。
 
 <details>
