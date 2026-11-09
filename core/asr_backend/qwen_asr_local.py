@@ -8,17 +8,22 @@ process_transcription, the ASR cache and dubbing are unchanged.
 Engines:
 - mlx: Apple Silicon via mlx-audio (8-bit mlx-community weights).
 - transformers: Windows / Linux / other Macs via the official qwen-asr package.
+- audiocpp: optional, opt-in. A user-run audio.cpp server (GGUF weights) over HTTP;
+  the same windows, probes, checks and word mapping run here.
 Heavy libraries are imported lazily so this module imports without them.
 """
 
+import base64
 import gc
 import importlib.util
+import io
 import math
 import platform
 import re
 import subprocess
 import time
 import unicodedata
+import wave
 from collections import Counter
 from contextlib import contextmanager
 from pathlib import Path
@@ -49,6 +54,10 @@ PROBE_TOKENS_PER_SECOND = 5
 PROBE_TOKEN_MARGIN = 16
 # Shorter windows are dropped; MLX would otherwise zero-pad anything under its 1 s default.
 MIN_WINDOW_SECONDS = 0.1
+# audio.cpp's Qwen3 forced aligner rejects a clip of about 115 s or more ("token count exceeds
+# max_source_positions"), so that engine uses shorter windows for both ASR and alignment.
+AUDIOCPP_WINDOW_SECONDS = 90
+AUDIOCPP_URL = "http://127.0.0.1:8080"
 
 # Language detection with whisper.language = auto. Detecting on a whole window let one
 # misleading stretch decide it: 1.7B heard a Chinese/English code-switched opening as
@@ -90,6 +99,12 @@ MODELS = {
         "0.6b": "Qwen/Qwen3-ASR-0.6B",
         "aligner": "Qwen/Qwen3-ForcedAligner-0.6B",
     },
+    # Model ids of the user's audio.cpp server config (see docs: "audio.cpp engine").
+    "audiocpp": {
+        "1.7b": "Qwen3-ASR-1.7B",
+        "0.6b": "Qwen3-ASR-0.6B",
+        "aligner": "Qwen3-ForcedAligner-0.6B",
+    },
 }
 
 # ISO 639-1 (whisper.language / detected_language) <-> Qwen3-ASR language names.
@@ -126,10 +141,15 @@ def model_size(requested=None):
 
 
 def resolve_engine(requested=None):
-    """auto -> MLX on Apple Silicon (qwen-asr only if it is what this environment has), else transformers."""
+    """auto -> MLX on Apple Silicon (qwen-asr only if it is what this environment has), else transformers.
+
+    audiocpp is never chosen automatically: it needs an audio.cpp server the user runs.
+    """
     engine = str(requested or load_key_or("whisper.qwen_engine", "auto")).lower()
-    if engine not in ("auto", "mlx", "transformers"):
-        raise ValueError(f"whisper.qwen_engine must be 'auto', 'mlx' or 'transformers', got {engine!r}")
+    if engine not in ("auto", "mlx", "transformers", "audiocpp"):
+        raise ValueError(f"whisper.qwen_engine must be 'auto', 'mlx', 'transformers' or 'audiocpp', got {engine!r}")
+    if engine == "audiocpp":
+        return engine
     if engine == "auto":
         # Apple Silicon requirements install mlx-audio, not qwen-asr; point a broken install back to it.
         mlx = _apple_silicon() and (_installed("mlx_audio") or not _installed("qwen_asr"))
@@ -552,6 +572,8 @@ def attach_words(text, items, offset=0.0, limit=None):
 # ------------------------------------------------------------------
 
 def _free(engine):
+    if engine == "audiocpp":
+        return  # the audio.cpp server owns its models
     gc.collect()
     try:
         if engine == "mlx":
@@ -573,9 +595,50 @@ def _torch_device():
     return "cpu", torch.float32
 
 
+def _wav_base64(clip):
+    """16 kHz mono float32 samples -> base64 PCM16 WAV for an audio.cpp request."""
+    buffer = io.BytesIO()
+    with wave.open(buffer, "wb") as stream:
+        stream.setnchannels(1)
+        stream.setsampwidth(2)
+        stream.setframerate(SAMPLE_RATE)
+        stream.writeframes((np.clip(clip, -1.0, 1.0) * 32767).astype("<i2").tobytes())
+    return base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+def _audiocpp(model, request):
+    """POST one request to the audio.cpp server's generic task route and return its JSON result."""
+    import requests
+    check_cancel()
+    url = str(load_key_or("whisper.audiocpp_url", AUDIOCPP_URL)).rstrip("/")
+    try:
+        response = requests.post(f"{url}/v1/tasks/run", json={"model": model, "request": request}, timeout=600)
+    except requests.ConnectionError as error:
+        raise RuntimeError(f"The audio.cpp server is not reachable at {url}. Start audiocpp_server with the "
+                           "Qwen3 models in its config, or set whisper.qwen_engine to auto.") from error
+    if not response.ok:
+        try:
+            message = response.json()["error"]["message"]
+        except (ValueError, KeyError, TypeError):
+            message = response.text[:300]
+        raise RuntimeError(f"audio.cpp model '{model}' failed (HTTP {response.status_code}): {message}")
+    return response.json()
+
+
 @contextmanager
 def asr_session(engine, repo_id):
     """Load Qwen3-ASR once and yield run(clip, qwen_language or None, max_tokens=None) -> (language, text)."""
+    if engine == "audiocpp":
+        def run(clip, language, max_tokens=None):
+            # One window per call: VideoLingo windows the audio, so audio.cpp must not re-chunk it.
+            request = {"audio_base64": _wav_base64(clip), "audio_chunk_mode": "none",
+                       "max_tokens": max_tokens or token_budget(len(clip) / SAMPLE_RATE)}
+            if language:
+                request["language"] = language
+            out = _audiocpp(repo_id, request)
+            return language or out.get("language"), (out.get("text") or "").strip()
+        yield run
+        return
     source = _model_source(repo_id)
     model = None
     try:
@@ -618,6 +681,13 @@ def _transcribe(engine, repo_id, clips, language):
 
 def _align(engine, repo_id, jobs):
     """jobs: [(clip, text, qwen_language)] -> [[(token, start, end)]] relative to each clip."""
+    if engine == "audiocpp":
+        results = []
+        for clip, text, lang in jobs:
+            out = _audiocpp(repo_id, {"audio_base64": _wav_base64(clip), "text": text, "language": lang})
+            results.append([(w["word"], w["start_sample"] / SAMPLE_RATE, w["end_sample"] / SAMPLE_RATE)
+                            for w in out.get("words") or []])
+        return results
     source = _model_source(repo_id)
     aligner, results = None, []
     try:
@@ -661,7 +731,9 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
         # Windows are cut on the raw track, so the vocal track must use the same sample indices.
         vocal = match_length(load_audio_segment(vocal_audio_file, start, end), len(raw))
     # Drop slivers (< 0.1 s) left by segment boundaries; they carry no speech.
-    windows = [(a, b) for a, b in split_windows(raw) if b - a >= int(MIN_WINDOW_SECONDS * SAMPLE_RATE)]
+    window_seconds = AUDIOCPP_WINDOW_SECONDS if engine == "audiocpp" else WINDOW_SECONDS
+    windows = [(a, b) for a, b in split_windows(raw, window_seconds=window_seconds)
+               if b - a >= int(MIN_WINDOW_SECONDS * SAMPLE_RATE)]
     # Aligners can attach opening words to intro music. Bound ASR and alignment
     # to the same conservatively padded speech window, preserving all offsets.
     windows = trim_speech_windows(raw, windows)

@@ -159,7 +159,7 @@ uv run start.py
 本地识别默认使用 **Qwen3-ASR** 转写，再用 **Qwen3-ForcedAligner-0.6B** 生成词级时间轴。开启人声分离时，转写用原始音频，对齐用分离出的人声。
 
 - **模型大小**：`config.yaml` 的 `whisper.qwen_model`（侧栏不提供）。`1.7b`（默认）更准确；`0.6b` 更快、更省显存。对齐模型固定为 ForcedAligner-0.6B。
-- **推理引擎**：`whisper.qwen_engine: auto` 时自动选择，一般不需要改。
+- **推理引擎**：`whisper.qwen_engine: auto` 时自动选择，一般不需要改。`audiocpp` 是可选引擎，需要先运行 audio.cpp 服务端，见[下文](#audiocpp-engine)。
 
 | 平台 | 引擎 | 模型 | 说明 |
 |:-----|:-----|:-----|:-----|
@@ -176,6 +176,28 @@ uv run start.py
 - 识别结果缓存区分后端、模型大小和引擎，切换任一项都会重新识别。
 - WhisperX 不是安装器选项。若要使用（包括中文 Belle 模型），请自行安装依赖，见 [WhisperX（手动安装）](whisperx-manual.zh-CN.md)。
 - 也可以使用官方 Docker 镜像 `qwenllm/qwen3-asr` 单独部署 Qwen3-ASR 服务，但 VideoLingo 目前不直接调用它。
+
+<a id="audiocpp-engine"></a>
+#### 可选的 audio.cpp 引擎
+
+[audio.cpp](https://github.com/0xShug0/audio.cpp) 用原生服务端以 GGUF 格式运行同样的 Qwen3-ASR 和 Qwen3-ForcedAligner 模型，不需要 PyTorch。设置 `whisper.qwen_engine: audiocpp` 后，VideoLingo 把每个窗口发给这个服务端，Qwen 路径的其余部分保持不变：分窗、语言探测、退化输出检查、在人声轨上对齐以及标点还原。`auto` 永远不会选中它，安装器也不会安装 audio.cpp 或它的模型。
+
+1. 从 [audio.cpp 发布页](https://github.com/0xShug0/audio.cpp/releases) 下载对应平台的版本（NVIDIA 显卡选 CUDA 版并下载配套的 `cudart` 包），再从 [audio-cpp/audio.cpp-gguf](https://huggingface.co/audio-cpp/audio.cpp-gguf) 下载 GGUF 文件 `Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf`（或 0.6B）和 `Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf`。
+2. 用下面的模型 id 启动 `audiocpp_server --config server.json`，VideoLingo 请求时就用这些 id：
+
+```json
+{
+  "host": "127.0.0.1", "port": 8080, "backend": "cuda", "lazy_load": true, "max_loaded_models": 0,
+  "models": [
+    {"id": "Qwen3-ASR-1.7B", "family": "qwen3_asr", "path": "/path/to/qwen3-asr-1.7b-q8_0.gguf", "task": "asr", "mode": "offline"},
+    {"id": "Qwen3-ForcedAligner-0.6B", "family": "qwen3_forced_aligner", "path": "/path/to/qwen3-forced-aligner-0.6b-q8_0.gguf", "task": "align", "mode": "offline"}
+  ]
+}
+```
+
+3. 在 `config.yaml` 中设置 `whisper.qwen_engine: audiocpp`；服务端不在 `http://127.0.0.1:8080` 时再设置 `whisper.audiocpp_url`。`whisper.qwen_model` 决定使用 `Qwen3-ASR-1.7B` 还是 `Qwen3-ASR-0.6B`。
+
+使用这个引擎时每个窗口最长 90 秒，因为 audio.cpp 的强制对齐模型会拒绝约 115 秒及以上的片段。音频以 16 kHz WAV 通过 HTTP 发给服务端。识别缓存会把 audio.cpp 的结果和其他引擎分开，但不记录服务端用的是哪个 GGUF 文件或哪个 audio.cpp 版本：更换后请删除 `.cache/asr` 再重新识别。
 
 #### 可选的 MAI-Transcribe-2（Azure Speech 或 OpenRouter）
 

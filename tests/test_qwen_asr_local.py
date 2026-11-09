@@ -845,3 +845,84 @@ def test_compatibility_character_uses_all_its_token_timestamps():
     assert qwen.attach_words("㍿", [("株式", 0, 1), ("会社", 1, 2)], offset=5) == [
         {"word": "㍿", "start": 5.0, "end": 7.0}
     ]
+
+
+# ------------------------------------------------------------------
+# Optional audio.cpp engine (HTTP to a user-run server; no server needed here)
+# ------------------------------------------------------------------
+
+@pytest.fixture
+def audiocpp(monkeypatch):
+    """Fake requests.post for the audio.cpp /v1/tasks/run route; records every request."""
+    import base64, io, wave
+    calls = []
+
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self.ok, self._body, self.text = status, status < 400, body, str(body)
+
+        def json(self):
+            return self._body
+
+    def post(url, json, timeout):
+        request = json["request"]
+        with wave.open(io.BytesIO(base64.b64decode(request["audio_base64"]))) as stream:
+            frames = stream.getnframes()
+            assert (stream.getnchannels(), stream.getsampwidth(), stream.getframerate()) == (1, 2, SR)
+        calls.append((url, json["model"], {k: v for k, v in request.items() if k != "audio_base64"}, frames))
+        if json["model"] == "missing":
+            return Response(500, {"error": {"message": "unknown model id: missing"}})
+        if "text" in request:  # aligner
+            return Response(200, {"words": [{"word": "Hello", "start_sample": 1600, "end_sample": 6400},
+                                            {"word": "world", "start_sample": 8000, "end_sample": 14400}]})
+        return Response(200, {"text": " Hello, world. ", "language": "English"})
+
+    requests = types.ModuleType("requests")
+    requests.post, requests.ConnectionError = post, ConnectionError
+    monkeypatch.setitem(sys.modules, "requests", requests)
+    monkeypatch.setattr(qwen, "load_key_or", lambda key, default: default)
+    monkeypatch.setattr(qwen, "check_cancel", lambda: None)
+    return calls
+
+
+def test_audiocpp_is_opt_in_and_needs_no_python_engine(platform_env):
+    platform_env(False, set())  # neither qwen-asr nor mlx-audio installed
+    assert qwen.resolve_engine("audiocpp") == "audiocpp"
+    platform_env(False, {"qwen_asr"})
+    assert qwen.resolve_engine("auto") == "transformers"
+
+
+def test_audiocpp_transcribe_and_align_requests(audiocpp):
+    with qwen.asr_session("audiocpp", "Qwen3-ASR-1.7B") as run:
+        assert run(CLIPS[0], None) == ("English", "Hello, world.")
+        assert run(CLIPS[0], "Chinese", 50) == ("Chinese", "Hello, world.")
+    url, model, request, frames = audiocpp[0]
+    assert url == qwen.AUDIOCPP_URL + "/v1/tasks/run" and model == "Qwen3-ASR-1.7B" and frames == SR
+    # VideoLingo already windows the audio; audio.cpp must not chunk it again.
+    assert request == {"audio_chunk_mode": "none", "max_tokens": qwen.token_budget(1)}
+    assert audiocpp[1][2] == {"audio_chunk_mode": "none", "max_tokens": 50, "language": "Chinese"}
+    jobs = [(CLIPS[0], "Hello, world.", "English")]
+    assert qwen._align("audiocpp", "Qwen3-ForcedAligner-0.6B", jobs) == [[("Hello", 0.1, 0.4), ("world", 0.5, 0.9)]]
+    assert audiocpp[-1][1:3] == ("Qwen3-ForcedAligner-0.6B", {"text": "Hello, world.", "language": "English"})
+    qwen._free("audiocpp")  # nothing to release locally
+
+
+def test_audiocpp_errors_name_the_server(audiocpp, monkeypatch):
+    with pytest.raises(RuntimeError, match="unknown model id: missing"):
+        qwen._audiocpp("missing", {"audio_base64": qwen._wav_base64(CLIPS[0])})
+
+    def refused(*args, **kwargs):
+        raise ConnectionError("refused")
+    monkeypatch.setattr(sys.modules["requests"], "post", refused)
+    with pytest.raises(RuntimeError, match="audio.cpp server is not reachable at http://127.0.0.1:8080"):
+        qwen._audiocpp("Qwen3-ASR-1.7B", {})
+
+
+def test_audiocpp_uses_windows_its_aligner_accepts(pipeline, monkeypatch):
+    monkeypatch.setattr(qwen, "resolve_engine", lambda requested=None: "audiocpp")
+    pipeline["asr"] = lambda a, b, language: (language, "Hello, world.")
+    qwen.transcribe_audio("raw.wav", "vocal.mp3", 0, 200)
+    assert pipeline["calls"]["session"] == ("audiocpp", "Qwen3-ASR-0.6B")
+    assert pipeline["calls"]["align"][1] == "Qwen3-ForcedAligner-0.6B"
+    lengths = [seconds for _, seconds, _ in window_calls(pipeline)]
+    assert sum(lengths) == pytest.approx(200) and max(lengths) <= qwen.AUDIOCPP_WINDOW_SECONDS < 115
