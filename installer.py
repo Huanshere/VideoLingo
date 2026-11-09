@@ -314,15 +314,21 @@ def install_bootstrap() -> None:
 
 
 def maybe_configure_mirror(auto_mirror: bool) -> None:
+    """Use the fastest PyPI mirror for this install only; pip's own config is never changed."""
     if not auto_mirror:
         return
-    print("\n[2/6] Configure PyPI mirror")
+    print("\n[2/6] Select PyPI mirror")
     try:
         from core.utils.pypi_autochoose import main as choose_mirror
 
-        choose_mirror()
+        url = choose_mirror()
     except Exception as exc:
-        print(f"  Warning: mirror auto-config failed: {exc}")
+        print(f"  Warning: mirror selection failed: {exc}")
+        return
+    if url:
+        # Inherited by every pip child of this process; explicit --index-url (PyTorch) still wins.
+        os.environ["PIP_INDEX_URL"] = url
+        print(f"  Using {url} for this install only.")
 
 
 def install_torch(force: bool = False, backend: str = "auto") -> None:
@@ -665,7 +671,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--quiet", action="store_true", help="quiet check output")
     parser.add_argument("--force", action="store_true", help="force reinstall staged packages")
     parser.add_argument("--upgrade", action="store_true", help="refresh dependencies within requirements.txt compatibility bounds")
-    parser.add_argument("--auto-mirror", action="store_true", help="auto-select and configure a PyPI mirror")
+    parser.add_argument("--auto-mirror", action="store_true", help="use the fastest PyPI mirror for this install only")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")
     parser.add_argument("--launch", action="store_true", help="launch Streamlit after a successful install")

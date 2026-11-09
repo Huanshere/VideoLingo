@@ -147,7 +147,7 @@ def build_parser() -> argparse.ArgumentParser:
                         help="PyTorch build selection passed to installer.py")
     parser.add_argument("--path", help="custom venv path; implies --shared-style external venv")
     parser.add_argument("--skip-install", action="store_true", help="only create/reuse the venv")
-    parser.add_argument("--auto-mirror", action="store_true", help="auto-select a PyPI mirror before install")
+    parser.add_argument("--auto-mirror", action="store_true", help="use the fastest PyPI mirror for this install only")
     parser.add_argument("--skip-demucs", action="store_true", help="skip optional Demucs install")
     parser.add_argument("--require-demucs", action="store_true", help="fail if Demucs cannot be installed")
     parser.add_argument("--launch", action="store_true", help="start VideoLingo after installation")
