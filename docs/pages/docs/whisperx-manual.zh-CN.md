@@ -23,6 +23,8 @@ uv pip install --python .venv "whisperx>=3.8.6,<3.9" "ctranslate2>=4.5,<5" "pyan
 
 这 4 个包的版本约束与 3.0.4 版本中 `requirements.txt` 的约束相同。WhisperX 3.8 需要 Torch/torchaudio 2.8、torchvision 0.23 和 Transformers 4，与默认环境一致，因此不需要改动已装的 PyTorch。
 
+如果电脑上已经在另一个环境里装了 WhisperX，这几个包仍要装进 VideoLingo 的环境，因为 VideoLingo 在自己的进程里导入 WhisperX。模型不用重复下载：把 `HF_HOME` 设为那份安装的缓存文件夹，`large-v3`、Belle 模型和来自 Hugging Face 的对齐模型（例如中文、日文）就会直接复用。英语、法语、德语、西班牙语和意大利语的对齐模型来自 torchaudio，存放在 `TORCH_HOME`（默认 `~/.cache/torch`）。见[文件存放位置](start.zh-CN.md#storage)。
+
 启用本地 WhisperX 后，运行 `uv run start.py --check`，检查 VideoLingo 实际使用的环境，并验证 FFmpeg 解码和 pyannote 内存波形路径，不要求 TorchCodec 文件解码器可用。Windows/Linux 上重跑安装器不会卸载自行添加的 WhisperX；Apple Silicon 默认环境会移除与 MLX 不兼容的 WhisperX 依赖，详见下文。
 
 ## 启用
