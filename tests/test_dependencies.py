@@ -119,6 +119,31 @@ def test_install_state_records_only_successful_setup(tmp_path, monkeypatch, heal
     assert installer.STATE_FILE.exists() is has_install_state
 
 
+def test_auto_mirror_is_scoped_to_this_install(monkeypatch):
+    import sys, types
+    url = 'https://mirror.example/simple'
+    module = types.SimpleNamespace(main=lambda: url)
+    monkeypatch.setitem(sys.modules, 'core.utils.pypi_autochoose', module)
+    monkeypatch.setenv('PIP_INDEX_URL', 'placeholder')  # records the original state so teardown restores it
+    monkeypatch.delenv('PIP_INDEX_URL')
+    calls = []
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: calls.append(a))
+    installer.maybe_configure_mirror(True)
+    assert installer.os.environ['PIP_INDEX_URL'] == url
+    assert calls == []  # no `pip config set`: the user's pip configuration is untouched
+    source = (ROOT / 'core' / 'utils' / 'pypi_autochoose.py').read_text(encoding='utf-8')
+    assert 'pip", "config' not in source and 'subprocess' not in source
+
+
+def test_auto_mirror_off_or_unreachable_leaves_index_alone(monkeypatch):
+    import sys, types
+    monkeypatch.setitem(sys.modules, 'core.utils.pypi_autochoose', types.SimpleNamespace(main=lambda: None))
+    monkeypatch.setenv('PIP_INDEX_URL', 'placeholder')  # records the original state so teardown restores it
+    monkeypatch.delenv('PIP_INDEX_URL')
+    installer.maybe_configure_mirror(False)
+    installer.maybe_configure_mirror(True)
+    assert 'PIP_INDEX_URL' not in installer.os.environ
+
 def test_storage_report_lists_shared_models_without_writing(tmp_path, monkeypatch, capsys):
     hub = tmp_path / 'hf' / 'hub'
     blob = hub / 'models--Systran--faster-whisper-large-v3' / 'blobs' / 'abc'

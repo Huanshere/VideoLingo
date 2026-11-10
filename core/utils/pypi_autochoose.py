@@ -1,4 +1,3 @@
-import subprocess
 import time
 import requests
 import os
@@ -7,7 +6,6 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.panel import Panel
-import sys
 
 MIRRORS = {
     "Tsinghua Mirror": "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple",
@@ -39,25 +37,8 @@ def test_mirror_speed(name, url):
     except requests.RequestException:
         return name, float('inf')
 
-def set_pip_mirror(url):
-    try:
-        subprocess.run([sys.executable, "-m", "pip", "config", "set", "global.index-url", url], 
-                      check=True, 
-                      capture_output=True)
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to set pip mirror: {e}")
-        return False
-
-def get_current_pip_mirror():
-    try:
-        result = subprocess.run([sys.executable, "-m", "pip", "config", "get", "global.index-url"], 
-                              capture_output=True, text=True, check=True)
-        return result.stdout.strip()
-    except subprocess.CalledProcessError:
-        return None
-
 def main():
+    """Return the fastest reachable index URL, or None. Never writes pip configuration."""
     console.print(Panel.fit("🚀 PyPI Mirror Speed Test", style="bold cyan"))
     
     # Test all mirrors simultaneously
@@ -91,20 +72,12 @@ def main():
 
     console.print(table)
 
-    if speeds:
-        fastest_mirror = min(speeds, key=speeds.get)
-        fastest_url = MIRRORS[fastest_mirror]
-        
-        if set_pip_mirror(fastest_url):
-            current_mirror = get_current_pip_mirror()
-            if current_mirror == fastest_url:
-                console.print(f"✅ Switched to {fastest_mirror}\n🔗 {fastest_url}", style="green")
-            else:
-                console.print(f"❌ Switch failed\nExpected: {fastest_url}\nCurrent: {current_mirror}\n💡 Try running with admin privileges", style="red")
-        else:
-            console.print(f"❌ Failed to switch mirror\n💡 Check permissions and try again", style="red")
-    else:
+    if not speeds:
         console.print("❌ All mirrors unreachable\n💡 Check network connection", style="red")
+        return None
+    fastest_mirror = min(speeds, key=speeds.get)
+    console.print(f"✅ Fastest: {fastest_mirror}\n🔗 {MIRRORS[fastest_mirror]}", style="green")
+    return MIRRORS[fastest_mirror]
 
 if __name__ == "__main__":
     main()
