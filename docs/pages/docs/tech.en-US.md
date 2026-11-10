@@ -75,7 +75,7 @@ The following outlines the core technical modules and workflows:
 *   `core/utils/decorator.py`: Defines reusable decorators: `except_handler` for adding retry logic and error reporting to functions, and `check_file_exists` for skipping function execution if the output file already exists. Uses `rich` for formatted output.
 *   `core/utils/delete_retry_dubbing.py`: Provides a function (`delete_dubbing_files`) to clean up specific intermediate files and directories associated with the dubbing process (e.g., `dub.wav`, `output_dub.mp4`, `output/audio/segs`).
 *   `core/utils/onekeycleanup.py`: Implements a `cleanup` function to organize and archive files from the `output` directory into a structured `history` directory based on the video name. Includes filename sanitization and robust file moving/deletion logic.
-*   `core/utils/pypi_autochoose.py`: A utility for automatically testing and selecting the fastest PyPI mirror and configuring pip to use it. Uses `rich` for UI.
+*   `core/utils/pypi_autochoose.py`: A utility that tests PyPI mirrors and returns the fastest one. `installer.py --auto-mirror` uses it for that install only; pip's configuration is not changed. Uses `rich` for UI.
 *   `core/utils/models.py`: Defines constants representing filepaths of various intermediate and output files used throughout the pipeline.
 *   `core/__init__.py`, `core/asr_backend/__init__.py`, `core/spacy_utils/__init__.py`, `core/st_utils/__init__.py`, `core/tts_backend/__init__.py`: Package initialization files, defining the public interfaces (`__all__`) for their respective packages/subpackages.
 *   `core/__init__.py`: Initializes the main `core` package, exporting key functions and modules from subpackages for easier access.

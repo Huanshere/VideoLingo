@@ -206,6 +206,25 @@ Choose **ASR Runtime → MAI-Transcribe-2** in the sidebar, then select **Azure 
 
 Azure MAI uses the fast transcription API; OpenRouter uses its [dedicated audio transcription API](https://openrouter.ai/docs/guides/overview/multimodal/stt) with model `microsoft/mai-transcribe-2`. Both request clean text and word timestamps. OpenRouter uploads are split into roughly two-minute clips to fit its processing timeout. Audio is sent to the selected cloud provider and may incur charges. Azure MAI-Transcribe-2 is in public preview without an SLA; check that your resource region supports it. Provider and API version distinguish cached transcripts; credentials and resource region are excluded from cache identity. The [contributor's evaluation in #618](https://github.com/Huanshere/VideoLingo/pull/618) compared MAI with WhisperX, not the current Qwen3-ASR default.
 
+<a id="storage"></a>
+### Where files are stored
+
+| What | Location | Shared with other tools |
+|:-----|:---------|:------------------------|
+| Python environment | `.venv` in the project folder, or `~/.venvs/videolingo` with `setup_env.py --shared` (found first by `start.py` and `OneKeyStart.bat`) | No. WhisperX, if used, must be installed into this environment |
+| Recognition models (Qwen, WhisperX, aligners) | Hugging Face cache: `~/.cache/huggingface/hub`, or `$HF_HOME/hub` when `HF_HOME` is set | Yes. Every Hugging Face tool reads the same cache |
+| Pre-placed models | `model_dir` in `config.yaml` (default `_model_cache`), checked before the cache. Qwen uses `_model_cache/<last part of the repo id>` (for example `_model_cache/Qwen3-ASR-1.7B`). WhisperX uses `_model_cache/<model name>` (for example `_model_cache/large-v3`; with recognition language `zh`, `_model_cache/Belle-whisper-large-v3-zh-punct-fasterwhisper`) | Only by copying |
+| FFmpeg and ffprobe | Downloaded into the environment by the installer, or the folder in `VIDEOLINGO_FFMPEG_DIR` | Yes, with `VIDEOLINGO_FFMPEG_DIR` |
+
+The installer does not set environment variables.
+
+To reuse what is already on your computer, set these as user environment variables before starting VideoLingo:
+
+- `HF_HOME`: the cache folder of another tool that already downloaded the models (for example a standalone WhisperX), so they are not downloaded again.
+- `VIDEOLINGO_FFMPEG_DIR`: a folder that contains both `ffmpeg` and `ffprobe`. The build is checked for the filters and encoders VideoLingo needs.
+
+`uv run start.py --check` lists the models found in the cache, the local model folder and the FFmpeg in use.
+
 <a id="gpu-runtime"></a>
 ### GPU runtime
 

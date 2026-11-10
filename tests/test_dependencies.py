@@ -109,7 +109,7 @@ def test_install_state_records_only_successful_setup(tmp_path, monkeypatch, heal
     monkeypatch.setattr(installer, 'unsupported_platform', lambda: None)
     for name in ('install_bootstrap', 'maybe_configure_mirror', 'install_torch',
                  'install_base_requirements', 'install_spacy', 'install_project_metadata',
-                 'install_linux_noto_fonts', 'print_asr_summary'):
+                 'install_linux_noto_fonts', 'print_asr_summary', 'print_storage_report'):
         monkeypatch.setattr(installer, name, lambda *args, **kwargs: None)
     monkeypatch.setattr(installer, 'check_ffmpeg', lambda: True)
     monkeypatch.setattr(installer, 'health_check', lambda **kwargs: health_status)
@@ -117,6 +117,91 @@ def test_install_state_records_only_successful_setup(tmp_path, monkeypatch, heal
     args = installer.build_parser().parse_args(['--skip-demucs'])
     assert installer.install_all(args) == health_status
     assert installer.STATE_FILE.exists() is has_install_state
+
+
+def test_auto_mirror_is_scoped_to_this_install(monkeypatch):
+    import sys, types
+    url = 'https://mirror.example/simple'
+    module = types.SimpleNamespace(main=lambda: url)
+    monkeypatch.setitem(sys.modules, 'core.utils.pypi_autochoose', module)
+    monkeypatch.setenv('PIP_INDEX_URL', 'placeholder')  # records the original state so teardown restores it
+    monkeypatch.delenv('PIP_INDEX_URL')
+    calls = []
+    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: calls.append(a))
+    installer.maybe_configure_mirror(True)
+    assert installer.os.environ['PIP_INDEX_URL'] == url
+    assert calls == []  # no `pip config set`: the user's pip configuration is untouched
+    source = (ROOT / 'core' / 'utils' / 'pypi_autochoose.py').read_text(encoding='utf-8')
+    assert 'pip", "config' not in source and 'subprocess' not in source
+
+
+def test_auto_mirror_off_or_unreachable_leaves_index_alone(monkeypatch):
+    import sys, types
+    monkeypatch.setitem(sys.modules, 'core.utils.pypi_autochoose', types.SimpleNamespace(main=lambda: None))
+    monkeypatch.setenv('PIP_INDEX_URL', 'placeholder')  # records the original state so teardown restores it
+    monkeypatch.delenv('PIP_INDEX_URL')
+    installer.maybe_configure_mirror(False)
+    installer.maybe_configure_mirror(True)
+    assert 'PIP_INDEX_URL' not in installer.os.environ
+
+
+def test_storage_report_lists_shared_models_without_writing(tmp_path, monkeypatch, capsys):
+    hub = tmp_path / 'hf' / 'hub'
+    blob = hub / 'models--Systran--faster-whisper-large-v3' / 'blobs' / 'abc'
+    blob.parent.mkdir(parents=True)
+    blob.write_bytes(b'x' * 2048)
+    snap = hub / 'models--Systran--faster-whisper-large-v3' / 'snapshots' / 'rev'
+    snap.mkdir(parents=True)
+    (snap / 'model.bin').write_bytes(b'x' * 2048)
+    (hub / 'models--Systran--faster-whisper-large-v3' / 'refs').mkdir()
+    (hub / 'models--Systran--faster-whisper-large-v3' / 'refs' / 'main').write_text('rev')
+    from huggingface_hub import constants
+    monkeypatch.setattr(constants, 'HF_HUB_CACHE', str(hub))
+    monkeypatch.setenv('HF_HOME', str(tmp_path / 'hf'))
+    monkeypatch.setenv('VIDEOLINGO_FFMPEG_DIR', str(tmp_path / 'ffmpeg'))
+    before = sorted(p for p in tmp_path.rglob('*'))
+    installer.print_storage_report()
+    out = capsys.readouterr().out
+    assert f'(HF_HOME): {hub}' in out and 'Systran/faster-whisper-large-v3' in out
+    assert '(VIDEOLINGO_FFMPEG_DIR)' in out
+    assert sorted(p for p in tmp_path.rglob('*')) == before
+
+
+def test_storage_report_explains_empty_cache(tmp_path, monkeypatch, capsys):
+    from huggingface_hub import constants
+    monkeypatch.setattr(constants, 'HF_HUB_CACHE', str(tmp_path / 'missing'))
+    monkeypatch.delenv('VIDEOLINGO_FFMPEG_DIR', raising=False)
+    installer.print_storage_report()
+    out = capsys.readouterr().out
+    assert 'set HF_HOME' in out and 'managed copy' in out
+    assert not (tmp_path / 'missing').exists()
+
+
+def test_storage_report_recognizes_huggingface_hub_cache(tmp_path, monkeypatch, capsys):
+    from huggingface_hub import constants
+    hub = tmp_path / 'legacy-hub'
+    monkeypatch.setattr(constants, 'HF_HUB_CACHE', str(hub))
+    monkeypatch.delenv('HF_HUB_CACHE', raising=False)
+    monkeypatch.delenv('HF_HOME', raising=False)
+    monkeypatch.setenv('HUGGINGFACE_HUB_CACHE', str(hub))
+    monkeypatch.delenv('VIDEOLINGO_FFMPEG_DIR', raising=False)
+    installer.print_storage_report()
+    out = capsys.readouterr().out
+    assert f'(HUGGINGFACE_HUB_CACHE): {hub}' in out
+
+
+def test_storage_report_survives_ffmpeg_print_error(tmp_path, monkeypatch, capsys):
+    from huggingface_hub import constants
+    monkeypatch.setattr(constants, 'HF_HUB_CACHE', str(tmp_path / 'missing'))
+    real_get = installer.os.environ.get
+    def get(key, default=None):
+        if key == 'VIDEOLINGO_FFMPEG_DIR':
+            raise RuntimeError('cannot read env')
+        return real_get(key, default)
+    monkeypatch.setattr(installer.os.environ, 'get', get)
+    installer.print_storage_report()
+    out = capsys.readouterr().out
+    assert 'FFmpeg: unavailable (cannot read env)' in out
 
 
 def _apple_silicon(monkeypatch, apple=True):

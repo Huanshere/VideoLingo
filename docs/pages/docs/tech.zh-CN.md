@@ -75,7 +75,7 @@ Videolingo 是一个高度集成的视频翻译系统，能够自动执行一系
 *   `core/utils/decorator.py`: 定义可重用的装饰器：`except_handler` 用于向函数添加重试逻辑和错误报告，`check_file_exists` 用于如果输出文件已存在则跳过函数执行。 使用 `rich` 进行格式化的输出。
 *   `core/utils/delete_retry_dubbing.py`: 提供一个函数 (`delete_dubbing_files`) 来清理与配音过程相关的特定中间文件和目录（例如，`dub.wav`、`output_dub.mp4`、`output/audio/segs`）。
 *   `core/utils/onekeycleanup.py`: 实现 `cleanup` 函数，用于将文件从 `output` 目录组织和归档到基于视频名称的结构化的 `history` 目录中。包括文件名清理和强大的文件移动/删除逻辑。
-*   `core/utils/pypi_autochoose.py`: 用于自动测试和选择最快的 PyPI 镜像并配置 pip 以使用它的实用程序。 使用 `rich` 进行 UI。
+*   `core/utils/pypi_autochoose.py`: 测试各 PyPI 镜像并返回最快的一个。`installer.py --auto-mirror` 只在本次安装中使用它，不修改 pip 的配置。使用 `rich` 进行 UI。
 *   `core/utils/models.py`: 定义表示整个管道中使用的各种中间文件和输出文件的文件路径的常量。
 *   `core/__init__.py`, `core/asr_backend/__init__.py`, `core/spacy_utils/__init__.py`, `core/st_utils/__init__.py`, `core/tts_backend/__init__.py`: 包初始化文件，定义其各自包/子包的公共接口 (`__all__`)。
 *   `core/__init__.py`: 初始化主 `core` 包，从子包导出关键函数和模块，以便更轻松地访问。
