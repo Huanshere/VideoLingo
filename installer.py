@@ -628,7 +628,14 @@ def print_storage_report() -> None:
     try:
         from huggingface_hub import constants, scan_cache_dir
         cache = Path(constants.HF_HUB_CACHE)
-        source = "HF_HUB_CACHE" if os.environ.get("HF_HUB_CACHE") else "HF_HOME" if os.environ.get("HF_HOME") else "default"
+        if os.environ.get("HF_HUB_CACHE"):
+            source = "HF_HUB_CACHE"
+        elif os.environ.get("HUGGINGFACE_HUB_CACHE"):
+            source = "HUGGINGFACE_HUB_CACHE"
+        elif os.environ.get("HF_HOME"):
+            source = "HF_HOME"
+        else:
+            source = "default"
         print(f"  Hugging Face model cache ({source}): {cache}")
         repos = sorted(scan_cache_dir(cache).repos, key=lambda r: r.repo_id) if cache.is_dir() else []
         for repo in repos:
@@ -647,8 +654,11 @@ def print_storage_report() -> None:
         print(f"  Local model folder (model_dir, checked first): {local} ({', '.join(names) or 'empty'})")
     except Exception:
         pass
-    override = os.environ.get("VIDEOLINGO_FFMPEG_DIR")
-    print(f"  FFmpeg: {override + ' (VIDEOLINGO_FFMPEG_DIR)' if override else 'managed copy inside this environment'}")
+    try:
+        override = os.environ.get("VIDEOLINGO_FFMPEG_DIR")
+        print(f"  FFmpeg: {override + ' (VIDEOLINGO_FFMPEG_DIR)' if override else 'managed copy inside this environment'}")
+    except Exception as exc:  # informational only; must not block post-install auto-start
+        print(f"  FFmpeg: unavailable ({exc})")
 
 
 def launch_streamlit() -> int:

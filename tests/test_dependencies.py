@@ -144,6 +144,7 @@ def test_auto_mirror_off_or_unreachable_leaves_index_alone(monkeypatch):
     installer.maybe_configure_mirror(True)
     assert 'PIP_INDEX_URL' not in installer.os.environ
 
+
 def test_storage_report_lists_shared_models_without_writing(tmp_path, monkeypatch, capsys):
     hub = tmp_path / 'hf' / 'hub'
     blob = hub / 'models--Systran--faster-whisper-large-v3' / 'blobs' / 'abc'
@@ -174,6 +175,33 @@ def test_storage_report_explains_empty_cache(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert 'set HF_HOME' in out and 'managed copy' in out
     assert not (tmp_path / 'missing').exists()
+
+
+def test_storage_report_recognizes_huggingface_hub_cache(tmp_path, monkeypatch, capsys):
+    from huggingface_hub import constants
+    hub = tmp_path / 'legacy-hub'
+    monkeypatch.setattr(constants, 'HF_HUB_CACHE', str(hub))
+    monkeypatch.delenv('HF_HUB_CACHE', raising=False)
+    monkeypatch.delenv('HF_HOME', raising=False)
+    monkeypatch.setenv('HUGGINGFACE_HUB_CACHE', str(hub))
+    monkeypatch.delenv('VIDEOLINGO_FFMPEG_DIR', raising=False)
+    installer.print_storage_report()
+    out = capsys.readouterr().out
+    assert f'(HUGGINGFACE_HUB_CACHE): {hub}' in out
+
+
+def test_storage_report_survives_ffmpeg_print_error(tmp_path, monkeypatch, capsys):
+    from huggingface_hub import constants
+    monkeypatch.setattr(constants, 'HF_HUB_CACHE', str(tmp_path / 'missing'))
+    real_get = installer.os.environ.get
+    def get(key, default=None):
+        if key == 'VIDEOLINGO_FFMPEG_DIR':
+            raise RuntimeError('cannot read env')
+        return real_get(key, default)
+    monkeypatch.setattr(installer.os.environ, 'get', get)
+    installer.print_storage_report()
+    out = capsys.readouterr().out
+    assert 'FFmpeg: unavailable (cannot read env)' in out
 
 
 def _apple_silicon(monkeypatch, apple=True):

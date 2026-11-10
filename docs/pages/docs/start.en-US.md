@@ -191,7 +191,7 @@ Azure MAI uses the fast transcription API; OpenRouter uses its [dedicated audio 
 |:-----|:---------|:------------------------|
 | Python environment | `.venv` in the project folder, or `~/.venvs/videolingo` with `setup_env.py --shared` (found first by `start.py` and `OneKeyStart.bat`) | No. WhisperX, if used, must be installed into this environment |
 | Recognition models (Qwen, WhisperX, aligners) | Hugging Face cache: `~/.cache/huggingface/hub`, or `$HF_HOME/hub` when `HF_HOME` is set | Yes. Every Hugging Face tool reads the same cache |
-| Pre-placed models | `model_dir` in `config.yaml` (default `_model_cache/<last part of the repo id>`), checked before the cache | Only by copying |
+| Pre-placed models | `model_dir` in `config.yaml` (default `_model_cache`), checked before the cache. Qwen uses `_model_cache/<last part of the repo id>` (for example `_model_cache/Qwen3-ASR-1.7B`). WhisperX uses `_model_cache/<model name>` (for example `_model_cache/large-v3`; with recognition language `zh`, `_model_cache/Belle-whisper-large-v3-zh-punct-fasterwhisper`) | Only by copying |
 | FFmpeg and ffprobe | Downloaded into the environment by the installer, or the folder in `VIDEOLINGO_FFMPEG_DIR` | Yes, with `VIDEOLINGO_FFMPEG_DIR` |
 
 The installer does not set environment variables.

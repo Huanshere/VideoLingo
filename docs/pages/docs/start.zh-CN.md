@@ -190,7 +190,7 @@ Azure MAI 使用快速转写 API；OpenRouter 使用[专用音频转写 API](htt
 |:-----|:-----|:-------------------|
 | Python 环境 | 项目文件夹里的 `.venv`；用 `setup_env.py --shared` 时为 `~/.venvs/videolingo`（`start.py` 和 `OneKeyStart.bat` 优先使用它） | 不能。如需使用 WhisperX，必须装进这个环境 |
 | 识别模型（Qwen、WhisperX、对齐模型） | Hugging Face 缓存：`~/.cache/huggingface/hub`；设置了 `HF_HOME` 时为 `$HF_HOME/hub` | 能。所有 Hugging Face 工具读同一个缓存 |
-| 手动放置的模型 | `config.yaml` 的 `model_dir`（默认 `_model_cache/<仓库名末段>`），优先于缓存 | 只能复制 |
+| 手动放置的模型 | `config.yaml` 的 `model_dir`（默认 `_model_cache`），优先于缓存。Qwen 使用 `_model_cache/<仓库名末段>`（例如 `_model_cache/Qwen3-ASR-1.7B`）。WhisperX 使用 `_model_cache/<模型名>`（例如 `_model_cache/large-v3`；识别语言为 `zh` 时为 `_model_cache/Belle-whisper-large-v3-zh-punct-fasterwhisper`） | 只能复制 |
 | FFmpeg 和 ffprobe | 安装器下载到环境内，或使用 `VIDEOLINGO_FFMPEG_DIR` 指定的文件夹 | 能，通过 `VIDEOLINGO_FFMPEG_DIR` |
 
 安装器不会设置环境变量。
