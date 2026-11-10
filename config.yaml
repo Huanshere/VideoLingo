@@ -36,8 +36,11 @@ whisper:
   backend: 'qwen'
   # *Qwen3-ASR size: "1.7b" (more accurate) or "0.6b" (faster, less memory)
   qwen_model: '1.7b'
-  # *Qwen engine: "auto" (MLX on Apple Silicon, qwen-asr/transformers elsewhere), "mlx" or "transformers"
+  # *Qwen engine: "auto" (MLX on Apple Silicon, qwen-asr/transformers elsewhere), "mlx", "transformers"
+  # or "audiocpp" (optional: a running audio.cpp server, see the start guide; never chosen by auto)
   qwen_engine: 'auto'
+  # *audio.cpp server address, used only when qwen_engine is "audiocpp"
+  audiocpp_url: 'http://127.0.0.1:8080'
   # *WhisperX only: large-v3. A name containing "turbo" (including large-v3-turbo) is
   # rewritten to large-v3 before loading. For zh, WhisperX forces Belle/large-v3 and ignores this.
   model: 'large-v3'

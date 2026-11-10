@@ -160,7 +160,7 @@ To start it later, run `uv run start.py` again from the VideoLingo folder. Apple
 Local recognition transcribes with **Qwen3-ASR** and then produces word timestamps with **Qwen3-ForcedAligner-0.6B**. With vocal separation enabled, transcription uses the original audio and alignment uses the separated vocals.
 
 - **Model size**: `whisper.qwen_model` in `config.yaml` (not in the sidebar). `1.7b` (default) is more accurate; `0.6b` is faster and uses less memory. The aligner is always ForcedAligner-0.6B.
-- **Engine**: `whisper.qwen_engine: auto` selects it automatically; you normally do not need to change it.
+- **Engine**: `whisper.qwen_engine: auto` selects it automatically; you normally do not need to change it. `audiocpp` is an optional engine that uses a running audio.cpp server, see [below](#audiocpp-engine).
 
 | Platform | Engine | Models | Notes |
 |:---------|:-------|:-------|:------|
@@ -177,6 +177,28 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 - The transcription cache distinguishes backend, model size and engine; changing any of them re-runs recognition.
 - WhisperX is not an installer option. To use it (including the Belle model for Chinese), install the packages yourself: [WhisperX (manual install)](whisperx-manual.en-US.md).
 - The official `qwenllm/qwen3-asr` Docker image can host a standalone Qwen3-ASR service, but VideoLingo does not call it directly.
+
+<a id="audiocpp-engine"></a>
+#### Optional audio.cpp engine
+
+[audio.cpp](https://github.com/0xShug0/audio.cpp) runs the same Qwen3-ASR and Qwen3-ForcedAligner models as GGUF files in a native server, without PyTorch. With `whisper.qwen_engine: audiocpp`, VideoLingo sends each window to that server and keeps everything else of the Qwen path: windows, language probes, degenerate-output checks, alignment on the vocal track and punctuation mapping. It is never selected by `auto`, and the installer does not install audio.cpp or its models.
+
+1. Download a build for your platform from the [audio.cpp releases](https://github.com/0xShug0/audio.cpp/releases) (for an NVIDIA GPU, a CUDA build plus its matching `cudart` package), and the GGUF files `Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf` (or 0.6B) and `Qwen3-ForcedAligner-0.6B-GGUF/qwen3-forced-aligner-0.6b-q8_0.gguf` from [audio-cpp/audio.cpp-gguf](https://huggingface.co/audio-cpp/audio.cpp-gguf).
+2. Start `audiocpp_server --config server.json` with these model ids, which VideoLingo uses as the request `model`:
+
+```json
+{
+  "host": "127.0.0.1", "port": 8080, "backend": "cuda", "lazy_load": true, "max_loaded_models": 0,
+  "models": [
+    {"id": "Qwen3-ASR-1.7B", "family": "qwen3_asr", "path": "/path/to/qwen3-asr-1.7b-q8_0.gguf", "task": "asr", "mode": "offline"},
+    {"id": "Qwen3-ForcedAligner-0.6B", "family": "qwen3_forced_aligner", "path": "/path/to/qwen3-forced-aligner-0.6b-q8_0.gguf", "task": "align", "mode": "offline"}
+  ]
+}
+```
+
+3. In `config.yaml`, set `whisper.qwen_engine: audiocpp`, and `whisper.audiocpp_url` if the server is not at `http://127.0.0.1:8080`. `whisper.qwen_model` picks the `Qwen3-ASR-1.7B` or `Qwen3-ASR-0.6B` id.
+
+Windows are at most 90 s with this engine, because the audio.cpp forced aligner rejects clips of about 115 s or more. Audio is sent to the server as 16 kHz WAV over HTTP. The transcription cache keeps audio.cpp results apart from the other engines, but does not track which GGUF files or audio.cpp version the server uses: after changing them, delete `.cache/asr` to transcribe again.
 
 #### Optional MAI-Transcribe-2 (Azure Speech or OpenRouter)
 
