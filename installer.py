@@ -622,6 +622,45 @@ def print_asr_summary() -> None:
 
 
 
+def print_storage_report() -> None:
+    """Read-only: where models and FFmpeg come from, so existing copies can be reused."""
+    print("\nStorage")
+    try:
+        from huggingface_hub import constants, scan_cache_dir
+        cache = Path(constants.HF_HUB_CACHE)
+        if os.environ.get("HF_HUB_CACHE"):
+            source = "HF_HUB_CACHE"
+        elif os.environ.get("HUGGINGFACE_HUB_CACHE"):
+            source = "HUGGINGFACE_HUB_CACHE"
+        elif os.environ.get("HF_HOME"):
+            source = "HF_HOME"
+        else:
+            source = "default"
+        print(f"  Hugging Face model cache ({source}): {cache}")
+        repos = sorted(scan_cache_dir(cache).repos, key=lambda r: r.repo_id) if cache.is_dir() else []
+        for repo in repos:
+            if repo.repo_type == "model" and repo.size_on_disk:
+                print(f"    {repo.repo_id}: {repo.size_on_disk / 1024 ** 3:.2f} GB")
+        if not any(r.size_on_disk for r in repos):
+            print("    (empty) Models download here on first use. To share models that another tool "
+                  "already downloaded, set HF_HOME to that tool's cache folder.")
+    except Exception as exc:  # informational only
+        print(f"  Hugging Face model cache: unavailable ({exc})")
+    try:
+        from ruamel.yaml import YAML
+        model_dir = (YAML(typ="safe").load((ROOT / "config.yaml").read_text(encoding="utf-8")) or {}).get("model_dir")
+        local = (ROOT / model_dir).resolve() if model_dir else None
+        names = sorted(p.name for p in local.iterdir() if p.is_dir()) if local and local.is_dir() else []
+        print(f"  Local model folder (model_dir, checked first): {local} ({', '.join(names) or 'empty'})")
+    except Exception:
+        pass
+    try:
+        override = os.environ.get("VIDEOLINGO_FFMPEG_DIR")
+        print(f"  FFmpeg: {override + ' (VIDEOLINGO_FFMPEG_DIR)' if override else 'managed copy inside this environment'}")
+    except Exception as exc:  # informational only; must not block post-install auto-start
+        print(f"  FFmpeg: unavailable ({exc})")
+
+
 def launch_streamlit() -> int:
     env = os.environ.copy()
     env["PYTHONWARNINGS"] = "ignore"
@@ -655,6 +694,7 @@ def install_all(args: argparse.Namespace) -> int:
         return 1
     save_state()
     print_asr_summary()
+    print_storage_report()
     if args.launch:
         return launch_streamlit()
     print("\nInstall complete. Start with OneKeyStart.bat or: uv run start.py")
@@ -689,7 +729,10 @@ def main(argv: list[str] | None = None) -> int:
         return health_check(quiet=args.quiet, require_demucs=args.require_demucs,
                             torch_backend=args.torch_backend, quick=True)
     if args.check:
-        return health_check(quiet=args.quiet, require_demucs=args.require_demucs, torch_backend=args.torch_backend)
+        status = health_check(quiet=args.quiet, require_demucs=args.require_demucs, torch_backend=args.torch_backend)
+        if not args.quiet:
+            print_storage_report()
+        return status
     return install_all(args)
 
 

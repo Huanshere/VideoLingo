@@ -183,6 +183,25 @@ uv run start.py
 
 Azure MAI 使用快速转写 API；OpenRouter 使用[专用音频转写 API](https://openrouter.ai/docs/guides/overview/multimodal/stt) 和 `microsoft/mai-transcribe-2` 模型。两种方式都请求清理后的文本及词级时间戳。OpenRouter 会将音频拆为约两分钟的片段，以适应处理超时限制。音频会发送到选定的云服务商，可能产生费用。Azure MAI-Transcribe-2 目前为无 SLA 的公开预览；请确认资源区域支持该模型。缓存会区分服务商及 API 版本，但不包含密钥或 Azure 区域。[#618 的贡献者评测](https://github.com/Huanshere/VideoLingo/pull/618)比较的是 MAI 与 WhisperX，尚未比较当前默认的 Qwen3-ASR。
 
+<a id="storage"></a>
+### 文件存放位置
+
+| 内容 | 位置 | 能否与其他工具共用 |
+|:-----|:-----|:-------------------|
+| Python 环境 | 项目文件夹里的 `.venv`；用 `setup_env.py --shared` 时为 `~/.venvs/videolingo`（`start.py` 和 `OneKeyStart.bat` 优先使用它） | 不能。如需使用 WhisperX，必须装进这个环境 |
+| 识别模型（Qwen、WhisperX、对齐模型） | Hugging Face 缓存：`~/.cache/huggingface/hub`；设置了 `HF_HOME` 时为 `$HF_HOME/hub` | 能。所有 Hugging Face 工具读同一个缓存 |
+| 手动放置的模型 | `config.yaml` 的 `model_dir`（默认 `_model_cache`），优先于缓存。Qwen 使用 `_model_cache/<仓库名末段>`（例如 `_model_cache/Qwen3-ASR-1.7B`）。WhisperX 使用 `_model_cache/<模型名>`（例如 `_model_cache/large-v3`；识别语言为 `zh` 时为 `_model_cache/Belle-whisper-large-v3-zh-punct-fasterwhisper`） | 只能复制 |
+| FFmpeg 和 ffprobe | 安装器下载到环境内，或使用 `VIDEOLINGO_FFMPEG_DIR` 指定的文件夹 | 能，通过 `VIDEOLINGO_FFMPEG_DIR` |
+
+安装器不会设置环境变量。
+
+要复用电脑上已有的文件，在启动 VideoLingo 前把下面的变量设为用户环境变量：
+
+- `HF_HOME`：另一个已下载模型的工具的缓存文件夹（例如独立安装的 WhisperX），避免重复下载。
+- `VIDEOLINGO_FFMPEG_DIR`：同时包含 `ffmpeg` 和 `ffprobe` 的文件夹。程序会检查这个版本是否具备 VideoLingo 需要的滤镜和编码器。
+
+`uv run start.py --check` 会列出缓存中的模型、本地模型文件夹和当前使用的 FFmpeg。
+
 <a id="gpu-runtime"></a>
 ### GPU 运行库
 
