@@ -613,6 +613,9 @@ def _audiocpp(model, request):
     url = str(load_key_or("whisper.audiocpp_url", AUDIOCPP_URL)).rstrip("/")
     try:
         response = requests.post(f"{url}/v1/tasks/run", json={"model": model, "request": request}, timeout=600)
+    except requests.Timeout as error:
+        raise RuntimeError(f"audio.cpp model '{model}' timed out. Check that the audio.cpp server is running "
+                           f"and reachable at {url}, and consider raising the request timeout (currently 600s).") from error
     except requests.ConnectionError as error:
         raise RuntimeError(f"The audio.cpp server is not reachable at {url}. Start audiocpp_server with the "
                            "Qwen3 models in its config, or set whisper.qwen_engine to auto.") from error
@@ -622,7 +625,10 @@ def _audiocpp(model, request):
         except (ValueError, KeyError, TypeError):
             message = response.text[:300]
         raise RuntimeError(f"audio.cpp model '{model}' failed (HTTP {response.status_code}): {message}")
-    return response.json()
+    try:
+        return response.json()
+    except ValueError as error:
+        raise RuntimeError(f"audio.cpp model '{model}' returned malformed JSON.") from error
 
 
 @contextmanager
@@ -636,7 +642,9 @@ def asr_session(engine, repo_id):
             if language:
                 request["language"] = language
             out = _audiocpp(repo_id, request)
-            return language or out.get("language"), (out.get("text") or "").strip()
+            if not isinstance(out, dict) or not isinstance(out.get("text"), str):
+                raise RuntimeError(f"audio.cpp model '{repo_id}' response is missing 'text' (expected a string).")
+            return language or out.get("language"), out["text"].strip()
         yield run
         return
     source = _model_source(repo_id)
@@ -685,8 +693,18 @@ def _align(engine, repo_id, jobs):
         results = []
         for clip, text, lang in jobs:
             out = _audiocpp(repo_id, {"audio_base64": _wav_base64(clip), "text": text, "language": lang})
+            if not isinstance(out, dict) or not isinstance(out.get("words"), list):
+                raise RuntimeError(f"audio.cpp model '{repo_id}' response is missing 'words' (expected a list).")
+            if text.strip() and not out["words"]:
+                raise RuntimeError(f"audio.cpp model '{repo_id}' returned empty 'words' for non-empty text.")
+            for w in out["words"]:
+                if (not isinstance(w, dict) or not isinstance(w.get("word"), str)
+                        or any(type(w.get(field)) not in (int, float) or not math.isfinite(w[field])
+                               for field in ("start_sample", "end_sample"))):
+                    raise RuntimeError(f"audio.cpp model '{repo_id}' returned a malformed 'words' item "
+                                       "(expected word, start_sample and end_sample with numeric samples).")
             results.append([(w["word"], w["start_sample"] / SAMPLE_RATE, w["end_sample"] / SAMPLE_RATE)
-                            for w in out.get("words") or []])
+                            for w in out["words"]])
         return results
     source = _model_source(repo_id)
     aligner, results = None, []

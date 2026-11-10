@@ -879,10 +879,20 @@ def audiocpp(monkeypatch):
 
     requests = types.ModuleType("requests")
     requests.post, requests.ConnectionError = post, ConnectionError
+    requests.Timeout = TimeoutError
     monkeypatch.setitem(sys.modules, "requests", requests)
     monkeypatch.setattr(qwen, "load_key_or", lambda key, default: default)
     monkeypatch.setattr(qwen, "check_cancel", lambda: None)
     return calls
+
+
+@pytest.fixture
+def audiocpp_responses(audiocpp, monkeypatch):
+    def respond(*bodies):
+        responses = [SimpleNamespace(ok=True, json=Mock(return_value=body)) for body in bodies]
+        monkeypatch.setattr(sys.modules["requests"], "post", Mock(side_effect=responses))
+        return responses
+    return respond
 
 
 def test_audiocpp_is_opt_in_and_needs_no_python_engine(platform_env):
@@ -907,6 +917,81 @@ def test_audiocpp_transcribe_and_align_requests(audiocpp):
     qwen._free("audiocpp")  # nothing to release locally
 
 
+@pytest.mark.parametrize("body", [{}, {"language": "English"}, {"text": None}, {"text": 1},
+                                  {"text": []}, None, []])
+def test_audiocpp_requires_text(audiocpp_responses, body):
+    audiocpp_responses(body)
+    with qwen.asr_session("audiocpp", "Qwen3-ASR-1.7B") as run:
+        with pytest.raises(RuntimeError, match=r"audio\.cpp.*Qwen3-ASR-1.7B.*missing 'text'"):
+            run(CLIPS[0], None)
+
+
+@pytest.mark.parametrize("text", ["", " \t\n "])
+def test_audiocpp_accepts_no_speech(audiocpp_responses, text):
+    audiocpp_responses({"text": text})
+    with qwen.asr_session("audiocpp", "Qwen3-ASR-1.7B") as run:
+        assert run(CLIPS[0], "English") == ("English", "")
+
+
+@pytest.mark.parametrize("body", [{}, {"words": None}, {"words": {}}, {"words": ""}, None, []])
+def test_audiocpp_requires_words(audiocpp_responses, body):
+    audiocpp_responses(body)
+    with pytest.raises(RuntimeError, match=r"audio\.cpp.*Qwen3-ForcedAligner-0.6B.*missing 'words'"):
+        qwen._align("audiocpp", "Qwen3-ForcedAligner-0.6B", [(CLIPS[0], "Hello", "English")])
+
+
+def test_audiocpp_rejects_empty_alignment_for_transcript(audiocpp_responses):
+    audiocpp_responses({"words": []})
+    with pytest.raises(RuntimeError, match=r"audio\.cpp.*Qwen3-ForcedAligner-0.6B.*empty 'words'"):
+        qwen._align("audiocpp", "Qwen3-ForcedAligner-0.6B", [(CLIPS[0], "Hello", "English")])
+
+
+def test_audiocpp_accepts_empty_alignment_for_empty_text(audiocpp_responses):
+    audiocpp_responses({"words": []})
+    assert qwen._align("audiocpp", "Qwen3-ForcedAligner-0.6B", [(CLIPS[0], "", "English")]) == [[]]
+
+
+@pytest.mark.parametrize("item", [
+    None, "Hello", {},
+    {"start_sample": 0, "end_sample": 1600},
+    {"word": "Hello", "end_sample": 1600},
+    {"word": "Hello", "start_sample": 0},
+    {"word": None, "start_sample": 0, "end_sample": 1600},
+    {"word": "Hello", "start_sample": "0", "end_sample": 1600},
+    {"word": "Hello", "start_sample": 0, "end_sample": None},
+    {"word": "Hello", "start_sample": False, "end_sample": 1600},
+    {"word": "Hello", "start_sample": 0, "end_sample": float("nan")},
+])
+def test_audiocpp_rejects_malformed_words(audiocpp_responses, item):
+    audiocpp_responses({"words": [item]})
+    with pytest.raises(RuntimeError, match=r"audio\.cpp.*Qwen3-ForcedAligner-0.6B.*malformed 'words' item"):
+        qwen._align("audiocpp", "Qwen3-ForcedAligner-0.6B", [(CLIPS[0], "Hello", "English")])
+
+
+def test_audiocpp_rejects_malformed_json(audiocpp_responses):
+    response, = audiocpp_responses({})
+    response.json.side_effect = ValueError("invalid JSON")
+    with pytest.raises(RuntimeError, match=r"audio\.cpp.*Qwen3-ASR-1.7B.*malformed JSON"):
+        qwen._audiocpp("Qwen3-ASR-1.7B", {})
+
+
+@pytest.mark.parametrize("field", ["text", "words"])
+def test_audiocpp_incomplete_results_are_not_cached(audiocpp_responses, monkeypatch, tmp_path, field):
+    monkeypatch.setattr(cache, "CACHE_DIR", tmp_path / "asr")
+    monkeypatch.setattr(qwen, "resolve_engine", lambda: "audiocpp")
+    monkeypatch.setattr(qwen, "model_size", lambda: "1.7b")
+    monkeypatch.setattr(qwen, "load_key", lambda key: "en")
+    monkeypatch.setattr(qwen, "load_audio_segment", lambda *args: CLIPS[0])
+    monkeypatch.setattr(qwen, "trim_speech_windows", lambda raw, windows: windows)
+    audiocpp_responses(*([{}] if field == "text" else [{"text": "Hello, world."}, {}]))
+
+    # Match _2_asr's ordering: only write a result after transcription succeeds.
+    with pytest.raises(RuntimeError, match=f"missing '{field}'"):
+        result = qwen.transcribe_audio("raw.wav", "raw.wav", 0, 1)
+        cache.write_result("key", "0_1", result, "en")
+    assert list(cache.CACHE_DIR.rglob("*")) == []
+
+
 def test_audiocpp_errors_name_the_server(audiocpp, monkeypatch):
     with pytest.raises(RuntimeError, match="unknown model id: missing"):
         qwen._audiocpp("missing", {"audio_base64": qwen._wav_base64(CLIPS[0])})
@@ -916,6 +1001,17 @@ def test_audiocpp_errors_name_the_server(audiocpp, monkeypatch):
     monkeypatch.setattr(sys.modules["requests"], "post", refused)
     with pytest.raises(RuntimeError, match="audio.cpp server is not reachable at http://127.0.0.1:8080"):
         qwen._audiocpp("Qwen3-ASR-1.7B", {})
+
+
+def test_audiocpp_timeout_explains_fix(audiocpp, monkeypatch):
+    requests = sys.modules["requests"]
+    monkeypatch.setattr(requests, "post", Mock(side_effect=requests.Timeout("read timed out")))
+    with pytest.raises(RuntimeError, match=r"audio\.cpp.*timed out") as error:
+        qwen._audiocpp("Qwen3-ASR-1.7B", {})
+    message = str(error.value)
+    assert "server is running and reachable at " + qwen.AUDIOCPP_URL in message
+    assert "raising the request timeout (currently 600s)" in message
+    assert isinstance(error.value.__cause__, requests.Timeout)
 
 
 def test_audiocpp_uses_windows_its_aligner_accepts(pipeline, monkeypatch):
