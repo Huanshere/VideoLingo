@@ -28,4 +28,4 @@ ENV PYTHONUTF8=1
 
 EXPOSE 8501
 
-CMD ["python", "-m", "streamlit", "run", "st.py", "--server.address=0.0.0.0", "--server.headless=true"]
+CMD ["python", "-m", "streamlit", "run", "webui.py", "--server.address=0.0.0.0", "--server.headless=true"]

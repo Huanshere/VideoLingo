@@ -63,9 +63,7 @@ def main() -> int:
         setup = [sys.executable, "setup_env.py", "--yes"]
         if target == SHARED_VENV:
             setup.append("--shared")
-        result = subprocess.run(
-            setup, cwd=ROOT
-        )
+        result = subprocess.run(setup, cwd=ROOT)
         if result.returncode:
             return result.returncode
     else:
@@ -75,7 +73,7 @@ def main() -> int:
         print("ERROR: VideoLingo's Python environment was not created.")
         return 1
 
-    command = ["api.py"] if args.api else ["-m", "streamlit", "run", "st.py"]
+    command = ["api.py"] if args.api else ["-m", "streamlit", "run", "webui.py"]
     return subprocess.run([str(python), *command], cwd=ROOT).returncode
 
 
