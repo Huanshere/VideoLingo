@@ -90,7 +90,7 @@ def main():
     os.environ["PYTHONWARNINGS"] = "ignore"
     try:
         proc = subprocess.run(
-            [sys.executable, "-m", "streamlit", "run", "st.py",
+            [sys.executable, "-m", "streamlit", "run", "webui.py",
              "--logger.level", "error"],
             cwd=str(SCRIPT_DIR),
         )

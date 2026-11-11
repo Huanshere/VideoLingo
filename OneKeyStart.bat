@@ -98,7 +98,7 @@ if errorlevel 1 (
 )
 
 echo %C_GREEN%Starting VideoLingo with %VENV_LABEL%...%C_RESET%
-"%VENV_PY%" -m streamlit run st.py 2>&1 | powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\streamlit-log.ps1"
+"%VENV_PY%" -m streamlit run webui.py 2>&1 | powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\streamlit-log.ps1"
 goto end
 
 :install_failed
