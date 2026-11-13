@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 from typing import List, Tuple
 import concurrent.futures
@@ -12,26 +14,28 @@ from rich.table import Table
 from core.utils import *
 from core.utils.config_utils import get_text_joiner
 from core.utils.models import *
+# How wide a line is drawn, in units of 1/80 of a landscape subtitle row
+from core.utils.subtitle_width import SOURCE, TRANSLATION, line_width, uses_cjk_font
 console = Console()
 
-# ! You can modify your own weights here
-# Chinese and Japanese 2.5 characters, Korean 2 characters, Thai 1.5 characters, full-width symbols 2 characters, other English-based and half-width symbols 1 character
-def calc_len(text: str) -> float:
-    text = str(text) # force convert
-    def char_weight(char):
-        code = ord(char)
-        if 0x4E00 <= code <= 0x9FFF or 0x3040 <= code <= 0x30FF:  # Chinese and Japanese
-            return 1.75
-        elif 0xAC00 <= code <= 0xD7A3 or 0x1100 <= code <= 0x11FF:  # Korean
-            return 1.5
-        elif 0x0E00 <= code <= 0x0E7F:  # Thai
-            return 1
-        elif 0xFF01 <= code <= 0xFF5E:  # full-width symbols
-            return 1.75
-        else:  # other characters (e.g. English and half-width symbols)
-            return 1
+# The source row is small and stays on one row. The translation row is the one people read:
+# it is set larger and reads well as two balanced rows, so a translation may be this many
+# rows wide before its line is split (about 46 Chinese characters or 130 Latin letters).
+# Splitting earlier means more lines cut in two by the model, and looser source/translation pairs.
+TRANSLATION_ROWS = 1.65
 
-    return sum(char_weight(char) for char in text)
+def length_check(src_lines, tr_lines):
+    """A function telling whether one (source, translation) line is too long for the subtitles."""
+    subtitle_set = load_key("subtitle")
+    max_length, multiplier = subtitle_set["max_length"], subtitle_set["target_multiplier"]
+    src_cjk, tr_cjk = uses_cjk_font(src_lines), uses_cjk_font(tr_lines)
+
+    def too_long(src, tr):
+        tr = re.sub(r'[，。]', ' ', str(tr)).strip()  # shown without them, see `align_timestamp`
+        return line_width(src, SOURCE, src_cjk) > max_length or \
+               line_width(tr, TRANSLATION, tr_cjk) / TRANSLATION_ROWS * multiplier > max_length
+
+    return too_long
 
 def get_target_parts(response_data, num_parts):
     """The aligned target parts of a response, or None unless there are exactly `num_parts` non-empty ones."""
@@ -72,15 +76,13 @@ def align_subs(src_sub: str, tr_sub: str, src_part: str) -> Tuple[List[str], Lis
     return src_parts, tr_parts, tr_remerged
 
 def split_align_subs(src_lines: List[str], tr_lines: List[str]):
-    subtitle_set = load_key("subtitle")
-    MAX_SUB_LENGTH = subtitle_set["max_length"]
-    TARGET_SUB_MULTIPLIER = subtitle_set["target_multiplier"]
+    too_long = length_check(src_lines, tr_lines)
     remerged_tr_lines = tr_lines.copy()
     
     to_split = []
     for i, (src, tr) in enumerate(zip(src_lines, tr_lines)):
         src, tr = str(src), str(tr)
-        if len(src) > MAX_SUB_LENGTH or calc_len(tr) * TARGET_SUB_MULTIPLIER > MAX_SUB_LENGTH:
+        if too_long(src, tr):
             to_split.append(i)
             table = Table(title=f"📏 Line {i} needs to be split")
             table.add_column("Type", style="cyan")
@@ -122,15 +124,19 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str]):
 def split_source_lines(lines: List[str]) -> List[str]:
     """Split the lines that are too long for a subtitle, for subtitles without a translation."""
     max_length = load_key("subtitle")["max_length"]
+    cjk_font = uses_cjk_font(lines)
+
+    def fits(line):
+        return line_width(line, SOURCE, cjk_font) <= max_length
 
     def process(line):
-        if len(line) <= max_length:
+        if fits(line):
             return [line]
         parts = [part.strip() for part in split_sentence(line, num_parts=2).split('\n') if part.strip()]
         return parts if len(parts) > 1 else [line]
 
     for _ in range(3):
-        if all(len(line) <= max_length for line in lines):
+        if all(fits(line) for line in lines):
             break
         check_cancel()
         with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
@@ -151,17 +157,13 @@ def split_for_sub_main():
             pd.DataFrame({'Source': src, 'Translation': trans}).to_excel(path, index=False)
         return
     
-    subtitle_set = load_key("subtitle")
-    MAX_SUB_LENGTH = subtitle_set["max_length"]
-    TARGET_SUB_MULTIPLIER = subtitle_set["target_multiplier"]
-    
     for attempt in range(3):  # 多次切割
         console.print(Panel(f"🔄 Split attempt {attempt + 1}", expand=False))
         split_src, split_trans, remerged = split_align_subs(src.copy(), trans)
         
         # 检查是否所有字幕都符合长度要求
-        if all(len(src) <= MAX_SUB_LENGTH for src in split_src) and \
-           all(calc_len(tr) * TARGET_SUB_MULTIPLIER <= MAX_SUB_LENGTH for tr in split_trans):
+        too_long = length_check(split_src, split_trans)
+        if not any(too_long(src_line, tr_line) for src_line, tr_line in zip(split_src, split_trans)):
             break
         
         # 更新源数据继续下一轮分割

@@ -81,7 +81,7 @@ def validate_ffmpeg():
     version = output("ffmpeg", "-version").splitlines()[0]
     output("ffprobe", "-version")
     for option, needed in (
-        ("-filters", {"subtitles", "scale", "pad", "aresample", "atempo", "loudnorm", "volume", "amix"}),
+        ("-filters", {"subtitles", "ass", "scale", "pad", "aresample", "atempo", "loudnorm", "volume", "amix"}),
         ("-encoders", {"libmp3lame", "aac", "libx264", "pcm_s16le", "pcm_s24le"}),
     ):
         available = {line.split()[1] for line in output("ffmpeg", option).splitlines() if len(line.split()) >= 2}

@@ -25,6 +25,12 @@ yt-dlp>=2026.6.9
 json-repair>=0.58.6,<1
 ruamel.yaml>=0.19.1,<0.20
 InquirerPy>=0.3.4,<0.4
+# Built-in subtitle typesetting (core/utils/typeset.py): HarfBuzz measures every line in the
+# font it is drawn in, BudouX breaks Chinese, Japanese and Thai between words, fontTools cuts the
+# Chinese and Japanese faces fetched on first use down to one weight.
+uharfbuzz>=0.57,<1
+budoux>=0.10,<0.11
+fonttools>=4.68,<5
 autocorrect-py>=2.14,<3
 edge-tts>=7.2.8,<8
 

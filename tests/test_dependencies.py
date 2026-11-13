@@ -708,6 +708,33 @@ def test_mai_sidebar_switches_to_openrouter_on_older_config(monkeypatch, tmp_pat
     assert all('Azure Speech region' not in item.label for item in app.text_input)
 
 
+
+def test_restoring_the_subtitle_lengths_resets_an_older_config(monkeypatch, tmp_path):
+    from streamlit.testing.v1 import AppTest
+    from core.utils import config_utils
+
+    config = tmp_path / 'config.yaml'
+    data = config_utils.yaml.load((ROOT / 'config.yaml').read_text(encoding='utf-8'))
+    data['max_split_length'] = 25
+    data['subtitle']['max_length'] = 75  # the old defaults, made for counted characters
+    data['subtitle']['target_multiplier'] = 1.2
+    with config.open('w', encoding='utf-8') as output:
+        config_utils.yaml.dump(data, output)
+    monkeypatch.setattr(config_utils, 'CONFIG_PATH', str(config))
+
+    def page():
+        import st as app_page
+        app_page._subtitle_length_controls()  # shown once a video is in, before its subtitles are made
+
+    app = AppTest.from_function(page, default_timeout=60).run()
+    app = app.button(key='restore_subtitle_length_defaults').click().run()
+    assert not app.exception
+    saved = config_utils.yaml.load(config.read_text(encoding='utf-8'))
+    assert saved['max_split_length'] == 20
+    assert saved['subtitle']['max_length'] == 80
+    assert saved['subtitle']['target_multiplier'] == 1.0
+    assert [box.value for box in app.number_input] == [20, 80]  # and the inputs show them
+
 def test_fractional_tts_durations(monkeypatch):
     import pandas as pd
     from core import _10_gen_audio as audio
