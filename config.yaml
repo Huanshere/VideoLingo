@@ -70,14 +70,18 @@ youtube:
 ytb_resolution: '1080'
 
 subtitle:
-  # *Maximum length of each subtitle line in characters
-  max_length: 75
-  # *Translated subtitles are slightly larger than source subtitles, affecting the reference length for subtitle splitting
-  target_multiplier: 1.2
+  # *Maximum width of a subtitle line as it is drawn: a Latin letter is about 1 and 80 is one full
+  # *landscape row (about 35 Chinese characters on the source row). The source line has to fit one row;
+  # *the translation, set larger, may wrap to two rows and is split above about 1.65 rows (46 Chinese characters, 130 Latin letters)
+  max_length: 80
+  # *Multiplies the width of the translation in that check: above 1 splits translations sooner
+  target_multiplier: 1.0
   # *Subtitles burned into the subtitle video and into the dubbed video [bilingual, translation, source]
   sub_video_subtitles: 'bilingual'
   dub_video_subtitles: 'translation'
-  # *Style of the burned-in subtitles. Colors are &HBBGGRR, &HAABBGGRR (AA is the transparency) or #RRGGBB. An empty font_name uses the default font of the system
+  # *Style of the burned-in subtitles. Colors are &HBBGGRR, &HAABBGGRR (AA is the transparency) or #RRGGBB.
+  # *An empty font_name uses the built-in typesetting: a font and size for each language, fetched into fonts/;
+  # *font_size then scales it (15 and 17 are its own sizes) and margin_v is not used. A font name sets every language in that font
   style:
     source:
       font_name: ''

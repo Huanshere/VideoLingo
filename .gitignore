@@ -174,3 +174,7 @@ installer_files/
 logs/
 videolingo_*.log
 .tools/
+
+# Subtitle faces fetched on first use (core/utils/subtitle_fonts.py) and their partial downloads
+/fonts/NotoSans*-Book.ttf
+/fonts/.*.part

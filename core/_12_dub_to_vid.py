@@ -9,7 +9,7 @@ from rich.console import Console
 from core._1_ytdlp import find_video_files
 from core.utils import *
 from core.utils.models import *
-from core.utils.subtitle_style import get_subtitle_filters
+from core.utils.subtitle_style import get_subtitle_filter_candidates
 
 console = Console()
 
@@ -61,7 +61,7 @@ def merge_video_audio():
         cmd.extend(['-i', background_file])
     cmd.extend(['-i', normalized_dub_audio])
 
-    filters = []
+    video_filters = [None]
     if burn_subtitles:
         # Merge video and audio with the subtitles of the dub
         video = cv2.VideoCapture(VIDEO_FILE)
@@ -70,20 +70,25 @@ def merge_video_audio():
         video.release()
         rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
 
-        subtitle_filter = get_subtitle_filters('dubbed', DUB_SRC_SUB_FILE, DUB_SUB_FILE)
-        filters.append(f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
-                       f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
-                       f'{subtitle_filter}[v]')
+        # The built-in typesetting first; the plain subtitles filter if this ffmpeg can not burn it
+        subtitle_filters = get_subtitle_filter_candidates(
+            'dubbed', DUB_SRC_SUB_FILE, DUB_SUB_FILE, TARGET_WIDTH, TARGET_HEIGHT)
+        video_filters = [f'[0:v]scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,'
+                         f'pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,'
+                         f'{subtitle_filter}[v]' for subtitle_filter in subtitle_filters]
     else:
         rprint("[bold yellow]Subtitles are not burned in: the dubbed audio is merged into the original video.[/bold yellow]")
+    audio_filter = None
     if has_background:
-        filters.append('[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]')
+        audio_filter = '[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]'
     else:
         rprint('[yellow]Original background audio is unavailable; exporting the dubbed voice alone.[/yellow]')
-    if filters:
-        cmd.extend(['-filter_complex', ';'.join(filters)])
 
-    cmd.extend(['-map', '[v]' if burn_subtitles else '0:v:0', '-map', '[a]' if has_background else '1:a'])
+    def with_filters(video_filter):
+        filters = [graph for graph in (video_filter, audio_filter) if graph]
+        full = cmd + (['-filter_complex', ';'.join(filters)] if filters else [])
+        return full + ['-map', '[v]' if burn_subtitles else '0:v:0', '-map', '[a]' if has_background else '1:a']
+
     encoder = []
     if load_key("ffmpeg_gpu"):
         rprint("[bold green]Using GPU acceleration...[/bold green]")
@@ -91,8 +96,17 @@ def merge_video_audio():
     audio_output = ['-c:a', 'aac', '-b:a', '192k', DUB_VIDEO]
 
     if burn_subtitles:
-        subprocess.run(cmd + encoder + audio_output, check=True)
+        for attempt, video_filter in enumerate(video_filters):
+            try:
+                subprocess.run(with_filters(video_filter) + encoder + audio_output, check=True)
+                break
+            except subprocess.CalledProcessError:
+                check_cancel()
+                if attempt + 1 == len(video_filters):
+                    raise
+                rprint("[yellow]⚠️ Burning the typeset subtitles failed, trying the plain subtitles filter...[/yellow]")
     else:
+        cmd = with_filters(None)
         try:
             # The picture is not touched, so it is copied as it is
             subprocess.run(cmd + ['-c:v', 'copy'] + audio_output, check=True)
