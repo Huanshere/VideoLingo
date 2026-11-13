@@ -157,14 +157,17 @@ def test_windows_log_roundtrip(tmp_path):
     env = {**os.environ, 'LOGFILE': str(path)}
     # Execute the actual header command and logger, not Streamlit or the launcher.
     batch = (ROOT / 'OneKeyStart.bat').read_text(encoding='utf-8')
-    header = next(line for line in batch.splitlines() if line.startswith('powershell -NoProfile -Command "[IO.File]'))
-    command = header.split('-Command "', 1)[1][:-1]
-    subprocess.run([powershell, '-NoProfile', '-Command', command], env=env, check=True, capture_output=True)
+    header = next(line for line in batch.splitlines() if line.startswith('> "%LOGFILE%" echo '))
+    # A string, not a list: cmd.exe does not read the backslash-escaped quotes of a list.
+    comspec = os.environ.get('ComSpec', 'cmd.exe')
+    subprocess.run(f'"{comspec}" /d /s /c "chcp 65001 >nul & {header}"', env=env, check=True, capture_output=True)
     text = '中文与 café\nsecond line\n'
     result = subprocess.run([powershell, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
                              str(ROOT / 'scripts/streamlit-log.ps1')],
                             input=text.encode('utf-8'), capture_output=True, check=True, env=env)
     raw = path.read_bytes()
     assert not raw.startswith(b'\xef\xbb\xbf') and b'\x00' not in raw
-    assert raw.decode('utf-8').splitlines()[1:] == text.splitlines()
+    first, _, logged = raw.partition(b'\n')
+    assert b'VideoLingo starting...' in first  # the date in it is in the format of the locale
+    assert logged.decode('utf-8').splitlines() == text.splitlines()
     assert result.stdout.decode('utf-8').splitlines() == text.splitlines()

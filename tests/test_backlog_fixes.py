@@ -1580,8 +1580,9 @@ def test_subtitles_are_the_input_without_a_media_file(monkeypatch, tmp_path):
     subtitle_file = module.add_input_subtitles("my: talk.srt", SRT.encode("utf-8"))
 
     assert subtitle_file == os.path.join("output", "input", "my talk.srt")
-    assert _1_ytdlp.find_media_file() == (subtitle_file, "subtitle")
-    assert _1_ytdlp.find_subtitle_file() == subtitle_file
+    # The input manifest keeps forward slashes, on Windows too
+    assert _1_ytdlp.find_media_file() == ("output/input/my talk.srt", "subtitle")
+    assert _1_ytdlp.find_subtitle_file() == "output/input/my talk.srt"
     assert _1_ytdlp.is_audio_only_input()
 
 
@@ -1593,7 +1594,7 @@ def test_subtitles_go_with_the_video(monkeypatch, tmp_path):
     subtitle_file = module.add_input_subtitles("talk.srt", SRT.encode("utf-8"))
 
     assert _1_ytdlp.find_media_file() == ("output/talk.mp4", "video")
-    assert _1_ytdlp.find_subtitle_file() == subtitle_file
+    assert _1_ytdlp.find_subtitle_file() == subtitle_file.replace(os.sep, "/")
     assert not _1_ytdlp.is_audio_only_input()
 
 
