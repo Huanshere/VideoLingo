@@ -1,4 +1,3 @@
-import bisect
 import re
 
 import pandas as pd
@@ -15,83 +14,15 @@ from rich.table import Table
 from core.utils import *
 from core.utils.config_utils import get_text_joiner
 from core.utils.models import *
+# How wide a line is drawn, in units of 1/80 of a landscape subtitle row
+from core.utils.subtitle_width import SOURCE, TRANSLATION, line_width, uses_cjk_font
 console = Console()
-
-# How wide one character is drawn in the burned-in subtitles, in units of 1/80 of a landscape
-# subtitle row: a Latin letter is about 1 on both rows, so `subtitle.max_length: 80` is one
-# full row. Measured with the fonts and sizes core/utils/typeset.py sets each script in:
-# (first, last, on the translation row, on the source row).
-CJK_WIDTHS = [
-    (0x1100, 0x11FF, 2.57, 2.11),  # Hangul jamo
-    (0x3000, 0x303F, 2.84, 2.27),  # CJK punctuation
-    (0x3040, 0x30FF, 2.79, 2.27),  # Kana
-    (0x3130, 0x318F, 2.57, 2.11),  # Hangul compatibility jamo
-    (0x3400, 0x4DBF, 2.84, 2.27),  # Han, extension A
-    (0x4E00, 0x9FFF, 2.84, 2.27),  # Han
-    (0xAC00, 0xD7A3, 2.57, 2.11),  # Hangul
-    (0xF900, 0xFAFF, 2.84, 2.27),  # Han, compatibility forms
-    (0xFF01, 0xFF60, 2.84, 2.27),  # Full-width forms
-]
-OTHER_WIDTHS = [
-    (0x0400, 0x052F, 1.14, 1.13),  # Cyrillic
-    (0x0590, 0x05FF, 1.24, 1.13),  # Hebrew
-    (0x0600, 0x06FF, 1.31, 1.21),  # Arabic
-    (0x0900, 0x097F, 1.15, 1.05),  # Devanagari
-    (0x0980, 0x09FF, 1.28, 1.18),  # Bengali
-    (0x0A00, 0x0A7F, 1.00, 0.91),  # Gurmukhi
-    (0x0A80, 0x0AFF, 1.07, 0.97),  # Gujarati
-    (0x0B00, 0x0B7F, 1.29, 1.19),  # Oriya
-    (0x0B80, 0x0BFF, 1.60, 1.47),  # Tamil
-    (0x0C00, 0x0C7F, 1.04, 0.95),  # Telugu
-    (0x0C80, 0x0CFF, 1.26, 1.16),  # Kannada
-    (0x0D00, 0x0D7F, 1.53, 1.41),  # Malayalam
-    (0x0D80, 0x0DFF, 1.36, 1.25),  # Sinhala
-    (0x0E00, 0x0E7F, 1.13, 1.05),  # Thai
-    (0x0E80, 0x0EFF, 1.07, 1.00),  # Lao
-    (0x1000, 0x109F, 1.19, 1.10),  # Myanmar
-    (0x1780, 0x17FF, 1.10, 1.02),  # Khmer
-]
-CHAR_WIDTHS = sorted(CJK_WIDTHS + OTHER_WIDTHS)
-_FIRST_CODES = [first for first, _, _, _ in CHAR_WIDTHS]
-# Subtitles in a CJK font: its Latin letters and digits are wide, its spaces and half-width punctuation narrow
-CJK_FONT_ALNUM = (1.5, 1.2)
-CJK_FONT_OTHER = (0.85, 0.7)
-TRANSLATION, SOURCE = 0, 1  # the row a line is shown on
 
 # The source row is small and stays on one row. The translation row is the one people read:
 # it is set larger and reads well as two balanced rows, so a translation may be this many
 # rows wide before its line is split (about 46 Chinese characters or 130 Latin letters).
 # Splitting earlier means more lines cut in two by the model, and looser source/translation pairs.
 TRANSLATION_ROWS = 1.65
-
-def char_width(char, row, cjk_font):
-    code = ord(char)
-    i = bisect.bisect_right(_FIRST_CODES, code) - 1
-    if i >= 0 and code <= CHAR_WIDTHS[i][1]:
-        return CHAR_WIDTHS[i][2 + row]
-    if cjk_font:
-        return (CJK_FONT_ALNUM if char.isalnum() else CJK_FONT_OTHER)[row]
-    return 1
-
-def line_width(text, row, cjk_font):
-    """Width of one subtitle line shown on `row`, in units of 1/80 of a landscape row."""
-    return sum(char_width(char, row, cjk_font) for char in str(text))
-
-def uses_cjk_font(lines):
-    """Whether the subtitles set these lines in a Chinese, Japanese or Korean font.
-
-    The typesetter picks one font for the whole track, with the same rule: an ideograph
-    or a Hangul syllable carries about as much as two letters.
-    """
-    cjk = other = 0
-    for line in lines:
-        for char in str(line):
-            if char.isalpha():
-                if any(first <= ord(char) <= last for first, last, _, _ in CJK_WIDTHS):
-                    cjk += 1
-                else:
-                    other += 1
-    return 2 * cjk > other
 
 def length_check(src_lines, tr_lines):
     """A function telling whether one (source, translation) line is too long for the subtitles."""

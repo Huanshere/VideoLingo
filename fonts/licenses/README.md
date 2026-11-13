@@ -3,8 +3,10 @@
 `core/utils/typeset.py` sets every burned-in subtitle line in a face chosen for
 its writing system and for its row: the translation is the yellow boxed row on
 top, the source is the white outlined row under it. ffmpeg's `ass` filter finds
-the faces here by family name (`ass=...:fontsdir=fonts`), so nothing has to be
-installed on the system.
+the faces in `fonts/` by family name (`ass=...:fontsdir=fonts`), so nothing has
+to be installed on the system. This file and the licences are kept in
+`fonts/licenses/` because libass tries to load every file directly in `fonts/`
+as a font and warns about each one that is not.
 
 Nineteen faces are in the repository. The four Chinese and Japanese faces are
 10 MB or more each, so `core/utils/subtitle_fonts.py` downloads them the first
@@ -58,14 +60,17 @@ Every face but Pretendard is a static instance cut from a variable font in
 [google/fonts](https://github.com/google/fonts) at commit
 `5bb28733cec313b63fbd415b574b5ae35c8aa8b8`. `scripts/build_subtitle_fonts.py`
 holds the recipe and the SHA-256 of every source file. Run without an output
-directory it rebuilds each face in memory and compares it with the file here,
-table by table:
+directory it rebuilds each face in memory and compares it with the file in
+`fonts/`, table by table. The whole google/fonts repository is several GB; this
+fetches only the folders the recipe reads, from the repository root:
 
 ```bash
 pip install fonttools==4.68.0
-git clone https://github.com/google/fonts
-git -C fonts checkout 5bb28733cec313b63fbd415b574b5ae35c8aa8b8
-python scripts/build_subtitle_fonts.py fonts
+git init ../google-fonts
+git -C ../google-fonts sparse-checkout set --no-cone '/ofl/notosans*/' '/ofl/roboto/'
+git -C ../google-fonts fetch --depth 1 --filter=blob:none https://github.com/google/fonts 5bb28733cec313b63fbd415b574b5ae35c8aa8b8
+git -C ../google-fonts checkout FETCH_HEAD
+python scripts/build_subtitle_fonts.py ../google-fonts
 ```
 
 All of them come out the same in every table but `head`, which stores the time
@@ -97,10 +102,13 @@ unmodified.
 
 ### Downloaded on first use
 
-`core/utils/subtitle_fonts.py` fetches the variable font from GitHub (jsDelivr
-as a second mirror), checks its SHA-256, cuts the `wght` 450 instance and saves
-it here. It does that only for the faces a video's subtitles need, once.
-`.gitignore` keeps the results out of commits.
+`core/utils/subtitle_fonts.py` fetches the variable font from GitHub, or from
+one of three jsDelivr hosts when GitHub can not be reached, checks its SHA-256,
+cuts the `wght` 450 instance and saves it in `fonts/`. It does that only for the
+faces a video's subtitles need, once. A download that is not complete after 10
+minutes is given up, and a face that could not be downloaded is not tried again
+for 10 minutes, so the other videos of a batch are not held up; until then their
+subtitles are burned the old way. `.gitignore` keeps the results out of commits.
 
 | Saved as | Source file | Source bytes | Source SHA-256 |
 | --- | --- | ---: | --- |
@@ -109,9 +117,16 @@ it here. It does that only for the faces a video's subtitles need, once.
 | `NotoSansHK-Book.ttf` | `ofl/notosanshk/NotoSansHK[wght].ttf` | 11.9 MB | `76098ee78ec234cd4f8c950742b3f766fea2f8b43d5180d901048f4fc86c6849` |
 | `NotoSansJP-Book.ttf` | `ofl/notosansjp/NotoSansJP[wght].ttf` | 9.6 MB | `c2f3b4d463500a2ddcd3849cded1fceeb9fd6d1c32e6cbecd568453ba50fc68f` |
 
-Without a network (or behind a firewall that blocks both mirrors) put the four
-files here yourself, built with `scripts/build_subtitle_fonts.py` from a
-google/fonts checkout and an output directory.
+Without a network, or behind a firewall that blocks all four hosts, download
+the variable font yourself and put it in `fonts/` under the name it has on
+GitHub (`NotoSansJP[wght].ttf`) or in the zip of fonts.google.com
+(`NotoSansJP-VariableFont_wght.ttf`). The next video that needs it builds the
+Book face from it, after which the variable font can be deleted. A file that is
+not the variable font of that family is left alone with a warning.
+
+The Docker image fetches all four while it is built, as containers lose what
+they download into `fonts/` when they are recreated. A build without a network
+skips this and the faces are downloaded on first use.
 
 ## Licences
 
@@ -122,8 +137,9 @@ google/fonts checkout and an output directory.
   font name "Source". The instances keep the Noto Sans family name.
   `OFL-NotoSansSC.txt`, `OFL-NotoSansTC.txt`, `OFL-NotoSansHK.txt`,
   `OFL-NotoSansJP.txt`.
-- Pretendard: SIL Open Font License 1.1 with a reserved font name, shipped
-  unmodified. `OFL-Pretendard.txt`.
+- Pretendard: SIL Open Font License 1.1, shipped unmodified. Reserved font
+  names Pretendard, and Source, Inter and M PLUS 1 of the fonts it is drawn
+  from. `OFL-Pretendard.txt`.
 
 ## Sizes
 

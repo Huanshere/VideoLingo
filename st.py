@@ -141,6 +141,8 @@ def _subtitle_length_controls():
     DEFAULT_MAX_SPLIT_LENGTH = 20
     DEFAULT_MAX_LENGTH = 80
     MAX_LENGTH_KEY = "subtitle.max_length"
+    # Not shown here; a config.yaml from before the width measure has 1.2, made for counted characters
+    DEFAULT_TARGET_MULTIPLIER = 1.0
 
     with st.expander(t("Subtitle length tuning"), expanded=False):
         st.caption(
@@ -185,15 +187,21 @@ def _subtitle_length_controls():
             update_key(MAX_LENGTH_KEY, int(new_max_length))
             changed = True
 
-        if st.button(
+        def restore_defaults():
+            update_key("max_split_length", DEFAULT_MAX_SPLIT_LENGTH)
+            update_key(MAX_LENGTH_KEY, DEFAULT_MAX_LENGTH)
+            update_key("subtitle.target_multiplier", DEFAULT_TARGET_MULTIPLIER, add_missing=True)
+            # Otherwise the inputs keep showing the old values and write them back on the next run
+            for key in ("cfg_max_split_length", "cfg_max_length"):
+                st.session_state.pop(key, None)
+
+        st.button(
             t("Restore defaults ({split}/{length})")
             .replace("{split}", str(DEFAULT_MAX_SPLIT_LENGTH))
             .replace("{length}", str(DEFAULT_MAX_LENGTH)),
             key="restore_subtitle_length_defaults",
-        ):
-            update_key("max_split_length", DEFAULT_MAX_SPLIT_LENGTH)
-            update_key(MAX_LENGTH_KEY, DEFAULT_MAX_LENGTH)
-            st.rerun()
+            on_click=restore_defaults,
+        )
 
         if changed:
             st.rerun()

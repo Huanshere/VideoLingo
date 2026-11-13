@@ -37,7 +37,7 @@ def _candidates():
 
 
 def _plain():
-    return subtitle_style.get_subtitle_filters("subtitle", "output/src.srt", "output/trans.srt")
+    return subtitle_style.get_subtitle_filters("subtitle", "output/src.srt", "output/trans.srt", width=1920, height=1080)
 
 
 def _typesetter():
@@ -107,6 +107,62 @@ def test_a_typesetter_error_falls_back_to_the_subtitles_filter(workspace, monkey
     _config(monkeypatch)
     monkeypatch.setattr(typeset, "build_scripts", broken)
     assert _candidates() == [_plain()]
+
+
+def test_a_frame_of_unknown_size_is_burnt_with_the_plain_filter_as_it_is(workspace, monkeypatch):
+    _config(monkeypatch)
+    filters = subtitle_style.get_subtitle_filter_candidates("subtitle", "output/src.srt", "output/trans.srt", 0, 0)
+    assert filters == [subtitle_style.get_subtitle_filters("subtitle", "output/src.srt", "output/trans.srt")]
+    assert "subtitles=output/trans.srt:" in filters[0]
+    assert not Path("output/ass").exists()
+
+
+def test_stopping_the_task_while_a_font_downloads_stops_it(workspace, monkeypatch):
+    _typesetter()
+    from core.task_runner import StopTask
+    from core.utils import subtitle_fonts
+
+    def stopped(families):
+        raise StopTask()
+
+    _config(monkeypatch)
+    monkeypatch.setattr(subtitle_fonts, "ensure", stopped)
+    with pytest.raises(StopTask):
+        _candidates()
+
+
+# ------------
+# The plain filter
+# ------------
+
+LONG_TRANSLATION = "如今它运行在全世界数十亿台设备上，从网页浏览器、服务器，一直到你口袋里的智能手机。"
+
+
+def test_the_plain_filter_burns_long_chinese_lines_broken(workspace, monkeypatch):
+    _config(monkeypatch, font_name="Arial")
+    Path("output/trans.srt").write_text("\ufeff" + TRANSLATION_SRT.replace("JavaScript se creó en solo diez días.", LONG_TRANSLATION),
+                                        encoding="utf-8")
+    [filters] = _candidates()
+    assert filters.startswith("subtitles=output/src.srt:")  # the English line is left to the filter
+    assert ",subtitles=output/ass/subtitle/plain_translation.srt:" in filters
+    lines = Path("output/ass/subtitle/plain_translation.srt").read_text(encoding="utf-8").split("\n")
+    assert lines[:2] == ["1", "00:00:00,000 --> 00:00:02,000"]
+    assert lines[2:4] == ["如今它运行在全世界数十亿台设备上，", "从网页浏览器、服务器，一直到你口袋里的智能手机。"]
+
+
+def test_a_portrait_frame_breaks_them_into_more_rows(workspace, monkeypatch):
+    _config(monkeypatch, font_name="Arial")
+    Path("output/trans.srt").write_text(TRANSLATION_SRT.replace("JavaScript se creó en solo diez días.", LONG_TRANSLATION),
+                                        encoding="utf-8")
+    subtitle_style.get_subtitle_filter_candidates("subtitle", "output/src.srt", "output/trans.srt", 1080, 1920)
+    text = Path("output/ass/subtitle/plain_translation.srt").read_text(encoding="utf-8").split("\n")[2:]
+    assert len([line for line in text if line]) >= 4
+
+
+def test_an_srt_that_can_not_be_read_is_burnt_as_it_is(workspace, monkeypatch):
+    _config(monkeypatch, font_name="Arial")
+    Path("output/trans.srt").write_bytes(b"\xff\xfe\x00broken")
+    assert subtitle_style.get_plain_srt("subtitle", "translation", "output/trans.srt", 1920, 1080) == "output/trans.srt"
 
 
 # ------------

@@ -1,8 +1,10 @@
 """Rebuild the subtitle faces in fonts/ that are derived from upstream variable fonts.
 
     pip install fonttools==4.68.0
-    git clone https://github.com/google/fonts && git -C fonts checkout 5bb28733cec313b63fbd415b574b5ae35c8aa8b8
     python scripts/build_subtitle_fonts.py path/to/google/fonts [output directory]
+
+fonts/licenses/README.md shows how to fetch only the folders of google/fonts it reads, at commit
+5bb28733cec313b63fbd415b574b5ae35c8aa8b8.
 
 Without an output directory nothing is written: every face is rebuilt in memory and compared,
 table by table, with the file in fonts/. With one, the faces are written there. The Chinese and

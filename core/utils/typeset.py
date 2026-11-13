@@ -22,7 +22,7 @@ simple shaper.
 
 Fonts: the faces are found by family name through `ass=...:fontsdir=fonts`,
 nothing has to be installed. The Chinese and Japanese faces are too big for the
-repository and are fetched on first use by `subtitle_fonts.py`; fonts/README.md
+repository and are fetched on first use by `subtitle_fonts.py`; fonts/licenses/README.md
 says where every face comes from.
 """
 from __future__ import annotations
@@ -194,16 +194,21 @@ _FACES = {}
 
 
 def face_for(family):
-    """The loaded face for a family name, or None when its file is not shipped."""
+    """The loaded face for a family name, or None when its file is not there (yet).
+
+    A missing face is not remembered: the Chinese and Japanese ones appear once downloaded.
+    """
     if family not in _FACES:
         filename = FONT_FILES.get(family)
         path = os.path.join(FONTS_DIR, filename) if filename else None
-        _FACES[family] = FontFace(family, path) if path and os.path.isfile(path) else None
+        if not path or not os.path.isfile(path):
+            return None
+        _FACES[family] = FontFace(family, path)
     return _FACES[family]
 
 
 def reset_fonts(fonts_dir=None):
-    """Point the typesetter at another fonts directory (tests and the lab)."""
+    """Point the typesetter at another fonts directory (used by the tests)."""
     global FONTS_DIR
     if fonts_dir:
         FONTS_DIR = str(fonts_dir)
@@ -275,8 +280,8 @@ def script_class(char):
 def classify(texts):
     """Dominant script class of a whole track.
 
-    Japanese is told from Chinese by its kana and Korean by Hangul, so the
-    worker does not have to pass language codes.
+    Japanese is told from Chinese by its kana and Korean by Hangul, so no
+    language code has to be passed in.
     """
     counts = {}
     for text in texts:

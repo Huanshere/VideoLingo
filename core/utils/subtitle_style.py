@@ -3,7 +3,9 @@
 Without a font name the subtitles are set by the built-in typesetter
 (typeset.py): a font and a size per writing system, lines broken by their
 rendered width, burnt with ffmpeg's `ass` filter. With a font name, or when the
-typesetter can not be used, ffmpeg's `subtitles` filter sets them in that font.
+typesetter can not be used, ffmpeg's `subtitles` filter sets them in that font
+(the system's default font without one); the lines it can not break itself are
+broken beforehand (subtitle_width.py).
 """
 import os
 import platform
@@ -11,6 +13,7 @@ import re
 import shutil
 
 from rich import print as rprint
+from rich.markup import escape
 
 from .config_utils import load_key_or, update_key
 
@@ -130,15 +133,46 @@ def get_shown_kinds(video, source_srt):
     return ["source", "translation"] if mode == "bilingual" else [mode]
 
 
-def get_subtitle_filters(video, source_srt, translation_srt, kinds=None):
-    """The `subtitles` filters of ffmpeg for a video, the source subtitles below the translated ones."""
+# Where the scripts of the typesetter and the SRT files of the plain filter are written, one folder per video
+TYPESET_DIR = "output/ass"
+
+
+def get_plain_srt(video, kind, srt_file, width, height):
+    """`srt_file`, or a copy of it with the lines broken that the plain filter would draw off the frame.
+
+    The filter breaks a line at its spaces only: a long Chinese, Japanese or Thai line has none.
+    """
+    try:
+        from .subtitle_width import plain_row_capacity, wrap_srt
+
+        with open(srt_file, encoding="utf-8-sig") as handle:
+            content = handle.read()
+        capacity = plain_row_capacity(width, height, get_subtitle_style(kind)["font_size"])
+        wrapped = wrap_srt(content, capacity)
+        if wrapped is None:
+            return srt_file
+        target = f"{TYPESET_DIR}/{video}/plain_{kind}.srt"
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "w", encoding="utf-8") as handle:
+            handle.write(wrapped)
+        return target
+    except Exception as error:  # burn the file as it is rather than not at all
+        rprint(f"[yellow]⚠️ Could not break the long lines of {escape(srt_file)} ({escape(str(error))}), burning it as it is[/yellow]")
+        return srt_file
+
+
+def get_subtitle_filters(video, source_srt, translation_srt, kinds=None, width=0, height=0):
+    """The `subtitles` filters of ffmpeg for a video, the source subtitles below the translated ones.
+
+    With the size of the frame, lines too wide for it are broken first (`get_plain_srt`).
+    """
     kinds = kinds or get_shown_kinds(video, source_srt)
     subtitles = {"source": source_srt, "translation": translation_srt}
+    if width > 0 and height > 0:
+        subtitles = {kind: get_plain_srt(video, kind, subtitles[kind], width, height) for kind in kinds}
     return ",".join(f"subtitles={subtitles[kind]}:force_style='{get_force_style(kind)}'" for kind in kinds)
 
 
-# Where the scripts of the typesetter are written, one folder per video
-TYPESET_DIR = "output/ass"
 # The font size of DEFAULT_STYLE is the typesetter's own size; another one scales it, within these bounds
 SCALE_RANGE = (0.25, 4.0)
 
@@ -162,10 +196,13 @@ def get_typeset_filters(video, source_srt, translation_srt, width, height, kinds
     styles = {kind: get_subtitle_style(kind) for kind in kinds}
     if any(style["font_name"] for style in styles.values()):
         return None  # a font of the user's choice: the subtitles filter sets everything in it
+    if width <= 0 or height <= 0:
+        rprint(f"[yellow]⚠️ The video size could not be read ({width}x{height}), using the plain subtitles filter[/yellow]")
+        return None
     try:
         from . import subtitle_fonts, typeset
     except ImportError as error:
-        rprint(f"[yellow]⚠️ Built-in subtitle typesetting is not available ({error}), "
+        rprint(f"[yellow]⚠️ Built-in subtitle typesetting is not available ({escape(str(error))}), "
                "run the installer again to get it. Using the plain subtitles filter.[/yellow]")
         return None
     try:
@@ -192,13 +229,18 @@ def get_typeset_filters(video, source_srt, translation_srt, width, height, kinds
         fonts_dir = os.path.relpath(typeset.FONTS_DIR).replace(os.sep, "/")
         return typeset.filter_chain(scripts, fonts_dir, out_dir)
     except Exception as error:  # never lose the video to the typesetter: burn it the plain way
-        rprint(f"[yellow]⚠️ Built-in subtitle typesetting failed ({error}), using the plain subtitles filter[/yellow]")
+        from core.task_runner import StopTask
+
+        if isinstance(error, StopTask):  # the user stopped the task while a font was downloading
+            raise
+        rprint(f"[yellow]⚠️ Built-in subtitle typesetting failed ({escape(str(error))}), using the plain subtitles filter[/yellow]")
         return None
 
 
 def get_subtitle_filter_candidates(video, source_srt, translation_srt, width, height):
     """The subtitle filters to try in turn: the typesetter's `ass` filters if they can be used, then the plain ones."""
     kinds = get_shown_kinds(video, source_srt)
+    # The typesetter first: it empties the folder of the video that the plain filter writes to as well
     typeset_filters = get_typeset_filters(video, source_srt, translation_srt, width, height, kinds)
-    plain_filters = get_subtitle_filters(video, source_srt, translation_srt, kinds)
+    plain_filters = get_subtitle_filters(video, source_srt, translation_srt, kinds, width, height)
     return [typeset_filters, plain_filters] if typeset_filters else [plain_filters]

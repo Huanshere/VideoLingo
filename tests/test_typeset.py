@@ -353,6 +353,16 @@ class StyleTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "font is missing"):
                 track_for(MAIN, SAMPLES["zh"][2])
 
+    def test_a_face_is_found_once_its_file_arrives(self):
+        shipped = typeset.FONTS_DIR
+        self.addCleanup(typeset.reset_fonts, shipped)
+        family = "VL Noto Sans Thai"
+        with tempfile.TemporaryDirectory() as fonts:
+            typeset.reset_fonts(fonts)
+            self.assertIsNone(typeset.face_for(family))
+            shutil.copy(os.path.join(shipped, typeset.FONT_FILES[family]), fonts)  # as a download lands
+            self.assertIsNotNone(typeset.face_for(family))
+
 
 class SrtTests(unittest.TestCase):
     def test_srt_files_are_read_as_players_read_them(self):
@@ -429,7 +439,7 @@ class LineTests(unittest.TestCase):
 
     @needs_downloads
     def test_a_line_that_fits_stays_on_one_line(self):
-        # The pair the look was designed for, at the lengths the worker splits to.
+        # The pair the look was designed for, at the lengths core/_5_split_sub.py splits to.
         for text, role in (
             ("旨在添加一门易学的脚本语言", MAIN),
             ("一" * 27, MAIN),
@@ -684,14 +694,14 @@ class RenderTests(unittest.TestCase):
                     self.assertLessEqual(bottom, height - geom.bottom + 2)
                     self.assertGreater(top, height * 0.05)
 
-    @needs_downloads
     def test_libass_finds_every_face_by_the_name_written(self):
+        # Every face in fonts/: the downloaded ones once they are there
         samples = {}
-        for language, (script, style, ordinary, long) in SAMPLES.items():
+        for language, (script, style, ordinary, long) in AVAILABLE.items():
             for role in (MAIN, SECONDARY):
                 samples.setdefault(track_for(role, ordinary, long).style.family, ordinary[:8])
         samples.setdefault("VL Roboto Cond Sub", "Привет")
-        self.assertEqual(set(samples), set(typeset.FONT_FILES))
+        self.assertEqual(set(samples), set(typeset.FONT_FILES) - set(NOT_DOWNLOADED))
         families = sorted(samples)
         document = (
             "[Script Info]\nScriptType: v4.00+\nPlayResX: 1280\nPlayResY: 960\n\n[V4+ Styles]\n"

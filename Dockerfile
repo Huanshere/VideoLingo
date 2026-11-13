@@ -26,6 +26,10 @@ RUN case "$CUDA_VERSION" in \
 ENV PATH="/opt/videolingo/bin:${PATH}"
 ENV PYTHONUTF8=1
 
+# The Chinese and Japanese subtitle faces (about 30 MB): a container loses what it downloads into
+# fonts/ when it is recreated. Not fatal: without a network here they are downloaded on first use.
+RUN python -c "from core.utils import subtitle_fonts as f; [f.fetch(family) for family in f.DOWNLOADS]" || true
+
 EXPOSE 8501
 
 CMD ["python", "-m", "streamlit", "run", "st.py", "--server.address=0.0.0.0", "--server.headless=true"]
