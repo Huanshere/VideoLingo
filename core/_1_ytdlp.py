@@ -79,12 +79,12 @@ def download_video_ytdlp(url, save_path='output', resolution='1080'):
 def write_input_manifest(media_file: str, media_type: str, save_path='output', subtitle_file=None):
     os.makedirs(save_path, exist_ok=True)
     manifest_path = os.path.join(save_path, INPUT_MANIFEST)
-    media_path = media_file.replace("\\", "/") if sys.platform.startswith('win') else media_file
-    manifest = {"path": media_path, "type": media_type}
+    manifest = {"path": media_file, "type": media_type}
     if subtitle_file:
-        manifest["subtitle"] = subtitle_file.replace("\\", "/")
+        manifest["subtitle"] = subtitle_file
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
+
 
 def _read_input_manifest(save_path='output'):
     manifest_path = os.path.join(save_path, INPUT_MANIFEST)
@@ -96,7 +96,8 @@ def _read_input_manifest(save_path='output'):
     media_type = data.get("type")
     if media_type not in {"video", "audio", "subtitle"} or not media_file or not os.path.exists(media_file):
         return None
-    return media_file.replace("\\", "/") if sys.platform.startswith('win') else media_file, media_type
+    return media_file, media_type
+
 
 def find_subtitle_file(save_path='output'):
     """The subtitles of the user that take the place of the recognition, or None."""
@@ -109,9 +110,6 @@ def find_subtitle_file(save_path='output'):
 
 def find_video_files(save_path='output'):
     video_files = [file for file in glob.glob(save_path + "/*") if os.path.isfile(file) and os.path.splitext(file)[1][1:].lower() in load_key("allowed_video_formats")]
-    # change \\ to /, this happen on windows
-    if sys.platform.startswith('win'):
-        video_files = [file.replace("\\", "/") for file in video_files]
     video_files = [
         file
         for file in video_files
@@ -123,8 +121,6 @@ def find_video_files(save_path='output'):
 
 def find_audio_files(save_path='output'):
     audio_files = [file for file in glob.glob(save_path + "/*") if os.path.splitext(file)[1][1:].lower() in load_key("allowed_audio_formats")]
-    if sys.platform.startswith('win'):
-        audio_files = [file.replace("\\", "/") for file in audio_files]
     audio_files = [file for file in audio_files if os.path.basename(file) not in GENERATED_AUDIO_NAMES]
     if len(audio_files) != 1:
         raise ValueError(f"Number of audio files found {len(audio_files)} is not unique. Please check.")
