@@ -117,7 +117,7 @@ pause_before_translate: false
 pause_after_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
-# TTS selection [edge_tts, openai_tts, fish_audio, f5tts, sf_fish_tts, sf_cosyvoice2, gpt_sovits, custom_tts]
+# TTS selection [edge_tts, openai_tts, fish_audio, f5tts, sf_fish_tts, sf_cosyvoice2, gpt_sovits, custom_tts, voxcpm]
 tts_method: 'edge_tts'
 
 # SiliconFlow FishTTS
@@ -170,6 +170,16 @@ gpt_sovits:
 # F5-TTS, 302.ai API only: the voice of the video is cloned
 f5tts:
   302_api: 'YOUR_302_API_KEY'
+
+# ModelBest VoxCPM cloud TTS. A model with the speech_synthesis capability is required.
+voxcpm:
+  api_key: ''
+  model_id: 'VoxCPM2'
+  base_url: 'https://api.modelbest.cn/v1'
+  # default: model voice; clone: reference audio; high_fidelity: reference audio + exact transcript
+  mode: 'clone'
+  # Exact transcript for a manually uploaded high-fidelity reference clip.
+  prompt_text: ''
 
 # *Audio speed range
 speed_factor:

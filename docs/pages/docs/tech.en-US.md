@@ -57,6 +57,7 @@ The following outlines the core technical modules and workflows:
     *   `core/tts_backend/edge_tts.py`: Interface to Microsoft Edge TTS using the `edge-tts` command-line tool.
     *   `core/tts_backend/gpt_sovits_tts.py`: Interface to a local GPT-SoVITS server, including server startup logic.
     *   `core/tts_backend/openai_tts.py`: Interface to the OpenAI Text-to-Speech API.
+    *   `core/tts_backend/voxcpm_tts.py`: ModelBest VoxCPM streaming speech API with optional transcript-guided voice cloning.
     *   `core/tts_backend/sf_cosyvoice2.py`: Interface to the SiliconFlow CosyVoice2 TTS API, supporting reference audio.
     *   `core/tts_backend/sf_fishtts.py`: Interface to the SiliconFlow Fish TTS API, supporting preset, custom, and dynamic voice modes with reference audio.
     *   `core/tts_backend/fish_audio_tts.py`: Interface to the API of Fish Audio: the voice of the video is cloned from one reference, or a fixed voice is used by its ID.

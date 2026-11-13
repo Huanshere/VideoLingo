@@ -9,6 +9,14 @@ from core import prompts
 
 
 class SourceLanguageTests(unittest.TestCase):
+    def test_set_key_creates_missing_nested_config(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.yaml"
+            path.write_text("tts_method: azure_tts\n", encoding="utf-8")
+            with patch.object(config, "CONFIG_PATH", str(path)):
+                self.assertTrue(config.set_key("voxcpm.api_key", "test-key"))
+                self.assertEqual(config.load_key("voxcpm.api_key"), "test-key")
+
     def test_manual_selection_updates_both_fields(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "config.yaml"

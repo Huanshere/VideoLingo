@@ -5,6 +5,7 @@ PROVIDERS = {
     "302.ai": ("f5tts",),
     "SiliconFlow": ("sf_fish_tts", "sf_cosyvoice2"),
     "Fish Audio": ("fish_audio",),
+    "ModelBest": ("voxcpm",),
     "Microsoft Edge": ("edge_tts",),
     "Local service": ("gpt_sovits",),
     "Custom provider": ("custom_tts",),

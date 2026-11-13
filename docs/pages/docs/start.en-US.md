@@ -28,6 +28,7 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 | 🎙️ OpenAI TTS | [OpenLux](https://www.openlux.ai/register?aff=wKYu) | Realistic emotions | Chinese sounds foreign | 😕 | 🤩 |
 | 🎙️ Fish Audio | [Fish Audio](https://fish.audio) | Clones the voice of the video, or uses any voice of fish.audio | Paid API | 🤩 | 😃 |
 | 🎙️ SiliconFlow FishTTS | [SiliconFlow](https://cloud.siliconflow.cn/i/ttKDEsxE) | Voice Clone | Unstable cloning effect | 😃 | 😃 |
+| 🗣️ ModelBest VoxCPM | ModelBest | Multilingual, transcript-guided voice cloning | Requires a paid cloud API | 🤩 | 🤩 |
 | Edge TTS | Online service | No separate API key in this adapter | Requires network access | — | — |
 | 🗣️ GPT-SoVITS | Local | Best voice cloning | Only supports Chinese/English, requires local inference, complex setup | 🏆 | 🚫 |
 
@@ -35,6 +36,7 @@ VideoLingo provides multiple TTS integration methods. Here's a comparison (skip 
 - For OpenAI TTS, use [OpenLux](https://www.openlux.ai/register?aff=wKYu) with the same key as for the LLM. Another service with the speech endpoint of OpenAI works with `openai_tts.base_url` and `openai_tts.model` in `config.yaml`;
 - For Fish Audio, get the key at [fish.audio](https://fish.audio/app/api-keys/). The API is billed by usage and needs credit in the account; cloning costs nothing extra;
 - For F5-TTS, use [302AI](https://gpt302.saaslink.net/C2oHR9). It clones the voice of the video;
+- For ModelBest VoxCPM, set an API key in the sidebar. The model ID defaults to the verified `VoxCPM2` and remains editable for other models with the `speech_synthesis` capability. ModelBest does not currently expose a VoxCPM voice catalog, so the adapter uses the required `default` protocol value. Choose **Default Voice** for text-only synthesis, **Voice Clone** to send `ref_audio`, or **High-fidelity Clone** to additionally send `prompt_audio` and `prompt_text`. Clone modes let you upload one reference clip in the sidebar and use it for the whole video; High-fidelity Clone also reveals a field for the exact transcript of that clip. Without an upload, VideoLingo keeps using the matching source segment and its recognized transcript automatically.
 > For a custom TTS adapter, edit `core/tts_backend/custom_tts.py`.
 
 <details>
