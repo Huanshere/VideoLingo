@@ -637,6 +637,11 @@ def _ffmpeg_with_libass():
     return ffmpeg if re.search(r"^\s*\S+\s+ass\s", filters, re.M) else None
 
 
+def _relative(path):
+    """`path` relative to the repository, with forward slashes, as the filters of ffmpeg take it."""
+    return os.path.relpath(os.path.realpath(path), REPO_ROOT).replace(os.sep, "/")
+
+
 class RenderTests(unittest.TestCase):
     """What ffmpeg and libass make of the scripts."""
 
@@ -647,9 +652,18 @@ class RenderTests(unittest.TestCase):
             raise unittest.SkipTest("needs an ffmpeg with libass (python installer.py installs one)")
 
     def _directory(self):
-        directory = tempfile.TemporaryDirectory()
+        """A scratch folder under output/, as a path relative to the repository, where ffmpeg runs.
+
+        The burn-in hands the filter relative paths too (subtitle_style.get_typeset_filters):
+        an absolute path on Windows starts with a drive letter, which would need escaping.
+        """
+        parent = REPO_ROOT / "output"
+        if not parent.exists():
+            parent.mkdir()
+            self.addCleanup(lambda: any(parent.iterdir()) or parent.rmdir())
+        directory = tempfile.TemporaryDirectory(dir=parent, prefix="test_typeset_")
         self.addCleanup(directory.cleanup)
-        return directory.name
+        return _relative(directory.name)
 
     def _draw(self, filters, size):
         """One black frame with `filters` drawn on it: (grey pixels, ffmpeg log)."""
@@ -671,8 +685,8 @@ class RenderTests(unittest.TestCase):
     def _draw_scripts(self, scripts, size):
         directory = self._directory()
         for script in scripts:
-            Path(directory, script.name).write_text(script.text, encoding="utf-8")
-        chain = typeset.filter_chain(scripts, fonts_dir=typeset.FONTS_DIR, directory=directory)
+            Path(REPO_ROOT, directory, script.name).write_text(script.text, encoding="utf-8")
+        chain = typeset.filter_chain(scripts, fonts_dir=_relative(typeset.FONTS_DIR), directory=directory)
         return self._draw("format=yuv420p," + chain, size)
 
     def test_no_language_runs_off_the_frame(self):
@@ -720,9 +734,9 @@ class RenderTests(unittest.TestCase):
             )
         )
         directory = self._directory()
-        Path(directory, "faces.ass").write_text(document, encoding="utf-8")
+        Path(REPO_ROOT, directory, "faces.ass").write_text(document, encoding="utf-8")
         _, log = self._draw(
-            f"ass={directory}/faces.ass:fontsdir={typeset.FONTS_DIR}:shaping=complex", (1280, 960)
+            f"ass={directory}/faces.ass:fontsdir={_relative(typeset.FONTS_DIR)}:shaping=complex", (1280, 960)
         )
         self.assertNotIn("not found in font", log)
         for family in families:
