@@ -24,7 +24,8 @@ def read_cues(content: bytes):
     blocks = []
     lines = text.splitlines()
     for i, line in enumerate(lines):
-        times = CUE_TIMES.search(line)
+        # Timing lines start with a timestamp; dialogue may contain one later.
+        times = CUE_TIMES.match(line.lstrip())
         if times:
             if blocks and lines[i - 1].strip().isdigit():
                 blocks[-1][2].pop()  # the number of this subtitle
