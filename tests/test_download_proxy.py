@@ -13,7 +13,7 @@ def options(tmp_path, youtube):
     source = Path(__file__).resolve().parents[1] / 'core/_1_ytdlp.py'
     tree = ast.parse(source.read_text(encoding='utf-8'))
     tree.body = [n for n in tree.body if isinstance(n, ast.FunctionDef)
-                 and n.name == 'download_video_ytdlp']
+                 and n.name in {'_youtube_network_options', 'download_video_ytdlp'}]
     recorded = {}
     class Download:
         def __init__(self, opts): recorded.update(opts)
@@ -57,3 +57,29 @@ def test_explicit_overrides_environment(tmp_path, monkeypatch, proxy):
 def test_invalid_type_rejected_before_download(tmp_path, proxy):
     with pytest.raises(ValueError, match='youtube.proxy'):
         options(tmp_path, {'proxy': proxy})
+
+
+@pytest.mark.parametrize('proxy', [None, '', 'http://proxy.example.com:8080'])
+def test_preview_uses_download_proxy_setting(monkeypatch, proxy):
+    source = Path(__file__).resolve().parents[1] / 'core/_1_ytdlp.py'
+    tree = ast.parse(source.read_text(encoding='utf-8'))
+    tree.body = [n for n in tree.body if isinstance(n, ast.FunctionDef)
+                 and n.name in {'_get_youtube_metadata', '_youtube_network_options', 'get_video_info_ytdlp'}]
+    recorded = {}
+    class Preview:
+        def __init__(self, opts): recorded.update(opts)
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def extract_info(self, url, download):
+            assert url == 'https://video.example.com/item'
+            assert download is False
+            return {'title': 'Example'}
+    monkeypatch.setattr('yt_dlp.YoutubeDL', Preview)
+    namespace = {'os': os, 'load_key': lambda key: {'proxy': proxy}}
+    exec(compile(tree, str(source), 'exec'), namespace)
+
+    assert namespace['get_video_info_ytdlp']('https://video.example.com/item') == {'title': 'Example'}
+    if proxy is None:
+        assert 'proxy' not in recorded
+    else:
+        assert recorded['proxy'] == proxy
