@@ -232,5 +232,10 @@
     "Fixed voice": "Постоянный голос",
     "Another voice of fish.audio": "Другой голос с fish.audio",
     "Voice ID or the address of its page": "ID голоса или адрес его страницы",
-    "Open a voice on fish.audio and copy the address of its page": "Откройте голос на fish.audio и скопируйте адрес его страницы"
+    "Open a voice on fish.audio and copy the address of its page": "Откройте голос на fish.audio и скопируйте адрес его страницы",
+    "FonadaLabs API key": "API-ключ FonadaLabs",
+    "Number of speakers": "Число говорящих",
+    "0 detects the number of speakers automatically.": "0 — определить число говорящих автоматически.",
+    "FonadaLabs needs an explicit recognition language. Choose one above.": "FonadaLabs требует явно указать язык распознавания. Выберите его выше.",
+    "Audio is sent to FonadaLabs and may incur charges. Subtitles are timed per spoken phrase, not per word.": "Аудио отправляется в FonadaLabs, это может быть платно. Субтитры синхронизируются по фразам, а не по словам."
 }

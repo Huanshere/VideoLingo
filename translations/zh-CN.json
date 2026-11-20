@@ -232,5 +232,10 @@
     "Fixed voice": "固定音色",
     "Another voice of fish.audio": "fish.audio 上的其他音色",
     "Voice ID or the address of its page": "音色 ID 或音色页面的网址",
-    "Open a voice on fish.audio and copy the address of its page": "在 fish.audio 打开喜欢的音色，复制它页面的网址"
+    "Open a voice on fish.audio and copy the address of its page": "在 fish.audio 打开喜欢的音色，复制它页面的网址",
+    "FonadaLabs API key": "FonadaLabs API 密钥",
+    "Number of speakers": "说话人数量",
+    "0 detects the number of speakers automatically.": "0 表示自动检测说话人数量。",
+    "FonadaLabs needs an explicit recognition language. Choose one above.": "FonadaLabs 需要明确的识别语言，请在上方选择。",
+    "Audio is sent to FonadaLabs and may incur charges. Subtitles are timed per spoken phrase, not per word.": "音频会发送到 FonadaLabs，可能产生费用。字幕按语句计时，而非逐词计时。"
 }

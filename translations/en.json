@@ -232,5 +232,10 @@
     "Fixed voice": "Fixed voice",
     "Another voice of fish.audio": "Another voice of fish.audio",
     "Voice ID or the address of its page": "Voice ID or the address of its page",
-    "Open a voice on fish.audio and copy the address of its page": "Open a voice on fish.audio and copy the address of its page"
+    "Open a voice on fish.audio and copy the address of its page": "Open a voice on fish.audio and copy the address of its page",
+    "FonadaLabs API key": "FonadaLabs API key",
+    "Number of speakers": "Number of speakers",
+    "0 detects the number of speakers automatically.": "0 detects the number of speakers automatically.",
+    "FonadaLabs needs an explicit recognition language. Choose one above.": "FonadaLabs needs an explicit recognition language. Choose one above.",
+    "Audio is sent to FonadaLabs and may incur charges. Subtitles are timed per spoken phrase, not per word.": "Audio is sent to FonadaLabs and may incur charges. Subtitles are timed per spoken phrase, not per word."
 }

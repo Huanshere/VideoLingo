@@ -206,6 +206,14 @@ Choose **ASR Runtime → MAI-Transcribe-2** in the sidebar, then select **Azure 
 
 Azure MAI uses the fast transcription API; OpenRouter uses its [dedicated audio transcription API](https://openrouter.ai/docs/guides/overview/multimodal/stt) with model `microsoft/mai-transcribe-2`. Both request clean text and word timestamps. OpenRouter uploads are split into roughly two-minute clips to fit its processing timeout. Audio is sent to the selected cloud provider and may incur charges. Azure MAI-Transcribe-2 is in public preview without an SLA; check that your resource region supports it. Provider and API version distinguish cached transcripts; credentials and resource region are excluded from cache identity. The [contributor's evaluation in #618](https://github.com/Huanshere/VideoLingo/pull/618) compared MAI with WhisperX, not the current Qwen3-ASR default.
 
+#### Optional FonadaLabs Kapture V3 (Indian languages)
+
+Choose **ASR Runtime → FonadaLabs Kapture V3**, enter your FonadaLabs API key (`whisper.fonada_api_key`) and pick the recognition language: `en`, `hi` (also for Hinglish), `bn`, `gu`, `kn`, `ml`, `mr`, `or`, `pa`, `ta` or `te`. Automatic language detection is not available for this runtime.
+
+Kapture V3 returns text without word timestamps. VideoLingo therefore cuts the audio at pauses into short spoken phrases (Silero VAD, at most about 6–10 s each) and sends each phrase as its own request to `https://api.fonada.ai/v3/asr/transcribe`. A subtitle's start and end are the measured edges of its phrase; times are never interpolated inside a phrase, so subtitle lines that fall inside one phrase are shown together as one cue. Each request is far below the 25 MB API limit, so long videos need no special handling; finished phrases are kept in `.cache/asr/fonada`, so a run that stops (for example when credits run out) resumes without sending them again.
+
+Speaker labels (`speaker_id` in the transcript table) come from SpeechBrain ECAPA speaker embeddings ([`speechbrain/spkrec-ecapa-voxceleb`](https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb), Apache-2.0, downloaded on first use, no token) clustered over the whole video. Set `whisper.fonada_num_speakers` when the speaker count is known; `0` detects it. Phrases are also cut where the speaker changes. Audio is sent to FonadaLabs and may incur charges.
+
 <a id="storage"></a>
 ### Where files are stored
 

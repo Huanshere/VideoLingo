@@ -17,6 +17,14 @@ api:
   llm_support_json: false
 # *Number of LLM multi-threaded accesses, set to 1 if using local LLM
 max_workers: 4
+# *Send many sentences/lines per LLM request instead of one request each. Use it on
+# request-limited plans (e.g. a free Gemini key allows 20 requests a day).
+llm_batching: true
+# *Items per batched split/align request
+llm_batch_size: 60
+# *Batched translation chunk size: characters and lines per request
+llm_translate_chunk_chars: 8000
+llm_translate_chunk_lines: 100
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -54,6 +62,13 @@ whisper:
   mai_provider: 'azure'
   # OpenRouter API key for optional MAI-Transcribe-2 via OpenRouter.
   mai_openrouter_api_key: ''
+  # FonadaLabs Kapture V3 API key (runtime "fonada"). Needs an explicit language:
+  # en, hi (also Hinglish), bn, gu, kn, ml, mr, or, pa, ta or te.
+  fonada_api_key: ''
+  # *Number of speakers for FonadaLabs speaker labels; 0 detects it automatically
+  fonada_num_speakers: 0
+  # *FonadaLabs requests per minute allowed for your key (10 on the tested plan)
+  fonada_requests_per_minute: 10
 
 # Whether to burn subtitles into the video
 burn_subtitles: true

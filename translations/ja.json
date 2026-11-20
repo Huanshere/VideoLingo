@@ -232,5 +232,10 @@
     "Fixed voice": "固定の声",
     "Another voice of fish.audio": "fish.audio の別の声",
     "Voice ID or the address of its page": "声の ID、またはそのページのアドレス",
-    "Open a voice on fish.audio and copy the address of its page": "fish.audio で声を開き、そのページのアドレスをコピーしてください"
+    "Open a voice on fish.audio and copy the address of its page": "fish.audio で声を開き、そのページのアドレスをコピーしてください",
+    "FonadaLabs API key": "FonadaLabs API キー",
+    "Number of speakers": "話者数",
+    "0 detects the number of speakers automatically.": "0 の場合は話者数を自動検出します。",
+    "FonadaLabs needs an explicit recognition language. Choose one above.": "FonadaLabs では認識言語を明示的に指定する必要があります。上で選択してください。",
+    "Audio is sent to FonadaLabs and may incur charges. Subtitles are timed per spoken phrase, not per word.": "音声は FonadaLabs に送信され、料金が発生する場合があります。字幕は単語単位ではなく発話単位でタイミングが付きます。"
 }

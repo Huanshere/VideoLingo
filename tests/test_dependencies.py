@@ -680,6 +680,33 @@ def test_mai_sidebar_adds_credentials_to_an_older_config(monkeypatch, tmp_path):
     assert saved['mai_api_key'] == 'test-key'
 
 
+def test_fonada_sidebar_offers_indian_languages_and_saves_the_key(monkeypatch, tmp_path):
+    from streamlit.testing.v1 import AppTest
+    from core.utils import config_utils
+
+    config = tmp_path / 'config.yaml'
+    data = config_utils.yaml.load((ROOT / 'config.yaml').read_text(encoding='utf-8'))
+    data['whisper'].pop('fonada_api_key', None)
+    data['whisper'].pop('fonada_num_speakers', None)
+    with config.open('w', encoding='utf-8') as output:
+        config_utils.yaml.dump(data, output)
+    monkeypatch.setattr(config_utils, 'CONFIG_PATH', str(config))
+
+    app = AppTest.from_file(ROOT / 'st.py', default_timeout=60).run()
+    runtime = next(item for item in app.selectbox if item.value == 'local')
+    app = runtime.set_value('fonada').run()
+    assert not app.exception
+    from core.asr_backend.fonada_asr import LANGUAGES
+    language = next(item for item in app.selectbox if item.label in ('Recog Lang', '识别语言'))
+    assert len(language.options) == len(LANGUAGES) and 'Auto' not in language.options
+    app = language.set_value(LANGUAGES['ta']).run()
+    key = next(item for item in app.text_input if item.label in ('FonadaLabs API key', 'FonadaLabs API 密钥'))
+    app = key.set_value(' test-key ').run()
+    assert not app.exception
+    saved = config_utils.yaml.load(config.read_text(encoding='utf-8'))['whisper']
+    assert (saved['runtime'], saved['language'], saved['fonada_api_key']) == ('fonada', 'ta', 'test-key')
+
+
 def test_mai_sidebar_switches_to_openrouter_on_older_config(monkeypatch, tmp_path):
     from streamlit.testing.v1 import AppTest
     from core.utils import config_utils

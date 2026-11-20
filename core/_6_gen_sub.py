@@ -112,6 +112,25 @@ def get_sentence_timestamps(df_words, df_sentences):
 
     return time_stamp_list
 
+def merge_shared_spans(df):
+    """Merge consecutive lines whose times overlap into one cue.
+
+    Overlap only happens when the ASR timed whole utterances rather than words
+    (FonadaLabs): lines cut from one utterance share its span, and splitting that
+    span between them would invent timing. Word-timed lines never overlap.
+    """
+    text_columns = [c for c in ("Source", "Translation") if c in df.columns]
+    rows = []
+    for row in df.to_dict("records"):
+        if rows and row["timestamp"][0] < rows[-1]["timestamp"][1]:
+            last = rows[-1]
+            for column in text_columns:
+                last[column] = " ".join(p for p in (str(last[column]).strip(), str(row[column]).strip()) if p)
+            last["timestamp"] = (last["timestamp"][0], max(last["timestamp"][1], row["timestamp"][1]))
+        else:
+            rows.append(dict(row))
+    return pd.DataFrame(rows, columns=df.columns).reset_index(drop=True)
+
 def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output_dir: str, for_display: bool = True):
     """Align timestamps and add a new timestamp column to df_translate"""
     df_trans_time = df_translate.copy()
@@ -124,6 +143,7 @@ def align_timestamp(df_text, df_translate, subtitle_output_configs: list, output
     # Process timestamps ⏰
     time_stamp_list = get_sentence_timestamps(df_text, df_translate)
     df_trans_time['timestamp'] = time_stamp_list
+    df_trans_time = merge_shared_spans(df_trans_time)
     df_trans_time['duration'] = df_trans_time['timestamp'].apply(lambda x: x[1] - x[0])
 
     # Remove gaps 🕳️
