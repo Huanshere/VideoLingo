@@ -37,6 +37,22 @@ def cache_key(media_file, whisper, demucs):
             "language": whisper["language"], "demucs": bool(demucs),
         }
         return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+    if whisper["runtime"] == "fonada":
+        from core.asr_backend.fonada_asr import CACHE_IDENTITY as FONADA_IDENTITY
+        # Utterance cuts (silero-vad) and speaker labels (speechbrain) shape the result;
+        # the API key does not.
+        tools = {}
+        for name in ("silero-vad", "speechbrain", "demucs"):
+            try:
+                tools[name] = version(name)
+            except PackageNotFoundError:
+                tools[name] = None
+        identity = {
+            "schema": SCHEMA, "media_md5": digest.hexdigest(), "runtime": "fonada",
+            "fonada": FONADA_IDENTITY, "packages": tools, "language": whisper["language"],
+            "speakers": whisper.get("fonada_num_speakers") or None, "demucs": bool(demucs),
+        }
+        return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     packages = {}
     for name in ("whisperx", "faster-whisper", "qwen-asr", "mlx-audio", "transformers", "demucs", "silero-vad"):
         try:

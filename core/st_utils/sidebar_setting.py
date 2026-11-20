@@ -74,10 +74,17 @@ LANGUAGE_LABELS = {
 }
 
 
-def recognition_languages(configured=None):
-    """Label -> code for the recognition language dropdown: every Qwen3-ASR language."""
+def recognition_languages(configured=None, runtime=None):
+    """Label -> code for the recognition language dropdown: every Qwen3-ASR language,
+    or the FonadaLabs languages (no auto detection) for that runtime."""
     from core.asr_backend.qwen_asr_local import ISO_TO_QWEN
 
+    if runtime == "fonada":
+        from core.asr_backend.fonada_asr import LANGUAGES
+        langs = {LANGUAGE_LABELS.get(code, name): code for code, name in LANGUAGES.items()}
+        if configured not in langs.values():
+            langs[str(configured)] = configured
+        return langs
     langs = {"Auto": "auto"}
     for code in [*LANGUAGE_LABELS, *ISO_TO_QWEN]:
         if code in ISO_TO_QWEN and code not in langs.values():
@@ -212,7 +219,7 @@ def page_setting():
     with st.expander(t("Subtitles Settings"), expanded=True):
         c1, c2 = st.columns(2)
         with c1:
-            langs = recognition_languages(load_key("whisper.language"))
+            langs = recognition_languages(load_key("whisper.language"), load_key("whisper.runtime"))
             lang = st.selectbox(
                 t("Recog Lang"),
                 options=list(langs.keys()),
@@ -222,7 +229,7 @@ def page_setting():
                 update_key("whisper.language", langs[lang])
                 st.rerun()
 
-        runtimes = ["local", "elevenlabs", "mai"]
+        runtimes = ["local", "elevenlabs", "mai", "fonada"]
         configured_runtime = load_key("whisper.runtime")
         if configured_runtime not in runtimes:
             st.warning(t("The 302.ai WhisperX cloud service has been retired. Select Local or ElevenLabs to continue."))
@@ -234,6 +241,7 @@ def page_setting():
                 "local": t("Local"),
                 "elevenlabs": t("ElevenLabs"),
                 "mai": t("MAI-Transcribe-2"),
+                "fonada": "FonadaLabs Kapture V3",
             }[x],
             help=t(
                 "Local Qwen3-ASR runs best on an NVIDIA GPU or Apple Silicon (CPU works but is slow); cloud recognition requires a provider API key."
@@ -261,6 +269,21 @@ def page_setting():
                 st.warning(t("WhisperX is not installed. Follow the manual page (docs/pages/docs/whisperx-manual.en-US.md) and install the extra packages yourself, or set whisper.backend to qwen."))
         if runtime == "elevenlabs":
             config_input(t("ElevenLabs API"), "whisper.elevenlabs_api_key")
+        elif runtime == "fonada":
+            stored_key = str(load_key_or("whisper.fonada_api_key", "") or "")
+            fonada_key = st.text_input(t("FonadaLabs API key"), value=stored_key, type="password")
+            if fonada_key != stored_key:
+                update_key("whisper.fonada_api_key", fonada_key.strip(), add_missing=True)
+            stored_speakers = int(load_key_or("whisper.fonada_num_speakers", 0) or 0)
+            speakers = st.number_input(
+                t("Number of speakers"), min_value=0, max_value=20, value=stored_speakers,
+                help=t("0 detects the number of speakers automatically."),
+            )
+            if int(speakers) != stored_speakers:
+                update_key("whisper.fonada_num_speakers", int(speakers), add_missing=True)
+            if load_key("whisper.language") == "auto":
+                st.warning(t("FonadaLabs needs an explicit recognition language. Choose one above."))
+            st.caption(t("Audio is sent to FonadaLabs and may incur charges. Subtitles are timed per spoken phrase, not per word."))
         elif runtime == "mai":
             from core.asr_backend.mai_asr import detect_region
 

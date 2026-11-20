@@ -205,6 +205,14 @@ uv run start.py
 
 Azure MAI 使用快速转写 API；OpenRouter 使用[专用音频转写 API](https://openrouter.ai/docs/guides/overview/multimodal/stt) 和 `microsoft/mai-transcribe-2` 模型。两种方式都请求清理后的文本及词级时间戳。OpenRouter 会将音频拆为约两分钟的片段，以适应处理超时限制。音频会发送到选定的云服务商，可能产生费用。Azure MAI-Transcribe-2 目前为无 SLA 的公开预览；请确认资源区域支持该模型。缓存会区分服务商及 API 版本，但不包含密钥或 Azure 区域。[#618 的贡献者评测](https://github.com/Huanshere/VideoLingo/pull/618)比较的是 MAI 与 WhisperX，尚未比较当前默认的 Qwen3-ASR。
 
+#### 可选的 FonadaLabs Kapture V3（印度语言）
+
+在侧栏选择 **ASR Runtime → FonadaLabs Kapture V3**，填写 FonadaLabs API 密钥（`whisper.fonada_api_key`），并选择识别语言：`en`、`hi`（也用于印地英语混说）、`bn`、`gu`、`kn`、`ml`、`mr`、`or`、`pa`、`ta` 或 `te`。此运行时不支持自动检测语言。
+
+Kapture V3 只返回文本，不返回逐词时间戳。因此 VideoLingo 先用 Silero VAD 在停顿处把音频切成较短的语句（每句约 6–10 秒以内），每句单独请求 `https://api.fonada.ai/v3/asr/transcribe`。字幕的起止时间就是该语句实际测得的边界；语句内部不插值，落在同一语句内的多行字幕会合并为一条显示。每个请求都远小于 25 MB 的 API 上限，长视频无需特殊处理；已完成的语句保存在 `.cache/asr/fonada`，中断（例如额度用尽）后重新运行不会重复发送。
+
+说话人标签（转写表中的 `speaker_id`）由 SpeechBrain ECAPA 说话人向量（[`speechbrain/spkrec-ecapa-voxceleb`](https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb)，Apache-2.0，首次使用时下载，无需令牌）在整段视频上聚类得到。已知人数时可设置 `whisper.fonada_num_speakers`，`0` 为自动检测。说话人变化处也会切分语句。音频会发送到 FonadaLabs，可能产生费用。
+
 <a id="storage"></a>
 ### 文件存放位置
 

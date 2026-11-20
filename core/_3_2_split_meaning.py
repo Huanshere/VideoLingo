@@ -11,6 +11,13 @@ from rich.table import Table
 from core.utils.models import _3_1_SPLIT_BY_NLP, _3_2_SPLIT_BY_MEANING
 console = Console()
 
+def llm_batching():
+    """Batched LLM requests are an opt-in setting; without a readable config they are off."""
+    try:
+        return bool(load_key_or("llm_batching", False))
+    except (OSError, KeyError):
+        return False
+
 def tokenize_sentence(sentence, nlp):
     doc = nlp(sentence)
     return [token.text for token in doc]
@@ -75,6 +82,20 @@ def mechanical_split(sentence, num_parts):
         rest = rest[cut:].strip()
     return '\n'.join(line for line in lines + [rest] if line)
 
+def apply_split(sentence, marked):
+    """Cut the original sentence where the model put [br] in its copy; lines joined by newlines."""
+    split_points = find_split_positions(sentence, marked)
+    result = sentence
+    for i, split_point in enumerate(split_points):
+        if i == 0:
+            result = sentence[:split_point] + '\n' + sentence[split_point:]
+        else:
+            parts = result.split('\n')
+            last_part = parts[-1]
+            parts[-1] = last_part[:split_point - split_points[i-1]] + '\n' + last_part[split_point - split_points[i-1]:]
+            result = '\n'.join(parts)
+    return result
+
 def split_sentence(sentence, num_parts, word_limit=20, index=-1, retry_attempt=0):
     """Split a long sentence using GPT and return the result as a string."""
     split_prompt = get_split_prompt(sentence, num_parts, word_limit)
@@ -91,17 +112,7 @@ def split_sentence(sentence, num_parts, word_limit=20, index=-1, retry_attempt=0
         # One sentence the model cannot split should not stop the whole video
         console.print(f"[yellow]⚠️ LLM split failed ({e}), splitting mechanically: {sentence}[/yellow]")
         return mechanical_split(sentence, num_parts)
-    best_split = pick_split(response_data)
-    split_points = find_split_positions(sentence, best_split)
-    # split the sentence based on the split points
-    for i, split_point in enumerate(split_points):
-        if i == 0:
-            best_split = sentence[:split_point] + '\n' + sentence[split_point:]
-        else:
-            parts = best_split.split('\n')
-            last_part = parts[-1]
-            parts[-1] = last_part[:split_point - split_points[i-1]] + '\n' + last_part[split_point - split_points[i-1]:]
-            best_split = '\n'.join(parts)
+    best_split = apply_split(sentence, pick_split(response_data))
     if index != -1:
         console.print(f'[green]✅ Sentence {index} has been successfully split[/green]')
     table = Table(title="")
@@ -117,6 +128,20 @@ def parallel_split_sentences(sentences, max_length, max_workers, nlp, retry_atte
     """Split sentences in parallel using a thread pool."""
     new_sentences = [None] * len(sentences)
     futures = []
+
+    if llm_batching():
+        from core.llm_batch import batch_split
+        todo = []
+        for index, sentence in enumerate(sentences):
+            tokens = tokenize_sentence(sentence, nlp)
+            if len(tokens) > max_length:
+                todo.append((index, sentence, math.ceil(len(tokens) / max_length)))
+            else:
+                new_sentences[index] = [sentence]
+        results = batch_split([(sentence, parts, max_length) for _, sentence, parts in todo])
+        for (index, sentence, _), result in zip(todo, results):
+            new_sentences[index] = [line.strip() for line in result.strip().split('\n') if line.strip()] or [sentence]
+        return [sentence for sublist in new_sentences for sentence in sublist]
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for index, sentence in enumerate(sentences):

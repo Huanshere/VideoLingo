@@ -5,7 +5,7 @@ from typing import List, Tuple
 import concurrent.futures
 
 from core._1_ytdlp import find_subtitle_file
-from core._3_2_split_meaning import split_sentence
+from core._3_2_split_meaning import split_sentence, llm_batching
 from core.task_runner import StopTask
 from core.prompts import get_align_prompt
 from rich.panel import Panel
@@ -91,6 +91,25 @@ def split_align_subs(src_lines: List[str], tr_lines: List[str]):
             table.add_row("Target Line", tr)
             console.print(table)
     
+    if llm_batching() and to_split:
+        from core.llm_batch import batch_split, batch_align
+        splits = batch_split([(str(src_lines[i]), 2, load_key("max_split_length")) for i in to_split])
+        pending = []
+        for i, split_src in zip(to_split, splits):
+            parts = [part.strip() for part in split_src.split('\n') if part.strip()]
+            if len(parts) >= 2:
+                pending.append((i, parts))
+            else:
+                console.print(f"[yellow]⚠️ Line {i} could not be split, keeping it as is[/yellow]")
+        aligned = batch_align([(str(src_lines[i]), str(tr_lines[i]), parts) for i, parts in pending])
+        for (i, src_parts), tr_parts in zip(pending, aligned):
+            if not tr_parts:
+                console.print(f"[yellow]⚠️ Line {i} was not aligned, keeping it as is[/yellow]")
+                continue
+            src_lines[i], tr_lines[i] = src_parts, tr_parts
+            remerged_tr_lines[i] = join_words(tr_parts, get_text_joiner(''.join(tr_parts)))
+        to_split = []
+
     @except_handler("Error in split_align_subs")
     def process(i):
         split_src = split_sentence(src_lines[i], num_parts=2).strip()
@@ -139,6 +158,13 @@ def split_source_lines(lines: List[str]) -> List[str]:
         if all(fits(line) for line in lines):
             break
         check_cancel()
+        if llm_batching():
+            from core.llm_batch import batch_split
+            long_lines = [i for i, line in enumerate(lines) if not fits(line)]
+            splits = dict(zip(long_lines, batch_split([(lines[i], 2, load_key("max_split_length")) for i in long_lines])))
+            lines = [part for i, line in enumerate(lines)
+                     for part in ([p.strip() for p in splits[i].split('\n') if p.strip()] if i in splits else [line])]
+            continue
         with concurrent.futures.ThreadPoolExecutor(max_workers=load_key("max_workers")) as executor:
             lines = [part for parts in executor.map(process, lines) for part in parts]
     return lines

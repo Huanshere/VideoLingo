@@ -37,14 +37,17 @@ def prepare_audio(media_file, media_type, demucs):
 @check_file_exists(_2_CLEANED_CHUNKS)
 def transcribe():
     runtime = load_key("whisper.runtime")
-    if runtime not in ("local", "elevenlabs", "mai"):
-        raise ValueError("Select local, elevenlabs or mai for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
+    if runtime not in ("local", "elevenlabs", "mai", "fonada"):
+        raise ValueError("Select local, elevenlabs, mai or fonada for whisper.runtime. The 302.ai WhisperX cloud service has been retired.")
     if runtime == "local" and local_backend(load_key("whisper")) == "whisperx":
         from importlib.util import find_spec
         if find_spec("whisperx") is None:
             raise RuntimeError(WHISPERX_NOT_INSTALLED)
     if runtime == "mai":
         from core.asr_backend.mai_asr import configured_credentials
+        configured_credentials()
+    if runtime == "fonada":
+        from core.asr_backend.fonada_asr import configured_credentials
         configured_credentials()
     # 1. prepare audio
     media_file, media_type = find_media_file()
@@ -90,6 +93,9 @@ def transcribe():
     elif runtime == "mai":
         from core.asr_backend.mai_asr import transcribe_audio_mai as ts, selected_provider
         rprint(f"[cyan]🎤 Transcribing audio with MAI-Transcribe-2 via {selected_provider()}...[/cyan]")
+    elif runtime == "fonada":
+        from core.asr_backend.fonada_asr import transcribe_audio_fonada as ts
+        rprint("[cyan]🎤 Transcribing audio with FonadaLabs Kapture V3...[/cyan]")
     else:
         raise ValueError(f"Unsupported ASR runtime: {runtime}")
 
@@ -114,6 +120,11 @@ def transcribe():
     combined_result = {'segments': []}
     for result in all_results:
         combined_result['segments'].extend(result['segments'])
+    if runtime == "fonada":
+        # Speakers are clustered over the whole recording so labels agree across clips.
+        from core.asr_backend.fonada_asr import assign_speakers
+        segments = [dict(segment) for segment in combined_result['segments']]
+        combined_result['segments'] = assign_speakers(segments, whisper.get("fonada_num_speakers") or None)
     
     # 6. Process df
     df = process_transcription(combined_result)
