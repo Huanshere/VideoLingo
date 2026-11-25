@@ -159,7 +159,7 @@ To start it later, run `uv run start.py` again from the VideoLingo folder. Apple
 
 Local recognition transcribes with **Qwen3-ASR** and then produces word timestamps with **Qwen3-ForcedAligner-0.6B**. With vocal separation enabled, transcription uses the original audio and alignment uses the separated vocals.
 
-- **Model size**: `whisper.qwen_model` in `config.yaml` (not in the sidebar). `1.7b` (default) is more accurate; `0.6b` is faster and uses less memory. The aligner is always ForcedAligner-0.6B.
+- **Model size**: `whisper.qwen_model` in `config.yaml` (not in the sidebar). `1.7b` (default) is more accurate; `0.6b` is faster and uses less memory. For English-only noncommercial use, `oruk-fourier-2b` selects [Oruk Fourier 2B](https://huggingface.co/oruk/oruk-fourier-2b) ([CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)) via `audiocpp` or native `transformers >= 5.21` (not `mlx` or the default `qwen-asr 0.0.6` environment). The aligner is always ForcedAligner-0.6B.
 - **Engine**: `whisper.qwen_engine: auto` selects it automatically; you normally do not need to change it. `audiocpp` is an optional engine that uses a running audio.cpp server, see [below](#audiocpp-engine).
 
 | Platform | Engine | Models | Notes |
@@ -196,7 +196,9 @@ Local recognition transcribes with **Qwen3-ASR** and then produces word timestam
 }
 ```
 
-3. In `config.yaml`, set `whisper.qwen_engine: audiocpp`, and `whisper.audiocpp_url` if the server is not at `http://127.0.0.1:8080`. `whisper.qwen_model` picks the `Qwen3-ASR-1.7B` or `Qwen3-ASR-0.6B` id.
+3. In `config.yaml`, set `whisper.qwen_engine: audiocpp`, and `whisper.audiocpp_url` if the server is not at `http://127.0.0.1:8080`. `whisper.qwen_model` picks the `Qwen3-ASR-1.7B`, `Qwen3-ASR-0.6B`, or `Oruk-Fourier-2B` id.
+
+For optional English-only noncommercial transcription with [Oruk Fourier 2B](https://huggingface.co/oruk/oruk-fourier-2b) ([CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)), install the pinned native checkpoint directly from Hugging Face via audio.cpp's model manager (`python3 tools/model_manager_v2.py install oruk_fourier_2b_safetensors --models-root models`), add `{"id": "Oruk-Fourier-2B", "family": "qwen3_asr", "path": "/path/to/models/Oruk-Fourier-2B", "task": "asr", "mode": "offline"}` alongside `Qwen3-ForcedAligner-0.6B` in `server.json`, and set `whisper.qwen_model: oruk-fourier-2b`, `whisper.qwen_engine: audiocpp`, and `whisper.language: en`. Alternatively, in a separate environment with `transformers >= 5.21` and `torch` (note that VideoLingo's default Windows/Linux install pins `qwen-asr 0.0.6` with `transformers < 5`, and `mlx` is not supported for this checkpoint), set `whisper.qwen_model: oruk-fourier-2b` and `whisper.qwen_engine: transformers` to load `oruk/oruk-fourier-2b` and `Qwen/Qwen3-ForcedAligner-0.6B-hf` directly from Hugging Face.
 
 Windows are at most 90 s with this engine, because the audio.cpp forced aligner rejects clips of about 115 s or more. Audio is sent to the server as 16 kHz WAV over HTTP. The transcription cache keeps audio.cpp results apart from the other engines, but does not track which GGUF files or audio.cpp version the server uses: after changing them, delete `.cache/asr` to transcribe again.
 

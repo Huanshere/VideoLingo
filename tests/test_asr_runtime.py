@@ -192,6 +192,45 @@ class LocalBackendTests(unittest.TestCase):
             self.run_local({}, qwen_result={"language": None, "segments": []})
         self.assertFalse(Path(asr._2_CLEANED_CHUNKS).exists())
 
+    def test_fourier_resolves_cache_identity_and_passes_model_to_resolve_engine(self):
+        with patch.object(qwen_asr_local, "resolve_engine", return_value="audiocpp") as engine:
+            # Override run_local's resolve_engine mock by calling _2_asr.transcribe directly.
+            temp = tempfile.TemporaryDirectory()
+            self.addCleanup(temp.cleanup)
+            cwd = os.getcwd()
+            os.chdir(temp.name)
+            self.addCleanup(os.chdir, cwd)
+            Path("input.wav").write_bytes(b"synthetic input")
+            whisper = {"runtime": "local", "backend": "qwen", "qwen_model": "oruk-fourier-2b",
+                       "qwen_engine": "audiocpp", "language": "en", "model": "large-v3"}
+            config = {"whisper": whisper, "demucs": False, "whisper.runtime": "local"}
+            qwen = Mock(return_value=result())
+            key = Mock(return_value=None)
+            with patch.object(asr, "find_media_file", return_value=("input.wav", "audio")), patch.object(
+                asr, "load_key", side_effect=config.__getitem__
+            ), patch.object(asr, "update_key"), patch.object(asr, "check_cancel"), patch.object(
+                asr, "prepare_audio_for_asr"
+            ), patch.object(asr, "split_audio", return_value=((0, 1),)), patch.object(
+                asr.cache, "cache_key", key
+            ), patch.object(qwen_asr_local, "transcribe_audio", qwen):
+                asr.transcribe()
+        engine.assert_called_once_with("audiocpp", model="oruk-fourier-2b")
+        identity = key.call_args.args[1]
+        self.assertEqual((identity["backend"], identity["qwen_model"], identity["qwen_engine"]),
+                         ("qwen", "oruk-fourier-2b", "audiocpp"))
+
+    def test_fourier_rejects_non_english_before_preparing_audio(self):
+        whisper = {"runtime": "local", "backend": "qwen", "qwen_model": "oruk-fourier-2b",
+                   "qwen_engine": "audiocpp", "language": "zh", "model": "large-v3"}
+        config = {"whisper": whisper, "demucs": False, "whisper.runtime": "local"}
+        with patch.object(asr, "load_key", side_effect=config.__getitem__), patch.object(
+            asr, "find_media_file", return_value=("input.wav", "audio")
+        ), patch.object(asr, "prepare_audio_for_asr") as prepare, self.assertRaisesRegex(
+            ValueError, "English-only"
+        ):
+            asr.transcribe.__wrapped__()
+        prepare.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

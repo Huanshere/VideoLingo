@@ -15,6 +15,7 @@ Heavy libraries are imported lazily so this module imports without them.
 
 import base64
 import gc
+import importlib.metadata
 import importlib.util
 import io
 import math
@@ -88,6 +89,11 @@ REPROBES_PER_WINDOW = 6
 _REPEATED_UNIT = re.compile(r"(.{1,40}?)\1{3,}", re.S)
 MAX_WORD_LENGTH = 30  # process_transcription drops longer words
 
+FOURIER_MODEL = "oruk-fourier-2b"
+FOURIER_HF_REVISION = "8c2a8871f1304aa2f634da4fb95e24438c4945b9"
+NATIVE_TRANSFORMERS_MIN_VERSION = (5, 21)
+NATIVE_TRANSFORMERS_ALIGNER = "Qwen/Qwen3-ForcedAligner-0.6B-hf"
+
 MODELS = {
     "mlx": {
         "1.7b": "mlx-community/Qwen3-ASR-1.7B-8bit",
@@ -97,12 +103,17 @@ MODELS = {
     "transformers": {
         "1.7b": "Qwen/Qwen3-ASR-1.7B",
         "0.6b": "Qwen/Qwen3-ASR-0.6B",
+        # Native HF Transformers checkpoint (English-only, CC BY-NC 4.0); requires transformers >= 5.21.
+        FOURIER_MODEL: "oruk/oruk-fourier-2b",
         "aligner": "Qwen/Qwen3-ForcedAligner-0.6B",
     },
     # Model ids of the user's audio.cpp server config (see docs: "audio.cpp engine").
     "audiocpp": {
         "1.7b": "Qwen3-ASR-1.7B",
         "0.6b": "Qwen3-ASR-0.6B",
+        # Optional English-only Oruk Fourier 2B (CC BY-NC 4.0); installed via audio.cpp
+        # `oruk_fourier_2b_safetensors` directly from oruk/oruk-fourier-2b.
+        FOURIER_MODEL: "Oruk-Fourier-2B",
         "aligner": "Qwen3-ForcedAligner-0.6B",
     },
 }
@@ -133,23 +144,65 @@ def _installed(module):
     return importlib.util.find_spec(module) is not None
 
 
+def _transformers_version():
+    try:
+        return importlib.metadata.version("transformers")
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
+def _version_at_least(version_text, minimum):
+    if not version_text:
+        return False
+    parts = [int(part) for part in re.findall(r"\d+", str(version_text))[:len(minimum)]]
+    while len(parts) < len(minimum):
+        parts.append(0)
+    return tuple(parts) >= minimum
+
+
 def model_size(requested=None):
     size = str(requested or load_key_or("whisper.qwen_model", "1.7b")).lower()
-    if size not in ("1.7b", "0.6b"):
-        raise ValueError(f"whisper.qwen_model must be '1.7b' or '0.6b', got {size!r}")
+    if size not in ("1.7b", "0.6b", FOURIER_MODEL):
+        raise ValueError(f"whisper.qwen_model must be '1.7b', '0.6b' or '{FOURIER_MODEL}', got {size!r}")
     return size
 
 
-def resolve_engine(requested=None):
+def resolve_engine(requested=None, model=None):
     """auto -> MLX on Apple Silicon (qwen-asr only if it is what this environment has), else transformers.
 
     audiocpp is never chosen automatically: it needs an audio.cpp server the user runs.
+    oruk-fourier-2b supports audiocpp (cross-platform) or native transformers >= 5.21 (never mlx).
     """
     engine = str(requested or load_key_or("whisper.qwen_engine", "auto")).lower()
     if engine not in ("auto", "mlx", "transformers", "audiocpp"):
         raise ValueError(f"whisper.qwen_engine must be 'auto', 'mlx', 'transformers' or 'audiocpp', got {engine!r}")
+    if model is None and requested is None:
+        model = str(load_key_or("whisper.qwen_model", "1.7b")).lower()
+    elif model is not None:
+        model = model_size(model)
     if engine == "audiocpp":
         return engine
+    if model == FOURIER_MODEL:
+        if engine == "mlx":
+            raise ValueError(
+                "Oruk Fourier 2B is not supported by the 'mlx' engine (mlx-audio expects legacy "
+                "thinker_config weights). Set whisper.qwen_engine to 'audiocpp' (cross-platform) "
+                "or 'transformers' (requires transformers >= 5.21 and torch)."
+            )
+        # Never auto-select mlx or audiocpp for Fourier; native transformers requires >= 5.21 + torch.
+        min_ver = ".".join(str(part) for part in NATIVE_TRANSFORMERS_MIN_VERSION)
+        installed_ver = _transformers_version()
+        if not _version_at_least(installed_ver, NATIVE_TRANSFORMERS_MIN_VERSION) or not _installed("torch"):
+            found = f"transformers {installed_ver}" if installed_ver else "transformers not installed"
+            if not _installed("torch"):
+                found += ", torch not installed"
+            raise ImportError(
+                f"Oruk Fourier 2B on the 'transformers' engine needs transformers >= {min_ver} and torch "
+                f"(found {found}). Windows/Linux default installs pin qwen-asr 0.0.6 (transformers < 5); "
+                "use whisper.qwen_engine: 'audiocpp' or run Fourier in a separate environment with "
+                f"transformers >= {min_ver}."
+            )
+        return "transformers"
     if engine == "auto":
         # Apple Silicon requirements install mlx-audio, not qwen-asr; point a broken install back to it.
         mlx = _apple_silicon() and (_installed("mlx_audio") or not _installed("qwen_asr"))
@@ -175,13 +228,19 @@ def _model_source(repo_id):
     return repo_id
 
 
-def qwen_language(language):
+def qwen_language(language, model=None):
     """Map whisper.language to a Qwen language name; None lets Qwen detect it."""
     if not language or language == "auto":
         return None
     if language not in ISO_TO_QWEN:
         raise ValueError(f"Qwen3-ASR does not support language '{language}'. Supported: {sorted(ISO_TO_QWEN)}")
-    return ISO_TO_QWEN[language]
+    mapped = ISO_TO_QWEN[language]
+    if model == FOURIER_MODEL and mapped != "English":
+        raise ValueError(
+            f"Oruk Fourier 2B is English-only and does not support language '{language}'. "
+            "Set whisper.language to 'en' (or 'auto'), or switch whisper.qwen_model to '1.7b' or '0.6b'."
+        )
+    return mapped
 
 
 def primary_language(name):
@@ -649,6 +708,7 @@ def asr_session(engine, repo_id):
         return
     source = _model_source(repo_id)
     model = None
+    processor = None
     try:
         if engine == "mlx":
             from mlx_audio.stt.utils import load_model
@@ -661,6 +721,40 @@ def asr_session(engine, repo_id):
                                      chunk_duration=WINDOW_SECONDS + 1, min_chunk_duration=MIN_WINDOW_SECONDS)
                 detected = language or ",".join(dict.fromkeys(l for l in (out.language or []) if l))
                 return detected, out.text.strip()
+        elif repo_id == MODELS["transformers"][FOURIER_MODEL]:
+            import torch
+            from transformers import AutoModelForMultimodalLM, AutoProcessor
+            device, dtype = _torch_device()
+            rprint(f"[cyan]🎮 Oruk Fourier 2B device:[/cyan] {device}, [cyan]dtype:[/cyan] {dtype}")
+            load_kwargs = {"revision": FOURIER_HF_REVISION} if source == repo_id else {}
+            processor = AutoProcessor.from_pretrained(source, **load_kwargs)
+            model = AutoModelForMultimodalLM.from_pretrained(source, dtype=dtype, **load_kwargs)
+            model.to(device).eval()
+
+            def run(clip, language, max_tokens=None):
+                check_cancel()
+                inputs = processor.apply_transcription_request(
+                    audio=clip,
+                    language=language,
+                    return_tensors="pt",
+                )
+                inputs = inputs.to(device, dtype)
+                with torch.inference_mode():
+                    output_ids = model.generate(
+                        **inputs,
+                        max_new_tokens=max_tokens or token_budget(len(clip) / SAMPLE_RATE),
+                    )
+                generated_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+                parsed = processor.decode(generated_ids, return_format="parsed")
+                if isinstance(parsed, list):
+                    parsed = parsed[0] if parsed else {}
+                if isinstance(parsed, dict):
+                    detected = language or parsed.get("language") or ""
+                    text = (parsed.get("transcription") or "").strip()
+                else:
+                    detected = language or ""
+                    text = str(parsed).strip()
+                return detected, text
         else:
             from qwen_asr import Qwen3ASRModel
             device, dtype = _torch_device()
@@ -678,6 +772,7 @@ def asr_session(engine, repo_id):
     finally:
         # Release the model even when a window fails, so a retry does not start out of memory.
         del model
+        del processor
         _free(engine)
 
 
@@ -707,24 +802,55 @@ def _align(engine, repo_id, jobs):
                             for w in out["words"]])
         return results
     source = _model_source(repo_id)
-    aligner, results = None, []
+    aligner, processor, results = None, None, []
     try:
         if engine == "mlx":
             from mlx_audio.stt.utils import load_model
             aligner = load_model(source)
-            align = lambda clip, text, lang: aligner.generate(clip, text=text, language=lang)
+            align = lambda clip, text, lang: [
+                (item.text, item.start_time, item.end_time)
+                for item in aligner.generate(clip, text=text, language=lang)
+            ]
+        elif repo_id == NATIVE_TRANSFORMERS_ALIGNER:
+            import torch
+            from transformers import AutoModelForTokenClassification, AutoProcessor
+            device, dtype = _torch_device()
+            processor = AutoProcessor.from_pretrained(source)
+            aligner = AutoModelForTokenClassification.from_pretrained(source, dtype=dtype)
+            aligner.to(device).eval()
+
+            def align(clip, text, lang):
+                inputs, word_lists = processor.prepare_forced_aligner_inputs(
+                    audio=clip,
+                    transcript=text,
+                    language=lang,
+                    return_tensors="pt",
+                )
+                inputs = inputs.to(device, dtype)
+                with torch.inference_mode():
+                    outputs = aligner(**inputs)
+                timestamps = processor.decode_forced_alignment(
+                    logits=outputs.logits,
+                    input_ids=inputs["input_ids"],
+                    word_lists=word_lists,
+                    timestamp_token_id=aligner.config.timestamp_token_id,
+                )[0]
+                return [(item["text"], item["start_time"], item["end_time"]) for item in timestamps]
         else:
             from qwen_asr import Qwen3ForcedAligner
             device, dtype = _torch_device()
             aligner = Qwen3ForcedAligner.from_pretrained(source, dtype=dtype, device_map=device)
-            align = lambda clip, text, lang: aligner.align(audio=(clip, SAMPLE_RATE), text=text, language=lang)[0]
+            align = lambda clip, text, lang: [
+                (item.text, item.start_time, item.end_time)
+                for item in aligner.align(audio=(clip, SAMPLE_RATE), text=text, language=lang)[0]
+            ]
         for clip, text, lang in jobs:
             check_cancel()
-            result = align(clip, text, lang)
-            results.append([(item.text, item.start_time, item.end_time) for item in result])
+            results.append(align(clip, text, lang))
     finally:
         align = None  # the lambda holds a reference to the aligner
         del aligner
+        del processor
         _free(engine)
     return results
 
@@ -735,12 +861,13 @@ def _align(engine, repo_id, jobs):
 
 @except_handler("Qwen ASR processing error:")
 def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
-    engine = resolve_engine()
     size = model_size()
+    engine = resolve_engine(model=size) if size == FOURIER_MODEL else resolve_engine()
     models = MODELS[engine]
     configured = load_key("whisper.language")
-    forced = qwen_language(configured)
-    rprint(f"[green]▶️ Qwen3-ASR {size} + ForcedAligner ({engine}) for segment {start:.2f}s to {end:.2f}s...[/green]")
+    forced = qwen_language(configured, model=size) if size == FOURIER_MODEL else qwen_language(configured)
+    label = "Oruk Fourier 2B (English, CC BY-NC 4.0)" if size == FOURIER_MODEL else f"Qwen3-ASR {size}"
+    rprint(f"[green]▶️ {label} + ForcedAligner ({engine}) for segment {start:.2f}s to {end:.2f}s...[/green]")
 
     raw = load_audio_segment(raw_audio_file, start, end)
     if vocal_audio_file == raw_audio_file:
@@ -795,7 +922,12 @@ def transcribe_audio(raw_audio_file, vocal_audio_file, start, end):
     todo = [(a, b, text, (primary_language(lang) or ISO_TO_QWEN[detected]))
             for a, b, lang, text in pieces if text]
     jobs = [(vocal[a:b], text, lang) for a, b, text, lang in todo]
-    aligned = _align(engine, models["aligner"], jobs) if jobs else []
+    aligner_repo = (
+        NATIVE_TRANSFORMERS_ALIGNER
+        if engine == "transformers" and size == FOURIER_MODEL
+        else models["aligner"]
+    )
+    aligned = _align(engine, aligner_repo, jobs) if jobs else []
     rprint(f"[cyan]⏱️ time align:[/cyan] {time.time() - t0:.2f}s")
 
     segments = []

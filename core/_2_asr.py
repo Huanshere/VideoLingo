@@ -55,7 +55,13 @@ def transcribe():
         if whisper["backend"] == "qwen":
             from core.asr_backend import qwen_asr_local
             whisper["qwen_model"] = qwen_asr_local.model_size(whisper.get("qwen_model"))
-            whisper["qwen_engine"] = qwen_asr_local.resolve_engine(whisper.get("qwen_engine"))
+            if whisper["qwen_model"] == qwen_asr_local.FOURIER_MODEL:
+                whisper["qwen_engine"] = qwen_asr_local.resolve_engine(
+                    whisper.get("qwen_engine"), model=whisper["qwen_model"]
+                )
+                qwen_asr_local.qwen_language(whisper.get("language"), model=whisper["qwen_model"])
+            else:
+                whisper["qwen_engine"] = qwen_asr_local.resolve_engine(whisper.get("qwen_engine"))
     key = cache.cache_key(media_file, whisper, demucs) if whisper.get("cache", True) else None
     cached = cache.read_result(key, "complete") if key else None
     vocal_audio = prepare_audio(media_file, media_type, demucs)
@@ -79,8 +85,12 @@ def transcribe():
     all_results = []
     language = None
     if runtime == "local" and whisper["backend"] == "qwen":
-        from core.asr_backend.qwen_asr_local import transcribe_audio as ts
-        rprint(f"[cyan]🎤 Transcribing audio with local Qwen3-ASR {whisper['qwen_model']} + ForcedAligner...[/cyan]")
+        from core.asr_backend import qwen_asr_local
+        ts = qwen_asr_local.transcribe_audio
+        if whisper["qwen_model"] == qwen_asr_local.FOURIER_MODEL:
+            rprint("[cyan]🎤 Transcribing audio with local Oruk Fourier 2B (English, CC BY-NC 4.0) + ForcedAligner...[/cyan]")
+        else:
+            rprint(f"[cyan]🎤 Transcribing audio with local Qwen3-ASR {whisper['qwen_model']} + ForcedAligner...[/cyan]")
     elif runtime == "local":
         from core.asr_backend.whisperX_local import transcribe_audio as ts
         rprint("[cyan]🎤 Transcribing audio with local WhisperX...[/cyan]")

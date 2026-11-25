@@ -872,6 +872,30 @@ def test_asr_install_summary_probe_failure_is_nonfatal(monkeypatch, tmp_path, ca
     assert 'Qwen3-ASR-1.7B' in output
 
 
+@pytest.mark.parametrize('system,machine,engine,expected_device,expect_mlx_note', [
+    ('Darwin', 'arm64', 'audiocpp', 'audio.cpp server', False),
+    ('Darwin', 'arm64', 'auto', 'Apple Silicon', True),
+    ('Linux', 'x86_64', 'audiocpp', 'audio.cpp server', False),
+])
+def test_asr_install_summary_handles_oruk_fourier_2b(
+    monkeypatch, tmp_path, capsys, system, machine, engine, expected_device, expect_mlx_note
+):
+    config = tmp_path / 'config.yaml'
+    config.write_text(
+        f'display_language: en\nwhisper:\n  qwen_model: oruk-fourier-2b\n  qwen_engine: {engine}\n',
+        encoding='utf-8',
+    )
+    monkeypatch.setattr(installer, 'ROOT', tmp_path)
+    monkeypatch.setattr(installer.platform, 'system', lambda: system)
+    monkeypatch.setattr(installer.platform, 'machine', lambda: machine)
+    installer.print_asr_summary()
+    output = capsys.readouterr().out
+    assert f'Device: {expected_device}' in output
+    assert 'Model: Oruk-Fourier-2B (English, CC BY-NC 4.0)' in output
+    assert '(8-bit)' not in output
+    assert ('not MLX' in output) is expect_mlx_note
+
+
 @pytest.mark.parametrize("external", [True, False])
 def test_mlx_cleanup_keeps_transitive_dependencies_and_handles_cycles(monkeypatch, external):
     _apple_silicon(monkeypatch)
