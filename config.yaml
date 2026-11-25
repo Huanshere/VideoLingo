@@ -34,7 +34,9 @@ whisper:
   # whisperx is not installed by the installer. Install its packages yourself from
   # docs/pages/docs/whisperx-manual.en-US.md, then set backend to whisperx.
   backend: 'qwen'
-  # *Qwen3-ASR size: "1.7b" (more accurate) or "0.6b" (faster, less memory)
+  # *Qwen3-ASR model: "1.7b" (default, more accurate), "0.6b" (faster, less memory),
+  # or "oruk-fourier-2b" (optional English-only Oruk Fourier 2B, CC BY-NC 4.0 noncommercial;
+  # requires qwen_engine: "audiocpp" or a separate transformers >= 5.21 environment)
   qwen_model: '1.7b'
   # *Qwen engine: "auto" (MLX on Apple Silicon, qwen-asr/transformers elsewhere), "mlx", "transformers"
   # or "audiocpp" (optional: a running audio.cpp server, see the start guide; never chosen by auto)

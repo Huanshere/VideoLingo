@@ -593,10 +593,24 @@ def print_asr_summary() -> None:
         config = {}
     whisper = config.get("whisper") or {}
     size = str(whisper.get("qwen_model", "1.7b")).lower() if isinstance(whisper, dict) else "1.7b"
-    model = f"Qwen3-ASR-{size.upper()}" if size in ("0.6b", "1.7b") else "Qwen3-ASR-1.7B"
+    engine = str(whisper.get("qwen_engine", "auto")).lower() if isinstance(whisper, dict) else "auto"
+    if size in ("0.6b", "1.7b"):
+        model = f"Qwen3-ASR-{size.upper()}"
+    elif size == "oruk-fourier-2b":
+        model = "Oruk-Fourier-2B (English, CC BY-NC 4.0)"
+    else:
+        model = "Qwen3-ASR-1.7B"
     device, precision, note = "Device information unavailable", None, None
     try:
-        if apple_silicon():
+        if size == "oruk-fourier-2b" and engine == "audiocpp":
+            device = "audio.cpp server"
+        elif size == "oruk-fourier-2b" and apple_silicon():
+            device = "Apple Silicon"
+            note = (
+                "Oruk Fourier 2B requires whisper.qwen_engine: audiocpp or a separate "
+                "transformers >= 5.21 environment (not MLX)."
+            )
+        elif apple_silicon():
             device, precision = "Apple Silicon / MLX", "8-bit"
         else:
             import torch

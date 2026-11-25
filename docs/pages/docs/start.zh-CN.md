@@ -158,7 +158,7 @@ uv run start.py
 
 本地识别默认使用 **Qwen3-ASR** 转写，再用 **Qwen3-ForcedAligner-0.6B** 生成词级时间轴。开启人声分离时，转写用原始音频，对齐用分离出的人声。
 
-- **模型大小**：`config.yaml` 的 `whisper.qwen_model`（侧栏不提供）。`1.7b`（默认）更准确；`0.6b` 更快、更省显存。对齐模型固定为 ForcedAligner-0.6B。
+- **模型大小**：`config.yaml` 的 `whisper.qwen_model`（侧栏不提供）。`1.7b`（默认）更准确；`0.6b` 更快、更省显存。对于纯英语非商业用途，可选 `oruk-fourier-2b` 使用 [Oruk Fourier 2B](https://huggingface.co/oruk/oruk-fourier-2b)（[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)），支持 `audiocpp` 或原生 `transformers >= 5.21`（不支持 `mlx` 或默认的 `qwen-asr 0.0.6` 环境）。对齐模型固定为 ForcedAligner-0.6B。
 - **推理引擎**：`whisper.qwen_engine: auto` 时自动选择，一般不需要改。`audiocpp` 是可选引擎，需要先运行 audio.cpp 服务端，见[下文](#audiocpp-engine)。
 
 | 平台 | 引擎 | 模型 | 说明 |
@@ -195,7 +195,9 @@ uv run start.py
 }
 ```
 
-3. 在 `config.yaml` 中设置 `whisper.qwen_engine: audiocpp`；服务端不在 `http://127.0.0.1:8080` 时再设置 `whisper.audiocpp_url`。`whisper.qwen_model` 决定使用 `Qwen3-ASR-1.7B` 还是 `Qwen3-ASR-0.6B`。
+3. 在 `config.yaml` 中设置 `whisper.qwen_engine: audiocpp`；服务端不在 `http://127.0.0.1:8080` 时再设置 `whisper.audiocpp_url`。`whisper.qwen_model` 决定使用 `Qwen3-ASR-1.7B`、`Qwen3-ASR-0.6B` 还是 `Oruk-Fourier-2B`。
+
+如需仅限英语非商业用途的 [Oruk Fourier 2B](https://huggingface.co/oruk/oruk-fourier-2b)（[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)），可用 audio.cpp 的模型管理器直接从 Hugging Face 下载锁定版本（`python3 tools/model_manager_v2.py install oruk_fourier_2b_safetensors --models-root models`），在 `server.json` 中与 `Qwen3-ForcedAligner-0.6B` 一同添加 `{"id": "Oruk-Fourier-2B", "family": "qwen3_asr", "path": "/path/to/models/Oruk-Fourier-2B", "task": "asr", "mode": "offline"}`，并设置 `whisper.qwen_model: oruk-fourier-2b`、`whisper.qwen_engine: audiocpp` 和 `whisper.language: en`。也可在单独的 `transformers >= 5.21` + `torch` 环境中（注意 Windows/Linux 默认依赖锁定 `qwen-asr 0.0.6` 与 `transformers < 5`，且该模型不支持 `mlx`）设置 `whisper.qwen_model: oruk-fourier-2b` 和 `whisper.qwen_engine: transformers`，直接从 Hugging Face 加载 `oruk/oruk-fourier-2b` 与 `Qwen/Qwen3-ForcedAligner-0.6B-hf`。
 
 使用这个引擎时每个窗口最长 90 秒，因为 audio.cpp 的强制对齐模型会拒绝约 115 秒及以上的片段。音频以 16 kHz WAV 通过 HTTP 发给服务端。识别缓存会把 audio.cpp 的结果和其他引擎分开，但不记录服务端用的是哪个 GGUF 文件或哪个 audio.cpp 版本：更换后请删除 `.cache/asr` 再重新识别。
 

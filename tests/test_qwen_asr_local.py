@@ -184,8 +184,15 @@ def test_model_source_prefers_complete_local_copy(monkeypatch, tmp_path):
 
 
 def test_model_table():
+    assert set(qwen.MODELS["mlx"]) == {"1.7b", "0.6b", "aligner"}
+    assert set(qwen.MODELS["transformers"]) == {"1.7b", "0.6b", qwen.FOURIER_MODEL, "aligner"}
+    assert set(qwen.MODELS["audiocpp"]) == {"1.7b", "0.6b", qwen.FOURIER_MODEL, "aligner"}
+    assert qwen.MODELS["transformers"][qwen.FOURIER_MODEL] == "oruk/oruk-fourier-2b"
+    assert qwen.MODELS["audiocpp"][qwen.FOURIER_MODEL] == "Oruk-Fourier-2B"
+    assert len(qwen.FOURIER_HF_REVISION) == 40
+    assert all(ch in "0123456789abcdef" for ch in qwen.FOURIER_HF_REVISION)
+    assert qwen.NATIVE_TRANSFORMERS_ALIGNER == "Qwen/Qwen3-ForcedAligner-0.6B-hf"
     for engine, models in qwen.MODELS.items():
-        assert set(models) == {"1.7b", "0.6b", "aligner"}
         assert "ForcedAligner-0.6B" in models["aligner"]
         assert all(("8bit" in repo) == (engine == "mlx") for repo in models.values())
 
@@ -1022,3 +1029,256 @@ def test_audiocpp_uses_windows_its_aligner_accepts(pipeline, monkeypatch):
     assert pipeline["calls"]["align"][1] == "Qwen3-ForcedAligner-0.6B"
     lengths = [seconds for _, seconds, _ in window_calls(pipeline)]
     assert sum(lengths) == pytest.approx(200) and max(lengths) <= qwen.AUDIOCPP_WINDOW_SECONDS < 115
+
+
+# ------------------------------------------------------------------
+# Optional Oruk Fourier 2B (English-only, CC BY-NC 4.0)
+# ------------------------------------------------------------------
+
+def test_fourier_model_size_and_english_only_language():
+    assert qwen.model_size("oruk-fourier-2b") == qwen.FOURIER_MODEL
+    assert qwen.model_size("ORUK-FOURIER-2B") == qwen.FOURIER_MODEL
+    assert qwen.qwen_language("en", model=qwen.FOURIER_MODEL) == "English"
+    assert qwen.qwen_language("auto", model=qwen.FOURIER_MODEL) is None
+    assert qwen.qwen_language(None, model=qwen.FOURIER_MODEL) is None
+    for code in ("zh", "ja", "es"):
+        with pytest.raises(ValueError, match="English-only"):
+            qwen.qwen_language(code, model=qwen.FOURIER_MODEL)
+
+
+def test_fourier_engine_resolution(platform_env, monkeypatch):
+    # audiocpp works cross-platform with no Python ML packages installed.
+    platform_env(False, set())
+    monkeypatch.setattr(qwen, "_transformers_version", lambda: None)
+    assert qwen.resolve_engine("audiocpp", model=qwen.FOURIER_MODEL) == "audiocpp"
+
+    # mlx is explicitly rejected even on Apple Silicon with mlx_audio installed.
+    platform_env(True, {"mlx_audio", "torch"})
+    monkeypatch.setattr(qwen, "_transformers_version", lambda: "5.21.0")
+    with pytest.raises(ValueError, match=r"not supported by the 'mlx' engine.*audiocpp.*5\.21"):
+        qwen.resolve_engine("mlx", model=qwen.FOURIER_MODEL)
+
+    # auto on Apple Silicon never selects mlx; uses native transformers >= 5.21 when present.
+    assert qwen.resolve_engine("auto", model=qwen.FOURIER_MODEL) == "transformers"
+    assert qwen.resolve_engine("transformers", model=qwen.FOURIER_MODEL) == "transformers"
+
+    # Dev / post-5.21 versions satisfy >= 5.21 (oruk/oruk-fourier-2b was exported with 5.21.0.dev0).
+    for version in ("5.21.0.dev0", "5.21.0", "5.24.1", "6.0.0"):
+        monkeypatch.setattr(qwen, "_transformers_version", lambda v=version: v)
+        assert qwen.resolve_engine("transformers", model=qwen.FOURIER_MODEL) == "transformers"
+
+    # Older transformers (< 5.21) or missing torch fail cleanly with guidance.
+    for installed, version in (
+        ({"torch", "qwen_asr"}, None),
+        ({"torch", "qwen_asr"}, "4.57.6"),
+        ({"torch", "mlx_audio"}, "5.14.0"),
+        ({"torch"}, "5.20.9"),
+        ({"qwen_asr"}, "5.21.0"),
+    ):
+        platform_env(True, installed)
+        monkeypatch.setattr(qwen, "_transformers_version", lambda v=version: v)
+        with pytest.raises(ImportError, match=r"transformers >= 5\.21.*audiocpp"):
+            qwen.resolve_engine("transformers", model=qwen.FOURIER_MODEL)
+        with pytest.raises(ImportError, match=r"transformers >= 5\.21.*audiocpp"):
+            qwen.resolve_engine("auto", model=qwen.FOURIER_MODEL)
+
+
+def test_fourier_resolve_engine_reads_configured_model_when_unpassed(platform_env, monkeypatch):
+    platform_env(True, {"mlx_audio"})
+    monkeypatch.setattr(qwen, "_transformers_version", lambda: "5.14.0")
+    monkeypatch.setattr(
+        qwen,
+        "load_key_or",
+        lambda key, default: {"whisper.qwen_engine": "auto", "whisper.qwen_model": qwen.FOURIER_MODEL}.get(key, default),
+    )
+    with pytest.raises(ImportError, match=r"transformers >= 5\.21"):
+        qwen.resolve_engine()
+
+
+def test_fourier_audiocpp_end_to_end_uses_fourier_model_id_and_90s_windows(audiocpp, monkeypatch):
+    audio = {"raw.wav": ramp(120, RAW_BASE), "vocal.mp3": ramp(120, VOCAL_BASE)}
+    monkeypatch.setattr(qwen, "model_size", lambda requested=None: qwen.FOURIER_MODEL)
+    monkeypatch.setattr(qwen, "resolve_engine", lambda requested=None, model=None: "audiocpp")
+    monkeypatch.setattr(qwen, "load_key", lambda key: {"whisper.language": "en"}[key])
+    monkeypatch.setattr(qwen, "load_audio_segment", lambda path, start, end: audio[path])
+    monkeypatch.setattr(qwen, "trim_speech_windows", lambda raw, windows: windows)
+
+    result = qwen.transcribe_audio("raw.wav", "vocal.mp3", 10, 130)
+
+    asr_calls = [call for call in audiocpp if "text" not in call[2]]
+    forced_asr_calls = [call for call in asr_calls if "language" in call[2]]
+    align_calls = [call for call in audiocpp if "text" in call[2]]
+    assert len(forced_asr_calls) == 2 and len(align_calls) == 2
+    assert all(call[1] == "Oruk-Fourier-2B" for call in asr_calls)
+    assert all(call[2]["language"] == "English" for call in forced_asr_calls)
+    assert sum(call[3] for call in forced_asr_calls) == 120 * SR
+    assert all(call[3] <= qwen.AUDIOCPP_WINDOW_SECONDS * SR for call in forced_asr_calls)
+    assert all(call[1] == "Qwen3-ForcedAligner-0.6B" for call in align_calls)
+    assert result["language"] == "en"
+    assert [seg["text"] for seg in result["segments"]] == ["Hello, world.", "Hello, world."]
+    assert cache.valid_result(result)
+
+
+def _install_fake_native_transformers(monkeypatch, parsed_output=None, align_output=None):
+    """Install lightweight fake transformers + torch modules to exercise the native >= 5.21 path."""
+    events = {"processor_loads": [], "asr_loads": [], "aligner_loads": [], "generate": [], "align": []}
+
+    class FakeTensor:
+        def __init__(self, shape):
+            self.shape = shape
+
+        def __getitem__(self, item):
+            # output_ids[:, prompt_len:] -> return a slice marker with remaining length
+            if isinstance(item, tuple) and len(item) == 2 and isinstance(item[1], slice):
+                start = item[1].start or 0
+                return FakeTensor((self.shape[0], self.shape[1] - start))
+            return self
+
+    class FakeBatch(dict):
+        def to(self, device, dtype):
+            events["last_to"] = (device, dtype)
+            return self
+
+    class FakeProcessor:
+        def apply_transcription_request(self, audio, language=None, return_tensors=None):
+            events["last_request"] = {"frames": len(audio), "language": language, "return_tensors": return_tensors}
+            return FakeBatch({"input_ids": FakeTensor((1, 4)), "input_features": FakeTensor((1, 128, 10))})
+
+        def decode(self, generated_ids, return_format="raw"):
+            events["last_decode"] = {"shape": generated_ids.shape, "return_format": return_format}
+            if parsed_output is not None:
+                return parsed_output
+            return [{"language": "English", "transcription": " Hello, Fourier. "}]
+
+        def prepare_forced_aligner_inputs(self, audio, transcript, language=None, return_tensors=None):
+            events["align"].append({"frames": len(audio), "transcript": transcript, "language": language,
+                                    "return_tensors": return_tensors})
+            return FakeBatch({"input_ids": FakeTensor((1, 6))}), [["Hello", "Fourier"]]
+
+        def decode_forced_alignment(self, logits, input_ids, word_lists, timestamp_token_id):
+            events["last_align_decode"] = {"logits": logits, "word_lists": word_lists,
+                                           "timestamp_token_id": timestamp_token_id}
+            if align_output is not None:
+                return align_output
+            return [[{"text": "Hello", "start_time": 0.1, "end_time": 0.4},
+                     {"text": "Fourier", "start_time": 0.5, "end_time": 0.9}]]
+
+    class FakeASRModel:
+        def to(self, device):
+            events["asr_device"] = device
+            return self
+
+        def eval(self):
+            events["asr_eval"] = True
+            return self
+
+        def generate(self, **kwargs):
+            events["generate"].append(kwargs["max_new_tokens"])
+            return FakeTensor((1, 12))
+
+    class FakeAlignerModel:
+        config = SimpleNamespace(timestamp_token_id=999)
+
+        def to(self, device):
+            events["aligner_device"] = device
+            return self
+
+        def eval(self):
+            events["aligner_eval"] = True
+            return self
+
+        def __call__(self, **kwargs):
+            return SimpleNamespace(logits="fake-logits")
+
+    class FakeAutoProcessor:
+        @staticmethod
+        def from_pretrained(source, **kwargs):
+            events["processor_loads"].append((source, kwargs))
+            return FakeProcessor()
+
+    class FakeAutoModelForMultimodalLM:
+        @staticmethod
+        def from_pretrained(source, **kwargs):
+            events["asr_loads"].append((source, kwargs))
+            return FakeASRModel()
+
+    class FakeAutoModelForTokenClassification:
+        @staticmethod
+        def from_pretrained(source, **kwargs):
+            events["aligner_loads"].append((source, kwargs))
+            return FakeAlignerModel()
+
+    fake_transformers = types.ModuleType("transformers")
+    fake_transformers.AutoProcessor = FakeAutoProcessor
+    fake_transformers.AutoModelForMultimodalLM = FakeAutoModelForMultimodalLM
+    fake_transformers.AutoModelForTokenClassification = FakeAutoModelForTokenClassification
+
+    @contextmanager
+    def inference_mode():
+        yield
+
+    fake_torch = types.ModuleType("torch")
+    fake_torch.float32 = "float32"
+    fake_torch.bfloat16 = "bfloat16"
+    fake_torch.float16 = "float16"
+    fake_torch.inference_mode = inference_mode
+    fake_torch.cuda = SimpleNamespace(is_available=lambda: False, empty_cache=lambda: None)
+
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setattr(qwen, "check_cancel", lambda: None)
+    return events
+
+
+def test_fourier_native_transformers_session_pins_revision_on_hub_and_skips_locally(monkeypatch, tmp_path):
+    monkeypatch.setattr(qwen, "load_key", lambda key: str(tmp_path))
+    events = _install_fake_native_transformers(monkeypatch)
+    freed = []
+    monkeypatch.setattr(qwen, "_free", freed.append)
+
+    with qwen.asr_session("transformers", "oruk/oruk-fourier-2b") as run:
+        assert run(CLIPS[0], "English", 64) == ("English", "Hello, Fourier.")
+        assert run(CLIPS[0], None) == ("English", "Hello, Fourier.")
+
+    assert events["processor_loads"] == [("oruk/oruk-fourier-2b", {"revision": qwen.FOURIER_HF_REVISION})]
+    assert events["asr_loads"] == [("oruk/oruk-fourier-2b", {"dtype": "float32", "revision": qwen.FOURIER_HF_REVISION})]
+    assert events["asr_device"] == "cpu" and events["asr_eval"] is True
+    assert events["generate"] == [64, qwen.token_budget(1)]
+    assert events["last_decode"] == {"shape": (1, 8), "return_format": "parsed"}
+    assert freed == ["transformers"]
+
+    # Local _model_cache/oruk-fourier-2b copy must load without Hub revision.
+    local_dir = tmp_path / "oruk-fourier-2b"
+    local_dir.mkdir()
+    (local_dir / "config.json").write_text("{}", encoding="utf-8")
+    local_events = _install_fake_native_transformers(
+        monkeypatch, parsed_output={"language": None, "transcription": "Forced text."}
+    )
+    with qwen.asr_session("transformers", "oruk/oruk-fourier-2b") as run:
+        assert run(CLIPS[0], "English") == ("English", "Forced text.")
+    assert local_events["processor_loads"] == [(str(local_dir.resolve()), {})]
+    assert local_events["asr_loads"] == [(str(local_dir.resolve()), {"dtype": "float32"})]
+
+
+def test_fourier_native_transformers_align_and_transcribe_end_to_end(monkeypatch, tmp_path):
+    monkeypatch.setattr(qwen, "load_key", lambda key: {"whisper.language": "en", "model_dir": str(tmp_path)}[key])
+    monkeypatch.setattr(qwen, "model_size", lambda requested=None: qwen.FOURIER_MODEL)
+    monkeypatch.setattr(qwen, "resolve_engine", lambda requested=None, model=None: "transformers")
+    monkeypatch.setattr(qwen, "load_audio_segment", lambda path, start, end: CLIPS[0])
+    monkeypatch.setattr(qwen, "trim_speech_windows", lambda raw, windows: windows)
+    events = _install_fake_native_transformers(monkeypatch)
+    freed = []
+    monkeypatch.setattr(qwen, "_free", freed.append)
+
+    result = qwen.transcribe_audio("raw.wav", "vocal.mp3", 5, 6)
+
+    assert events["asr_loads"][0][0] == "oruk/oruk-fourier-2b"
+    assert events["aligner_loads"] == [(qwen.NATIVE_TRANSFORMERS_ALIGNER, {"dtype": "float32"})]
+    assert events["align"] == [{"frames": SR, "transcript": "Hello, Fourier.", "language": "English",
+                                "return_tensors": "pt"}]
+    assert events["last_align_decode"]["timestamp_token_id"] == 999
+    assert freed == ["transformers", "transformers"]
+    assert result["language"] == "en"
+    assert result["segments"][0]["text"] == "Hello, Fourier."
+    assert [w["word"] for w in result["segments"][0]["words"]] == ["Hello,", "Fourier."]
+    assert cache.valid_result(result)
